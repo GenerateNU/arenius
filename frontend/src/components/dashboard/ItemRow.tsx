@@ -1,5 +1,5 @@
 import React from "react";
-import { Item } from "@/app/types";
+import { Item } from "@/types";
 
 type ItemTableRowProps = Item;
 
