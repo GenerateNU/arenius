@@ -1,11 +1,9 @@
 package storage
 
 import (
+	"backend/internal/config"
 	"context"
-	"fmt"
 	"log"
-	"arenius/internal/config"
-	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -21,7 +19,7 @@ func (r *Repository) Close() error {
 	return nil
 }
 
-// Establishes a sustained connection to the PostgreSQL database using pooling. 
+// Establishes a sustained connection to the PostgreSQL database using pooling.
 func ConnectDatabase(config config.DB) *pgxpool.Pool {
 	dbConfig, err := pgxpool.ParseConfig(config.Connection())
 	if err != nil {
@@ -44,9 +42,10 @@ func ConnectDatabase(config config.DB) *pgxpool.Pool {
 }
 
 func NewRepository(config config.DB) *Repository {
-	db := ConnectDatabase(config)
+	// db := ConnectDatabase(config)
 
 	return &Repository{
-		DB: db,
+		// DB: db,
+		DB: nil,
 	}
 }

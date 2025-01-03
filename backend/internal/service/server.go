@@ -1,12 +1,13 @@
 package service
 
 import (
-	"arenius/internal/config"
-	"arenius/internal/controllers"
-	storage "arenius/internal/storage/postgres"
+	"backend/internal/config"
+	storage "backend/internal/storage/postgres"
+	"net/http"
 
 	go_json "github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -36,11 +37,11 @@ func SetupApp(config config.Config, dbPool *pgxpool.Pool) *fiber.App {
 
 	// Use logging middleware
 	app.Use(logger.New())
-	
+
 	// Use CORS middleware to configure CORS and handle preflight/OPTIONS requests.
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*", 						// Allow any source domain to access API
-		AllowMethods: "GET,POST,PUT,DELETE",    // Using these methods.
+		AllowOrigins: "*",                   // Allow any source domain to access API
+		AllowMethods: "GET,POST,PUT,DELETE", // Using these methods.
 	}))
 
 	app.Get("/health", func(c *fiber.Ctx) error {

@@ -1,14 +1,21 @@
 package main
 
 import (
+	"backend/internal/config"
+	"backend/internal/service"
 	"context"
 	"log"
+	"log/slog"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/joho/godotenv"
 	"github.com/sethvargo/go-envconfig"
 )
 
 func main() {
-	err := godotenv.Load()
+	err := godotenv.Load("../.env")
 	if err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
 		return
@@ -20,14 +27,15 @@ func main() {
 	}
 
 	app := service.InitApp(config)
-	
-	// Pushing the closing of the database connection onto a 
+
+	// Pushing the closing of the database connection onto a
 	// stack of statements to be executed when this function returns.
 	defer app.Repo.Close()
-	
+
+	port := config.Application.Port
 	// Listen for connections with a goroutine.
 	go func() {
-		if err := app.Listen(fmt.Sprintf(":%d", config.Application.Port)); err != nil {
+		if err := app.Server.Listen(":" + port); err != nil {
 			log.Fatalf("Failed to start server: %v", err)
 		}
 	}()
