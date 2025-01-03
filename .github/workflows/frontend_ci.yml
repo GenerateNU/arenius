@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - "main"
-      - "frontend-setup-v2"
     paths:
       - "frontend/**"
   pull_request:
