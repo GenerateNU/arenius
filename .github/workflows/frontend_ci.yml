@@ -15,11 +15,13 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          path: frontend
 
       - name: Use Node.js
         uses: actions/setup-node@v3
@@ -34,6 +36,10 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
