@@ -1,6 +1,7 @@
-import { Item } from "../types";
+import { Item } from "../app/types";
 
 export async function fetchDashboardItems(): Promise<Item[]> {
+  // real API call would go here. for now, mock data
   return [
     { name: "Lumber", description: "Lumber from trees", price: 5000 },
     {

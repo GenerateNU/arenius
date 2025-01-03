@@ -9,10 +9,14 @@ export default function ItemTableRow({
   price,
 }: ItemTableRowProps) {
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className={styles.container}>
       <p>{name}</p>
       <p>{description}</p>
       <p>{price}</p>
     </div>
   );
 }
+
+const styles = {
+  container: "grid grid-cols-3 gap-2",
+};

@@ -22,7 +22,6 @@ export default function Navbar() {
 const styles = {
   container: "flex justify-between py-8 px-16 bg-gray-100",
   logo: "flex text-4xl items-center gap-4",
-  logoEmoji: "",
   logoText: "font-bold",
   dashboardButton: "text-2xl rounded-md bg-primary px-6 py-1",
   dashboardButtonText: "text-white",

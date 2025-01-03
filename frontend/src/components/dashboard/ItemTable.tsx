@@ -1,6 +1,6 @@
 import React from "react";
 import ItemRow from "./ItemRow";
-import { fetchDashboardItems } from "@/app/services/dashboard";
+import { fetchDashboardItems } from "@/services/dashboard";
 
 export default async function ItemTable() {
   const data = await fetchDashboardItems();
