@@ -1,0 +1,47 @@
+name: backend-lint
+on:
+  push:
+    branches:
+      - "**"
+    paths:
+      - "backend/**"
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  backend-lint:
+    name: backend-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          working-directory: ./backend/
+          args: --timeout=5m
+
+  	- name: Format
+        run: gofmt -w ./...
+
+  backend-tests:
+    name: Run backend-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Test Backend
+        run: |
+          cd backend
+          go test ./...
