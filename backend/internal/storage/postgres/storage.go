@@ -20,25 +20,28 @@ func (r *Repository) Close() error {
 }
 
 // Establishes a sustained connection to the PostgreSQL database using pooling.
-func ConnectDatabase(config config.DB) *pgxpool.Pool {
+func ConnectDatabase(ctx context.Context, config config.DB) (*pgxpool.Pool, error) {
 	dbConfig, err := pgxpool.ParseConfig(config.Connection())
 	if err != nil {
 		log.Fatal("Failed to create a config, error: ", err)
+		return nil, err
 	}
 
 	conn, err := pgxpool.NewWithConfig(context.Background(), dbConfig)
 	if err != nil {
 		log.Fatal("Unable to connect to database: ", err)
+		return nil, err
 	}
 
 	err = conn.Ping(context.Background())
 	if err != nil {
 		log.Fatal("Ping failed:", err)
+		return nil, err
 	}
 
 	log.Print("Connected to database!")
 
-	return conn
+	return conn, nil
 }
 
 func NewRepository(config config.DB) *Repository {
