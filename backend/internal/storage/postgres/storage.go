@@ -23,19 +23,16 @@ func (r *Repository) Close() error {
 func ConnectDatabase(ctx context.Context, config config.DB) (*pgxpool.Pool, error) {
 	dbConfig, err := pgxpool.ParseConfig(config.Connection())
 	if err != nil {
-		log.Fatal("Failed to create a config, error: ", err)
 		return nil, err
 	}
 
-	conn, err := pgxpool.NewWithConfig(context.Background(), dbConfig)
+	conn, err := pgxpool.NewWithConfig(ctx, dbConfig)
 	if err != nil {
-		log.Fatal("Unable to connect to database: ", err)
 		return nil, err
 	}
 
-	err = conn.Ping(context.Background())
+	err = conn.Ping(ctx)
 	if err != nil {
-		log.Fatal("Ping failed:", err)
 		return nil, err
 	}
 
