@@ -1,4 +1,4 @@
-# arenius
+# Arenius
 
 Arenius empowers small-to-medium businesses with an affordable and intuitive platform to track, manage and reduce their carbon footprint to increase their bottom lines and contribute to a healthier planet.
 
@@ -22,3 +22,4 @@ With node installed, do the following in your terminal:
 1. `cd frontend`
 2. `npm run dev`
 3. Open [http://localhost:3000](http://localhost:3000) in your browser
+
