@@ -5,11 +5,13 @@ on:
       - "main"
     paths:
       - "frontend/**"
+      - ".github/workflows/frontend.yaml"
   pull_request:
     branches:
       - "main"
     paths:
       - "frontend/**"
+      - ".github/workflows/frontend.yaml"
 
 jobs:
   lint:
