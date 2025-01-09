@@ -26,6 +26,7 @@ For further development and testing, install [Postman](https://www.postman.com/d
 ## Learn More
 - [Go Modules](https://faun.pub/understanding-go-mod-and-go-sum-5fd7ec9bcc34) - article about go.mod and go.sum.
 - [Tour of Go](https://go.dev/tour/welcome/1) - guided tour of Golang.
+- [Go Video](https://youtu.be/8uiZC0l4Ajw?si=YJq6z9nqTN-B-c8c) - fantastic build up of data structures and syntax to write a complicated API.
 - [Fiber Framework](https://docs.gofiber.io/) - web framework, similar to Express, SpringBoot, Flask, FastAPI, etc.
 - [Docker Engine](https://docs.docker.com/engine/) - documentation for docker building and running docker containers.    
 - [pgx](https://pkg.go.dev/github.com/jackc/pgx) - driver and toolkit for PostgreSQL which can be used to interact with Supabase.
