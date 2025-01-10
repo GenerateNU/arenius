@@ -25,7 +25,7 @@ type App struct {
 // Initialize the App union type containing a fiber app and a repository.
 func InitApp(config config.Config) *App {
 	repo := postgres.NewRepository(config.DB)
-	app := SetupApp(config, *repo)
+	app := SetupApp(config, repo)
 
 	return &App{
 		Server: app,
@@ -34,7 +34,7 @@ func InitApp(config config.Config) *App {
 }
 
 // Setup the fiber app with the specified configuration and database.
-func SetupApp(config config.Config, repo storage.Repository) *fiber.App {
+func SetupApp(config config.Config, repo *storage.Repository) *fiber.App {
 	app := fiber.New(fiber.Config{
 		JSONEncoder:  go_json.Marshal,
 		JSONDecoder:  go_json.Unmarshal,
