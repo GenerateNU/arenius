@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
+
+	"github.com/joho/godotenv"
 )
 
 const (
@@ -32,11 +35,17 @@ type Client struct {
 // NewClient returns an instantiated instance of a client
 // with the ability to override values with various options
 func NewClient(opts ...clientOpts) *Client {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file")
+	}
+
 	u, _ := url.Parse(defaultBaseURL)
 	c := &Client{
 		client:    &http.Client{},
 		baseURL:   u,
-		userAgent: "go-climatiq",
+		userAgent: defaultUserAgent,
+		token:     os.Getenv("CLIMATIQ_KEY"),
 	}
 
 	// add options
@@ -47,36 +56,6 @@ func NewClient(opts ...clientOpts) *Client {
 	return c
 }
 
-// WithBaseURL is an option to overwrite the BaseURL
-func WithBaseURL(s string) clientOpts {
-	u, _ := url.Parse(s)
-	return func(c *Client) {
-		c.baseURL = u
-	}
-}
-
-// WithUserAgent is an option to overwrite the UserAgent
-func WithUserAgent(u string) clientOpts {
-	return func(c *Client) {
-		c.userAgent = u
-	}
-}
-
-// WithClient is an option to overwrite the default client
-func WithClient(cli *http.Client) clientOpts {
-	return func(c *Client) {
-		c.client = cli
-	}
-}
-
-// WithAuthtoken is an option to add an API KEY as a bearer
-// token to requests
-func WithAuthToken(t string) clientOpts {
-	return func(c *Client) {
-		c.token = t
-	}
-}
-
 // Do is used to make the actual http requests
 func (c *Client) Do(r *http.Request) (*http.Response, error) {
 	// Set JSON headers
@@ -85,6 +64,9 @@ func (c *Client) Do(r *http.Request) (*http.Response, error) {
 
 	// Add authorization header with API token
 	r.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.token))
+
+	// Add user agent header
+	r.Header.Set("User-Agent", c.userAgent)
 
 	return c.client.Do(r)
 }
