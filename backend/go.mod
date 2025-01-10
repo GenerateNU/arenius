@@ -1,4 +1,4 @@
-module backend
+module arenius
 
 go 1.23
 
