@@ -3,13 +3,11 @@ package service
 import (
 	"arenius/internal/config"
 	"arenius/internal/errs"
-
+	"arenius/internal/service/handler/transaction"
+	"arenius/internal/storage"
 	"arenius/internal/storage/postgres"
 
-	"arenius/internal/storage"
 	"net/http"
-
-	"arenius/internal/service/handler/transaction"
 
 	go_json "github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
