@@ -7,6 +7,7 @@ import (
 	"arenius/internal/storage"
 	"arenius/internal/storage/postgres"
 
+	"context"
 	"net/http"
 
 	go_json "github.com/goccy/go-json"
@@ -24,7 +25,8 @@ type App struct {
 
 // Initialize the App union type containing a fiber app and a repository.
 func InitApp(config config.Config) *App {
-	repo := postgres.NewRepository(config.DB)
+	ctx := context.Background()
+	repo := postgres.NewRepository(ctx, config.DB)
 	app := SetupApp(config, repo)
 
 	return &App{

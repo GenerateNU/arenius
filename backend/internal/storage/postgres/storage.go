@@ -11,21 +11,21 @@ import (
 )
 
 // Establishes a sustained connection to the PostgreSQL database using pooling.
-func ConnectDatabase(config config.DB) (*pgxpool.Pool, error) {
+func ConnectDatabase(ctx context.Context, config config.DB) (*pgxpool.Pool, error) {
 	dbConfig, err := pgxpool.ParseConfig(config.Connection())
 	if err != nil {
 		log.Fatalf("Failed to connect to the database: %v", err)
 		return nil, err
 	}
 
-	conn, err := pgxpool.NewWithConfig(context.Background(), dbConfig)
+	conn, err := pgxpool.NewWithConfig(ctx, dbConfig)
 	if err != nil {
 		return nil, err
 	}
 
 	defer conn.Close()
 
-	err = conn.Ping(context.Background())
+	err = conn.Ping(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -34,8 +34,8 @@ func ConnectDatabase(config config.DB) (*pgxpool.Pool, error) {
 	return conn, nil
 }
 
-func NewRepository(config config.DB) *storage.Repository {
-	db, err := ConnectDatabase(config)
+func NewRepository(ctx context.Context, config config.DB) *storage.Repository {
+	db, err := ConnectDatabase(ctx, config)
 	if err != nil {
 		log.Fatalf("Failed to connect to the database: %v", err)
 	}
