@@ -31,8 +31,7 @@ func main() {
 	// Pushing the closing of the database connection onto a
 	// stack of statements to be executed when this function returns.
 
-	// **Uncomment after repo connection is actually made**
-	// defer app.Repo.Close()
+	defer app.Repo.Close()
 
 	port := config.Application.Port
 	// Listen for connections with a goroutine.

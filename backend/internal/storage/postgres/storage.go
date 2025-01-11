@@ -23,8 +23,6 @@ func ConnectDatabase(ctx context.Context, config config.DB) (*pgxpool.Pool, erro
 		return nil, err
 	}
 
-	defer conn.Close()
-
 	err = conn.Ping(ctx)
 	if err != nil {
 		return nil, err
