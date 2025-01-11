@@ -29,9 +29,6 @@ jobs:
           working-directory: ./backend/
           args: --timeout=5m
 
-  	- name: Format
-        run: gofmt -w ./...
-
   backend-tests:
     name: Run backend-tests
     runs-on: ubuntu-latest

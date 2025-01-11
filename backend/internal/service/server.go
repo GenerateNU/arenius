@@ -1,9 +1,13 @@
 package service
 
 import (
-	"backend/internal/config"
-	"backend/internal/errs"
-	storage "backend/internal/storage/postgres"
+	"arenius/internal/config"
+	"arenius/internal/errs"
+	"arenius/internal/service/handler/transaction"
+	"arenius/internal/storage"
+	"arenius/internal/storage/postgres"
+
+	"context"
 	"net/http"
 
 	go_json "github.com/goccy/go-json"
@@ -12,7 +16,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type App struct {
@@ -22,8 +25,9 @@ type App struct {
 
 // Initialize the App union type containing a fiber app and a repository.
 func InitApp(config config.Config) *App {
-	repo := storage.NewRepository(config.DB)
-	app := SetupApp(config, repo.DB)
+	ctx := context.Background()
+	repo := postgres.NewRepository(ctx, config.DB)
+	app := SetupApp(config, repo)
 
 	return &App{
 		Server: app,
@@ -32,7 +36,7 @@ func InitApp(config config.Config) *App {
 }
 
 // Setup the fiber app with the specified configuration and database.
-func SetupApp(config config.Config, dbPool *pgxpool.Pool) *fiber.App {
+func SetupApp(config config.Config, repo *storage.Repository) *fiber.App {
 	app := fiber.New(fiber.Config{
 		JSONEncoder:  go_json.Marshal,
 		JSONDecoder:  go_json.Unmarshal,
@@ -56,6 +60,11 @@ func SetupApp(config config.Config, dbPool *pgxpool.Pool) *fiber.App {
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.SendStatus(http.StatusOK)
+	})
+
+	transactionHandler := transaction.NewHandler(repo.Transaction)
+	app.Route("/transaction", func(r fiber.Router) {
+		r.Post("/", transactionHandler.CreateTransaction)
 	})
 
 	return app

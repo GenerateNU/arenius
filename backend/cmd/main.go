@@ -1,8 +1,8 @@
 package main
 
 import (
-	"backend/internal/config"
-	"backend/internal/service"
+	"arenius/internal/config"
+	"arenius/internal/service"
 	"context"
 	"log"
 	"log/slog"
