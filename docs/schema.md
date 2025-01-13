@@ -23,7 +23,7 @@ The following pathway allows you to make and test schema changes locally via mig
 
 After script is approved/merged:
 
-0. If this is your first time pushing to our shared database, you'll need to link the supabase-cli to our specific project. Do this via `supabase link --project-ref [PROJECT-REF-VALUE]`
+0. If this is your first time pushing to our shared database, you might need to link the supabase-cli to our specific project. Do this via `supabase link --project-ref [PROJECT-REF-VALUE]`
    - Our specific project ref can be found in the Supabase UI (look at the string in the URL following `/project/` or slack a TL if you're stuck)
    - It will also prompt you for a DB password - slack a TL to get this
    - It'll also prompt you to log in to Supabase
