@@ -2,20 +2,27 @@
 
 ## Description
 
-<!--- Describe your changes in detail -->
-
 [Link to Ticket](insert the link to your ticket inside the parenthesis here)
+
+<!--- Describe your changes at a high-level -->
+
 
 ## How Has This Been Tested?
 
-<!--- Please describe in detail how you tested your changes. -->
+#### Backend PRs
+<!--- Please include a URL for the success case. Treat this as a reference for future developers - people should be able to use this to successfully use your endpoint later on! -->
+Postman URL here:
+
+Body parameters (if required):
+
+Postman/Supabase screenshots:
+
+#### Frontend PRs
+Page route (and description of to get to this flow if necessary):
+
+Screenshots/screen recording:
+
 
 ## Checklist:
-
 - [ ] I have performed a self-review of my code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-
-## Screenshots:
-
-<!--- If working on a backend ticket, screenshots or a walkthrough of successful API calls are included. -->
-<!--- If working on a frontend ticket, screenshots/recording of new screens or functionality are included. -->
+- [ ] I have included either a Postman URL for my endpoint(s), and/or screenshots of the frontend
