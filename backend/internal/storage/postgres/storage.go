@@ -1,28 +1,20 @@
-package storage
+package postgres
 
 import (
-	"backend/internal/config"
+	"arenius/internal/config"
+	"arenius/internal/storage"
+
 	"context"
 	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// Repository storage of all repositories.
-type Repository struct {
-	DB *pgxpool.Pool
-}
-
-// Closes the pooled connection for cleanup and resource management.
-func (r *Repository) Close() error {
-	r.DB.Close()
-	return nil
-}
-
 // Establishes a sustained connection to the PostgreSQL database using pooling.
 func ConnectDatabase(ctx context.Context, config config.DB) (*pgxpool.Pool, error) {
 	dbConfig, err := pgxpool.ParseConfig(config.Connection())
 	if err != nil {
+		log.Fatalf("Failed to connect to the database: %v", err)
 		return nil, err
 	}
 
@@ -37,15 +29,14 @@ func ConnectDatabase(ctx context.Context, config config.DB) (*pgxpool.Pool, erro
 	}
 
 	log.Print("Connected to database!")
-
 	return conn, nil
 }
 
-func NewRepository(config config.DB) *Repository {
-	// db := ConnectDatabase(config)
-
-	return &Repository{
-		// DB: db,
-		DB: nil,
+func NewRepository(ctx context.Context, config config.DB) *storage.Repository {
+	db, err := ConnectDatabase(ctx, config)
+	if err != nil {
+		log.Fatalf("Failed to connect to the database: %v", err)
 	}
+
+	return storage.NewRepository(db)
 }
