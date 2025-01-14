@@ -1,6 +1,8 @@
 package transaction
 
-import "arenius/internal/storage"
+import (
+	"arenius/internal/storage"
+)
 
 type Handler struct {
 	transactionRepository storage.TransactionRepository
