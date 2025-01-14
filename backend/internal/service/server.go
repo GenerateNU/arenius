@@ -4,6 +4,7 @@ import (
 	"arenius/internal/config"
 	"arenius/internal/errs"
 	"arenius/internal/service/handler/transaction"
+	"arenius/internal/service/handler/lineitem"
 	"arenius/internal/storage"
 	"arenius/internal/storage/postgres"
 
@@ -65,6 +66,11 @@ func SetupApp(config config.Config, repo *storage.Repository) *fiber.App {
 	transactionHandler := transaction.NewHandler(repo.Transaction)
 	app.Route("/transaction", func(r fiber.Router) {
 		r.Post("/", transactionHandler.CreateTransaction)
+	})
+
+	lineItemHandler := lineitem.NewHandler(repo.LineItem)
+	app.Route("/lineitem", func(r fiber.Router) {
+		r.Get("/", lineItemHandler.GetLineItems)
 	})
 
 	return app

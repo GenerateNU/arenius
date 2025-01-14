@@ -1,3 +1,9 @@
+DELETE FROM line_item;
+
+DELETE FROM transaction;
+
+DELETE FROM company;
+
 INSERT INTO transaction (company_id, bank_transaction_id, contact_id, sub_total, total_tax, total, currency_code, created_at, imported_at)
 VALUES
     ('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', 1, 1000.00, 100.00, 1100.00, 'USD', '2023-10-10T14:48:00Z', '2023-10-10T14:48:00Z'),
