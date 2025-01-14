@@ -15,7 +15,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	query := `
 		SELECT id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor, amount, unit, co2, scope
 		FROM line_item
-		ORDER BY id
+		ORDER BY date
 		LIMIT $1 OFFSET $2`
 
 	offset := pagination.GetOffset()
