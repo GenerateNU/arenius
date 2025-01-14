@@ -10,8 +10,7 @@ import (
 )
 
 const (
-	defaultBaseURL   = "https://api.climatiq.io/"
-	defaultUserAgent = "go-climatiq"
+	defaultBaseURL = "https://api.climatiq.io/"
 )
 
 type clientOpts func(*Client)
@@ -24,9 +23,6 @@ type Client struct {
 	// base URL for API requests.
 	// defaults to the public climatiq api
 	baseURL *url.URL
-
-	// user agent used to make requests
-	userAgent string
 
 	// token is used for authentication to the climatiq API
 	token string
@@ -42,10 +38,9 @@ func NewClient(opts ...clientOpts) *Client {
 
 	u, _ := url.Parse(defaultBaseURL)
 	c := &Client{
-		client:    &http.Client{},
-		baseURL:   u,
-		userAgent: defaultUserAgent,
-		token:     os.Getenv("CLIMATIQ_KEY"),
+		client:  &http.Client{},
+		baseURL: u,
+		token:   os.Getenv("CLIMATIQ_KEY"),
 	}
 
 	// add options
@@ -64,9 +59,6 @@ func (c *Client) Do(r *http.Request) (*http.Response, error) {
 
 	// Add authorization header with API token
 	r.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.token))
-
-	// Add user agent header
-	r.Header.Set("User-Agent", c.userAgent)
 
 	return c.client.Do(r)
 }
