@@ -3,7 +3,7 @@ package models
 import "time"
 
 type LineItem struct {
-	ID              int       `json:"id"`
+	ID              string    `json:"id"`
 	XeroLineItemID  string    `json:"xero_line_item_id,omitempty"`
 	Description     string    `json:"description"`
 	Quantity        float64   `json:"quantity"`
