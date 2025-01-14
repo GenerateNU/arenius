@@ -5,6 +5,7 @@ import (
 	"arenius/internal/errs"
 	"arenius/internal/service/climatiq"
 	"arenius/internal/service/ctxt"
+	"arenius/internal/service/handler/carbon"
 	"arenius/internal/service/handler/transaction"
 	"arenius/internal/storage"
 	"arenius/internal/storage/postgres"
@@ -78,7 +79,8 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	})
 
 	// Example route that uses the climatiq client
-	app.Get("/climatiq", transactionHandler.Search)
+	carbonHandler := carbon.NewHandler()
+	app.Get("/climatiq", carbonHandler.SearchEmissionFactors)
 
 	return app
 }

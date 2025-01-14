@@ -2,7 +2,6 @@ package climatiq
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -70,36 +69,4 @@ func (c *Client) Do(r *http.Request) (*http.Response, error) {
 	r.Header.Set("User-Agent", c.userAgent)
 
 	return c.client.Do(r)
-}
-
-// SearchData makes a GET request to the /data/v1/search endpoint with query parameters
-func (c *Client) SearchData(queryParams map[string]string) ([]byte, error) {
-	u, err := url.Parse(c.baseURL.String() + "data/v1/search")
-	if err != nil {
-		return nil, err
-	}
-
-	q := u.Query()
-	for key, value := range queryParams {
-		q.Set(key, value)
-	}
-	u.RawQuery = q.Encode()
-
-	req, err := http.NewRequest("GET", u.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := c.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return body, nil
 }
