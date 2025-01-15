@@ -3,6 +3,7 @@ package storage
 import (
 	"arenius/internal/models"
 	"arenius/internal/storage/postgres/schema"
+	"arenius/internal/service/utils"
 	"context"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -13,9 +14,14 @@ type TransactionRepository interface {
 	CreateTransaction(ctx context.Context, transaction models.Transaction) (models.Transaction, error)
 }
 
+type LineItemRepository interface {
+	GetLineItems(ctx context.Context, pagination utils.Pagination) ([]models.LineItem, error)
+}
+
 type Repository struct {
-	db          *pgxpool.Pool
-	Transaction TransactionRepository
+	db           *pgxpool.Pool
+	Transaction  TransactionRepository
+	LineItem     LineItemRepository
 }
 
 func (r *Repository) Close() error {
@@ -27,5 +33,6 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 	return &Repository{
 		db:          db,
 		Transaction: schema.NewTransactionRepository(db),
+		LineItem:    schema.NewLineItemRepository(db),
 	}
 }

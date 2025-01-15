@@ -7,6 +7,7 @@ import (
 	"arenius/internal/service/ctxt"
 	"arenius/internal/service/handler/carbon"
 	"arenius/internal/service/handler/transaction"
+	"arenius/internal/service/handler/lineitem"
 	"arenius/internal/storage"
 	"arenius/internal/storage/postgres"
 
@@ -78,6 +79,11 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Post("/", transactionHandler.CreateTransaction)
 	})
 
+	lineItemHandler := lineitem.NewHandler(repo.LineItem)
+	app.Route("/line-item", func(r fiber.Router) {
+		r.Get("/", lineItemHandler.GetLineItems)
+	})
+  
 	// Example route that uses the climatiq client
 	carbonHandler := carbon.NewHandler()
 	app.Get("/climatiq", carbonHandler.SearchEmissionFactors)
