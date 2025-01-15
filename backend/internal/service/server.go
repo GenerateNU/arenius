@@ -69,7 +69,7 @@ func SetupApp(config config.Config, repo *storage.Repository) *fiber.App {
 	})
 
 	lineItemHandler := lineitem.NewHandler(repo.LineItem)
-	app.Route("/lineitem", func(r fiber.Router) {
+	app.Route("/line-item", func(r fiber.Router) {
 		r.Get("/", lineItemHandler.GetLineItems)
 	})
 
