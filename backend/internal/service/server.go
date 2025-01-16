@@ -7,6 +7,7 @@ import (
 	"arenius/internal/service/ctxt"
 	"arenius/internal/service/handler/carbon"
 	"arenius/internal/service/handler/transaction"
+	"arenius/internal/service/handler/xero"
 	"arenius/internal/storage"
 	"arenius/internal/storage/postgres"
 
@@ -72,6 +73,13 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.SendStatus(http.StatusOK)
 	})
+
+	xeroAuthHandler := xero.NewHandler()
+	app.Route("/auth", func(r fiber.Router) {
+		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
+	})
+
+	app.Get("/callback", xeroAuthHandler.Callback)
 
 	transactionHandler := transaction.NewHandler(repo.Transaction)
 	app.Route("/transaction", func(r fiber.Router) {
