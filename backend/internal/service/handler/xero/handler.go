@@ -35,8 +35,8 @@ func NewHandler() *Handler {
 	}
 
 	oauthConfig := &oauth2.Config{
-		ClientID:     "E1B6C918F29E4C48A2097A725A76C505",
-		ClientSecret: "wsKPVOBKg70-CHCl0ij5GDDO0JJkTOEj2qH7aFImOxvHdn0V",
+		ClientID:     "ID",
+		ClientSecret: "SECRET",
 		RedirectURL:  "http://localhost:8080/callback",
 		Scopes:       oAuthScopes,
 		Endpoint: oauth2.Endpoint{
