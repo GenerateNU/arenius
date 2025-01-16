@@ -65,6 +65,7 @@ func SetupApp(config config.Config, repo *storage.Repository) *fiber.App {
 	transactionHandler := transaction.NewHandler(repo.Transaction)
 	app.Route("/transaction", func(r fiber.Router) {
 		r.Post("/", transactionHandler.CreateTransaction)
+		r.Post("/convert-transactions", transactionHandler.ConvertTransactions)
 	})
 
 	return app

@@ -11,6 +11,7 @@ import (
 // Interfaces for repository layer.
 type TransactionRepository interface {
 	CreateTransaction(ctx context.Context, transaction models.Transaction) (models.Transaction, error)
+	ConvertTransactions(ctx context.Context, transactions []models.Transaction) ([]models.Transaction, error)
 }
 
 type Repository struct {
