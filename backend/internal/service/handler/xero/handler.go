@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 )
@@ -13,13 +14,14 @@ type Config struct {
 }
 
 type Handler struct {
+	sess                   *session.Store
 	config                 *Config
 	oAuthAuthorisationCode string
 	oAuthToken             *oauth2.Token
 	oAuthHTTPClient        *http.Client
 }
 
-func NewHandler() *Handler {
+func NewHandler(sess *session.Store) *Handler {
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("Error loading .env file")
@@ -35,8 +37,8 @@ func NewHandler() *Handler {
 	}
 
 	oauthConfig := &oauth2.Config{
-		ClientID:     "ID",
-		ClientSecret: "SECRET",
+		ClientID:     "E1B6C918F29E4C48A2097A725A76C505",
+		ClientSecret: "wsKPVOBKg70-CHCl0ij5GDDO0JJkTOEj2qH7aFImOxvHdn0V",
 		RedirectURL:  "http://localhost:8080/callback",
 		Scopes:       oAuthScopes,
 		Endpoint: oauth2.Endpoint{
@@ -45,5 +47,5 @@ func NewHandler() *Handler {
 		},
 	}
 
-	return &Handler{&Config{oauthConfig}, "", nil, nil}
+	return &Handler{sess, &Config{oauthConfig}, "", nil, nil}
 }
