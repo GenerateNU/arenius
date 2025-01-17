@@ -2,8 +2,8 @@ package storage
 
 import (
 	"arenius/internal/models"
-	"arenius/internal/storage/postgres/schema"
 	"arenius/internal/service/utils"
+	"arenius/internal/storage/postgres/schema"
 	"context"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -12,7 +12,6 @@ import (
 // Interfaces for repository layer.
 type TransactionRepository interface {
 	CreateTransaction(ctx context.Context, transaction models.Transaction) (models.Transaction, error)
-	ConvertTransactions(ctx context.Context, transactions []models.Transaction) ([]models.Transaction, error)
 }
 
 type LineItemRepository interface {
@@ -20,9 +19,9 @@ type LineItemRepository interface {
 }
 
 type Repository struct {
-	db           *pgxpool.Pool
-	Transaction  TransactionRepository
-	LineItem     LineItemRepository
+	db          *pgxpool.Pool
+	Transaction TransactionRepository
+	LineItem    LineItemRepository
 }
 
 func (r *Repository) Close() error {

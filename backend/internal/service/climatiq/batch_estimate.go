@@ -77,7 +77,6 @@ type ActivityData struct {
 }
 
 // BatchEstimate calculates emissions for multiple activities in a single API call.
-// BatchEstimate calculates emissions for multiple activities in a single API call.
 func (c *Client) BatchEstimate(ctx context.Context, batchReq *[]EstimateRequest) (*BatchEstimateResponse, error) {
 	url := c.baseURL.String() + "data/v1/estimate/batch"
 
@@ -101,7 +100,6 @@ func (c *Client) BatchEstimate(ctx context.Context, batchReq *[]EstimateRequest)
 
 	defer resp.Body.Close()
 
-	// Read the response body once
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("error reading batch estimate response body: %w", err)

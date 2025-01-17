@@ -24,19 +24,6 @@ func (r *TransactionRepository) CreateTransaction(ctx context.Context, transacti
 	return transaction, nil
 }
 
-func (r *TransactionRepository) ConvertTransactions(ctx context.Context, transactions []models.Transaction) ([]models.Transaction, error) {
-	var convertedTransactions []models.Transaction
-	for _, transaction := range transactions {
-		convertedTransaction, err := r.CreateTransaction(ctx, transaction)
-		if err != nil {
-			return nil, err
-		}
-		convertedTransactions = append(convertedTransactions, convertedTransaction)
-	}
-
-	return convertedTransactions, nil
-}
-
 func NewTransactionRepository(db *pgxpool.Pool) *TransactionRepository {
 	return &TransactionRepository{
 		db,
