@@ -41,8 +41,6 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 
 func(r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId int, req models.ReconcileLineItemRequest) (*models.LineItem, error) {
 
-	fmt.Println("Did we get here please")
-
 	query := `
 		UPDATE line_item
 		SET emission_factor = $1,

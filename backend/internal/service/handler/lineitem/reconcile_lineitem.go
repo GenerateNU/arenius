@@ -11,8 +11,6 @@ import (
 
 func (h *Handler) ReconcileLineItem(c *fiber.Ctx) error {
 
-	fmt.Println("Did we get here")
-
 	lineItemId, err := strconv.Atoi(c.Params("id"))
 
 	if err != nil {
