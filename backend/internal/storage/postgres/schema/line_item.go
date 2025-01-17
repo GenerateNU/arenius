@@ -61,6 +61,7 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId i
 }
 
 func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req models.LineItemEmissionsRequest) (*models.LineItem, error) {
+	fmt.Println(req)
 
 	query := `
 		UPDATE line_item
