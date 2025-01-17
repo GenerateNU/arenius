@@ -55,7 +55,7 @@ func(r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId in
 	err := r.db.QueryRow(ctx, query, req.EmissionsFactor, req.Amount, req.Unit, lineItemId).Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactor, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.Scope)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error querying database: %w", err) 
 	}
 
 	return &lineItem, nil

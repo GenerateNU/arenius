@@ -38,7 +38,7 @@ func (h *Handler) ReconcileLineItem(c *fiber.Ctx) error {
 
 	lineitem, err := h.lineItemRepository.ReconcileLineItem(c.Context(), lineItemId, req)
 	if err != nil {
-		return err
+		return errs.BadRequest(err.Error())
 	}
 
 	return c.Status(fiber.StatusOK).JSON(lineitem)
