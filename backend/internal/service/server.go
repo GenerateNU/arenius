@@ -82,6 +82,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	lineItemHandler := lineitem.NewHandler(repo.LineItem)
 	app.Route("/line-item", func(r fiber.Router) {
 		r.Get("/", lineItemHandler.GetLineItems)
+		r.Patch("/:id", lineItemHandler.ReconcileLineItem)
 	})
   
 	// Example route that uses the climatiq client
