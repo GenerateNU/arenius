@@ -1,4 +1,4 @@
-package carbon
+package lineitem
 
 import (
 	"arenius/internal/errs"
@@ -34,7 +34,7 @@ func (h *Handler) EstimateCarbonEmissions(c *fiber.Ctx) error {
 		estimates = append(estimates, climatiq.EstimateRequest{
 			EmissionFactor: climatiq.EmissionFactor{
 				ActivityID:  item.EmissionFactor,
-				DataVersion: "^20", // Assuming a default version; adjust as needed
+				DataVersion: "^20", // Assuming the most recent version; adjust as needed
 			},
 			Parameters: climatiq.Parameters{
 				Energy:     item.Quantity,
@@ -49,8 +49,34 @@ func (h *Handler) EstimateCarbonEmissions(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).SendString(fmt.Sprintf("error estimating carbon emissions: %v", err))
 	}
 
+	// Collect updated line items
+	var updatedLineItems []models.LineItem
+
+	// Update each line item in the database with the CO2 data
+	for i, result := range response.Results {
+		if i >= len(lineItems) {
+			break
+		}
+
+		lineItem := lineItems[i]
+		updateReq := models.LineItemEmissionsRequest{
+			LineItemId: lineItem.ID,
+			CO2:        result.CO2e,
+			CO2Unit:    result.CO2eUnit,
+		}
+
+		updatedLineItem, err := h.lineItemRepository.AddLineItemEmissions(c.Context(), updateReq)
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).SendString(fmt.Sprintf("error updating line item %s: %v", lineItem.ID, err))
+		}
+
+		// Add the updated line item to the result collection
+		updatedLineItems = append(updatedLineItems, *updatedLineItem)
+
+	}
+
 	// Return the API response as JSON
-	return c.JSON(response)
+	return c.JSON(updatedLineItems)
 
 	// var req []models.LineItem
 	// if err := c.BodyParser(&req); err != nil {

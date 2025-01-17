@@ -77,7 +77,6 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	transactionHandler := transaction.NewHandler(repo.Transaction)
 	app.Route("/transaction", func(r fiber.Router) {
 		r.Post("/", transactionHandler.CreateTransaction)
-		r.Post("/convert-transactions", transactionHandler.ConvertTransactions)
 	})
 
 	lineItemHandler := lineitem.NewHandler(repo.LineItem)
@@ -89,7 +88,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	// Example route that uses the climatiq client
 	carbonHandler := carbon.NewHandler()
 	app.Get("/climatiq", carbonHandler.SearchEmissionFactors)
-	app.Get("/climatiq/estimate", carbonHandler.EstimateCarbonEmissions)
+	app.Patch("/climatiq/estimate", lineItemHandler.EstimateCarbonEmissions)
 
 	return app
 }

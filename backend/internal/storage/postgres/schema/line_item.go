@@ -47,10 +47,30 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId i
 		    amount = $2,
 			unit = $3
 		WHERE id = $4
-		RETURNING *
+		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor, amount, unit, co2, co2_unit, scope
 	`
 	var lineItem models.LineItem
-	err := r.db.QueryRow(ctx, query, req.EmissionsFactor, req.Amount, req.Unit, lineItemId).Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactor, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.Scope)
+	err := r.db.QueryRow(ctx, query, req.EmissionsFactor, req.Amount, req.Unit, lineItemId).Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactor, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.CO2Unit, &lineItem.Scope)
+
+	if err != nil {
+		return nil, fmt.Errorf("error querying database: %w", err)
+	}
+
+	return &lineItem, nil
+
+}
+
+func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req models.LineItemEmissionsRequest) (*models.LineItem, error) {
+
+	query := `
+		UPDATE line_item
+		SET co2 = $1,
+		    co2_unit = $2,
+		WHERE id = $3
+		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor, amount, unit, co2, co2_unit, scope
+	`
+	var lineItem models.LineItem
+	err := r.db.QueryRow(ctx, query, req.CO2, req.CO2Unit, req.LineItemId).Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactor, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.CO2Unit, &lineItem.Scope)
 
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)

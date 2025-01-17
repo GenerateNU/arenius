@@ -21,8 +21,14 @@ type LineItem struct {
 }
 
 type ReconcileLineItemRequest struct {
-	ID string `json:"id"`
-	EmissionsFactor string `json:"emission_factor,omitempty"`
-	Amount float64 `json:"amount,omitempty"` 
-	Unit string `json:"unit,omitempty"` 
+	ID              string  `json:"id"`
+	EmissionsFactor string  `json:"emission_factor,omitempty"`
+	Amount          float64 `json:"amount,omitempty"`
+	Unit            string  `json:"unit,omitempty"`
+}
+
+type LineItemEmissionsRequest struct {
+	LineItemId string  `json:"line_item_id"`
+	CO2        float64 `json:"co2,omitempty"`
+	CO2Unit    string  `json:"co2_unit,omitempty"`
 }
