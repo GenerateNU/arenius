@@ -16,7 +16,7 @@ type TransactionRepository interface {
 
 type LineItemRepository interface {
 	GetLineItems(ctx context.Context, pagination utils.Pagination) ([]models.LineItem, error)
-	ReconcileLineItem(ctx context.Context, lineItemId string, req models.ReconcileLineItemRequest) (*models.LineItem, error)
+	ReconcileLineItem(ctx context.Context, lineItemId int, req models.ReconcileLineItemRequest) (*models.LineItem, error)
 }
 
 type Repository struct {

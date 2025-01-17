@@ -4,6 +4,8 @@ import (
 	"arenius/internal/models"
 	"arenius/internal/service/utils"
 	"context"
+	"fmt"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -37,7 +39,9 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	return lineItems, nil
 }
 
-func(r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, req models.ReconcileLineItemRequest) (*models.LineItem, error) {
+func(r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId int, req models.ReconcileLineItemRequest) (*models.LineItem, error) {
+
+	fmt.Println("Did we get here please")
 
 	query := `
 		UPDATE line_item
