@@ -4,6 +4,7 @@ import (
 	"arenius/internal/models"
 	"arenius/internal/service/utils"
 	"context"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -36,6 +37,27 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	}
 
 	return lineItems, nil
+}
+
+func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId int, req models.ReconcileLineItemRequest) (*models.LineItem, error) {
+
+	query := `
+		UPDATE line_item
+		SET emission_factor = $1,
+		    amount = $2,
+			unit = $3
+		WHERE id = $4
+		RETURNING *
+	`
+	var lineItem models.LineItem
+	err := r.db.QueryRow(ctx, query, req.EmissionsFactor, req.Amount, req.Unit, lineItemId).Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactor, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.Scope)
+
+	if err != nil {
+		return nil, fmt.Errorf("error querying database: %w", err)
+	}
+
+	return &lineItem, nil
+
 }
 
 func NewLineItemRepository(db *pgxpool.Pool) *LineItemRepository {

@@ -19,3 +19,10 @@ type LineItem struct {
 	CO2Unit        string    `json:"co2_unit,omitempty"`
 	Scope          int       `json:"scope,omitempty"`
 }
+
+type ReconcileLineItemRequest struct {
+	ID string `json:"id"`
+	EmissionsFactor string `json:"emission_factor,omitempty"`
+	Amount float64 `json:"amount,omitempty"` 
+	Unit string `json:"unit,omitempty"` 
+}
