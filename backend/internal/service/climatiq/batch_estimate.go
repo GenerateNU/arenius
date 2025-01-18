@@ -105,8 +105,6 @@ func (c *Client) BatchEstimate(ctx context.Context, batchReq *[]EstimateRequest)
 		return nil, fmt.Errorf("error reading batch estimate response body: %w", err)
 	}
 
-	fmt.Printf("Response Body: %s\n", string(responseBody))
-
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("error bad status code from server: %s", resp.Status)
 	}

@@ -61,9 +61,6 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId i
 }
 
 func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req models.LineItemEmissionsRequest) (*models.LineItem, error) {
-	fmt.Println("im here")
-	fmt.Println(req)
-
 	query := `
 		UPDATE line_item
 		SET co2 = $1,
@@ -93,11 +90,6 @@ func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req model
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)
 	}
-
-	fmt.Println("Returned line item:", lineItem)
-
-	fmt.Println(&lineItem)
-
 	return &lineItem, nil
 
 }
