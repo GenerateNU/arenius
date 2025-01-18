@@ -61,21 +61,42 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId i
 }
 
 func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req models.LineItemEmissionsRequest) (*models.LineItem, error) {
+	fmt.Println("im here")
 	fmt.Println(req)
 
 	query := `
 		UPDATE line_item
 		SET co2 = $1,
-		    co2_unit = $2,
+		    co2_unit = $2
 		WHERE id = $3
 		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor, amount, unit, co2, co2_unit, scope
 	`
+
 	var lineItem models.LineItem
-	err := r.db.QueryRow(ctx, query, req.CO2, req.CO2Unit, req.LineItemId).Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactor, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.CO2Unit, &lineItem.Scope)
+	err := r.db.QueryRow(ctx, query, req.CO2, req.CO2Unit, req.LineItemId).Scan(
+		&lineItem.ID,
+		&lineItem.XeroLineItemID,
+		&lineItem.Description,
+		&lineItem.Quantity,
+		&lineItem.UnitAmount,
+		&lineItem.CompanyID,
+		&lineItem.ContactID,
+		&lineItem.Date,
+		&lineItem.CurrencyCode,
+		&lineItem.EmissionFactor,
+		&lineItem.Amount,
+		&lineItem.Unit,
+		&lineItem.CO2,
+		&lineItem.CO2Unit,
+		&lineItem.Scope)
 
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)
 	}
+
+	fmt.Println("Returned line item:", lineItem)
+
+	fmt.Println(&lineItem)
 
 	return &lineItem, nil
 
