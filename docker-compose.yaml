@@ -9,14 +9,22 @@ services:
     networks:
       - app-network
 
+
   backend:
     build:
       context: ./backend
     ports:
       - "8080:8080"
+    command: go run main.go
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./backend
+          target: /app
     networks:
       - app-network
     container_name: backend
+
 
 networks:
   app-network:
