@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/sync/errgroup"
 )
 
 func (h *Handler) EstimateCarbonEmissions(c *fiber.Ctx) error {
@@ -52,30 +53,46 @@ func (h *Handler) EstimateCarbonEmissions(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).SendString(fmt.Sprintf("error estimating carbon emissions: %v", err))
 	}
 
-	// Collect updated line items
+	// Concurrently update line items with the CO2 data
 	var updatedLineItems []models.LineItem
+	eg, ctx := errgroup.WithContext(c.Context())
 
-	// Update each line item in the database with the CO2 data
+	results := make([]*models.LineItem, len(response.Results))
 	for i, result := range response.Results {
-		if i >= len(lineItems) {
-			break
+		i, result := i, result // Capture loop variables
+
+		eg.Go(func() error {
+			if i >= len(lineItems) {
+				return nil
+			}
+
+			lineItem := lineItems[i]
+			updateReq := models.LineItemEmissionsRequest{
+				LineItemId: lineItem.ID,
+				CO2:        result.CO2e,
+				CO2Unit:    result.CO2eUnit,
+			}
+
+			updatedLineItem, err := h.lineItemRepository.AddLineItemEmissions(ctx, updateReq)
+			if err != nil {
+				return fmt.Errorf("error updating line item %s: %w", lineItem.ID, err)
+			}
+
+			results[i] = updatedLineItem
+			return nil
+		})
+	}
+
+	// Wait for all updates to complete
+	if err := eg.Wait(); err != nil {
+		return c.Status(http.StatusInternalServerError).SendString(fmt.Sprintf("error during updates: %v", err))
+	}
+
+	// Collect non-nil results
+	for _, item := range results {
+		if item != nil {
+			updatedLineItems = append(updatedLineItems, *item)
 		}
-
-		lineItem := lineItems[i]
-		updateReq := models.LineItemEmissionsRequest{
-			LineItemId: lineItem.ID,
-			CO2:        result.CO2e,
-			CO2Unit:    result.CO2eUnit,
-		}
-
-		updatedLineItem, err := h.lineItemRepository.AddLineItemEmissions(c.Context(), updateReq)
-		if err != nil {
-			return c.Status(http.StatusInternalServerError).SendString(fmt.Sprintf("error updating line item %s: %v", lineItem.ID, err))
-		}
-
-		// Add the updated line item to the result collection
-		updatedLineItems = append(updatedLineItems, *updatedLineItem)
-
 	}
 
 	// Return the API response as JSON
