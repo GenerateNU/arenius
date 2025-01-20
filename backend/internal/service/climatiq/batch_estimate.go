@@ -86,7 +86,7 @@ func (c *Client) BatchEstimate(ctx context.Context, batchReq *[]EstimateRequest)
 		return nil, fmt.Errorf("error marshalling batch estimate request: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(body))
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("error creating batch estimate request: %w", err)
 	}
