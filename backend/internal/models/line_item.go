@@ -32,3 +32,16 @@ type LineItemEmissionsRequest struct {
 	CO2        float64 `json:"co2,omitempty"`
 	CO2Unit    string  `json:"co2_unit,omitempty"`
 }
+
+type CreateLineItemRequest struct {
+	Description    string   `json:"description"`
+	Quantity       float64  `json:"quantity"`
+	UnitAmount     float64  `json:"unit_amount"`
+	CompanyID      string   `json:"company_id"`
+	ContactID      string   `json:"contact_id"`
+	EmissionFactor *string  `json:"emission_factor,omitempty"`
+	Amount         *float64 `json:"amount,omitempty"`
+	Unit           *string  `json:"unit,omitempty"`
+	CO2            *float64 `json:"co2,omitempty"`
+	Scope          *int     `json:"scope,omitempty"`
+}

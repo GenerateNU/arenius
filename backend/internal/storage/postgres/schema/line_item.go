@@ -5,6 +5,7 @@ import (
 	"arenius/internal/service/utils"
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -90,6 +91,56 @@ func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req model
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)
 	}
+	return &lineItem, nil
+
+}
+
+func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.CreateLineItemRequest) (*models.LineItem, error) {
+	columns := []string{"description", "quantity", "unit_amount", "company_id", "contact_id"}
+	queryArgs := []interface{}{req.Description, req.Quantity, req.UnitAmount, req.CompanyID, req.ContactID}
+
+	// only include the optional columns if they exist
+	if req.EmissionFactor != nil {
+		columns = append(columns, "emission_factor")
+		queryArgs = append(queryArgs, req.EmissionFactor)
+	}
+	if req.Amount != nil {
+		columns = append(columns, "amount")
+		queryArgs = append(queryArgs, req.Amount)
+	}
+	if req.Unit != nil {
+		columns = append(columns, "unit")
+		queryArgs = append(queryArgs, req.Unit)
+	}
+	if req.CO2 != nil {
+		columns = append(columns, "co2")
+		queryArgs = append(queryArgs, req.CO2)
+	}
+	if req.Scope != nil {
+		columns = append(columns, "scope")
+		queryArgs = append(queryArgs, req.Scope)
+	}
+
+	var numInputs []string
+	for i := 1; i <= len(columns); i++ {
+		numInputs = append(numInputs, fmt.Sprintf("$%d", i))
+	}
+
+	query := `
+		INSERT INTO line_item
+		(` + strings.Join(columns, ", ") + `)
+		VALUES (` + strings.Join(numInputs, ", ") + `)
+		RETURNING *;
+	`
+	var lineItem models.LineItem
+	err := r.db.QueryRow(ctx, query, queryArgs...).
+		Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID,
+			&lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactor, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.Scope)
+
+	if err != nil {
+		return nil, fmt.Errorf("error querying database: %w", err)
+	}
+
 	return &lineItem, nil
 
 }
