@@ -3,10 +3,10 @@ package climatiq
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
-
-	"github.com/goccy/go-json"
 )
 
 // BatchEstimateRequest contains the request body for the batch estimate endpoint.
@@ -100,15 +100,25 @@ func (c *Client) BatchEstimate(ctx context.Context, batchReq *[]EstimateRequest)
 
 	defer resp.Body.Close()
 
-	// Check response status
+	responseBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading batch estimate response body: %w", err)
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("error bad status code from server: %s", resp.Status)
 	}
 
-	// Decode response body
+	// Check if the response body is empty
+	if len(responseBody) == 0 {
+		return nil, fmt.Errorf("received empty response body")
+	}
+
+	// Unmarshal the response body into the struct
 	var batchResponse BatchEstimateResponse
-	if err := json.NewDecoder(resp.Body).Decode(&batchResponse); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+	err = json.Unmarshal(responseBody, &batchResponse)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling batch estimate response: %w", err)
 	}
 
 	return &batchResponse, nil

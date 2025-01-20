@@ -29,6 +29,10 @@ type Client struct {
 // NewClient returns an instantiated instance of a client
 // with the ability to override values with various options
 func NewClient(opts ...clientOpts) *Client {
+	// err := godotenv.Load(".backend/.env")
+	// if err != nil {
+	// 	fmt.Println("Error loading .env file")
+	// }
 
 	u, _ := url.Parse(defaultBaseURL)
 	c := &Client{
