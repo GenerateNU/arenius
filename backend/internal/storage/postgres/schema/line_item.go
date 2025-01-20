@@ -61,7 +61,7 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId i
 }
 
 func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req models.LineItemEmissionsRequest) (*models.LineItem, error) {
-	query := `
+	const query = `
 		UPDATE line_item
 		SET co2 = $1,
 		    co2_unit = $2
