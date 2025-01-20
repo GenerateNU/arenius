@@ -1,19 +1,14 @@
 FROM golang:1.23-alpine
 
-# Sets the container's working directory to /app
+
+# Set the working directory (this is /backend in Arenius)
 WORKDIR /app
 
-# Copy mod and sum files for efficiency/caching
+# Copy only go.mod and go.sum first (to cache dependencies)
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Copies the contents of this directory (backend and subdirs) to /app/backend/cmd in the container
-COPY . ./backend
+# Copy the entire project
+COPY . .
 
-WORKDIR /app/backend/cmd
-
-RUN go build -o main .
-
-EXPOSE 8080
-
-CMD ["./main"]
+WORKDIR /app/cmd
