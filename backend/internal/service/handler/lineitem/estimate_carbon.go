@@ -37,10 +37,13 @@ func (h *Handler) EstimateCarbonEmissions(c *fiber.Ctx) error {
 				DataVersion: "^20", // Assuming the most recent version; adjust as needed
 			},
 			Parameters: climatiq.Parameters{
-				Energy:     *item.Amount,
+				Energy:     0,
 				EnergyUnit: *item.Unit,
 			},
 		})
+		if item.Amount != nil {
+			estimates[len(estimates)-1].Parameters.Energy = *item.Amount
+		}
 	}
 
 	// Send the estimates directly to the Climatiq API
