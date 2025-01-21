@@ -13,10 +13,17 @@ Install [Docker Desktop](https://docs.docker.com/get-started/get-docker/) (or ju
 In a terminal of your choice:
 
 ```bash
-cd /backend/
-docker build --tag backend .
-docker run -p 8080:8080 backend ## (host-port):(container-port)
+cd /arenius
+docker compose up --build
+# Press 'w' to enable Docker Watch!!!
 ```
+
+This will compose a cluster consisting of the backend and frontend containers.
+Docker Watch is utilized for hot/live reloading to make development easier. The Docker Engine
+watches for changes within the backend and frontend, syncs file changes from
+the host to the respective container, and then restarts the respective container.  
+
+To end development, in the terminal press ctrl+c / cmd+c.
 
 Open http://localhost:8080/health with your browser to see the result. Requests *should* be logged in your terminal. 
 
