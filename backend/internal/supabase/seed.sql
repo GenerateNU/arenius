@@ -23,3 +23,63 @@ VALUES
     ('0a67f5d3-88b6-4e8f-aac0-5137b29917fd', '0a67f5d3-88b6-4e8f-aac0-5137b29917fd', 'Product B', 10, 150.00, '0a67f5d3-88b6-4e8f-aac0-5137b29917fd', '33333333-3333-3333-3333-333333333333', '2025-01-09 09:22:15', 'USD', 'factor_B', 1500.00, 'kg', 75.0, 2),
     ('5e30b08e-bd5f-4b64-a3b2-40758b4dfca7', '5e30b08e-bd5f-4b64-a3b2-40758b4dfca7', 'Service C', 3, 500.00, '5e30b08e-bd5f-4b64-a3b2-40758b4dfca7', '55555555-5555-5555-5555-555555555555', '2025-01-12 14:15:23', 'USD', 'factor_C', 1500.00, 'hours', 30.0, 3),
     ('de3cb272-7557-4b57-bb0e-221f10f240f8', 'de3cb272-7557-4b57-bb0e-221f10f240f8', 'Product D', 7, 250.00, 'de3cb272-7557-4b57-bb0e-221f10f240f8', '66666666-6666-6666-6666-666666666666', '2025-01-11 16:18:00', 'USD', 'factor_D', 1750.00, 'kg', 90.0, 1);
+
+INSERT INTO line_item (
+    id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, 
+    emission_factor, amount, unit, scope
+) VALUES 
+(
+    '1a2b3c4d-1234-5678-9101-abcdefabcdef', 
+    '1a2b3c4d-1234-5678-9101-abcdefabcdef', 
+    'Office Supplies', 
+    10, 
+    15.5, 
+    'd2a4f6d4-8f59-4b2b-a59d-7a3ff633cf9f', 
+    '1a2b3c4d-1234-5678-9101-abcdefabcdef', 
+    '2025-01-01T00:00:00Z', 
+    'USD', 
+    'electricity-supply_grid-source_residual_mix', 
+    155.0, 
+    'Wh',
+    1
+);
+
+INSERT INTO line_item (
+    id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, 
+    emission_factor, amount, unit, scope
+) VALUES 
+(
+    '2b3c4d5e-2345-6789-0123-fedcbafedcba', 
+    NULL, 
+    'Travel Expenses', 
+    3, 
+    200.0, 
+    'd2a4f6d4-8f59-4b2b-a59d-7a3ff633cf9f', 
+    '2b3c4d5e-2345-6789-0123-fedcbafedcba', 
+    '2025-01-05T00:00:00Z', 
+    'EUR', 
+    'electricity-supply_grid-source_residual_mix', 
+    600.0, 
+    'kWh',
+    3
+);
+
+INSERT INTO line_item (
+    id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, 
+    emission_factor, amount, unit, scope
+) VALUES 
+(
+    '3c4d5e6f-3456-7890-1234-bcdefabcdefa', 
+    NULL, 
+    'Energy Usage', 
+    100, 
+    0.12, 
+    'd2a4f6d4-8f59-4b2b-a59d-7a3ff633cf9f', 
+    '3c4d5e6f-3456-7890-1234-bcdefabcdefa', 
+    '2025-01-10T00:00:00Z', 
+    'GBP', 
+    'electricity-supply_grid-source_residual_mix', 
+    12.0, 
+    'kWh',
+    NULL
+);
