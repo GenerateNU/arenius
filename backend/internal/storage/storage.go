@@ -20,10 +20,15 @@ type LineItemRepository interface {
 	AddLineItemEmissions(ctx context.Context, req models.LineItemEmissionsRequest) (*models.LineItem, error)
 }
 
+type EmissionsFactorRepository interface {
+	AddEmissionsFactors(ctx context.Context, emissionFactor []models.EmissionsFactor) ([]models.EmissionsFactor, error)
+}
+
 type Repository struct {
-	db          *pgxpool.Pool
-	Transaction TransactionRepository
-	LineItem    LineItemRepository
+	db              *pgxpool.Pool
+	Transaction     TransactionRepository
+	LineItem        LineItemRepository
+	EmissionsFactor EmissionsFactorRepository
 }
 
 func (r *Repository) Close() error {
@@ -33,8 +38,9 @@ func (r *Repository) Close() error {
 
 func NewRepository(db *pgxpool.Pool) *Repository {
 	return &Repository{
-		db:          db,
-		Transaction: schema.NewTransactionRepository(db),
-		LineItem:    schema.NewLineItemRepository(db),
+		db:              db,
+		Transaction:     schema.NewTransactionRepository(db),
+		LineItem:        schema.NewLineItemRepository(db),
+		EmissionsFactor: schema.NewEmissionsFactorRepository(db),
 	}
 }

@@ -57,6 +57,7 @@ type SearchResults struct {
 	RegionName                  string   `json:"region_name"`
 	Description                 string   `json:"description"`
 	Unit                        string   `json:"unit"`
+	UnitType                    string   `json:"unit_type"`
 	SourceLCAActivity           string   `json:"source_lca_activity"`
 	SupportedCalculationMethods []string `json:"supported_calculation_methods"`
 	Factor                      float64  `json:"factor"`                    // number or null
