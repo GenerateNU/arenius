@@ -43,5 +43,6 @@ type CreateLineItemRequest struct {
 	Amount         *float64 `json:"amount,omitempty"`
 	Unit           *string  `json:"unit,omitempty"`
 	CO2            *float64 `json:"co2,omitempty"`
+	CO2Unit        *string  `json:"co2_unit,omitempty"`
 	Scope          *int     `json:"scope,omitempty"`
 }
