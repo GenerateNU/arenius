@@ -27,3 +27,7 @@ POST `/transaction`
 # Line Item
 
 # Climatiq
+
+# Emissions Factors
+PATCH `/emissions-factor/populate`
+    - populates emissions factors table
