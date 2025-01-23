@@ -84,6 +84,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	app.Route("/line-item", func(r fiber.Router) {
 		r.Get("/", lineItemHandler.GetLineItems)
 		r.Patch("/:id", lineItemHandler.ReconcileLineItem)
+		r.Post("/", lineItemHandler.PostLineItem)
 	})
 
 	emissionsFactorHandler := emissionsFactor.NewHandler(repo.EmissionsFactor)
