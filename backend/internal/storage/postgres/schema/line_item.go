@@ -186,7 +186,7 @@ func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []in
 			return nil, nil, errs.BadRequest("CO2 must be >= 0")
 		}
 	}
-	if req.CO2 != nil {
+	if req.CO2Unit != nil {
 		columns = append(columns, "co2_unit")
 		queryArgs = append(queryArgs, *req.CO2Unit)
 	}
