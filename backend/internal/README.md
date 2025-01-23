@@ -27,7 +27,7 @@ POST `/transaction`
 # Line Item
 Post `/line-item`
 ```go
-    - Query Parameters (*type) indicates an optional field
+    - Body Parameters (*type) indicates an optional field
         Description    string   `json:"description"`               // the description for a line item, non-empty
         Quantity       float64  `json:"quantity"`                  // the quantity of items purchased, >= 0
         UnitAmount     float64  `json:"unit_amount"`               // the price, >= 0
