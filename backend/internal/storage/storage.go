@@ -18,7 +18,6 @@ type LineItemRepository interface {
 	GetLineItems(ctx context.Context, pagination utils.Pagination) ([]models.LineItem, error)
 	ReconcileLineItem(ctx context.Context, lineItemId int, req models.ReconcileLineItemRequest) (*models.LineItem, error)
 	AddLineItemEmissions(ctx context.Context, req models.LineItemEmissionsRequest) (*models.LineItem, error)
-	CreateLineItem(ctx context.Context, req models.CreateLineItemRequest) (*models.LineItem, error)
 }
 
 type Repository struct {
