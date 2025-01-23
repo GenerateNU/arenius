@@ -42,6 +42,14 @@ func (h *Handler) PopulateEmissions(c *fiber.Ctx) error {
 		page := page
 		eg.Go(func() error {
 
+			// Check if the context has been canceled
+			select {
+			case <-ctx.Done():
+				return ctx.Err() // Return context error (e.g., canceled or deadline exceeded)
+			default:
+				// Proceed with the normal flow if context is not canceled
+			}
+
 			localSearchReq := &climatiq.SearchRequest{
 				DataVersion:    searchReq.DataVersion,
 				ResultsPerPage: searchReq.ResultsPerPage,
@@ -70,8 +78,13 @@ func (h *Handler) PopulateEmissions(c *fiber.Ctx) error {
 				}
 			}
 
-			// Store the results in the slice
-			emissionFactors[page-1] = pageFactors
+			// Check for cancellation before updating shared slice
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			default:
+				emissionFactors[page-1] = pageFactors
+			}
 
 			return nil
 		})
