@@ -73,11 +73,6 @@ func (c *Client) Search(ctx context.Context, searchReq *SearchRequest) (*SearchR
 
 	searchURL := c.baseURL.String() + "search?" + paramsURL
 
-	fmt.Print("calling climitiq", "\n")
-	fmt.Print("searchURL: ", searchURL, "\n")
-	fmt.Print("searchReq: ", searchReq, "\n")
-	fmt.Print("calling climitiq")
-
 	req, err := http.NewRequestWithContext(context.Background(), "GET", searchURL, http.NoBody)
 	if err != nil {
 		return nil, err
@@ -103,8 +98,6 @@ func (c *Client) Search(ctx context.Context, searchReq *SearchRequest) (*SearchR
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Printf("searchResponse: %+v\n", searchResponse)
 
 	return &searchResponse, nil
 }

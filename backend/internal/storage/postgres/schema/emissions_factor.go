@@ -79,28 +79,6 @@ func (r *EmissionsFactorRepository) AddEmissionsFactors(ctx context.Context, emi
 	}
 
 	return emissionFactors, nil
-	// const query = `
-	// 	INSERT INTO emission_factor (
-	// 				activity_id, name, description, unit, unit_type, year, region, category, source, source_dataset
-	// 			)
-	// 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-	// 			ON CONFLICT (activity_id) DO NOTHING`
-
-	// _, err := r.db.Exec(ctx, query, emissionFactor.ActivityId,
-	// 	emissionFactor.Name,
-	// 	emissionFactor.Description,
-	// 	emissionFactor.Unit,
-	// 	emissionFactor.UnitType,
-	// 	emissionFactor.Year,
-	// 	emissionFactor.Region,
-	// 	emissionFactor.Category,
-	// 	emissionFactor.Source,
-	// 	emissionFactor.SourceDataset)
-	// if err != nil {
-	// 	return models.EmissionsFactor{}, err
-	// }
-
-	// return emissionFactor, nil
 }
 
 func NewEmissionsFactorRepository(db *pgxpool.Pool) *EmissionsFactorRepository {
