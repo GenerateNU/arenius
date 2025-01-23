@@ -14,9 +14,9 @@ Create Table emission_factor (
 
 -- Rename the column emission_factor to EmissionsID
 ALTER TABLE line_item
-RENAME COLUMN emission_factor TO emissions_factor_id;
+RENAME COLUMN emission_factor TO emission_factor_id;
 
 -- Add a foreign key constraint to link EmissionsID to the emissions table
 ALTER TABLE line_item
 ADD CONSTRAINT fk_emissionsid
-FOREIGN KEY (emissions_factor_id) REFERENCES emission_factor(id);
+FOREIGN KEY (emission_factor_id) REFERENCES emission_factor(id);
