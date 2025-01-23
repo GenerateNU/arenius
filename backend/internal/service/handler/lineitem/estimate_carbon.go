@@ -28,14 +28,13 @@ func (h *Handler) EstimateCarbonEmissions(c *fiber.Ctx) error {
 	var estimates []climatiq.EstimateRequest
 	for _, item := range lineItems {
 		// Ensure EmissionFactorID and Unit are provided
-		if item.EmissionFactor == nil || *item.EmissionFactor == "" || item.Unit == nil || *item.Unit == "" {
+		if item.EmissionFactorId == nil || *item.EmissionFactorId == "" || item.Unit == nil || *item.Unit == "" {
 			return errs.BadRequest(fmt.Sprintf("missing required fields for line item ID %s: emission_factor_id and unit are required", item.ID))
 		}
 
 		estimates = append(estimates, climatiq.EstimateRequest{
 			EmissionFactor: climatiq.EmissionFactor{
-				ActivityID:  *item.EmissionFactor,
-				DataVersion: "^20", // Assuming the most recent version; adjust as needed
+				EmissionsFactorID: *item.EmissionFactorId,
 			},
 			Parameters: climatiq.Parameters{
 				Energy:     0,

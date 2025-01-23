@@ -1,5 +1,6 @@
 Create Table emission_factor (
-    activity_id text PRIMARY KEY,
+    id text PRIMARY KEY,
+    activity_id text NOT NULL,
     name text NOT NULL,
     description text,
     unit text NOT NULL,
@@ -11,7 +12,11 @@ Create Table emission_factor (
     source_dataset text
 );
 
+-- Rename the column emission_factor to EmissionsID
 ALTER TABLE line_item
-ADD CONSTRAINT fk_emission_factor
-FOREIGN KEY (emission_factor)
-REFERENCES emission_factor(activity_id);
+RENAME COLUMN emission_factor TO emissions_factor_id;
+
+-- Add a foreign key constraint to link EmissionsID to the emissions table
+ALTER TABLE line_item
+ADD CONSTRAINT fk_emissionsid
+FOREIGN KEY (emissions_factor_id) REFERENCES emission_factor(id);

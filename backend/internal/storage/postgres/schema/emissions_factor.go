@@ -14,6 +14,7 @@ type EmissionsFactorRepository struct {
 func (r *EmissionsFactorRepository) AddEmissionsFactors(ctx context.Context, emissionFactors []models.EmissionsFactor) ([]models.EmissionsFactor, error) {
 	const query = `
         INSERT INTO emission_factor (
+						id,
             activity_id,
             name,
             description,
@@ -26,11 +27,12 @@ func (r *EmissionsFactorRepository) AddEmissionsFactors(ctx context.Context, emi
             source_dataset
         )
         SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::text[], $5::text[], 
-                            $6::integer[], $7::text[], $8::text[], $9::text[], $10::text[])
-        ON CONFLICT (activity_id) DO NOTHING
+                            $6::text[], $7::integer[], $8::text[], $9::text[], $10::text[], $11::text[])
+        ON CONFLICT (id) DO NOTHING
     `
 
 	// Create slices to hold the column values
+	ids := make([]string, len(emissionFactors))
 	activityIds := make([]string, len(emissionFactors))
 	names := make([]string, len(emissionFactors))
 	descriptions := make([]string, len(emissionFactors))
@@ -44,6 +46,7 @@ func (r *EmissionsFactorRepository) AddEmissionsFactors(ctx context.Context, emi
 
 	// Populate the slices
 	for i, ef := range emissionFactors {
+		ids[i] = ef.Id
 		activityIds[i] = ef.ActivityId
 		names[i] = ef.Name
 		descriptions[i] = ef.Description
@@ -58,6 +61,7 @@ func (r *EmissionsFactorRepository) AddEmissionsFactors(ctx context.Context, emi
 
 	// Execute the bulk insert
 	_, err := r.db.Exec(ctx, query,
+		ids,
 		activityIds,
 		names,
 		descriptions,

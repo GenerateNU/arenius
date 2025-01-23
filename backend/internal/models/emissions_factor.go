@@ -1,6 +1,7 @@
 package models
 
 type EmissionsFactor struct {
+	Id            string `json:"id"`
 	ActivityId    string `json:"activity_id"`
 	Name          string `json:"name"`
 	Description   string `json:"description"`
