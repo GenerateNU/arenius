@@ -14,8 +14,7 @@ In a terminal of your choice:
 
 ```bash
 cd /arenius
-docker compose up --build
-# Press 'w' to enable Docker Watch!!!
+docker compose up --build --watch
 ```
 
 This will compose a cluster consisting of the backend and frontend containers.
@@ -23,7 +22,11 @@ Docker Watch is utilized for hot/live reloading to make development easier. The 
 watches for changes within the backend and frontend, syncs file changes from
 the host to the respective container, and then restarts the respective container.  
 
-To end development, in the terminal press ctrl+c / cmd+c.
+To end development, in the terminal press ctrl+c / cmd+c OR in another terminal execute:
+
+```bash
+docker compose down
+```
 
 Open http://localhost:8080/health with your browser to see the result. Requests *should* be logged in your terminal. 
 
