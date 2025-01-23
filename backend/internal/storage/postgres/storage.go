@@ -12,7 +12,8 @@ import (
 
 // Establishes a sustained connection to the PostgreSQL database using pooling.
 func ConnectDatabase(ctx context.Context, config config.DB) (*pgxpool.Pool, error) {
-	dbConfig, err := pgxpool.ParseConfig(config.Connection())
+	//dbConfig, err := pgxpool.ParseConfig(config.Connection())
+	dbConfig, err := pgxpool.ParseConfig("postgresql://postgres:postgres@127.0.0.1:54322/postgres")
 	if err != nil {
 		log.Fatalf("Failed to connect to the database: %v", err)
 		return nil, err

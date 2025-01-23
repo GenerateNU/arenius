@@ -32,7 +32,7 @@ func (h *Handler) PopulateEmissions(c *fiber.Ctx) error {
 	totalPages := initialResponse.LastPage + 1
 
 	// Create a slice to store emissions data from all pages
-	emissionFactors := make([][]models.EmissionsFactor, totalPages)
+	emissionFactors := make([][]models.EmissionsFactor, totalPages+1)
 
 	// Use an error group for concurrency
 	eg, ctx := errgroup.WithContext(c.Context())
@@ -67,7 +67,7 @@ func (h *Handler) PopulateEmissions(c *fiber.Ctx) error {
 			}
 
 			// Store the results in the slice
-			emissionFactors[page-1] = pageFactors
+			emissionFactors[page] = pageFactors
 			return nil
 		})
 	}
