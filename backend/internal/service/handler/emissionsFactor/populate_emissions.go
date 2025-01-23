@@ -29,21 +29,25 @@ func (h *Handler) PopulateEmissions(c *fiber.Ctx) error {
 			fmt.Sprintf("Error fetching emissions data: %v", err.Error()),
 		)
 	}
-	totalPages := initialResponse.LastPage + 1
+	totalPages := initialResponse.LastPage
 
 	// Create a slice to store emissions data from all pages
-	emissionFactors := make([][]models.EmissionsFactor, totalPages+1)
+	emissionFactors := make([][]models.EmissionsFactor, totalPages)
 
 	// Use an error group for concurrency
 	eg, ctx := errgroup.WithContext(c.Context())
 	eg.SetLimit(8)
 
-	for page := 0; page <= totalPages; page++ {
+	for page := 1; page <= totalPages; page++ {
 		page := page
 		eg.Go(func() error {
 
-			searchReq.Page = page
-			response, err := climatiqClient.Search(ctx, searchReq)
+			localSearchReq := &climatiq.SearchRequest{
+				DataVersion:    searchReq.DataVersion,
+				ResultsPerPage: searchReq.ResultsPerPage,
+				Page:           page,
+			}
+			response, err := climatiqClient.Search(ctx, localSearchReq)
 			if err != nil {
 				return fmt.Errorf("error fetching emissions data for page %d: %w", page, err)
 			}
@@ -67,7 +71,8 @@ func (h *Handler) PopulateEmissions(c *fiber.Ctx) error {
 			}
 
 			// Store the results in the slice
-			emissionFactors[page] = pageFactors
+			emissionFactors[page-1] = pageFactors
+
 			return nil
 		})
 	}
