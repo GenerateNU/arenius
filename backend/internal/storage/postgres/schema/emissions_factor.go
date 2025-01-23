@@ -3,7 +3,10 @@ package schema
 import (
 	"arenius/internal/models"
 	"context"
+	"errors"
+	"fmt"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -30,6 +33,20 @@ func (r *EmissionsFactorRepository) AddEmissionsFactors(ctx context.Context, emi
                             $6::text[], $7::integer[], $8::text[], $9::text[], $10::text[], $11::text[])
         ON CONFLICT (id) DO NOTHING
     `
+
+	// Begin transaction
+	tx, err := r.db.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	// Ensure rollback on any error
+	defer func() {
+		if rollbackErr := tx.Rollback(ctx); rollbackErr != nil && !errors.Is(rollbackErr, pgx.ErrTxClosed) {
+			// Log rollback error if it occurs
+			fmt.Printf("rollback failed: %v\n", rollbackErr)
+		}
+	}()
 
 	// Create slices to hold the column values
 	ids := make([]string, len(emissionFactors))
@@ -60,7 +77,7 @@ func (r *EmissionsFactorRepository) AddEmissionsFactors(ctx context.Context, emi
 	}
 
 	// Execute the bulk insert
-	_, err := r.db.Exec(ctx, query,
+	_, execErr := tx.Exec(ctx, query,
 		ids,
 		activityIds,
 		names,
@@ -74,8 +91,13 @@ func (r *EmissionsFactorRepository) AddEmissionsFactors(ctx context.Context, emi
 		sourceDatasets,
 	)
 
-	if err != nil {
-		return nil, err
+	if execErr != nil {
+		return nil, execErr
+	}
+
+	// Commit the transaction
+	if commitErr := tx.Commit(ctx); commitErr != nil {
+		return nil, commitErr
 	}
 
 	return emissionFactors, nil
