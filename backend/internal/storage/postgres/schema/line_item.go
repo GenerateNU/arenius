@@ -19,7 +19,7 @@ type LineItemRepository struct {
 
 func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.Pagination) ([]models.LineItem, error) {
 	query := `
-		SELECT id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor, amount, unit, co2, co2_unit, scope
+		SELECT id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor, amount, unit, co2, scope, co2_unit
 		FROM line_item
 		ORDER BY date
 		LIMIT $1 OFFSET $2`
@@ -34,7 +34,23 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	var lineItems []models.LineItem
 	for rows.Next() {
 		var lineItem models.LineItem
-		if err := rows.Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactor, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.Scope, &lineItem.CO2Unit); err != nil {
+		if err := rows.Scan(
+			&lineItem.ID,
+			&lineItem.XeroLineItemID,
+			&lineItem.Description,
+			&lineItem.Quantity,
+			&lineItem.UnitAmount,
+			&lineItem.CompanyID,
+			&lineItem.ContactID,
+			&lineItem.Date,
+			&lineItem.CurrencyCode,
+			&lineItem.EmissionFactor,
+			&lineItem.Amount,
+			&lineItem.Unit,
+			&lineItem.CO2,
+			&lineItem.Scope,
+			&lineItem.CO2Unit,
+		); err != nil {
 			return nil, err
 		}
 		lineItems = append(lineItems, lineItem)
