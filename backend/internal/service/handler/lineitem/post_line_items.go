@@ -16,16 +16,16 @@ func (h *Handler) PostLineItem(c *fiber.Ctx) error {
 
 	// ensure that all required fields are present
 	if req.Description == "" {
-		return errs.BadRequest(fmt.Sprintf("Description is required"))
+		return errs.BadRequest("Description is required")
 	}
 	if req.UnitAmount == 0 {
-		return errs.BadRequest(fmt.Sprintf("Non-zero unit amount is required"))
+		return errs.BadRequest("Non-zero unit amount is required")
 	}
 	if req.CompanyID == "" {
-		return errs.BadRequest(fmt.Sprintf("Company ID is required"))
+		return errs.BadRequest("Company ID is required")
 	}
 	if req.ContactID == "" {
-		return errs.BadRequest(fmt.Sprintf("Contact ID is required"))
+		return errs.BadRequest("Contact ID is required")
 	}
 
 	createdItem, err := h.lineItemRepository.CreateLineItem(c.Context(), req)
