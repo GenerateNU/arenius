@@ -17,15 +17,43 @@ type LineItemRepository struct {
 	db *pgxpool.Pool
 }
 
-func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.Pagination) ([]models.LineItem, error) {
+func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.Pagination, filterParams models.GetLineItemsRequest) ([]models.LineItem, error) {
+	filterQuery := "WHERE 1=1"
+
+	if filterParams.ReconciliationStatus != nil {
+		if *filterParams.ReconciliationStatus {
+			filterQuery += " AND line_item.emission_factor IS NOT NULL"
+		} else {
+			filterQuery += " AND line_item.emission_factor IS NULL"
+		}
+	}
+
+	filterColumns := []string{}
+	filterArgs := []interface{}{}
+
+	if filterParams.CompanyID != nil {
+		filterColumns = append(filterColumns, "company_id")
+		filterArgs = append(filterArgs, *filterParams.CompanyID)
+	}
+	if filterParams.Date != nil {
+		filterColumns = append(filterColumns, "date")
+		filterArgs = append(filterArgs, filterParams.Date.UTC())
+	}
+
+	for i := 0; i < len(filterColumns); i++ {
+		filterQuery += fmt.Sprintf(" AND %s=$%d", filterColumns[i], i+3)
+	}
+
 	query := `
 		SELECT id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor, amount, unit, co2, co2_unit, scope
-		FROM line_item
-		ORDER BY date
-		LIMIT $1 OFFSET $2`
+		FROM line_item ` + filterQuery +
+		` ORDER BY date
+		LIMIT $1 OFFSET $2 `
 
-	offset := pagination.GetOffset()
-	rows, err := r.db.Query(ctx, query, pagination.Limit, offset)
+	fmt.Println(query)
+
+	queryArgs := append([]interface{}{pagination.Limit, pagination.GetOffset()}, filterArgs...)
+	rows, err := r.db.Query(ctx, query, queryArgs...)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +62,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	var lineItems []models.LineItem
 	for rows.Next() {
 		var lineItem models.LineItem
-		if err := rows.Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactor, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.Scope, &lineItem.CO2Unit); err != nil {
+		if err := rows.Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactor, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.CO2Unit, &lineItem.Scope); err != nil {
 			return nil, err
 		}
 		lineItems = append(lineItems, lineItem)
@@ -54,7 +82,7 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId i
 		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor, amount, unit, co2, co2_unit, scope
 	`
 	var lineItem models.LineItem
-	err := r.db.QueryRow(ctx, query, req.EmissionsFactor, req.Amount, req.Unit, lineItemId).Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactor, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.Scope, &lineItem.CO2Unit)
+	err := r.db.QueryRow(ctx, query, req.EmissionsFactor, req.Amount, req.Unit, lineItemId).Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactor, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.CO2Unit, &lineItem.Scope)
 
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)
@@ -88,8 +116,8 @@ func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req model
 		&lineItem.Amount,
 		&lineItem.Unit,
 		&lineItem.CO2,
-		&lineItem.Scope,
-		&lineItem.CO2Unit)
+		&lineItem.CO2Unit,
+		&lineItem.Scope)
 
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)
@@ -114,7 +142,7 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 		INSERT INTO line_item
 		(` + strings.Join(columns, ", ") + `)
 		VALUES (` + strings.Join(numInputs, ", ") + `)
-		RETURNING *;
+		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor, amount, unit, co2, co2_unit, scope;
 	`
 	var lineItem models.LineItem
 	err := r.db.QueryRow(ctx, query, queryArgs...).Scan(
@@ -131,8 +159,8 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 		&lineItem.Amount,
 		&lineItem.Unit,
 		&lineItem.CO2,
-		&lineItem.Scope,
-		&lineItem.CO2Unit)
+		&lineItem.CO2Unit,
+		&lineItem.Scope)
 
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)

@@ -2,6 +2,7 @@ package lineitem
 
 import (
 	"arenius/internal/errs"
+	"arenius/internal/models"
 	"arenius/internal/service/utils"
 	"fmt"
 
@@ -18,7 +19,12 @@ func (h *Handler) GetLineItems(c *fiber.Ctx) error {
 		return errs.BadRequest(fmt.Sprint("invalid pagination values: ", errors))
 	}
 
-	lineItems, err := h.lineItemRepository.GetLineItems(c.Context(), pagination)
+	var filterParams models.GetLineItemsRequest
+	if err := c.BodyParser(&filterParams); err != nil {
+		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
+	}
+
+	lineItems, err := h.lineItemRepository.GetLineItems(c.Context(), pagination, filterParams)
 	if err != nil {
 		return err
 	}
