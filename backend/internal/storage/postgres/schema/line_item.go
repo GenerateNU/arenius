@@ -34,7 +34,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	var lineItems []models.LineItem
 	for rows.Next() {
 		var lineItem models.LineItem
-		if err := rows.Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactor, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.Scope, &lineItem.CO2Unit); err != nil {
+		if err := rows.Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactorId, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.Scope, &lineItem.CO2Unit); err != nil {
 			return nil, err
 		}
 		lineItems = append(lineItems, lineItem)
@@ -54,7 +54,7 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId i
 		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor, amount, unit, co2, co2_unit, scope
 	`
 	var lineItem models.LineItem
-	err := r.db.QueryRow(ctx, query, req.EmissionsFactor, req.Amount, req.Unit, lineItemId).Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactor, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.Scope, &lineItem.CO2Unit)
+	err := r.db.QueryRow(ctx, query, req.EmissionsFactor, req.Amount, req.Unit, lineItemId).Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactorId, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.Scope, &lineItem.CO2Unit)
 
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)
@@ -84,7 +84,7 @@ func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req model
 		&lineItem.ContactID,
 		&lineItem.Date,
 		&lineItem.CurrencyCode,
-		&lineItem.EmissionFactor,
+		&lineItem.EmissionFactorId,
 		&lineItem.Amount,
 		&lineItem.Unit,
 		&lineItem.CO2,
@@ -127,7 +127,7 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 		&lineItem.ContactID,
 		&lineItem.Date,
 		&lineItem.CurrencyCode,
-		&lineItem.EmissionFactor,
+		&lineItem.EmissionFactorId,
 		&lineItem.Amount,
 		&lineItem.Unit,
 		&lineItem.CO2,

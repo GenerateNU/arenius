@@ -6,6 +6,7 @@ import (
 	"arenius/internal/service/climatiq"
 	"arenius/internal/service/ctxt"
 	"arenius/internal/service/handler/carbon"
+	"arenius/internal/service/handler/emissionsFactor"
 	"arenius/internal/service/handler/lineitem"
 	"arenius/internal/service/handler/transaction"
 	"arenius/internal/storage"
@@ -84,6 +85,11 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Get("/", lineItemHandler.GetLineItems)
 		r.Patch("/:id", lineItemHandler.ReconcileLineItem)
 		r.Post("/", lineItemHandler.PostLineItem)
+	})
+
+	emissionsFactorHandler := emissionsFactor.NewHandler(repo.EmissionsFactor)
+	app.Route("/emissions-factor", func(r fiber.Router) {
+		r.Patch("/populate", emissionsFactorHandler.PopulateEmissions)
 	})
 
 	// Example route that uses the climatiq client
