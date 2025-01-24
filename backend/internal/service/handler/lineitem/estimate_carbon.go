@@ -29,6 +29,7 @@ func (h *Handler) EstimateCarbonEmissions(c *fiber.Ctx) error {
 	for _, item := range lineItems {
 		// Ensure EmissionFactorID and Unit are provided
 		if item.EmissionFactorId == nil || *item.EmissionFactorId == "" || item.Unit == nil || *item.Unit == "" {
+		if item.EmissionFactorId == nil || *item.EmissionFactorId == "" || item.Unit == nil || *item.Unit == "" {
 			return errs.BadRequest(fmt.Sprintf("missing required fields for line item ID %s: emission_factor_id and unit are required", item.ID))
 		}
 
