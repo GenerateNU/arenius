@@ -8,11 +8,14 @@ export default function Form() {
     description: "",
     quantity: "",
     price: "",
+    currencyCode: "USD",
   };
 
   const [formData, setFormData] = useState(defaultForm);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -37,6 +40,7 @@ export default function Form() {
       description: formData.description,
       quantity: Number(formData.quantity),
       price: Number(formData.price),
+      currencyCode: formData.currencyCode,
     });
 
     setFormData(defaultForm);
@@ -87,6 +91,26 @@ export default function Form() {
             className="border rounded p-2 w-full"
             required
           />
+        </div>
+
+        <div>
+          <label htmlFor="currencyCode" className="block mb-1 font-medium">
+            Currency Code
+          </label>
+          <select
+            id="currencyCode"
+            name="currencyCode"
+            value={formData.currencyCode}
+            onChange={handleChange}
+            className="border rounded p-2 w-full"
+            required
+          >
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
+            <option value="JPY">JPY</option>
+            <option value="AUD">AUD</option>
+          </select>
         </div>
 
         <button

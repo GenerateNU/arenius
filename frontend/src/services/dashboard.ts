@@ -24,6 +24,7 @@ export async function createDashboardItem(item: Item): Promise<void> {
     "description": item.description,
     "quantity": item.quantity,
     "unit_amount": item.price,
+    "currency_code": item.currencyCode,
     "company_id": "0a67f5d3-88b6-4e8f-aac0-5137b29917fd",
     "contact_id": "b8c4b3e2-08f1-45e9-94a0-125a7e73b4d6",
     "amount": 12

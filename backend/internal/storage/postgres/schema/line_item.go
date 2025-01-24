@@ -162,8 +162,8 @@ func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []in
 	id := uuid.New().String()
 	createdAt := time.Now().UTC()
 	columns := []string{"id", "description", "quantity", "unit_amount", "company_id", "contact_id", "date", "currency_code"}
-	// TODO: fix company id and currency code
-	queryArgs := []interface{}{id, req.Description, req.Quantity, req.UnitAmount, req.CompanyID, req.ContactID, createdAt, "USD"}
+	// TODO: fix company id
+	queryArgs := []interface{}{id, req.Description, req.Quantity, req.UnitAmount, req.CompanyID, req.ContactID, createdAt, req.CurrencyCode}
 
 	// validate values in existing columns
 	if req.Quantity < 0 {
