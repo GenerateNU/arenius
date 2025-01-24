@@ -1,5 +1,6 @@
 export type Item = {
-  name: string;
   description: string;
+  quantity: number;
   price: number;
+  currencyCode?: string;
 };

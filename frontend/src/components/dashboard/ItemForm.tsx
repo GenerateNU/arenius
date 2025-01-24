@@ -1,0 +1,101 @@
+"use client";
+
+import { createDashboardItem } from "@/services/dashboard";
+import React, { useState } from "react";
+
+export default function Form() {
+  const defaultForm = {
+    description: "",
+    quantity: "",
+    price: "",
+  };
+
+  const [formData, setFormData] = useState(defaultForm);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (isNaN(Number(formData.quantity))) {
+      alert("Quantity must be a number.");
+      return;
+    }
+
+    if (isNaN(Number(formData.price))) {
+      alert("Price must be a number.");
+      return;
+    }
+
+    createDashboardItem({
+      description: formData.description,
+      quantity: Number(formData.quantity),
+      price: Number(formData.price),
+    });
+
+    setFormData(defaultForm);
+  };
+
+  return (
+    <div className="p-4">
+      <form onSubmit={handleSubmit} className="mb-4 space-y-4">
+        <div>
+          <label htmlFor="description" className="block mb-1 font-medium">
+            Description
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            className="border rounded p-2 w-full"
+            required
+          />
+        </div>
+
+        <div>
+          <label htmlFor="quantity" className="block mb-1 font-medium">
+            Quantity
+          </label>
+          <input
+            type="text"
+            id="quantity"
+            name="quantity"
+            value={formData.quantity}
+            onChange={handleChange}
+            className="border rounded p-2 w-full"
+            required
+          />
+        </div>
+
+        <div>
+          <label htmlFor="price" className="block mb-1 font-medium">
+            Price
+          </label>
+          <input
+            type="text"
+            id="price"
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            className="border rounded p-2 w-full"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+        >
+          Add Item
+        </button>
+      </form>
+    </div>
+  );
+}
