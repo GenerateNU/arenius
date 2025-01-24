@@ -34,7 +34,7 @@ func (h *Handler) EstimateCarbonEmissions(c *fiber.Ctx) error {
 
 		estimates = append(estimates, climatiq.EstimateRequest{
 			EmissionFactor: climatiq.EmissionFactor{
-				EmissionsFactorID: *item.EmissionFactorId,
+				ID: *item.EmissionFactorId,
 			},
 			Parameters: climatiq.Parameters{
 				Energy:     0,
@@ -46,11 +46,15 @@ func (h *Handler) EstimateCarbonEmissions(c *fiber.Ctx) error {
 		}
 	}
 
+	fmt.Println(estimates)
+
 	// Send the estimates directly to the Climatiq API
 	response, err := climatiqClient.BatchEstimate(c.Context(), &estimates)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).SendString(fmt.Sprintf("error estimating carbon emissions: %v", err))
 	}
+
+	fmt.Println(response.Results)
 
 	// Concurrently update line items with the CO2 data
 	var updatedLineItems []models.LineItem

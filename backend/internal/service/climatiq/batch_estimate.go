@@ -20,7 +20,7 @@ type EstimateRequest struct {
 
 // EmissionFactor contains the emission factor details.
 type EmissionFactor struct {
-	EmissionsFactorID string `json:"emission_factor_id"`
+	ID string `json:"id"`
 }
 
 // Parameters contains the parameters for an emission factor.
@@ -79,11 +79,16 @@ type ActivityData struct {
 func (c *Client) BatchEstimate(ctx context.Context, batchReq *[]EstimateRequest) (*BatchEstimateResponse, error) {
 	url := c.baseURL.String() + "data/v1/estimate/batch"
 
+	batchReqJSON, _ := json.Marshal(batchReq)
+	fmt.Printf("BatchEstimateRequest: %s\n", batchReqJSON)
+
 	// Encode request body
 	body, err := json.Marshal(batchReq)
 	if err != nil {
 		return nil, fmt.Errorf("error marshalling batch estimate request: %w", err)
 	}
+
+	fmt.Printf("BatchEstimateRequest: %s\n", body)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(body))
 	if err != nil {

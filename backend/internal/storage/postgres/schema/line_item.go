@@ -88,8 +88,8 @@ func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req model
 		&lineItem.Amount,
 		&lineItem.Unit,
 		&lineItem.CO2,
-		&lineItem.Scope,
-		&lineItem.CO2Unit)
+		&lineItem.CO2Unit,
+		&lineItem.Scope)
 
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)
