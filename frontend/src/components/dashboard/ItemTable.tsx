@@ -9,12 +9,12 @@ export default async function ItemTable() {
     <div>
       <p className={styles.header}>Recent transactions</p>
       <div className={styles.container}>
-        <p>Name</p>
         <p>Description</p>
+        <p>Quantity</p>
         <p>Price</p>
       </div>
       {data.map((item) => (
-        <ItemRow key={item.name} {...item} />
+        <ItemRow key={item.description} {...item} />
       ))}
     </div>
   );

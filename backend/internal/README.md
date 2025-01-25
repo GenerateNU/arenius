@@ -26,4 +26,20 @@ POST `/transaction`
 
 # Line Item
 
+GET `/line-item` 
+```go
+    - Body Parameters:
+        CompanyID            *string    `json:"company_id"`
+        Date                 *time.Time `json:"date"`
+        ReconciliationStatus *bool      `json:"reconciliation_status"`
+    - Query Parameters:
+        Page  int `query:"page"`
+	    Limit int `query:"limit"`
+
+```
+
 # Climatiq
+
+# Emissions Factors
+PATCH `/emissions-factor/populate`
+    - populates emissions factors table
