@@ -16,7 +16,7 @@ func GetBankTransactions() ([]map[string]interface{}, error) {
 
 	if accessToken == "" || tenantId == "" || url == "" {
 		fmt.Printf("Examine env values: accessToken=%s, tenantId=%s, url=%s\n", accessToken, tenantId, url)
-		return nil, errs.BadRequest(fmt.Sprint("missing env variables"))
+		return nil, fmt.Errorf("missing required environment variables")
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
