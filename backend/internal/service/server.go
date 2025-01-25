@@ -10,6 +10,7 @@ import (
 	"arenius/internal/service/handler/xero"
 	"arenius/internal/storage"
 	"arenius/internal/storage/postgres"
+	"fmt"
 
 	"context"
 	"net/http"
@@ -93,6 +94,14 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	// Example route that uses the climatiq client
 	carbonHandler := carbon.NewHandler()
 	app.Get("/climatiq", carbonHandler.SearchEmissionFactors)
+
+	app.Get("/bank-transactions", func(c *fiber.Ctx) error {
+		transactions, err := xero.GetBankTransactions()
+		if err != nil {
+			return c.Status(500).SendString(fmt.Sprintf("Error fetching bank transactions: %v", err))
+		}
+		return c.JSON(transactions)
+	})
 
 	return app
 }

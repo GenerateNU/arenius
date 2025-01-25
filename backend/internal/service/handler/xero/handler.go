@@ -1,11 +1,10 @@
 package xero
 
 import (
-	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gofiber/fiber/v2/middleware/session"
-	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 )
 
@@ -22,10 +21,11 @@ type Handler struct {
 }
 
 func NewHandler(sess *session.Store) *Handler {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error loading .env file")
-	}
+	client_id := os.Getenv("CLIENT_ID")
+	client_secret := os.Getenv("CLIENT_SECRET")
+	redirect_url := os.Getenv("REDIRECT_URL")
+	auth_url := os.Getenv("AUTH_URL")
+	token_url := os.Getenv("TOKEN_URL")
 
 	oAuthScopes := []string{
 		"openid",
@@ -37,26 +37,15 @@ func NewHandler(sess *session.Store) *Handler {
 	}
 
 	oauthConfig := &oauth2.Config{
-		ClientID:     "ID",
-		ClientSecret: "SECRET",
-		RedirectURL:  "http://localhost:8080/callback",
+		ClientID:     client_id,
+		ClientSecret: client_secret,
+		RedirectURL:  redirect_url,
 		Scopes:       oAuthScopes,
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://login.xero.com/identity/connect/authorize",
-			TokenURL: "https://identity.xero.com/connect/token",
+			AuthURL:  auth_url,
+			TokenURL: token_url,
 		},
 	}
-
-	// oauthConfig := &oauth2.Config{
-	// 	ClientID:     "E1B6C918F29E4C48A2097A725A76C505",
-	// 	ClientSecret: "ILiIbOwZMKXM0jLnyF6tPCO_y9GLt-Pvf84LUEJAl-tbqz5T",
-	// 	RedirectURL:  "http://localhost:8080/callback",
-	// 	Scopes:       oAuthScopes,
-	// 	Endpoint: oauth2.Endpoint{
-	// 		AuthURL:  "https://login.xero.com/identity/connect/authorize",
-	// 		TokenURL: "https://identity.xero.com/connect/token",
-	// 	},
-	// }
 
 	return &Handler{sess, &Config{oauthConfig}, "", nil, nil}
 }
