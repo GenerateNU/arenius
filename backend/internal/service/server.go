@@ -9,6 +9,7 @@ import (
 	"arenius/internal/service/handler/emissionsFactor"
 	"arenius/internal/service/handler/lineitem"
 	"arenius/internal/service/handler/transaction"
+	"arenius/internal/service/handler/xero"
 	"arenius/internal/storage"
 	"arenius/internal/storage/postgres"
 
@@ -21,6 +22,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
 type App struct {
@@ -75,6 +77,16 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		return c.SendStatus(http.StatusOK)
 	})
 
+	sess := session.New()
+	xeroAuthHandler := xero.NewHandler(sess)
+	app.Route("/auth", func(r fiber.Router) {
+		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
+	})
+
+	//app.Use("/xero", middleware.XeroAuth)
+
+	app.Get("/callback", xeroAuthHandler.Callback)
+
 	transactionHandler := transaction.NewHandler(repo.Transaction)
 	app.Route("/transaction", func(r fiber.Router) {
 		r.Post("/", transactionHandler.CreateTransaction)
@@ -96,6 +108,11 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	carbonHandler := carbon.NewHandler()
 	app.Get("/climatiq", carbonHandler.SearchEmissionFactors)
 	app.Patch("/climatiq/estimate", lineItemHandler.EstimateCarbonEmissions)
+
+	app.Get("/bank-transactions", func(c *fiber.Ctx) error {
+		status := xeroAuthHandler.GetBankTransactions(c)
+		return status
+	})
 
 	return app
 }
