@@ -7,11 +7,26 @@ import (
 	"io"
 	"net/http"
 	"os"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-func GetBankTransactions() ([]map[string]interface{}, error) {
-	accessToken := os.Getenv("ACCESS_TOKEN")
-	tenantId := os.Getenv("TENANT_ID")
+func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) ([]map[string]interface{}, error) {
+	session, err := h.sess.Get(ctx)
+	if err != nil {
+		return nil, errs.BadRequest(fmt.Sprint("cannot retrieve session ", err))
+	}
+
+	accessToken, ok := session.Get("accessToken").(string)
+	if !ok {
+		return nil, fmt.Errorf("missing required environment variables")
+	}
+
+	tenantId, ok := session.Get("tenantID").(string)
+	if !ok {
+		return nil, fmt.Errorf("missing required environment variables")
+	}
+
 	url := os.Getenv("TRANSACTIONS_URL")
 
 	if accessToken == "" || tenantId == "" || url == "" {
@@ -46,7 +61,7 @@ func GetBankTransactions() ([]map[string]interface{}, error) {
 
 	var response map[string]interface{}
 	if err := json.Unmarshal(body, &response); err != nil {
-		return nil, errs.BadRequest(fmt.Sprint("unable to unpack reponse: ", err))
+		return nil, errs.BadRequest(fmt.Sprint("unable to unpack response: ", err))
 	}
 
 	transactions, ok := response["BankTransactions"].([]interface{})

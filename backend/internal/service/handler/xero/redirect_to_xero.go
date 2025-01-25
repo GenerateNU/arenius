@@ -43,11 +43,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	session.Set("accessToken", tok.AccessToken)
 	session.Set("refreshToken", tok.RefreshToken)
 
-	if err != nil {
-		log.Fatalf("Error updating .env file: %v", err)
-	}
-	fmt.Println(".env file updated successfully!")
-
 	url := os.Getenv("CONNECTIONS_URL")
 
 	req, err := http.NewRequest("GET", url, nil)
