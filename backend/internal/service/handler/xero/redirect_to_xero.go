@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -62,7 +61,7 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatalf("Error reading response body: %v", err)
 	}
@@ -88,13 +87,22 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		}
 	}
 
-	session.Save()
+	err = session.Save()
+	if err != nil {
+		fmt.Println("Error saving session:", err)
+		return err
+	}
 
 	// Set the HTTP client for subsequent requests.
 	h.oAuthHTTPClient = h.config.OAuth2Config.Client(ctx.Context(), tok)
 
 	handler := &Handler{}
-	handler.getBankTransactions(tok.AccessToken, tenantIDToken)
+	err = handler.getBankTransactions(tok.AccessToken, tenantIDToken)
+
+	if err != nil {
+		fmt.Println("Error:", err)
+		return err
+	}
 
 	// Redirect to the home page.
 	return ctx.Redirect("/health", fiber.StatusTemporaryRedirect)
