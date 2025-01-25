@@ -1,11 +1,14 @@
 ## API Documentation
 
 # Health Check
+
 - GET `/health`
-    - Returns 200 OK if the server is running.
+  - Returns 200 OK if the server is running.
 
 # Transactions
-POST `/transaction` 
+
+POST `/transaction`
+
 ```go
     - Body Parameters:
 
@@ -21,13 +24,39 @@ POST `/transaction`
 
     - Query Parameters:
 ```
- 
+
 # Carbon
 
 # Line Item
 
 # Climatiq
 
+PATCH `climatiq/estimate`
+    - Provides Carbon estimates for the given line items and updates the db based on Unit being Money
+
+    - Body Parameters:
+        List of Line Items
+
+```go
+    Line Item:
+        ID               string    `json:"id"` //Required
+        XeroLineItemID   *string   `json:"xero_line_item_id"` //Optional
+        Description      string    `json:"description"` //Optional
+        Quantity         float64   `json:"quantity"` //Required
+        UnitAmount       float64   `json:"unit_amount"` //Required
+        CompanyID        string    `json:"company_id"` //Optional
+        ContactID        string    `json:"contact_id"` //Optional
+        Date             time.Time `json:"date"` //Optional
+        CurrencyCode     string    `json:"currency_code"` //Required
+        EmissionFactorId *string   `json:"emission_factor_id"` //Required
+        Amount           *float64  `json:"amount"` //Optional
+        Unit             *string   `json:"unit"` //Optional
+        CO2              *float64  `json:"co2"` //Optional
+        Scope            *int      `json:"scope"` //Optional
+        CO2Unit          *string   `json:"co2_unit"` //Optional
+```
+
 # Emissions Factors
+
 PATCH `/emissions-factor/populate`
     - populates emissions factors table
