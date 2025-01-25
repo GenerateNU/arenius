@@ -47,3 +47,9 @@ type CreateLineItemRequest struct {
 	Scope          *int     `json:"scope,omitempty"`
 	CO2Unit        *string  `json:"co2_unit,omitempty"`
 }
+
+type GetLineItemsRequest struct {
+	CompanyID            *string    `json:"company_id"`
+	Date                 *time.Time `json:"date"`
+	ReconciliationStatus *bool      `json:"reconciliation_status"`
+}
