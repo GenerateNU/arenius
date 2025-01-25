@@ -89,7 +89,7 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId i
 
 	query := `
 		UPDATE line_item
-		SET emission_factor = $1,
+		SET emission_factor_id = $1,
 		    amount = $2,
 			unit = $3
 		WHERE id = $4
@@ -112,7 +112,7 @@ func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req model
 		SET co2 = $1,
 		    co2_unit = $2
 		WHERE id = $3
-		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor, amount, unit, co2, co2_unit, scope
+		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, amount, unit, co2, co2_unit, scope
 	`
 
 	var lineItem models.LineItem

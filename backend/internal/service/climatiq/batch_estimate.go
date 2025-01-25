@@ -20,13 +20,13 @@ type EstimateRequest struct {
 
 // EmissionFactor contains the emission factor details.
 type EmissionFactor struct {
-	EmissionsFactorID string `json:"emission_factor_id"`
+	ID string `json:"id"`
 }
 
 // Parameters contains the parameters for an emission factor.
 type Parameters struct {
-	Energy     float64 `json:"energy,omitempty"`
-	EnergyUnit string  `json:"energy_unit,omitempty"`
+	Money     float64 `json:"money,omitempty"`
+	MoneyUnit string  `json:"money_unit,omitempty"`
 }
 
 // BatchEstimateResponse represents the response from the batch estimate endpoint.
@@ -107,6 +107,7 @@ func (c *Client) BatchEstimate(ctx context.Context, batchReq *[]EstimateRequest)
 	// Decode response body
 	var batchResponse BatchEstimateResponse
 	if err := json.NewDecoder(resp.Body).Decode(&batchResponse); err != nil {
+		fmt.Printf("Error: %v\n", err)
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
