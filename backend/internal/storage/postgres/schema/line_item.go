@@ -19,7 +19,6 @@ type LineItemRepository struct {
 
 func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.Pagination) ([]models.LineItem, error) {
 	query := `
-		SELECT id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, amount, unit, co2, scope, co2_unit
 		SELECT id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, amount, unit, co2, co2_unit, scope
 		FROM line_item
 		ORDER BY date
