@@ -39,6 +39,7 @@ type CreateLineItemRequest struct {
 	UnitAmount     float64  `json:"unit_amount"`
 	CompanyID      string   `json:"company_id"`
 	ContactID      string   `json:"contact_id"`
+	CurrencyCode   string   `json:"currency_code"`
 	EmissionFactor *string  `json:"emission_factor,omitempty"`
 	Amount         *float64 `json:"amount,omitempty"`
 	Unit           *string  `json:"unit,omitempty"`

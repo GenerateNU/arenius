@@ -19,6 +19,7 @@ type LineItemRepository struct {
 
 func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.Pagination) ([]models.LineItem, error) {
 	query := `
+		SELECT id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, amount, unit, co2, scope, co2_unit
 		SELECT id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, amount, unit, co2, co2_unit, scope
 		FROM line_item
 		ORDER BY date
@@ -34,7 +35,23 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	var lineItems []models.LineItem
 	for rows.Next() {
 		var lineItem models.LineItem
-		if err := rows.Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactorId, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.Scope, &lineItem.CO2Unit); err != nil {
+		if err := rows.Scan(
+			&lineItem.ID,
+			&lineItem.XeroLineItemID,
+			&lineItem.Description,
+			&lineItem.Quantity,
+			&lineItem.UnitAmount,
+			&lineItem.CompanyID,
+			&lineItem.ContactID,
+			&lineItem.Date,
+			&lineItem.CurrencyCode,
+			&lineItem.EmissionFactorId,
+			&lineItem.Amount,
+			&lineItem.Unit,
+			&lineItem.CO2,
+			&lineItem.CO2Unit,
+			&lineItem.Scope,
+		); err != nil {
 			return nil, err
 		}
 		lineItems = append(lineItems, lineItem)
@@ -54,7 +71,7 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId i
 		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, amount, unit, co2, co2_unit, scope
 	`
 	var lineItem models.LineItem
-	err := r.db.QueryRow(ctx, query, req.EmissionsFactor, req.Amount, req.Unit, lineItemId).Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactorId, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.Scope, &lineItem.CO2Unit)
+	err := r.db.QueryRow(ctx, query, req.EmissionsFactor, req.Amount, req.Unit, lineItemId).Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactorId, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.CO2Unit, &lineItem.Scope)
 
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)
@@ -146,8 +163,8 @@ func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []in
 	id := uuid.New().String()
 	createdAt := time.Now().UTC()
 	columns := []string{"id", "description", "quantity", "unit_amount", "company_id", "contact_id", "date", "currency_code"}
-	// TODO: fix company id and currency code
-	queryArgs := []interface{}{id, req.Description, req.Quantity, req.UnitAmount, req.CompanyID, req.ContactID, createdAt, "USD"}
+	// TODO: fix company id
+	queryArgs := []interface{}{id, req.Description, req.Quantity, req.UnitAmount, req.CompanyID, req.ContactID, createdAt, req.CurrencyCode}
 
 	// validate values in existing columns
 	if req.Quantity < 0 {
