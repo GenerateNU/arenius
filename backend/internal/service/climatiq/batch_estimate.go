@@ -25,8 +25,8 @@ type EmissionFactor struct {
 
 // Parameters contains the parameters for an emission factor.
 type Parameters struct {
-	Energy     float64 `json:"energy,omitempty"`
-	EnergyUnit string  `json:"energy_unit,omitempty"`
+	Money     float64 `json:"money,omitempty"`
+	MoneyUnit string  `json:"money_unit,omitempty"`
 }
 
 // BatchEstimateResponse represents the response from the batch estimate endpoint.
@@ -79,16 +79,11 @@ type ActivityData struct {
 func (c *Client) BatchEstimate(ctx context.Context, batchReq *[]EstimateRequest) (*BatchEstimateResponse, error) {
 	url := c.baseURL.String() + "data/v1/estimate/batch"
 
-	batchReqJSON, _ := json.Marshal(batchReq)
-	fmt.Printf("BatchEstimateRequest: %s\n", batchReqJSON)
-
 	// Encode request body
 	body, err := json.Marshal(batchReq)
 	if err != nil {
 		return nil, fmt.Errorf("error marshalling batch estimate request: %w", err)
 	}
-
-	fmt.Printf("BatchEstimateRequest: %s\n", body)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(body))
 	if err != nil {
@@ -112,6 +107,7 @@ func (c *Client) BatchEstimate(ctx context.Context, batchReq *[]EstimateRequest)
 	// Decode response body
 	var batchResponse BatchEstimateResponse
 	if err := json.NewDecoder(resp.Body).Decode(&batchResponse); err != nil {
+		fmt.Printf("Error: %v\n", err)
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 

@@ -7,6 +7,7 @@ import (
 	"arenius/internal/service/ctxt"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/sync/errgroup"
@@ -37,24 +38,17 @@ func (h *Handler) EstimateCarbonEmissions(c *fiber.Ctx) error {
 				ID: *item.EmissionFactorId,
 			},
 			Parameters: climatiq.Parameters{
-				Energy:     0,
-				EnergyUnit: *item.Unit,
+				Money:     item.UnitAmount * item.Quantity,
+				MoneyUnit: strings.ToLower(item.CurrencyCode),
 			},
 		})
-		if item.Amount != nil {
-			estimates[len(estimates)-1].Parameters.Energy = *item.Amount
-		}
 	}
-
-	fmt.Println(estimates)
 
 	// Send the estimates directly to the Climatiq API
 	response, err := climatiqClient.BatchEstimate(c.Context(), &estimates)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).SendString(fmt.Sprintf("error estimating carbon emissions: %v", err))
 	}
-
-	fmt.Println(response.Results)
 
 	// Concurrently update line items with the CO2 data
 	var updatedLineItems []models.LineItem
