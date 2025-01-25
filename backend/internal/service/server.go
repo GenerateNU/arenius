@@ -6,6 +6,8 @@ import (
 	"arenius/internal/service/climatiq"
 	"arenius/internal/service/ctxt"
 	"arenius/internal/service/handler/carbon"
+	"arenius/internal/service/handler/emissionsFactor"
+	"arenius/internal/service/handler/lineitem"
 	"arenius/internal/service/handler/transaction"
 	"arenius/internal/service/handler/xero"
 	"arenius/internal/storage"
@@ -90,9 +92,22 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Post("/", transactionHandler.CreateTransaction)
 	})
 
+	lineItemHandler := lineitem.NewHandler(repo.LineItem)
+	app.Route("/line-item", func(r fiber.Router) {
+		r.Get("/", lineItemHandler.GetLineItems)
+		r.Patch("/:id", lineItemHandler.ReconcileLineItem)
+		r.Post("/", lineItemHandler.PostLineItem)
+	})
+
+	emissionsFactorHandler := emissionsFactor.NewHandler(repo.EmissionsFactor)
+	app.Route("/emissions-factor", func(r fiber.Router) {
+		r.Patch("/populate", emissionsFactorHandler.PopulateEmissions)
+	})
+
 	// Example route that uses the climatiq client
 	carbonHandler := carbon.NewHandler()
 	app.Get("/climatiq", carbonHandler.SearchEmissionFactors)
+	app.Patch("/climatiq/estimate", lineItemHandler.EstimateCarbonEmissions)
 
 	app.Get("/bank-transactions", func(c *fiber.Ctx) error {
 		status := xeroAuthHandler.GetBankTransactions(c)

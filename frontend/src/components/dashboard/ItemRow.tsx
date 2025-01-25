@@ -4,14 +4,14 @@ import { Item } from "@/types";
 type ItemTableRowProps = Item;
 
 export default function ItemTableRow({
-  name,
   description,
+  quantity,
   price,
 }: ItemTableRowProps) {
   return (
     <div className={styles.container}>
-      <p>{name}</p>
       <p>{description}</p>
+      <p>{quantity}</p>
       <p>{price}</p>
     </div>
   );

@@ -16,7 +16,6 @@ func (h *Handler) SearchEmissionFactors(c *fiber.Ctx) error {
 
 	searchRequest := &climatiq.SearchRequest{
 		DataVersion: "^5",
-		Query:       "coffee",
 		Region:      "US",
 	}
 	response, err := climatiqClient.Search(c.Context(), searchRequest)

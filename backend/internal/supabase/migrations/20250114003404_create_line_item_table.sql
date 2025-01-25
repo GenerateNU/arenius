@@ -1,5 +1,5 @@
 create table line_item (
-    id int not null primary key,
+    id uuid not null primary key,
     xero_line_item_id uuid,
     description text not null,
     quantity float not null,

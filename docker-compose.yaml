@@ -6,17 +6,31 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+    command: npm run dev
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./frontend
+          target: /app
     networks:
       - app-network
+
 
   backend:
     build:
       context: ./backend
     ports:
       - "8080:8080"
+    command: go run main.go
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./backend
+          target: /app
     networks:
       - app-network
     container_name: backend
+
 
 networks:
   app-network:
