@@ -69,12 +69,5 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 		return errs.BadRequest(fmt.Sprint("unable to store response: ", err))
 	}
 
-	var result []map[string]interface{}
-	for _, transaction := range transactions {
-		if t, ok := transaction.(map[string]interface{}); ok {
-			result = append(result, t)
-		}
-	}
-
 	return ctx.Status(fiber.StatusOK).JSON(transactions)
 }
