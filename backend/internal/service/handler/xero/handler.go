@@ -47,5 +47,16 @@ func NewHandler(sess *session.Store) *Handler {
 		},
 	}
 
+	// oauthConfig := &oauth2.Config{
+	// 	ClientID:     "E1B6C918F29E4C48A2097A725A76C505",
+	// 	ClientSecret: "ILiIbOwZMKXM0jLnyF6tPCO_y9GLt-Pvf84LUEJAl-tbqz5T",
+	// 	RedirectURL:  "http://localhost:8080/callback",
+	// 	Scopes:       oAuthScopes,
+	// 	Endpoint: oauth2.Endpoint{
+	// 		AuthURL:  "https://login.xero.com/identity/connect/authorize",
+	// 		TokenURL: "https://identity.xero.com/connect/token",
+	// 	},
+	// }
+
 	return &Handler{sess, &Config{oauthConfig}, "", nil, nil}
 }
