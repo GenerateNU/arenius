@@ -88,3 +88,28 @@ PATCH `climatiq/estimate`
 
 PATCH `/emissions-factor/populate`
     - populates emissions factors table
+
+```
+
+```
+# Xero Bank Transactions
+
+GET `/bank-transactions`
+	- provides a list of transactions specific to an organization including line items, currently configured for demo data
+ 	- Body Params:
+  		- Session Access Token (stored through /xero/auth)
+    		- Session Tenant ID (stored through /xero/auth)
+      - Response:
+      		- list of dictionaries contianing transaction information
+
+```
+
+
+
+
+
+
+
+
+
+
