@@ -8,6 +8,8 @@ export default function Form() {
     description: "",
     quantity: "",
     price: "",
+    co2: "",
+    co2Unit: "",
     currencyCode: "USD",
   };
 
@@ -24,6 +26,7 @@ export default function Form() {
   };
 
   const handleSubmit = (e: React.FormEvent) => {
+
     e.preventDefault();
 
     if (isNaN(Number(formData.quantity))) {
@@ -36,11 +39,18 @@ export default function Form() {
       return;
     }
 
+    if (isNaN(Number(formData.co2))) {
+      alert("CO2 amount must be a number.");
+      return
+    }
+    
     createDashboardItem({
       description: formData.description,
       quantity: Number(formData.quantity),
       price: Number(formData.price),
       currencyCode: formData.currencyCode,
+      co2: Number(formData.co2),
+      co2Unit: formData.co2Unit,
     });
 
     setFormData(defaultForm);
@@ -58,7 +68,7 @@ export default function Form() {
             name="description"
             value={formData.description}
             onChange={handleChange}
-            className="border rounded p-2 w-full"
+            className="border text-black rounded p-2 w-full"
             required
           />
         </div>
@@ -68,12 +78,12 @@ export default function Form() {
             Quantity
           </label>
           <input
-            type="text"
+            type="number"
             id="quantity"
             name="quantity"
             value={formData.quantity}
             onChange={handleChange}
-            className="border rounded p-2 w-full"
+            className="border text-black rounded p-2 w-full"
             required
           />
         </div>
@@ -83,12 +93,12 @@ export default function Form() {
             Price
           </label>
           <input
-            type="text"
+            type="number"
             id="price"
             name="price"
             value={formData.price}
             onChange={handleChange}
-            className="border rounded p-2 w-full"
+            className="border text-black rounded p-2 w-full"
             required
           />
         </div>
@@ -102,7 +112,7 @@ export default function Form() {
             name="currencyCode"
             value={formData.currencyCode}
             onChange={handleChange}
-            className="border rounded p-2 w-full"
+            className="border text-black rounded p-2 w-full"
             required
           >
             <option value="USD">USD</option>
@@ -111,6 +121,36 @@ export default function Form() {
             <option value="JPY">JPY</option>
             <option value="AUD">AUD</option>
           </select>
+        </div>
+
+        <div>
+          <label htmlFor="co2" className="block mb-1 font-medium">
+            CO2
+          </label>
+          <input
+            type="number"
+            id="co2"
+            name="co2"
+            value={formData.co2}
+            onChange={handleChange}
+            className="border text-black rounded p-2 w-full"
+            required
+          />
+        </div>
+
+        <div>
+          <label htmlFor="co2Unit" className="block mb-1 font-medium">
+            CO2 Unit
+          </label>
+          <input
+            type="text"
+            id="co2Unit"
+            name="co2Unit"
+            value={formData.co2Unit}
+            onChange={handleChange}
+            className="border text-black rounded p-2 w-full"
+            required
+          />
         </div>
 
         <button
@@ -123,3 +163,4 @@ export default function Form() {
     </div>
   );
 }
+

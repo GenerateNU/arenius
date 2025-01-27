@@ -12,15 +12,17 @@ export default async function ItemTable() {
         <p>Description</p>
         <p>Quantity</p>
         <p>Price</p>
+        <p>Co2</p>
       </div>
       {data.map((item) => (
-        <ItemRow key={item.description} {...item} />
+        <ItemRow key={item.id} {...item} />
       ))}
     </div>
   );
 }
 
+
 const styles = {
   header: "text-xl font-bold mb-2",
-  container: "grid grid-cols-3 gap-2 bg-gray-100 font-bold",
+  container: "grid grid-cols-4 gap-2 bg-black-100 font-bold",
 };

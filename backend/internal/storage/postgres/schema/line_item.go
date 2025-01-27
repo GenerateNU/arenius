@@ -156,7 +156,7 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 		INSERT INTO line_item
 		(` + strings.Join(columns, ", ") + `)
 		VALUES (` + strings.Join(numInputs, ", ") + `)
-		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor, amount, unit, co2, co2_unit, scope;
+		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, amount, unit, co2, co2_unit, scope;
 	`
 	var lineItem models.LineItem
 	err := r.db.QueryRow(ctx, query, queryArgs...).Scan(
