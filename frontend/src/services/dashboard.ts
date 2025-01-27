@@ -1,4 +1,5 @@
 import apiClient from './apiClient';
+import axios from 'axios';
 import { Item } from "../types";
 
 function filterDictionaryFields(response: Record<string, any>[]): Item[] {
@@ -43,8 +44,9 @@ export async function createDashboardItem(item: Item): Promise<void> {
     "amount": 12
   }
 
-  await apiClient
-    .get('/health')
+  // NOTE: THIS IS HARDCODED TO WORK, REMOVE WHEN DOCKER ISSUES ARE FIXED 
+  await axios
+    .post('http://127.0.0.1:8080/line-item', new_item)
     .then((response) => {
       console.log('Line item created:', response.data);
     })
