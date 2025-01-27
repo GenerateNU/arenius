@@ -13,8 +13,6 @@ type LineItem struct {
 	Date             time.Time `json:"date"`
 	CurrencyCode     string    `json:"currency_code"`
 	EmissionFactorId *string   `json:"emission_factor_id,omitempty"`
-	Amount           *float64  `json:"amount,omitempty"`
-	Unit             *string   `json:"unit,omitempty"`
 	CO2              *float64  `json:"co2,omitempty"`
 	Scope            *int      `json:"scope,omitempty"`
 	CO2Unit          *string   `json:"co2_unit,omitempty"`
@@ -41,8 +39,6 @@ type CreateLineItemRequest struct {
 	ContactID      string   `json:"contact_id"`
 	CurrencyCode   string   `json:"currency_code"`
 	EmissionFactor *string  `json:"emission_factor,omitempty"`
-	Amount         *float64 `json:"amount,omitempty"`
-	Unit           *string  `json:"unit,omitempty"`
 	CO2            *float64 `json:"co2,omitempty"`
 	Scope          *int     `json:"scope,omitempty"`
 	CO2Unit        *string  `json:"co2_unit,omitempty"`

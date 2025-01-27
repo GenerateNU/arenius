@@ -22,9 +22,9 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 
 	if filterParams.ReconciliationStatus != nil {
 		if *filterParams.ReconciliationStatus {
-			filterQuery += " AND line_item.emission_factor IS NOT NULL"
+			filterQuery += " AND line_item.emission_factor_id IS NOT NULL"
 		} else {
-			filterQuery += " AND line_item.emission_factor IS NULL"
+			filterQuery += " AND line_item.emission_factor_id IS NULL"
 		}
 	}
 
@@ -45,7 +45,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	}
 
 	query := `
-		SELECT id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor, amount, unit, co2, co2_unit, scope
+		SELECT id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope
 		FROM line_item ` + filterQuery +
 		` ORDER BY date
 		LIMIT $1 OFFSET $2 `
@@ -71,8 +71,6 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 			&lineItem.Date,
 			&lineItem.CurrencyCode,
 			&lineItem.EmissionFactorId,
-			&lineItem.Amount,
-			&lineItem.Unit,
 			&lineItem.CO2,
 			&lineItem.CO2Unit,
 			&lineItem.Scope,
@@ -93,10 +91,10 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId i
 		    amount = $2,
 			unit = $3
 		WHERE id = $4
-		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, amount, unit, co2, co2_unit, scope
+		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope
 	`
 	var lineItem models.LineItem
-	err := r.db.QueryRow(ctx, query, req.EmissionsFactor, req.Amount, req.Unit, lineItemId).Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactorId, &lineItem.Amount, &lineItem.Unit, &lineItem.CO2, &lineItem.CO2Unit, &lineItem.Scope)
+	err := r.db.QueryRow(ctx, query, req.EmissionsFactor, req.Amount, req.Unit, lineItemId).Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactorId, &lineItem.CO2, &lineItem.CO2Unit, &lineItem.Scope)
 
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)
@@ -112,7 +110,7 @@ func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req model
 		SET co2 = $1,
 		    co2_unit = $2
 		WHERE id = $3
-		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, amount, unit, co2, co2_unit, scope
+		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope
 	`
 
 	var lineItem models.LineItem
@@ -127,8 +125,6 @@ func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req model
 		&lineItem.Date,
 		&lineItem.CurrencyCode,
 		&lineItem.EmissionFactorId,
-		&lineItem.Amount,
-		&lineItem.Unit,
 		&lineItem.CO2,
 		&lineItem.CO2Unit,
 		&lineItem.Scope)
@@ -156,7 +152,7 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 		INSERT INTO line_item
 		(` + strings.Join(columns, ", ") + `)
 		VALUES (` + strings.Join(numInputs, ", ") + `)
-		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor, amount, unit, co2, co2_unit, scope;
+		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope;
 	`
 	var lineItem models.LineItem
 	err := r.db.QueryRow(ctx, query, queryArgs...).Scan(
@@ -170,8 +166,6 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 		&lineItem.Date,
 		&lineItem.CurrencyCode,
 		&lineItem.EmissionFactorId,
-		&lineItem.Amount,
-		&lineItem.Unit,
 		&lineItem.CO2,
 		&lineItem.CO2Unit,
 		&lineItem.Scope)
@@ -210,17 +204,7 @@ func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []in
 		columns = append(columns, "emission_factor")
 		queryArgs = append(queryArgs, *req.EmissionFactor)
 	}
-	if req.Amount != nil {
-		columns = append(columns, "amount")
-		queryArgs = append(queryArgs, *req.Amount)
-		if *req.Amount < 0 {
-			return nil, nil, errs.BadRequest("Amount must be >= 0")
-		}
-	}
-	if req.Unit != nil {
-		columns = append(columns, "unit")
-		queryArgs = append(queryArgs, *req.Unit)
-	}
+
 	if req.CO2 != nil {
 		columns = append(columns, "co2")
 		queryArgs = append(queryArgs, *req.CO2)

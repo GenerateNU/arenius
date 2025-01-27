@@ -8,7 +8,6 @@ import (
 	"arenius/internal/service/handler/carbon"
 	"arenius/internal/service/handler/emissionsFactor"
 	"arenius/internal/service/handler/lineitem"
-	"arenius/internal/service/handler/transaction"
 	"arenius/internal/service/handler/xero"
 	"arenius/internal/storage"
 	"arenius/internal/storage/postgres"
@@ -83,14 +82,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
 	})
 
-	//app.Use("/xero", middleware.XeroAuth)
-
 	app.Get("/callback", xeroAuthHandler.Callback)
-
-	transactionHandler := transaction.NewHandler(repo.Transaction)
-	app.Route("/transaction", func(r fiber.Router) {
-		r.Post("/", transactionHandler.CreateTransaction)
-	})
 
 	lineItemHandler := lineitem.NewHandler(repo.LineItem)
 	app.Route("/line-item", func(r fiber.Router) {
