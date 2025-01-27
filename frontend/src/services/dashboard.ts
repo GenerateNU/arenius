@@ -42,8 +42,9 @@ export async function createDashboardItem(item: Item): Promise<void> {
     "contact_id": "b8c4b3e2-08f1-45e9-94a0-125a7e73b4d6",
     "amount": 12
   }
-  apiClient
-    .post('/line-item', new_item)
+
+  await apiClient
+    .get('/health')
     .then((response) => {
       console.log('Line item created:', response.data);
     })
