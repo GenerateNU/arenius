@@ -52,7 +52,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	})
 
 	app.Use(recover.New())
-
+	app.Use(favicon.New())
 	app.Use(compress.New(compress.Config{
 		Level: compress.LevelBestSpeed,
 	}))
