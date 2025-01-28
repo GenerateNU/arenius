@@ -45,10 +45,11 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	}
 
 	query := `
-		SELECT id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope
-		FROM line_item ` + filterQuery +
-		` ORDER BY date
-		LIMIT $1 OFFSET $2 `
+	SELECT id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope
+	FROM line_item ` + filterQuery + `
+	ORDER BY date DESC
+	LIMIT $1 OFFSET $2
+	`
 
 	queryArgs := append([]interface{}{pagination.Limit, pagination.GetOffset()}, filterArgs...)
 	rows, err := r.db.Query(ctx, query, queryArgs...)
