@@ -10,10 +10,10 @@ export default function ItemTableRow({
 }: ItemTableRowProps) {
   return (
     <div className="flex gap-2">
-      <p className="w-3/12">{description}</p> {/* 40% width */}
-      <p className="w-2/12">${quantity * unit_amount}</p> {/* 20% width */}
-      <p className="w-5/12">{emission_factor_name}</p> {/* 20% width */}
-      <p className="w-2/12">0</p> {/* 20% width */}
+      <p className="w-3/12">{description}</p>
+      <p className="w-2/12">${quantity * unit_amount}</p>
+      <p className="w-5/12">{emission_factor_name}</p>
+      <p className="w-2/12">{Math.floor(Math.random() * 5000)} kg</p>
     </div>
   );
 }
