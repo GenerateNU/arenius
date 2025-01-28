@@ -3,7 +3,11 @@
 import { createDashboardItem } from "@/services/dashboard";
 import React, { useState } from "react";
 
-export default function Form() {
+type FormProps = {
+  onSubmit: () => void;
+};
+
+export default function Form({ onSubmit }: FormProps) {
   const defaultForm = {
     description: "",
     quantity: "",
@@ -16,7 +20,9 @@ export default function Form() {
   const [formData, setFormData] = useState(defaultForm);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -26,7 +32,6 @@ export default function Form() {
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-
     e.preventDefault();
 
     if (isNaN(Number(formData.quantity))) {
@@ -41,9 +46,9 @@ export default function Form() {
 
     if (isNaN(Number(formData.co2))) {
       alert("CO2 amount must be a number.");
-      return
+      return;
     }
-    
+
     createDashboardItem({
       description: formData.description,
       quantity: Number(formData.quantity),
@@ -54,6 +59,7 @@ export default function Form() {
     });
 
     setFormData(defaultForm);
+    onSubmit();
   };
 
   return (
@@ -163,4 +169,3 @@ export default function Form() {
     </div>
   );
 }
-

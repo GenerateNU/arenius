@@ -1,10 +1,12 @@
 import React from "react";
 import ItemRow from "./ItemRow";
-import { fetchDashboardItems } from "@/services/dashboard";
+import { Item } from "@/types";
 
-export default async function ItemTable() {
-  const data = await fetchDashboardItems();
+type ItemTableProps = {
+  items: Item[];
+};
 
+export default function ItemTable({ items }: ItemTableProps) {
   return (
     <div>
       <p className={styles.header}>Recent transactions</p>
@@ -14,13 +16,12 @@ export default async function ItemTable() {
         <p>Price</p>
         <p>Co2</p>
       </div>
-      {data.map((item) => (
+      {items.map((item) => (
         <ItemRow key={item.id} {...item} />
       ))}
     </div>
   );
 }
-
 
 const styles = {
   header: "text-xl font-bold mb-2",
