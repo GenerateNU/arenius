@@ -46,7 +46,7 @@ export default function Form({ onSubmit }: FormProps) {
       description: formData.description,
       quantity: Number(formData.quantity),
       unit_amount: Number(formData.unit_amount),
-      currencyCode: formData.currencyCode,
+      currency_code: formData.currencyCode,
     });
 
     setFormData(defaultForm);
@@ -55,7 +55,7 @@ export default function Form({ onSubmit }: FormProps) {
 
   return (
     <div className="p-4">
-      <form onSubmit={handleSubmit} className="mb-4 space-y-4">
+      <form onSubmit={handleSubmit} className="mb-4 flex flex-row gap-6">
         <div>
           <label htmlFor="description" className="block mb-1 font-medium">
             Description
@@ -87,7 +87,7 @@ export default function Form({ onSubmit }: FormProps) {
 
         <div>
           <label htmlFor="unit_amount" className="block mb-1 font-medium">
-            Price
+            Unit Price
           </label>
           <input
             type="number"
@@ -122,7 +122,7 @@ export default function Form({ onSubmit }: FormProps) {
 
         <button
           type="submit"
-          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mt-7 h-full"
         >
           Add Item
         </button>
