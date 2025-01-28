@@ -34,7 +34,8 @@ func (h *Handler) EstimateCarbonEmissions(c *fiber.Ctx) error {
 
 		estimates = append(estimates, climatiq.EstimateRequest{
 			EmissionFactor: climatiq.EmissionFactor{
-				ID: *item.EmissionFactorId,
+				ActivityID:  *item.EmissionFactorId,
+				DataVersion: "^20", // Assuming the most recent version; adjust as needed
 			},
 			Parameters: climatiq.Parameters{
 				Money:     item.UnitAmount * item.Quantity,
