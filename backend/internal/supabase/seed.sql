@@ -12,11 +12,11 @@ VALUES
 INSERT INTO emission_factor (
     id, activity_id, name, description, unit, unit_type, year, region, category, source, source_dataset
 ) VALUES
-    ('1', 'electricity-generation', 'Electricity Generation', 'Electricity generation from coal', 'kgCO2e', 'mass', 2023, 'North America', 'Energy', 'EPA', 'EPA 2023 Dataset'),
-    ('2', 'passenger-vehicles', 'Transportation', 'Passenger vehicles', 'gCO2e/km', 'distance', 2023, 'Europe', 'Transport', 'EU Commission', 'EU 2023 Dataset'),
-    ('3', 'cement-production', 'Industrial Processes', 'Cement production', 'kgCO2e', 'mass', 2023, 'Asia', 'Industry', 'UNFCCC', 'UNFCCC 2023 Dataset'),
-    ('4', 'rice-cultivation', 'Agriculture', 'Rice cultivation', 'kgCH4', 'mass', 2023, 'South America', 'Agriculture', 'FAO', 'FAO 2023 Dataset'),
-    ('5', 'waste-management', 'Waste Management', 'Landfill', 'kgCO2e', 'mass', 2023, 'Africa', 'Waste', 'IPCC', 'IPCC 2023 Dataset');
+    ('1', 'electricity-generation', 'Electricity Generation', 'Electricity generation from coal', 'kgCO2e', 'Money', 2023, 'US', 'Energy', 'EPA', 'EPA 2023 Dataset'),
+    ('2', 'passenger-vehicles', 'Transportation', 'Passenger vehicles', 'gCO2e/km', 'Money', 2023, 'US', 'Transport', 'EU Commission', 'EU 2023 Dataset'),
+    ('3', 'cement-production', 'Industrial Processes', 'Cement production', 'kgCO2e', 'Money', 2023, 'US', 'Industry', 'UNFCCC', 'UNFCCC 2023 Dataset'),
+    ('4', 'rice-cultivation', 'Agriculture', 'Rice cultivation', 'kgCH4', 'Money', 2023, 'US', 'Agriculture', 'FAO', 'FAO 2023 Dataset'),
+    ('5', 'waste-management', 'Waste Management', 'Landfill', 'kgCO2e', 'Money', 2023, 'EU', 'Waste', 'IPCC', 'IPCC 2023 Dataset');
 
 INSERT INTO line_item (id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, scope)
 VALUES
