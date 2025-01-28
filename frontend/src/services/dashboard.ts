@@ -1,29 +1,10 @@
-"use client";
-
-import axios from 'axios';
 import { Item } from "../types";
-
-function filterDictionaryFields(response: Record<string, any>[]): Item[] {
-  const filteredItems: Item[] = [];
-  for (const item of response) {
-    const newItem: Item = {
-      id: item['id'],
-      description: item['description'],
-      quantity: item['quantity'],
-      price: item['unit_amount'],
-      currencyCode: item['currency_code']
-    }
-    filteredItems.push(newItem);
-  }
-  return filteredItems;
-}
-
+import apiClient from "./apiClient";
 
 export async function fetchDashboardItems(): Promise<Item[]> {
   try {
-    const response = await axios.get('http://127.0.0.1:8080/line-item', {})
-    const items: Record<string, any>[] = response.data;
-    return filterDictionaryFields(items);
+    const response = await apiClient.get("/line-item", {});
+    return response.data;
   } catch (error) {
     console.error("Error fetching dashboard items", error);
     return [];
@@ -31,22 +12,21 @@ export async function fetchDashboardItems(): Promise<Item[]> {
 }
 
 export async function createDashboardItem(item: Item): Promise<void> {
-
   const new_item = {
-    "description": item.description,
-    "quantity": item.quantity,
-    "unit_amount": item.price,
-    "company_id": "0a67f5d3-88b6-4e8f-aac0-5137b29917fd",
-    "contact_id": "b8c4b3e2-08f1-45e9-94a0-125a7e73b4d6",
-    "amount": 12
-  }
+    description: item.description,
+    quantity: item.quantity,
+    unit_amount: item.unit_amount,
+    company_id: "0a67f5d3-88b6-4e8f-aac0-5137b29917fd",
+    contact_id: "b8c4b3e2-08f1-45e9-94a0-125a7e73b4d6",
+    amount: 12,
+  };
 
-  await axios
-    .post('http://127.0.0.1:8080/line-item', new_item)
+  await apiClient
+    .post("/line-item", new_item)
     .then((response) => {
-      console.log('Line item created:', response.data);
+      console.log("Line item created:", response.data);
     })
     .catch((error) => {
-      console.log('Error creating line item:', error);
+      console.log("Error creating line item:", error);
     });
-};
+}

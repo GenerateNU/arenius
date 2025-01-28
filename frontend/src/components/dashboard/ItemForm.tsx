@@ -11,7 +11,7 @@ export default function Form({ onSubmit }: FormProps) {
   const defaultForm = {
     description: "",
     quantity: "",
-    price: "",
+    unit_amount: "",
     currencyCode: "USD",
   };
 
@@ -37,7 +37,7 @@ export default function Form({ onSubmit }: FormProps) {
       return;
     }
 
-    if (isNaN(Number(formData.price))) {
+    if (isNaN(Number(formData.unit_amount))) {
       alert("Price must be a number.");
       return;
     }
@@ -45,8 +45,8 @@ export default function Form({ onSubmit }: FormProps) {
     await createDashboardItem({
       description: formData.description,
       quantity: Number(formData.quantity),
-      price: Number(formData.price),
-      currencyCode: formData.currencyCode
+      unit_amount: Number(formData.unit_amount),
+      currencyCode: formData.currencyCode,
     });
 
     setFormData(defaultForm);
@@ -86,14 +86,14 @@ export default function Form({ onSubmit }: FormProps) {
         </div>
 
         <div>
-          <label htmlFor="price" className="block mb-1 font-medium">
+          <label htmlFor="unit_amount" className="block mb-1 font-medium">
             Price
           </label>
           <input
             type="number"
-            id="price"
-            name="price"
-            value={formData.price}
+            id="unit_amount"
+            name="unit_amount"
+            value={formData.unit_amount}
             onChange={handleChange}
             className="border text-black rounded p-2 w-full"
             required
