@@ -13,7 +13,7 @@ type SummaryRepository struct {
 }
 
 func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetGrossSummaryRequest) (*models.GetGrossSummaryResponse, error) {
-	monthlyQuery := `
+	const monthlyQuery = `
 		SELECT
 			SUM(co2) AS total_co2,
 			scope,
@@ -71,7 +71,7 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 		}
 	}
 
-	totalQuery := `
+	const totalQuery = `
 		SELECT
 			SUM(co2) AS total_co2,
 			DATE_TRUNC('month', CURRENT_DATE - ($2 - 1) * INTERVAL '1 month') AS start_date,
