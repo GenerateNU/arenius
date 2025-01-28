@@ -10,10 +10,6 @@ import (
 )
 
 // Interfaces for repository layer.
-type TransactionRepository interface {
-	CreateTransaction(ctx context.Context, transaction models.Transaction) (models.Transaction, error)
-}
-
 type LineItemRepository interface {
 	GetLineItems(ctx context.Context, pagination utils.Pagination, filterParams models.GetLineItemsRequest) ([]models.LineItem, error)
 	ReconcileLineItem(ctx context.Context, lineItemId int, req models.ReconcileLineItemRequest) (*models.LineItem, error)
@@ -27,7 +23,6 @@ type EmissionsFactorRepository interface {
 
 type Repository struct {
 	db              *pgxpool.Pool
-	Transaction     TransactionRepository
 	LineItem        LineItemRepository
 	EmissionsFactor EmissionsFactorRepository
 }
@@ -40,7 +35,6 @@ func (r *Repository) Close() error {
 func NewRepository(db *pgxpool.Pool) *Repository {
 	return &Repository{
 		db:              db,
-		Transaction:     schema.NewTransactionRepository(db),
 		LineItem:        schema.NewLineItemRepository(db),
 		EmissionsFactor: schema.NewEmissionsFactorRepository(db),
 	}

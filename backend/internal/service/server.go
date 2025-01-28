@@ -8,7 +8,6 @@ import (
 	"arenius/internal/service/handler/carbon"
 	"arenius/internal/service/handler/emissionsFactor"
 	"arenius/internal/service/handler/lineitem"
-	"arenius/internal/service/handler/transaction"
 	"arenius/internal/service/handler/xero"
 	"arenius/internal/storage"
 	"arenius/internal/storage/postgres"
@@ -20,6 +19,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/session"
@@ -53,7 +53,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	})
 
 	app.Use(recover.New())
-
+	app.Use(favicon.New())
 	app.Use(compress.New(compress.Config{
 		Level: compress.LevelBestSpeed,
 	}))
@@ -83,14 +83,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
 	})
 
-	//app.Use("/xero", middleware.XeroAuth)
-
 	app.Get("/callback", xeroAuthHandler.Callback)
-
-	transactionHandler := transaction.NewHandler(repo.Transaction)
-	app.Route("/transaction", func(r fiber.Router) {
-		r.Post("/", transactionHandler.CreateTransaction)
-	})
 
 	lineItemHandler := lineitem.NewHandler(repo.LineItem)
 	app.Route("/line-item", func(r fiber.Router) {
