@@ -20,7 +20,8 @@ type EstimateRequest struct {
 
 // EmissionFactor contains the emission factor details.
 type EmissionFactor struct {
-	ID string `json:"id"`
+	ActivityID  string `json:"activity_id"`
+	DataVersion string `json:"data_version"`
 }
 
 // Parameters contains the parameters for an emission factor.

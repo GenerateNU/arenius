@@ -20,8 +20,14 @@ func (h *Handler) GetLineItems(c *fiber.Ctx) error {
 	}
 
 	var filterParams models.GetLineItemsRequest
-	if err := c.BodyParser(&filterParams); err != nil {
-		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
+
+	if len(c.Body()) == 0 {
+		// make an empty filter params
+		filterParams = models.GetLineItemsRequest{} 
+	} else {
+		if err := c.BodyParser(&filterParams); err != nil {
+			return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
+		}
 	}
 
 	lineItems, err := h.lineItemRepository.GetLineItems(c.Context(), pagination, filterParams)
