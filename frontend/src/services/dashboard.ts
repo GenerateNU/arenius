@@ -22,7 +22,7 @@ function filterDictionaryFields(response: Record<string, any>[]): Item[] {
 
 export async function fetchDashboardItems(): Promise<Item[]> {
   try {
-    const response = await apiClient.get('/line-item', {})
+    const response = await axios.get('http://127.0.0.1:8080/line-item', {})
     const items: Record<string, any>[] = response.data;
     return filterDictionaryFields(items);
   } catch (error) {
