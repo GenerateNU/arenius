@@ -12,8 +12,6 @@ export default function Form({ onSubmit }: FormProps) {
     description: "",
     quantity: "",
     price: "",
-    co2: "",
-    co2Unit: "",
     currencyCode: "USD",
   };
 
@@ -31,7 +29,7 @@ export default function Form({ onSubmit }: FormProps) {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (isNaN(Number(formData.quantity))) {
@@ -44,18 +42,11 @@ export default function Form({ onSubmit }: FormProps) {
       return;
     }
 
-    if (isNaN(Number(formData.co2))) {
-      alert("CO2 amount must be a number.");
-      return;
-    }
-
-    createDashboardItem({
+    await createDashboardItem({
       description: formData.description,
       quantity: Number(formData.quantity),
       price: Number(formData.price),
-      currencyCode: formData.currencyCode,
-      co2: Number(formData.co2),
-      co2Unit: formData.co2Unit,
+      currencyCode: formData.currencyCode
     });
 
     setFormData(defaultForm);
@@ -127,36 +118,6 @@ export default function Form({ onSubmit }: FormProps) {
             <option value="JPY">JPY</option>
             <option value="AUD">AUD</option>
           </select>
-        </div>
-
-        <div>
-          <label htmlFor="co2" className="block mb-1 font-medium">
-            CO2
-          </label>
-          <input
-            type="number"
-            id="co2"
-            name="co2"
-            value={formData.co2}
-            onChange={handleChange}
-            className="border text-black rounded p-2 w-full"
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="co2Unit" className="block mb-1 font-medium">
-            CO2 Unit
-          </label>
-          <input
-            type="text"
-            id="co2Unit"
-            name="co2Unit"
-            value={formData.co2Unit}
-            onChange={handleChange}
-            className="border text-black rounded p-2 w-full"
-            required
-          />
         </div>
 
         <button

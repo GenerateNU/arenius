@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { fetchDashboardItems } from "@/services/dashboard";
 import { Item } from "@/types";
 
-// TODO: UPDATING THE FORM DOESN'T ACTUALLY CHANGE THE TABLE LIVE, AND IM NOT SURE HOW TO DO THAT
 export default function Dashboard() {
   const [data, setData] = useState<Item[]>([]);
 

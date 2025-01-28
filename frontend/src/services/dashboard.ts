@@ -1,4 +1,5 @@
-import apiClient from './apiClient';
+"use client";
+
 import axios from 'axios';
 import { Item } from "../types";
 
@@ -10,9 +11,7 @@ function filterDictionaryFields(response: Record<string, any>[]): Item[] {
       description: item['description'],
       quantity: item['quantity'],
       price: item['unit_amount'],
-      currencyCode: item['currency_code'],
-      co2: item['co2'],
-      co2Unit: item['co2_unit']
+      currencyCode: item['currency_code']
     }
     filteredItems.push(newItem);
   }
@@ -37,14 +36,11 @@ export async function createDashboardItem(item: Item): Promise<void> {
     "description": item.description,
     "quantity": item.quantity,
     "unit_amount": item.price,
-    "co2": item.co2,
-    "co2_unit": item.co2Unit,
     "company_id": "0a67f5d3-88b6-4e8f-aac0-5137b29917fd",
     "contact_id": "b8c4b3e2-08f1-45e9-94a0-125a7e73b4d6",
     "amount": 12
   }
 
-  // NOTE: THIS IS HARDCODED TO WORK, REMOVE WHEN DOCKER ISSUES ARE FIXED 
   await axios
     .post('http://127.0.0.1:8080/line-item', new_item)
     .then((response) => {

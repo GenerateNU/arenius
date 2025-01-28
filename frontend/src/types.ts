@@ -4,6 +4,4 @@ export type Item = {
   quantity: number;
   price: number;
   currencyCode: string;
-  co2?: number;
-  co2Unit?: string;
 };
