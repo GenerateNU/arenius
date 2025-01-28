@@ -103,6 +103,65 @@ func (r *EmissionsFactorRepository) AddEmissionsFactors(ctx context.Context, emi
 	return emissionFactors, nil
 }
 
+func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context) ([]models.Category, error) {
+
+	const query = `
+		WITH latest_emission AS (
+		SELECT *,
+			ROW_NUMBER() OVER (PARTITION BY activity_id ORDER BY year DESC) AS rn
+		FROM emission_factor
+		WHERE region = 'US' AND unit_type = 'Money'
+		)
+		SELECT *
+		FROM latest_emission
+		WHERE rn = 1
+		ORDER BY category;
+	`
+	rows, err := r.db.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// parse results into a map of category : list of emissions factor
+	categoryMap := make(map[string][]models.EmissionsFactor)
+	for rows.Next() {
+		var emissionsFactor models.EmissionsFactor
+		var rn int // this is unused 
+		err := rows.Scan(
+			&emissionsFactor.Id,
+			&emissionsFactor.ActivityId,
+			&emissionsFactor.Name,
+			&emissionsFactor.Description,
+			&emissionsFactor.Unit,
+			&emissionsFactor.UnitType,
+			&emissionsFactor.Year,
+			&emissionsFactor.Region,
+			&emissionsFactor.Category,
+			&emissionsFactor.Source,
+			&emissionsFactor.SourceDataset,
+			&rn,
+		)
+		if err != nil {
+			return nil, err
+		}
+		categoryMap[emissionsFactor.Category] = append(categoryMap[emissionsFactor.Category], emissionsFactor)
+	}
+
+	// convert results into a []models.Category
+	var categories []models.Category
+	for categoryName, factors := range categoryMap {
+		categories = append(categories, models.Category{
+			Name: categoryName,
+			EmissionsFactors: factors,
+		})
+	}
+
+	return categories, nil
+
+}
+
+
 func NewEmissionsFactorRepository(db *pgxpool.Pool) *EmissionsFactorRepository {
 	return &EmissionsFactorRepository{
 		db,
