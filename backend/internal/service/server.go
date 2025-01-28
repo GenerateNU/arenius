@@ -99,13 +99,12 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	// Example route that uses the climatiq client
 	carbonHandler := carbon.NewHandler()
-	app.Get("/climatiq", carbonHandler.SearchEmissionFactors)
-	app.Patch("/climatiq/estimate", lineItemHandler.EstimateCarbonEmissions)
-
-	app.Get("/bank-transactions", func(c *fiber.Ctx) error {
-		status := xeroAuthHandler.GetBankTransactions(c)
-		return status
+	app.Route("/climatiq", func(r fiber.Router) {
+		r.Get("/", carbonHandler.SearchEmissionFactors)
+		r.Patch("estimate", lineItemHandler.EstimateCarbonEmissions)
 	})
+
+	app.Get("/bank-transactions", xeroAuthHandler.GetBankTransactions)
 
 	return app
 }
