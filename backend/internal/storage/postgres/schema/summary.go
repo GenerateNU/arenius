@@ -72,8 +72,8 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 		}
 	}
 
-	if err := rowsMonthly.Err(); err != nil {
-		return nil, fmt.Errorf("error iterating over emission factor rows: %w", err)
+	if errMonthlyRows := rowsMonthly.Err(); errMonthlyRows != nil {
+		return nil, fmt.Errorf("error iterating over emission factor rows: %w", errMonthlyRows)
 	}
 
 	const totalQuery = `
@@ -104,6 +104,10 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 		}
 	} else {
 		co2Total = 0
+	}
+
+	if errTotalRows := rowsTotal.Err(); errTotalRows != nil {
+		return nil, fmt.Errorf("error iterating over emission factor total rows: %w", errTotalRows)
 	}
 
 	return &models.GetGrossSummaryResponse{
