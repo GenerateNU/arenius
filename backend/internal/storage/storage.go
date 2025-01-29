@@ -22,10 +22,15 @@ type EmissionsFactorRepository interface {
 	GetEmissionFactors(ctx context.Context) ([]models.Category, error)
 }
 
+type SummaryRepository interface {
+	GetGrossSummary(ctx context.Context, req models.GetGrossSummaryRequest) (*models.GetGrossSummaryResponse, error)
+}
+
 type Repository struct {
 	db              *pgxpool.Pool
 	LineItem        LineItemRepository
 	EmissionsFactor EmissionsFactorRepository
+	Summary         SummaryRepository
 }
 
 func (r *Repository) Close() error {
@@ -38,5 +43,6 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		db:              db,
 		LineItem:        schema.NewLineItemRepository(db),
 		EmissionsFactor: schema.NewEmissionsFactorRepository(db),
+		Summary:         schema.NewSummaryRepository(db),
 	}
 }

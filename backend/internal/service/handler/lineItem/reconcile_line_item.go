@@ -1,4 +1,4 @@
-package lineitem
+package lineItem
 
 import (
 	"arenius/internal/errs"
@@ -34,10 +34,10 @@ func (h *Handler) ReconcileLineItem(c *fiber.Ctx) error {
 		return errs.BadRequest("Unit cannot be empty in request.")
 	}
 
-	lineitem, err := h.lineItemRepository.ReconcileLineItem(c.Context(), lineItemId, req)
+	lineItem, err := h.lineItemRepository.ReconcileLineItem(c.Context(), lineItemId, req)
 	if err != nil {
 		return errs.BadRequest(err.Error())
 	}
 
-	return c.Status(fiber.StatusOK).JSON(lineitem)
+	return c.Status(fiber.StatusOK).JSON(lineItem)
 }
