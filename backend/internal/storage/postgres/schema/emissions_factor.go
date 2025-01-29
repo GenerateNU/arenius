@@ -148,8 +148,12 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context) ([]m
 		categoryMap[emissionsFactor.Category] = append(categoryMap[emissionsFactor.Category], emissionsFactor)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over emission factor rows: %w", err)
+	}
+
 	// convert results into a []models.Category
-	var categories []models.Category
+	categories := make([]models.Category, 0, len(categoryMap))
 	for categoryName, factors := range categoryMap {
 		categories = append(categories, models.Category{
 			Name: categoryName,
