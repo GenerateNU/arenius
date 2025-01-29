@@ -151,14 +151,14 @@ GET `/bank-transactions`
       - Response:
       		- list of dictionaries contianing transaction information
 
+# Summaries
+
+
+GET `/summary/gross`
+    - provides the breakdown of total emissions per month by scope, for the previous `month_duration` months, as well as a cumulative total emissions for all line items for all time.
+
+```go
+    - Body Parameters:
+        - `month_duration`: Number of months to summarize
+        - `company_id`: Company whose line items are being summarized
 ```
-
-
-
-
-
-
-
-
-
-
