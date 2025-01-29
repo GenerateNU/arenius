@@ -4,6 +4,7 @@ import (
 	"arenius/internal/models"
 	"context"
 	"time"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -69,6 +70,10 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 		case 3:
 			currentSummary.Scopes.ScopeThree = co2
 		}
+	}
+
+	if err := rowsMonthly.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over emission factor rows: %w", err)
 	}
 
 	const totalQuery = `
