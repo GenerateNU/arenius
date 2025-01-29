@@ -3,5 +3,6 @@ export type Item = {
   description: string;
   quantity: number;
   unit_amount: number;
-  currencyCode: string;
+  currency_code: string;
+  emission_factor_name?: string;
 };
