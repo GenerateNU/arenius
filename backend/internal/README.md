@@ -28,6 +28,35 @@ POST `/transaction`
 # Carbon
 
 # Line Item
+GET `/line-item` 
+```go
+    - Body Parameters:
+        CompanyID            *string    `json:"company_id"`
+        Date                 *time.Time `json:"date"`
+        ReconciliationStatus *bool      `json:"reconciliation_status"`
+    - Query Parameters:
+        Page  int `query:"page"`
+	    Limit int `query:"limit"`
+
+```
+
+
+PATCH `/line-item`
+```go
+    - Body Parameters:
+        - `emission-factor`: Name of the emissions factor
+        - `amount`: Price
+        - `unit`: Unit of the emissions factor
+    - Path Parameters:
+        - `:id`: The ID of the line item
+    - Example:
+        - URL: `http://127.0.0.1:8080/line-item/1`
+        - Parameters: {"emission_factor": "factor_UPDATE",
+                       "amount": 69,
+                       "unit": "gigabytes"
+                      }
+```
+
 Post `/line-item`
 ```go
     - Body Parameters (*type) indicates an optional field
@@ -86,10 +115,30 @@ PATCH `climatiq/estimate`
 
 # Emissions Factors
 
+GET `/emissions-factor`
+    - returns all emissions factors, structured as a list of categories, each with a name and its list of emission factors. 
+
 PATCH `/emissions-factor/populate`
     - populates emissions factors table
 
-```
+```go
+
+EmissionsFactor:
+    Id            string `json:"id"`
+	ActivityId    string `json:"activity_id"`
+	Name          string `json:"name"`
+	Description   string `json:"description"`
+	Unit          string `json:"unit"`
+	UnitType      string `json:"unit_type"`
+	Year          int    `json:"year"`
+	Region        string `json:"region"`
+	Category      string `json:"category"`
+	Source        string `json:"source"`
+	SourceDataset string `json:"source_dataset"`
+
+Category:
+	Name             string            `json:"name"`
+	EmissionsFactors []EmissionsFactor `json:"emissions_factors"`
 
 ```
 # Xero Bank Transactions
