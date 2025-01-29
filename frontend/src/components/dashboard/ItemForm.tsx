@@ -54,13 +54,13 @@ export default function Form({ onSubmit }: FormProps) {
   };
 
   return (
-    <div className="p-4">
+    <div className="py-4">
       <form onSubmit={handleSubmit} className="mb-4 flex flex-row gap-6">
         <div>
           <label htmlFor="description" className="block mb-1 font-medium">
             Description
           </label>
-          <textarea
+          <input
             id="description"
             name="description"
             value={formData.description}
@@ -70,7 +70,7 @@ export default function Form({ onSubmit }: FormProps) {
           />
         </div>
 
-        <div>
+        {/* <div>
           <label htmlFor="quantity" className="block mb-1 font-medium">
             Quantity
           </label>
@@ -83,17 +83,18 @@ export default function Form({ onSubmit }: FormProps) {
             className="border text-black rounded p-2 w-full"
             required
           />
-        </div>
+        </div> */}
 
         <div>
           <label htmlFor="unit_amount" className="block mb-1 font-medium">
-            Unit Price
+            Price
           </label>
           <input
             type="number"
             id="unit_amount"
             name="unit_amount"
             value={formData.unit_amount}
+            placeholder="$"
             onChange={handleChange}
             className="border text-black rounded p-2 w-full"
             required
