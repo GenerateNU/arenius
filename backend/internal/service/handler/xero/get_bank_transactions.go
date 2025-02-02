@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -35,18 +36,10 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 		return fmt.Errorf("missing required environment variables")
 	}
 
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return errs.BadRequest(fmt.Sprint("invalid request: ", err))
-	}
-
-	req.Header.Set("Authorization", "Bearer "+accessToken)
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Xero-tenant-id", tenantId)
-
+	// TODO: use company GET endpoint instead
 	// get the current company using the Xero tenant ID
 	companyQuery := `
-		SELECT (id, name, xero_tenant_id, last_import_time) 
+		SELECT id, name, xero_tenant_id, last_import_time
 		FROM company 
 		WHERE xero_tenant_id=$1
 		LIMIT 1
@@ -59,44 +52,90 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 		&company.ID, &company.Name, &company.XeroTenantID, &company.LastImportTime,
 	)
 	if err != nil {
-		return errs.BadRequest(fmt.Sprintf("Unable to find company with Xero Tenant ID: %s, %s", tenantId, err))
+		return errs.BadRequest(fmt.Sprintf("Error finding company with Xero Tenant ID: %s, %s", tenantId, err))
 	}
 
-	// filter the transaction results to only those after the last import time for this company
-	if company.LastImportTime != nil {
-		req.Header.Set("If-Modified-Since", company.LastImportTime.UTC().Format("2006-01-02T15:04:05"))
-	}
+	var transactions []interface{}
+	remainingTransactions := true
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return errs.BadRequest(fmt.Sprint("error handling request: ", err))
-	}
-	defer resp.Body.Close()
+	pageNum := 1
+	pageSize := 100
 
-	if resp.StatusCode != http.StatusOK {
-		return errs.BadRequest(fmt.Sprint("response status unsuccessful: ", err))
-	}
+	for remainingTransactions {
+		paginatedUrl := fmt.Sprintf("%s?page=%d&pageSize=%d", url, pageNum, pageSize)
+		pageNum += 1
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return errs.BadRequest(fmt.Sprint("unable to read response body: ", err))
-	}
+		req, err := http.NewRequest("GET", paginatedUrl, nil)
+		if err != nil {
+			return errs.BadRequest(fmt.Sprint("invalid request: ", err))
+		}
 
-	var response map[string]interface{}
-	if err := json.Unmarshal(body, &response); err != nil {
-		return errs.BadRequest(fmt.Sprint("unable to unpack response: ", err))
-	}
+		req.Header.Set("Authorization", "Bearer "+accessToken)
+		req.Header.Set("Accept", "application/json")
+		req.Header.Set("Xero-tenant-id", tenantId)
 
-	transactions, ok := response["BankTransactions"].([]interface{})
-	if !ok {
-		return errs.BadRequest(fmt.Sprint("unable to store response: ", err))
+		// filter the transaction results to only those after the last import time for this company
+		if company.LastImportTime != nil {
+			req.Header.Set("If-Modified-Since", company.LastImportTime.UTC().Format("2006-01-02T15:04:05"))
+		}
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			return errs.BadRequest(fmt.Sprint("error handling request: ", err))
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			return errs.BadRequest(fmt.Sprint("response status unsuccessful: ", err))
+		}
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return errs.BadRequest(fmt.Sprint("unable to read response body: ", err))
+		}
+
+		var response map[string]interface{}
+		if err := json.Unmarshal(body, &response); err != nil {
+			return errs.BadRequest(fmt.Sprint("unable to unpack response: ", err))
+		}
+
+		paginatedTransactions, ok := response["BankTransactions"].([]interface{})
+		if !ok {
+			return errs.BadRequest("unable to store response")
+		}
+
+		pagination, ok := response["pagination"].(map[string]interface{})
+		if !ok {
+			return errs.BadRequest("Invalid pagination format")
+		}
+
+		itemCount, ok := pagination["itemCount"].(int)
+		if !ok {
+			return errs.BadRequest(fmt.Sprintf("Invalid Item Count value: %s", pagination["itemCount"]))
+		}
+		remainingTransactions = itemCount == 100
+
+		transactions = append(transactions, paginatedTransactions...)
 	}
 
 	// parse the new line items from the fetched transactions
 	newLineItems, err := parseTransactions(transactions, company)
 	if err != nil {
 		return err
+	}
+
+	// TODO: use company PATCH endpoint instead
+	// update company.last_imported_at to now so that we don't fetch the same transactions later
+	companyLastImportTimeQuery := `
+		UPDATE company 
+		SET last_import_time=$1
+		WHERE id=$2
+		RETURNING last_import_time;
+	`
+	err = db.QueryRow(ctx.Context(), companyLastImportTimeQuery, time.Now().UTC(), company.ID).Scan(&company.LastImportTime)
+	if err != nil {
+		return errs.BadRequest(fmt.Sprintf("Unable to update company last_import_time: %s", err))
 	}
 
 	// send the new line items to the repository layer
@@ -138,7 +177,6 @@ func parseTransactions(transactions []interface{}, company models.Company) ([]mo
 		}
 
 		if txMap["LineItems"] != nil {
-			// TODO: these are currently missing from response?
 			lineItemsArray, ok := txMap["LineItems"].([]interface{})
 			if !ok {
 				return nil, errs.BadRequest("Invalid LineItems format")

@@ -187,9 +187,9 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 			INSERT INTO line_item
 			(id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code)
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-			RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope
-			ON CONFLICT (xero_tenant_id) DO NOTHING;
+			RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope;
 		`
+		// TODO: handle duplicate based on xero_line_item_id
 		var lineItem models.LineItem
 		err := r.db.QueryRow(ctx, query,
 			uuid.New().String(),
