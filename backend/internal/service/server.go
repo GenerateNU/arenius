@@ -5,6 +5,7 @@ import (
 	"arenius/internal/errs"
 	"arenius/internal/service/climatiq"
 	"arenius/internal/service/ctxt"
+	"arenius/internal/service/handler/auth"
 	"arenius/internal/service/handler/carbon"
 	"arenius/internal/service/handler/emissionsFactor"
 	"arenius/internal/service/handler/lineitem"
@@ -105,6 +106,12 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	app.Get("/bank-transactions", func(c *fiber.Ctx) error {
 		status := xeroAuthHandler.GetBankTransactions(c)
 		return status
+	})
+
+	SupabaseAuthHandler := auth.NewHandler()
+	app.Route("/auth", func(router fiber.Router) {
+		router.Post("/signup", SupabaseAuthHandler.Login)
+		router.Post("/login", SupabaseAuthHandler.SignUp)
 	})
 
 	return app
