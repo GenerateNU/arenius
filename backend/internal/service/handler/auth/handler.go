@@ -11,26 +11,14 @@ type Handler struct {
 	sess   *session.Store
 }
 
+type Credentials struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 func NewHandler(config config.Supabase, store *session.Store) *Handler {
 	return &Handler{
 		config,
 		store,
 	}
 }
-
-// type Handler struct {
-// 	supabaseURL string
-// 	supabaseKey string
-// }
-
-// func NewHandler() *Handler {
-
-// 	supabaseURL := os.Getenv("SUPABASE_URL")
-// 	supabaseKey := os.Getenv("SUPABASE_ANON_KEY")
-
-// 	if supabaseURL == "" || supabaseKey == "" {
-// 		log.Fatal("SUPABASE_URL and SUPABASE_ANON_KEY environment variables must be set")
-// 	}
-
-// 	return &Handler{supabaseURL: supabaseURL, supabaseKey: supabaseKey}
-// }
