@@ -14,6 +14,7 @@ services:
           target: /app
     networks:
       - app-network
+    container_name: frontend
 
 
   backend:

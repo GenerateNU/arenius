@@ -3,18 +3,24 @@
 import { createDashboardItem } from "@/services/dashboard";
 import React, { useState } from "react";
 
-export default function Form() {
+type FormProps = {
+  onSubmit: () => void;
+};
+
+export default function Form({ onSubmit }: FormProps) {
   const defaultForm = {
     description: "",
     quantity: "",
-    price: "",
+    unit_amount: "",
     currencyCode: "USD",
   };
 
   const [formData, setFormData] = useState(defaultForm);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -23,7 +29,7 @@ export default function Form() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (isNaN(Number(formData.quantity))) {
@@ -31,24 +37,25 @@ export default function Form() {
       return;
     }
 
-    if (isNaN(Number(formData.price))) {
+    if (isNaN(Number(formData.unit_amount))) {
       alert("Price must be a number.");
       return;
     }
 
-    createDashboardItem({
+    await createDashboardItem({
       description: formData.description,
       quantity: Number(formData.quantity),
-      price: Number(formData.price),
-      currencyCode: formData.currencyCode,
+      unit_amount: Number(formData.unit_amount),
+      currency_code: formData.currencyCode,
     });
 
     setFormData(defaultForm);
+    onSubmit();
   };
 
   return (
     <div className="p-4">
-      <form onSubmit={handleSubmit} className="mb-4 space-y-4">
+      <form onSubmit={handleSubmit} className="mb-4 flex flex-row gap-6">
         <div>
           <label htmlFor="description" className="block mb-1 font-medium">
             Description
@@ -58,7 +65,7 @@ export default function Form() {
             name="description"
             value={formData.description}
             onChange={handleChange}
-            className="border rounded p-2 w-full"
+            className="border text-black rounded p-2 w-full"
             required
           />
         </div>
@@ -68,27 +75,27 @@ export default function Form() {
             Quantity
           </label>
           <input
-            type="text"
+            type="number"
             id="quantity"
             name="quantity"
             value={formData.quantity}
             onChange={handleChange}
-            className="border rounded p-2 w-full"
+            className="border text-black rounded p-2 w-full"
             required
           />
         </div>
 
         <div>
-          <label htmlFor="price" className="block mb-1 font-medium">
-            Price
+          <label htmlFor="unit_amount" className="block mb-1 font-medium">
+            Unit Price
           </label>
           <input
-            type="text"
-            id="price"
-            name="price"
-            value={formData.price}
+            type="number"
+            id="unit_amount"
+            name="unit_amount"
+            value={formData.unit_amount}
             onChange={handleChange}
-            className="border rounded p-2 w-full"
+            className="border text-black rounded p-2 w-full"
             required
           />
         </div>
@@ -102,7 +109,7 @@ export default function Form() {
             name="currencyCode"
             value={formData.currencyCode}
             onChange={handleChange}
-            className="border rounded p-2 w-full"
+            className="border text-black rounded p-2 w-full"
             required
           >
             <option value="USD">USD</option>
@@ -115,7 +122,7 @@ export default function Form() {
 
         <button
           type="submit"
-          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mt-7 h-full"
         >
           Add Item
         </button>

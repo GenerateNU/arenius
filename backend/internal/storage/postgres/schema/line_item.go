@@ -22,9 +22,9 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 
 	if filterParams.ReconciliationStatus != nil {
 		if *filterParams.ReconciliationStatus {
-			filterQuery += " AND line_item.emission_factor_id IS NOT NULL"
+			filterQuery += " AND li.emission_factor_id IS NOT NULL"
 		} else {
-			filterQuery += " AND line_item.emission_factor_id IS NULL"
+			filterQuery += " AND li.emission_factor_id IS NULL"
 		}
 	}
 
@@ -45,10 +45,11 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	}
 
 	query := `
-		SELECT id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope
-		FROM line_item ` + filterQuery +
-		` ORDER BY date
-		LIMIT $1 OFFSET $2 `
+	SELECT li.id, li.xero_line_item_id, li.description, li.quantity, li.unit_amount, li.company_id, li.contact_id, li.date, li.currency_code, li.emission_factor_id, ef.name, li.co2, li.co2_unit, li.scope
+	FROM line_item li LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id ` + filterQuery + `
+	ORDER BY li.date DESC
+	LIMIT $1 OFFSET $2
+	`
 
 	queryArgs := append([]interface{}{pagination.Limit, pagination.GetOffset()}, filterArgs...)
 	rows, err := r.db.Query(ctx, query, queryArgs...)
@@ -71,6 +72,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 			&lineItem.Date,
 			&lineItem.CurrencyCode,
 			&lineItem.EmissionFactorId,
+			&lineItem.EmissionFactorName,
 			&lineItem.CO2,
 			&lineItem.CO2Unit,
 			&lineItem.Scope,
