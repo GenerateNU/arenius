@@ -10,6 +10,7 @@ import (
 
 func (h *Handler) SignUp(c *fiber.Ctx) error {
 	var creds Credentials
+	fmt.Println(creds)
 	if err := c.BodyParser(&creds); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}

@@ -14,7 +14,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
 
-	resp, err := h.makeSupabaseRequest("POST", "/token", map[string]string{"email": creds.Email, "password": creds.Password}) // Login uses /token endpoint
+	resp, err := h.makeSupabaseRequest("POST", "/token?grant_type=password", map[string]string{"email": creds.Email, "password": creds.Password}) // Login uses /token endpoint
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Login request failed: %v", err)})
 	}

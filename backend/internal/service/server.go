@@ -110,8 +110,8 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	SupabaseAuthHandler := auth.NewHandler()
 	app.Route("/auth", func(router fiber.Router) {
-		router.Post("/signup", SupabaseAuthHandler.Login)
-		router.Post("/login", SupabaseAuthHandler.SignUp)
+		router.Post("/signup", SupabaseAuthHandler.SignUp)
+		router.Post("/login", SupabaseAuthHandler.Login)
 	})
 
 	return app
