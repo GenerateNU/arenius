@@ -7,8 +7,8 @@ import (
 	"arenius/internal/service/ctxt"
 	"arenius/internal/service/handler/carbon"
 	"arenius/internal/service/handler/emissionsFactor"
-	"arenius/internal/service/handler/lineitem"
-	"arenius/internal/service/handler/transaction"
+	"arenius/internal/service/handler/lineItem"
+	"arenius/internal/service/handler/summary"
 	"arenius/internal/service/handler/xero"
 	"arenius/internal/storage"
 	"arenius/internal/storage/postgres"
@@ -20,6 +20,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/session"
@@ -34,6 +35,7 @@ type App struct {
 func InitApp(config config.Config) *App {
 	ctx := context.Background()
 	repo := postgres.NewRepository(ctx, config.DB)
+
 	climatiqClient := climatiq.NewClient()
 
 	app := SetupApp(config, repo, climatiqClient)
@@ -53,7 +55,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	})
 
 	app.Use(recover.New())
-
+	app.Use(favicon.New())
 	app.Use(compress.New(compress.Config{
 		Level: compress.LevelBestSpeed,
 	}))
@@ -83,16 +85,21 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
 	})
 
-	//app.Use("/xero", middleware.XeroAuth)
+	app.Route("/credentials", func(router fiber.Router) {
+		router.Post("/create", func(c *fiber.Ctx) error {
+			status := xeroAuthHandler.CreateCredentials(c, repo.Credentials)
+			return status
+		})
+		router.Get("/get", func(c *fiber.Ctx) error {
+			status := xeroAuthHandler.GetCredentials(c, repo.Credentials)
+			return status
+		})
+
+	})
 
 	app.Get("/callback", xeroAuthHandler.Callback)
 
-	transactionHandler := transaction.NewHandler(repo.Transaction)
-	app.Route("/transaction", func(r fiber.Router) {
-		r.Post("/", transactionHandler.CreateTransaction)
-	})
-
-	lineItemHandler := lineitem.NewHandler(repo.LineItem)
+	lineItemHandler := lineItem.NewHandler(repo.LineItem)
 	app.Route("/line-item", func(r fiber.Router) {
 		r.Get("/", lineItemHandler.GetLineItems)
 		r.Patch("/:id", lineItemHandler.ReconcileLineItem)
@@ -101,13 +108,23 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	emissionsFactorHandler := emissionsFactor.NewHandler(repo.EmissionsFactor)
 	app.Route("/emissions-factor", func(r fiber.Router) {
+		r.Get("/", emissionsFactorHandler.GetEmissionFactors)
 		r.Patch("/populate", emissionsFactorHandler.PopulateEmissions)
 	})
 
 	// Example route that uses the climatiq client
 	carbonHandler := carbon.NewHandler()
-	app.Get("/climatiq", carbonHandler.SearchEmissionFactors)
-	app.Patch("/climatiq/estimate", lineItemHandler.EstimateCarbonEmissions)
+	app.Route("/climatiq", func(r fiber.Router) {
+		r.Get("/", carbonHandler.SearchEmissionFactors)
+		r.Patch("estimate", lineItemHandler.EstimateCarbonEmissions)
+	})
+
+	summaryHandler := summary.NewHandler(repo.Summary)
+	app.Route("/summary", func(r fiber.Router) {
+		r.Get("/gross", summaryHandler.GetGrossSummary)
+	})
+
+	app.Get("/bank-transactions", xeroAuthHandler.GetBankTransactions)
 
 	app.Get("/bank-transactions", func(c *fiber.Ctx) error {
 		status := xeroAuthHandler.GetBankTransactions(c)
