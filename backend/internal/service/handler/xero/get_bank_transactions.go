@@ -110,11 +110,11 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 			return errs.BadRequest("Invalid pagination format")
 		}
 
-		itemCount, ok := pagination["itemCount"].(int)
+		itemCount, ok := pagination["itemCount"].(float64)
 		if !ok {
 			return errs.BadRequest(fmt.Sprintf("Invalid Item Count value: %s", pagination["itemCount"]))
 		}
-		remainingTransactions = itemCount == 100
+		remainingTransactions = int(itemCount) == 100
 
 		transactions = append(transactions, paginatedTransactions...)
 	}
@@ -128,7 +128,7 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 	// TODO: use company PATCH endpoint instead
 	// update company.last_imported_at to now so that we don't fetch the same transactions later
 	companyLastImportTimeQuery := `
-		UPDATE company 
+		UPDATE company
 		SET last_import_time=$1
 		WHERE id=$2
 		RETURNING last_import_time;
