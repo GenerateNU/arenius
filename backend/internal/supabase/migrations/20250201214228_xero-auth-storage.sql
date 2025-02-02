@@ -1,6 +1,7 @@
 CREATE TABLE public.xero_credentials (
-    id UUID PRIMARY KEY REFERENCES public.company(id) ON DELETE CASCADE,
-    access_token UUID NOT NULL,
-    refresh_token UUID NOT NULL,
-    tenant_id UUID NOT NULL
+    cred_id SERIAL PRIMARY KEY,                  
+    company_id UUID NOT NULL REFERENCES public.company(id), 
+    access_token UUID NOT NULL,  
+    refresh_token UUID NOT NULL, 
+    tenant_id UUID NOT NULL 
 );

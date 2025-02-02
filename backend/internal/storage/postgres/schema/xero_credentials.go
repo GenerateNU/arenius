@@ -15,7 +15,7 @@ type CredentialsRepository struct {
 }
 
 func (c *CredentialsRepository) GetCredentials(ctx context.Context) (models.XeroCredentials, error) {
-	var query = `SELECT x.id, x.access_token, x.refresh_token, x.tenant_id FROM xero_credentials x`
+	var query = `SELECT x.company_id, x.access_token, x.refresh_token, x.tenant_id FROM xero_credentials x`
 
 	rows, err := c.db.Query(ctx, query)
 	if err != nil {
@@ -37,14 +37,14 @@ func (c *CredentialsRepository) GetCredentials(ctx context.Context) (models.Xero
 
 func (c *CredentialsRepository) CreateCredentials(ctx context.Context, p models.XeroCredentials) (models.XeroCredentials, error) {
 	// Log the values being inserted for debugging purposes
-	fmt.Printf("Inserting credentials: ID=%v, AccessToken=%v, RefreshToken=%v, TenantID=%v\n", p.ID, p.AccessToken, p.RefreshToken, p.TenantID)
+	fmt.Printf("Inserting credentials: ID=%v, AccessToken=%v, RefreshToken=%v, TenantID=%v\n", p.CompanyID, p.AccessToken, p.RefreshToken, p.TenantID)
 
 	// Prepare the query
-	query := `INSERT INTO xero_credentials (id, access_token, refresh_token, tenant_id)
+	query := `INSERT INTO xero_credentials (company_id, access_token, refresh_token, tenant_id)
 				VALUES ($1, $2, $3, $4)`
 
 	// Execute the query using Exec method
-	res, err := c.db.Exec(ctx, query, p.ID, p.AccessToken, p.RefreshToken, p.TenantID)
+	res, err := c.db.Exec(ctx, query, p.CompanyID, p.AccessToken, p.RefreshToken, p.TenantID)
 	if err != nil {
 		// Log the error if it occurs
 		fmt.Printf("Error executing query: %v\n", err)
