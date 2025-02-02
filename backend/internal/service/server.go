@@ -84,6 +84,12 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
 	})
 
+	SupabaseAuthHandler := auth.NewHandler(config.Supabase, sess)
+	app.Route("/auth", func(router fiber.Router) {
+		router.Post("/signup", SupabaseAuthHandler.SignUp)
+		router.Post("/login", SupabaseAuthHandler.Login)
+	})
+
 	app.Get("/callback", xeroAuthHandler.Callback)
 
 	lineItemHandler := lineitem.NewHandler(repo.LineItem)
@@ -106,12 +112,6 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	})
 
 	app.Get("/bank-transactions", xeroAuthHandler.GetBankTransactions)
-
-	SupabaseAuthHandler := auth.NewHandler()
-	app.Route("/auth", func(router fiber.Router) {
-		router.Post("/signup", SupabaseAuthHandler.SignUp)
-		router.Post("/login", SupabaseAuthHandler.Login)
-	})
 
 	return app
 }

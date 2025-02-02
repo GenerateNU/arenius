@@ -1,9 +1,7 @@
 package auth
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
+	"arenius/internal/auth"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -14,43 +12,21 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
 
-	resp, err := h.makeSupabaseRequest("POST", "/token?grant_type=password", map[string]string{"email": creds.Email, "password": creds.Password}) // Login uses /token endpoint
+	// Call SupabaseLogin function
+	signInResponse, err := auth.SupabaseLogin(&h.config, creds.Email, creds.Password)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Login request failed: %v", err)})
-	}
-	defer resp.Body.Close()
-
-	var authRes map[string]interface{}
-	if err := json.NewDecoder(resp.Body).Decode(&authRes); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error decoding Supabase response"})
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return c.Status(resp.StatusCode).JSON(authRes) // Return Supabase error
+	// Store JWT in session
+	sess, err := h.sess.Get(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to get session"})
+	}
+	sess.Set("jwt", signInResponse.AccessToken)
+	if err := sess.Save(); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to save session"})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(authRes)
+	return c.Status(fiber.StatusOK).JSON(signInResponse)
 }
-
-// 	var req struct {
-// 		Email    string `json:"email"`
-// 		Password string `json:"password"`
-// 	}
-
-// 	if err := c.BodyParser(&req); err != nil {
-// 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
-// 	}
-
-// 	resp, err := supabaseRequest("POST", "/auth/v1/token?grant_type=password", req)
-// 	if err != nil {
-// 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to sign in"})
-// 	}
-// 	defer resp.Body.Close()
-
-// 	body, _ := io.ReadAll(resp.Body)
-// 	if resp.StatusCode != http.StatusOK {
-// 		return c.Status(resp.StatusCode).Send(body)
-// 	}
-
-// 	return c.Send(body)
-// }
