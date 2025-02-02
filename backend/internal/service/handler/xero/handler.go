@@ -1,6 +1,7 @@
 package xero
 
 import (
+	"arenius/internal/storage"
 	"net/http"
 	"os"
 
@@ -18,9 +19,10 @@ type Handler struct {
 	oAuthAuthorisationCode string
 	oAuthToken             *oauth2.Token
 	oAuthHTTPClient        *http.Client
+	repository             *storage.Repository
 }
 
-func NewHandler(sess *session.Store) *Handler {
+func NewHandler(sess *session.Store, repo *storage.Repository) *Handler {
 	client_id := os.Getenv("CLIENT_ID")
 	client_secret := os.Getenv("CLIENT_SECRET")
 	redirect_url := os.Getenv("REDIRECT_URL")
@@ -47,5 +49,5 @@ func NewHandler(sess *session.Store) *Handler {
 		},
 	}
 
-	return &Handler{sess, &Config{oauthConfig}, "", nil, nil}
+	return &Handler{sess, &Config{oauthConfig}, "", nil, nil, repo}
 }

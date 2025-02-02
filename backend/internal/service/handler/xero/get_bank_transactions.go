@@ -45,9 +45,27 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 	req.Header.Set("Xero-tenant-id", tenantId)
 
 	// get the current company using the Xero tenant ID
-	// TODO: how?
+	companyQuery := `
+		SELECT (id, name, xero_tenant_id, last_import_time) 
+		FROM company 
+		WHERE xero_tenant_id=$1
+		LIMIT 1
+	`
+	db := h.repository.GetDB()
 
-	// req.Header.Set("If-Modified-Since", company.LastImportTime)
+	var company models.Company
+
+	err = db.QueryRow(ctx.Context(), companyQuery, tenantId).Scan(
+		&company.ID, &company.Name, &company.XeroTenantID, &company.LastImportTime,
+	)
+	if err != nil {
+		return errs.BadRequest(fmt.Sprintf("Unable to find company with Xero Tenant ID: %s, %s", tenantId, err))
+	}
+
+	// filter the transaction results to only those after the last import time for this company
+	if company.LastImportTime != nil {
+		req.Header.Set("If-Modified-Since", company.LastImportTime.UTC().Format("2006-01-02T15:04:05"))
+	}
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -75,9 +93,17 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 		return errs.BadRequest(fmt.Sprint("unable to store response: ", err))
 	}
 
-	// get the current company ID using the Xero tenant ID:
+	// parse the new line items from the fetched transactions
+	newLineItems, err := parseTransactions(transactions, company)
+	if err != nil {
+		return err
+	}
 
-	// TODO send it to the repository layer (how?)
+	// send the new line items to the repository layer
+	_, err = h.repository.LineItem.AddImportedLineItems(ctx.Context(), newLineItems)
+	if err != nil {
+		return err
+	}
 
 	return ctx.Status(fiber.StatusOK).JSON(transactions)
 }
@@ -113,15 +139,18 @@ func parseTransactions(transactions []interface{}, company models.Company) ([]mo
 
 		if txMap["LineItems"] != nil {
 			// TODO: these are currently missing from response?
-			lineItemsArray, ok := txMap["LineItems"].([]map[string]interface{})
+			lineItemsArray, ok := txMap["LineItems"].([]interface{})
 			if !ok {
 				return nil, errs.BadRequest("Invalid LineItems format")
 			}
 
-			for _, lineItem := range lineItemsArray {
+			for _, rawLineItem := range lineItemsArray {
+				lineItem, ok := rawLineItem.(map[string]interface{})
+				if !ok {
+					return nil, errs.BadRequest("Invalid LineItem format")
+				}
 				var newLineItem models.AddImportedLineItemRequest
-				// newLineItem.CompanyID = company.ID TODO
-				newLineItem.CompanyID = "0a67f5d3-88b6-4e8f-aac0-5137b29917fd"
+				newLineItem.CompanyID = company.ID
 				newLineItem.CurrencyCode = currencyCode
 				newLineItem.ContactID = contactID
 
