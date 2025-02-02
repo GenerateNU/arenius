@@ -16,6 +16,8 @@ import (
 	"context"
 	"net/http"
 
+	supabase_auth "arenius/internal/auth"
+
 	go_json "github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -112,6 +114,18 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	})
 
 	app.Get("/bank-transactions", xeroAuthHandler.GetBankTransactions)
+
+	app.Get("/secret", supabase_auth.Middleware(&config.Supabase), func(c *fiber.Ctx) error {
+		return c.SendStatus(http.StatusOK)
+	})
+
+	// Apply Middleware to Protected Routes
+	app.Use(supabase_auth.Middleware(&config.Supabase))
+
+	// Protected route example
+	app.Get("/protected", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{"message": "Access granted!"})
+	})
 
 	return app
 }
