@@ -163,3 +163,14 @@ GET `/summary/gross`
         - `month_duration`: Number of months to summarize
         - `company_id`: Company whose line items are being summarized
 ```
+
+# Auth
+
+PATCH `/auth/login`
+    - login for user, returns access token and user info
+
+```go
+    - Body Parameters:
+        - `email`
+        - `password`
+```
