@@ -1,16 +1,16 @@
 "use client";
 
-import ItemTable from "@/components/dashboard/ItemTable";
-import ItemForm from "@/components/dashboard/ItemForm";
+import ItemTable from "@/components/transactions/ItemTable";
+import ItemForm from "@/components/transactions/ItemForm";
 import { useEffect, useState } from "react";
-import { fetchDashboardItems } from "@/services/dashboard";
+import { fetchLineItems } from "@/services/lineItems";
 import { Item } from "@/types";
 
-export default function Dashboard() {
+export default function Transactions() {
   const [data, setData] = useState<Item[]>([]);
 
   const getItems = async () => {
-    const items = await fetchDashboardItems();
+    const items = await fetchLineItems();
     setData(items);
   };
 
