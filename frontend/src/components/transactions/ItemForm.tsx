@@ -11,7 +11,7 @@ type FormProps = {
 export default function Form({ onSubmit }: FormProps) {
   const defaultForm = {
     description: "",
-    quantity: "",
+    quantity: 1,
     unit_amount: "",
     currency_code: "USD",
   };
@@ -23,10 +23,11 @@ export default function Form({ onSubmit }: FormProps) {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    const { name, value } = e.target;
+    const { id, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [id]: value,
     }));
   };
 
@@ -48,7 +49,6 @@ export default function Form({ onSubmit }: FormProps) {
 
     await createLineItem({
       ...formData,
-      quantity: Number(formData.quantity),
       unit_amount: Number(formData.unit_amount),
     });
 
@@ -60,10 +60,12 @@ export default function Form({ onSubmit }: FormProps) {
     <div className="py-4">
       <form onSubmit={handleSubmit} className="mb-4 flex flex-row gap-6">
         <TextInput
+          id="description"
           value={formData.description}
           onChange={handleChange}
           label="Description"
           placeholder="January electricity"
+          required
         />
 
         <TextInput
