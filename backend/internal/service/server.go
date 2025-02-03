@@ -9,8 +9,8 @@ import (
 	"arenius/internal/service/handler/carbon"
 	"arenius/internal/service/handler/emissionsFactor"
 	"arenius/internal/service/handler/lineItem"
-	"arenius/internal/service/handler/xero"
 	"arenius/internal/service/handler/summary"
+	"arenius/internal/service/handler/xero"
 	"arenius/internal/storage"
 	"arenius/internal/storage/postgres"
 
@@ -82,7 +82,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	})
 
 	sess := session.New()
-	xeroAuthHandler := xero.NewHandler(sess)
+	xeroAuthHandler := xero.NewHandler(sess, repo.LineItem, repo.Company)
 	app.Route("/auth", func(r fiber.Router) {
 		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
 	})
@@ -119,7 +119,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	app.Route("/summary", func(r fiber.Router) {
 		r.Get("/gross", summaryHandler.GetGrossSummary)
 	})
-  
+
 	app.Get("/bank-transactions", xeroAuthHandler.GetBankTransactions)
 
 	app.Get("/secret", supabase_auth.Middleware(&config.Supabase), func(c *fiber.Ctx) error {
