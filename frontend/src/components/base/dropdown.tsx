@@ -1,24 +1,23 @@
 import React from "react";
 
-type TextInputProps = {
+type DropdownProps = {
   id?: string;
   label?: string;
   placeholder?: string;
   value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  type?: "text" | "email" | "password" | "number";
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  options: string[];
   disabled?: boolean;
   required?: boolean;
   error?: string;
 };
 
-const TextInput: React.FC<TextInputProps> = ({
+const Dropdown: React.FC<DropdownProps> = ({
   id,
   label,
-  placeholder = "Enter text",
   value,
   onChange,
-  type = "text",
+  options,
   disabled = false,
   required = false,
   error,
@@ -26,23 +25,27 @@ const TextInput: React.FC<TextInputProps> = ({
   return (
     <div className="flex flex-col gap-1">
       {label && <label className="text-sm font-medium">{label}</label>}
-      <input
+      <select
         id={id}
-        type={type}
         value={value}
         onChange={onChange}
-        placeholder={placeholder}
         disabled={disabled}
         required={required}
-        className={`border rounded-lg p-2 focus:outline-none focus:ring-2 ${
+        className={`border rounded-lg py-2 px-4 focus:outline-none focus:ring-2 ${
           error
             ? "border-red-500 focus:ring-red-300"
             : "border-gray-300 focus:ring-blue-300"
         } disabled:bg-gray-100`}
-      />
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
       {error && <p className="text-red-500 text-xs">{error}</p>}
     </div>
   );
 };
 
-export default TextInput;
+export default Dropdown;

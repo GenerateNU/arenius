@@ -1,109 +1,63 @@
-"use client";
-
-import { createLineItem } from "@/services/lineItems";
-import React, { useState } from "react";
+import React from "react";
 import TextInput from "../base/textInput";
+import useItemForm from "@/hooks/useItemForm";
+import Dropdown from "../base/dropdown";
 
 type FormProps = {
   onSubmit: () => void;
 };
 
 export default function Form({ onSubmit }: FormProps) {
-  const defaultForm = {
-    description: "",
-    quantity: 1,
-    unit_amount: "",
-    currency_code: "USD",
-  };
-
-  const [formData, setFormData] = useState(defaultForm);
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { id, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (isNaN(Number(formData.quantity))) {
-      alert("Quantity must be a number.");
-      return;
-    }
-
-    if (
-      isNaN(Number(formData.unit_amount)) ||
-      Number(formData.unit_amount) < 0
-    ) {
-      alert("Price must be a positive number.");
-      return;
-    }
-
-    await createLineItem({
-      ...formData,
-      unit_amount: Number(formData.unit_amount),
-    });
-
-    setFormData(defaultForm);
-    onSubmit();
-  };
+  const { formData, errors, handleChange, handleSubmit } =
+    useItemForm(onSubmit);
 
   return (
-    <div className="py-4">
-      <form onSubmit={handleSubmit} className="mb-4 flex flex-row gap-6">
+    <div className={styles.container}>
+      <form onSubmit={handleSubmit} className={styles.form}>
         <TextInput
           id="description"
           value={formData.description}
           onChange={handleChange}
           label="Description"
           placeholder="January electricity"
+          error={errors.description}
           required
         />
-
         <TextInput
           id="unit_amount"
           value={formData.unit_amount}
           onChange={handleChange}
           label="Price"
           placeholder="$"
+          error={errors.unit_amount}
+          type="number"
           required
         />
 
-        <div>
-          <label htmlFor="currencyCode" className="block mb-1 font-medium">
-            Currency Code
-          </label>
-          <select
-            id="currencyCode"
-            name="currencyCode"
-            value={formData.currency_code}
-            onChange={handleChange}
-            className="border text-black rounded p-2 w-full"
-            required
-          >
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="GBP">GBP</option>
-            <option value="JPY">JPY</option>
-            <option value="AUD">AUD</option>
-          </select>
-        </div>
+        <Dropdown
+          id="currency_code"
+          value={formData.currency_code}
+          onChange={handleChange}
+          options={["USD", "EUR", "GBP", "JPY", "AUD"]}
+          label="Currency"
+          error={errors.quantity}
+          required
+        />
 
-        <button
-          type="submit"
-          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mt-7 h-full"
-        >
+        <button type="submit" className={styles.button}>
           Add Item
         </button>
       </form>
     </div>
   );
 }
+
+const styles = {
+  container: "py-4",
+  form: "mb-4 flex flex-row gap-6",
+  label: "block mb-1 font-medium",
+  select: "border text-black rounded p-2 w-full",
+  error: "text-red-500",
+  button:
+    "bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mt-6 h-full",
+};
