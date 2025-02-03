@@ -180,6 +180,49 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 
 }
 
+func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []models.AddImportedLineItemRequest) ([]models.LineItem, error) {
+	var createdLineItems []models.LineItem
+	for _, importedLineItem := range req {
+		query := `
+			INSERT INTO line_item
+			(id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+			RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope;
+		`
+		// TODO: handle duplicate based on xero_line_item_id
+		var lineItem models.LineItem
+		err := r.db.QueryRow(ctx, query,
+			uuid.New().String(),
+			importedLineItem.XeroLineItemID,
+			importedLineItem.Description,
+			importedLineItem.Quantity,
+			importedLineItem.UnitAmount,
+			importedLineItem.CompanyID,
+			importedLineItem.ContactID,
+			importedLineItem.Date.UTC(),
+			importedLineItem.CurrencyCode).
+			Scan(
+				&lineItem.ID,
+				&lineItem.XeroLineItemID,
+				&lineItem.Description,
+				&lineItem.Quantity,
+				&lineItem.UnitAmount,
+				&lineItem.CompanyID,
+				&lineItem.ContactID,
+				&lineItem.Date,
+				&lineItem.CurrencyCode,
+				&lineItem.EmissionFactorId,
+				&lineItem.CO2,
+				&lineItem.CO2Unit,
+				&lineItem.Scope)
+		if err != nil {
+			return nil, fmt.Errorf("error querying database: %w", err)
+		}
+		createdLineItems = append(createdLineItems, lineItem)
+	}
+	return createdLineItems, nil
+}
+
 func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []interface{}, error) {
 	id := uuid.New().String()
 	createdAt := time.Now().UTC()
