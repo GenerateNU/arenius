@@ -5,6 +5,7 @@ import (
 	"arenius/internal/errs"
 	"arenius/internal/service/climatiq"
 	"arenius/internal/service/ctxt"
+	"arenius/internal/service/handler/auth"
 	"arenius/internal/service/handler/carbon"
 	"arenius/internal/service/handler/emissionsFactor"
 	"arenius/internal/service/handler/lineItem"
@@ -15,6 +16,8 @@ import (
 
 	"context"
 	"net/http"
+
+	supabase_auth "arenius/internal/auth"
 
 	go_json "github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
@@ -84,6 +87,12 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
 	})
 
+	SupabaseAuthHandler := auth.NewHandler(config.Supabase, sess)
+	app.Route("/auth", func(router fiber.Router) {
+		router.Post("/signup", SupabaseAuthHandler.SignUp)
+		router.Post("/login", SupabaseAuthHandler.Login)
+	})
+
 	app.Get("/callback", xeroAuthHandler.Callback)
 
 	lineItemHandler := lineItem.NewHandler(repo.LineItem)
@@ -112,6 +121,18 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	})
   
 	app.Get("/bank-transactions", xeroAuthHandler.GetBankTransactions)
+
+	app.Get("/secret", supabase_auth.Middleware(&config.Supabase), func(c *fiber.Ctx) error {
+		return c.SendStatus(http.StatusOK)
+	})
+
+	// Apply Middleware to Protected Routes
+	app.Use(supabase_auth.Middleware(&config.Supabase))
+
+	// Protected route example
+	app.Get("/protected", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{"message": "Access granted!"})
+	})
 
 	return app
 }
