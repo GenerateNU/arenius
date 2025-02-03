@@ -3,14 +3,12 @@ import { useState } from "react";
 
 interface FormData {
   description: string;
-  quantity: number;
   unit_amount: string;
   currency_code: string;
 }
 
 interface FormErrors {
   description?: string;
-  quantity?: string;
   unit_amount?: string;
   currency_code?: string;
 }
@@ -18,7 +16,6 @@ interface FormErrors {
 const useItemForm = (onSubmit: () => void) => {
   const defaultForm: FormData = {
     description: "",
-    quantity: 1,
     unit_amount: "",
     currency_code: "USD",
   };
@@ -43,9 +40,6 @@ const useItemForm = (onSubmit: () => void) => {
     if (!formData.description) {
       newErrors.description = "Description is required";
     }
-    if (!formData.quantity || formData.quantity <= 0) {
-      newErrors.quantity = "Quantity must be positive";
-    }
     if (!formData.unit_amount || Number(formData.unit_amount) <= 0) {
       newErrors.unit_amount = "Price must be positive";
     }
@@ -66,7 +60,6 @@ const useItemForm = (onSubmit: () => void) => {
 
     await createLineItem({
       description: formData.description,
-      quantity: Number(formData.quantity),
       unit_amount: Number(formData.unit_amount),
       currency_code: formData.currency_code,
     });

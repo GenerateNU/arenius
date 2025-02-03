@@ -9,7 +9,6 @@ export type Item = {
 
 export type CreateLineItemRequest = {
   description: string;
-  quantity: number;
   unit_amount: number;
   currency_code: string;
 };
