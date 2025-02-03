@@ -40,7 +40,7 @@ export default function Form({ onSubmit }: FormProps) {
           onChange={handleChange}
           options={["USD", "EUR", "GBP", "JPY", "AUD"]}
           label="Currency"
-          error={errors.quantity}
+          error={errors.currency_code}
           required
         />
 
