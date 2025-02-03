@@ -1,8 +1,8 @@
 "use client";
 
-import { createDashboardItem } from "@/services/dashboard";
+import { createLineItem } from "@/services/lineItems";
 import React, { useState } from "react";
-import TextInput from "../base/input";
+import TextInput from "../base/textInput";
 
 type FormProps = {
   onSubmit: () => void;
@@ -46,11 +46,10 @@ export default function Form({ onSubmit }: FormProps) {
       return;
     }
 
-    await createDashboardItem({
-      description: formData.description,
+    await createLineItem({
+      ...formData,
       quantity: Number(formData.quantity),
       unit_amount: Number(formData.unit_amount),
-      currency_code: formData.currency_code,
     });
 
     setFormData(defaultForm);

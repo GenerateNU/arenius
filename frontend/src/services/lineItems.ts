@@ -1,7 +1,7 @@
-import { Item } from "../types";
+import { CreateLineItemRequest, Item } from "../types";
 import apiClient from "./apiClient";
 
-export async function fetchDashboardItems(): Promise<Item[]> {
+export async function fetchLineItems(): Promise<Item[]> {
   try {
     const response = await apiClient.get("/line-item", {});
     return response.data;
@@ -11,7 +11,9 @@ export async function fetchDashboardItems(): Promise<Item[]> {
   }
 }
 
-export async function createDashboardItem(item: Item): Promise<void> {
+export async function createLineItem(
+  item: CreateLineItemRequest
+): Promise<void> {
   const new_item = {
     description: item.description,
     quantity: item.quantity,
