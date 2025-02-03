@@ -36,23 +36,10 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 		return fmt.Errorf("missing required environment variables")
 	}
 
-	// TODO: use company GET endpoint instead
 	// get the current company using the Xero tenant ID
-	companyQuery := `
-		SELECT id, name, xero_tenant_id, last_import_time
-		FROM company 
-		WHERE xero_tenant_id=$1
-		LIMIT 1
-	`
-	db := h.repository.GetDB()
-
-	var company models.Company
-
-	err = db.QueryRow(ctx.Context(), companyQuery, tenantId).Scan(
-		&company.ID, &company.Name, &company.XeroTenantID, &company.LastImportTime,
-	)
+	company, err := h.companyRepository.GetCompanyByXeroTenantID(ctx.Context(), tenantId)
 	if err != nil {
-		return errs.BadRequest(fmt.Sprintf("Error finding company with Xero Tenant ID: %s, %s", tenantId, err))
+		return err
 	}
 
 	var transactions []interface{}
@@ -120,26 +107,19 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 	}
 
 	// parse the new line items from the fetched transactions
-	newLineItems, err := parseTransactions(transactions, company)
+	newLineItems, err := parseTransactions(transactions, *company)
 	if err != nil {
 		return err
 	}
 
-	// TODO: use company PATCH endpoint instead
 	// update company.last_imported_at to now so that we don't fetch the same transactions later
-	companyLastImportTimeQuery := `
-		UPDATE company
-		SET last_import_time=$1
-		WHERE id=$2
-		RETURNING last_import_time;
-	`
-	err = db.QueryRow(ctx.Context(), companyLastImportTimeQuery, time.Now().UTC(), company.ID).Scan(&company.LastImportTime)
+	_, err = h.companyRepository.UpdateCompanyLastImportTime(ctx.Context(), company.ID)
 	if err != nil {
-		return errs.BadRequest(fmt.Sprintf("Unable to update company last_import_time: %s", err))
+		return err
 	}
 
 	// send the new line items to the repository layer
-	_, err = h.repository.LineItem.AddImportedLineItems(ctx.Context(), newLineItems)
+	_, err = h.lineItemRepository.AddImportedLineItems(ctx.Context(), newLineItems)
 	if err != nil {
 		return err
 	}
@@ -176,6 +156,17 @@ func parseTransactions(transactions []interface{}, company models.Company) ([]mo
 			currencyCode = "USD"
 		}
 
+		var date time.Time
+		var err error
+		if txMap["DateString"] != nil {
+			date, err = time.Parse("2006-01-02T15:04:05", txMap["DateString"].(string))
+			if err != nil {
+				return nil, errs.BadRequest(fmt.Sprintf("Error parsing date: %s", err))
+			}
+		} else {
+			return nil, errs.BadRequest("Missing Date string")
+		}
+
 		if txMap["LineItems"] != nil {
 			lineItemsArray, ok := txMap["LineItems"].([]interface{})
 			if !ok {
@@ -191,6 +182,7 @@ func parseTransactions(transactions []interface{}, company models.Company) ([]mo
 				newLineItem.CompanyID = company.ID
 				newLineItem.CurrencyCode = currencyCode
 				newLineItem.ContactID = contactID
+				newLineItem.Date = date
 
 				if lineItem["LineItemID"] != nil {
 					newLineItem.XeroLineItemID = lineItem["LineItemID"].(string)

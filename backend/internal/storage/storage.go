@@ -27,11 +27,17 @@ type SummaryRepository interface {
 	GetGrossSummary(ctx context.Context, req models.GetGrossSummaryRequest) (*models.GetGrossSummaryResponse, error)
 }
 
+type CompanyRepository interface {
+	GetCompanyByXeroTenantID(ctx context.Context, xeroTenantID string) (*models.Company, error)
+	UpdateCompanyLastImportTime(ctx context.Context, id string) (*models.Company, error)
+}
+
 type Repository struct {
 	db              *pgxpool.Pool
 	LineItem        LineItemRepository
 	EmissionsFactor EmissionsFactorRepository
 	Summary         SummaryRepository
+	Company         CompanyRepository
 }
 
 func (r *Repository) Close() error {
@@ -49,5 +55,6 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		LineItem:        schema.NewLineItemRepository(db),
 		EmissionsFactor: schema.NewEmissionsFactorRepository(db),
 		Summary:         schema.NewSummaryRepository(db),
+		Company:         schema.NewCompanyRepository(db),
 	}
 }

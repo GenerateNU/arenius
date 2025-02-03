@@ -19,10 +19,11 @@ type Handler struct {
 	oAuthAuthorisationCode string
 	oAuthToken             *oauth2.Token
 	oAuthHTTPClient        *http.Client
-	repository             *storage.Repository
+	lineItemRepository     storage.LineItemRepository
+	companyRepository      storage.CompanyRepository
 }
 
-func NewHandler(sess *session.Store, repo *storage.Repository) *Handler {
+func NewHandler(sess *session.Store, lineItemRepository storage.LineItemRepository, companyRepository storage.CompanyRepository) *Handler {
 	client_id := os.Getenv("CLIENT_ID")
 	client_secret := os.Getenv("CLIENT_SECRET")
 	redirect_url := os.Getenv("REDIRECT_URL")
@@ -49,5 +50,5 @@ func NewHandler(sess *session.Store, repo *storage.Repository) *Handler {
 		},
 	}
 
-	return &Handler{sess, &Config{oauthConfig}, "", nil, nil, repo}
+	return &Handler{sess, &Config{oauthConfig}, "", nil, nil, lineItemRepository, companyRepository}
 }

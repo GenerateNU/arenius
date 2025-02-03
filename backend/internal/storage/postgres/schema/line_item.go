@@ -199,7 +199,7 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 			importedLineItem.UnitAmount,
 			importedLineItem.CompanyID,
 			importedLineItem.ContactID,
-			time.Now().UTC(),
+			importedLineItem.Date.UTC(),
 			importedLineItem.CurrencyCode).
 			Scan(
 				&lineItem.ID,
