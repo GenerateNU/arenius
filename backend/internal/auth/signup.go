@@ -12,6 +12,11 @@ import (
 	"github.com/google/uuid"
 )
 
+type Payload struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type userSignupResponse struct {
 	ID uuid.UUID `json:"id"`
 }
@@ -26,9 +31,9 @@ func SupabaseSignup(cfg *config.Supabase, email string, password string) (signup
 	apiKey := cfg.Key
 
 	// Prepare the request payload
-	payload := map[string]string{
-		"email":    email,
-		"password": password,
+	payload := Payload{
+		Email:    email,
+		Password: password,
 	}
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
