@@ -52,8 +52,7 @@ func SupabaseSignup(cfg *config.Supabase, email string, password string) (signup
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
 	// Execute the request
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := Client.Do(req)
 	if err != nil {
 		return signupResponse{}, errs.BadRequest(fmt.Sprintf("failed to execute request: %v, %s", err, supabaseURL))
 	}

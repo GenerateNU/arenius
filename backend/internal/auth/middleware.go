@@ -29,8 +29,7 @@ func Middleware(cfg *config.Supabase) fiber.Handler {
 		req.Header.Set("Authorization", "Bearer "+token)
 		req.Header.Set("apikey", cfg.Key)
 
-		client := &http.Client{}
-		resp, err := client.Do(req)
+		resp, err := Client.Do(req)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to validate token"})
 		}

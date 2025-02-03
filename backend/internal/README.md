@@ -166,8 +166,17 @@ GET `/summary/gross`
 
 # Auth
 
-PATCH `/auth/login`
+POST `/auth/login`
     - login for user, returns access token and user info
+
+```go
+    - Body Parameters:
+        - `email`
+        - `password`
+```
+
+POST `/auth/signup`
+    - signup for user, returns access token and user info
 
 ```go
     - Body Parameters:

@@ -30,9 +30,9 @@ func SupabaseLogin(cfg *config.Supabase, email string, password string) (SignInR
 	apiKey := cfg.Key
 
 	// Prepare the request payload
-	payload := map[string]string{
-		"email":    email,
-		"password": password,
+	payload := Payload{
+		Email:    email,
+		Password: password,
 	}
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
@@ -50,8 +50,7 @@ func SupabaseLogin(cfg *config.Supabase, email string, password string) (SignInR
 	req.Header.Set("apikey", apiKey)
 
 	// Execute the request
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := Client.Do(req)
 	if err != nil {
 		return SignInResponse{}, errs.BadRequest("failed to execute request")
 	}
