@@ -126,10 +126,5 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	app.Get("/bank-transactions", xeroAuthHandler.GetBankTransactions)
 
-	app.Get("/bank-transactions", func(c *fiber.Ctx) error {
-		status := xeroAuthHandler.GetBankTransactions(c)
-		return status
-	})
-
 	return app
 }

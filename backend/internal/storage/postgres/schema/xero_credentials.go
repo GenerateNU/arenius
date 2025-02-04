@@ -15,7 +15,7 @@ type CredentialsRepository struct {
 }
 
 func (c *CredentialsRepository) GetCredentials(ctx context.Context) (models.XeroCredentials, error) {
-	var query = `SELECT x.company_id, x.access_token, x.refresh_token, x.tenant_id FROM xero_credentials x`
+	const query = `SELECT x.company_id, x.access_token, x.refresh_token, x.tenant_id FROM xero_credentials x`
 
 	rows, err := c.db.Query(ctx, query)
 	if err != nil {
@@ -32,6 +32,7 @@ func (c *CredentialsRepository) GetCredentials(ctx context.Context) (models.Xero
 		return models.XeroCredentials{}, errors.New("no credentials found")
 	}
 
+	// return most recently added credential from db -> can add patch endpoint later to remove this logic
 	return credentialsList[len(credentialsList)-1], nil
 }
 
@@ -40,7 +41,7 @@ func (c *CredentialsRepository) CreateCredentials(ctx context.Context, p models.
 	fmt.Printf("Inserting credentials: ID=%v, AccessToken=%v, RefreshToken=%v, TenantID=%v\n", p.CompanyID, p.AccessToken, p.RefreshToken, p.TenantID)
 
 	// Prepare the query
-	query := `INSERT INTO xero_credentials (company_id, access_token, refresh_token, tenant_id)
+	const query = `INSERT INTO xero_credentials (company_id, access_token, refresh_token, tenant_id)
 				VALUES ($1, $2, $3, $4)`
 
 	// Execute the query using Exec method

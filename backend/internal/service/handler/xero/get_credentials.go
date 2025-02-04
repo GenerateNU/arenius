@@ -10,7 +10,7 @@ func (h *Handler) GetCredentials(c *fiber.Ctx, credsRepo storage.CredentialsRepo
 
 	lineItems, err := credsRepo.GetCredentials(c.Context())
 	if err != nil {
-		return err
+		return nil
 	}
 
 	return c.Status(fiber.StatusOK).JSON(lineItems)

@@ -23,5 +23,5 @@ func (h *Handler) CreateCredentials(c *fiber.Ctx, credsRepo storage.CredentialsR
 		return err
 	}
 	fmt.Println("Created credentials:", creds)
-	return err
+	return nil
 }
