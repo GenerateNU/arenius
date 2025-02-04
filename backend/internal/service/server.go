@@ -90,15 +90,12 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	app.Route("/credentials", func(router fiber.Router) {
 		router.Post("/create", func(c *fiber.Ctx) error {
-			status := xeroAuthHandler.CreateCredentials(c, repo.Credentials)
-			return status
+			return xeroAuthHandler.CreateCredentials(c, repo.Credentials)
 		})
 		router.Get("/get", func(c *fiber.Ctx) error {
-			status := xeroAuthHandler.GetCredentials(c, repo.Credentials)
-			return status
+			return xeroAuthHandler.GetCredentials(c, repo.Credentials)
 		})
 	})
-
 	SupabaseAuthHandler := auth.NewHandler(config.Supabase, sess)
 	app.Route("/auth", func(router fiber.Router) {
 		router.Post("/signup", SupabaseAuthHandler.SignUp)
