@@ -15,16 +15,29 @@ type LineItemRepository interface {
 	ReconcileLineItem(ctx context.Context, lineItemId int, req models.ReconcileLineItemRequest) (*models.LineItem, error)
 	AddLineItemEmissions(ctx context.Context, req models.LineItemEmissionsRequest) (*models.LineItem, error)
 	CreateLineItem(ctx context.Context, req models.CreateLineItemRequest) (*models.LineItem, error)
+	AddImportedLineItems(ctx context.Context, req []models.AddImportedLineItemRequest) ([]models.LineItem, error)
 }
 
 type EmissionsFactorRepository interface {
 	AddEmissionsFactors(ctx context.Context, emissionFactor []models.EmissionsFactor) ([]models.EmissionsFactor, error)
+	GetEmissionFactors(ctx context.Context) ([]models.Category, error)
+}
+
+type SummaryRepository interface {
+	GetGrossSummary(ctx context.Context, req models.GetGrossSummaryRequest) (*models.GetGrossSummaryResponse, error)
+}
+
+type CompanyRepository interface {
+	GetCompanyByXeroTenantID(ctx context.Context, xeroTenantID string) (*models.Company, error)
+	UpdateCompanyLastImportTime(ctx context.Context, id string) (*models.Company, error)
 }
 
 type Repository struct {
 	db              *pgxpool.Pool
 	LineItem        LineItemRepository
 	EmissionsFactor EmissionsFactorRepository
+	Summary         SummaryRepository
+	Company         CompanyRepository
 }
 
 func (r *Repository) Close() error {
@@ -32,10 +45,16 @@ func (r *Repository) Close() error {
 	return nil
 }
 
+func (r *Repository) GetDB() *pgxpool.Pool {
+	return r.db
+}
+
 func NewRepository(db *pgxpool.Pool) *Repository {
 	return &Repository{
 		db:              db,
 		LineItem:        schema.NewLineItemRepository(db),
 		EmissionsFactor: schema.NewEmissionsFactorRepository(db),
+		Summary:         schema.NewSummaryRepository(db),
+		Company:         schema.NewCompanyRepository(db),
 	}
 }

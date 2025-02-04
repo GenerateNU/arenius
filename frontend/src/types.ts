@@ -3,5 +3,12 @@ export type Item = {
   description: string;
   quantity: number;
   unit_amount: number;
-  currencyCode: string;
+  currency_code: string;
+  emission_factor_name?: string;
+};
+
+export type CreateLineItemRequest = {
+  description: string;
+  unit_amount: number;
+  currency_code: string;
 };

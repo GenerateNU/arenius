@@ -16,10 +16,17 @@ The following pathway allows you to make and test schema changes locally via mig
 8. If applying the db changes goes smoothly, go to http://localhost:54323 to see a local version of the Supabase dashboard, where your sample data will be visible. Feel free to add/update data to test out your new schema and any constraints.
    - Anything you do in this local database won't impact our shared instance
 9. If you want to test new API functionality against the locally-running database, you can point the server
-   at this database by going to `arenius/backend/internal/storage/postgres/storage.go` and modifying the first line of the ConnectDatabase method to `dbConfig, err := pgxpool.ParseConfig("postgresql://postgres:postgres@127.0.0.1:54322/postgres")`
+   at this database by going to `arenius/backend/internal/storage/postgres/storage.go` and modifying the first line of the ConnectDatabase method to
+   ```go
+   `dbConfig, err := pgxpool.ParseConfig("postgresql://postgres:postgres@127.0.0.1:54322/postgres")`
+   ```
+   > If your backend is Dockerized, you need to use the following instead:
+   ```go
+   `dbConfig, err := pgxpool.ParseConfig("postgresql://postgres:postgres@host.docker.internal:54322/postgres")`
+   ```
    - This is a connection string for the local DB
    - Make sure to switch this back to what it was when you make your PR!
-10. When done, run `supabase stop` to stop the local instance of the DB.
+11. When done, run `supabase stop` to stop the local instance of the DB.
 
 After script is approved/merged:
 

@@ -10,9 +10,9 @@ export default function Navbar() {
           <p className={styles.logoText}>Arenius</p>
         </div>
       </Link>
-      <Link href="/dashboard">
+      <Link href="/transactions">
         <div className={styles.dashboardButton}>
-          <p className={styles.dashboardButtonText}>Dashboard</p>
+          <p className={styles.dashboardButtonText}>Transactions</p>
         </div>
       </Link>
     </div>

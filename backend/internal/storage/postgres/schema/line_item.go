@@ -22,9 +22,9 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 
 	if filterParams.ReconciliationStatus != nil {
 		if *filterParams.ReconciliationStatus {
-			filterQuery += " AND line_item.emission_factor_id IS NOT NULL"
+			filterQuery += " AND li.emission_factor_id IS NOT NULL"
 		} else {
-			filterQuery += " AND line_item.emission_factor_id IS NULL"
+			filterQuery += " AND li.emission_factor_id IS NULL"
 		}
 	}
 
@@ -45,9 +45,9 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	}
 
 	query := `
-	SELECT id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope
-	FROM line_item ` + filterQuery + `
-	ORDER BY date DESC
+	SELECT li.id, li.xero_line_item_id, li.description, li.quantity, li.unit_amount, li.company_id, li.contact_id, li.date, li.currency_code, li.emission_factor_id, ef.name, li.co2, li.co2_unit, li.scope
+	FROM line_item li LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id ` + filterQuery + `
+	ORDER BY li.date DESC
 	LIMIT $1 OFFSET $2
 	`
 
@@ -72,6 +72,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 			&lineItem.Date,
 			&lineItem.CurrencyCode,
 			&lineItem.EmissionFactorId,
+			&lineItem.EmissionFactorName,
 			&lineItem.CO2,
 			&lineItem.CO2Unit,
 			&lineItem.Scope,
@@ -177,6 +178,49 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 
 	return &lineItem, nil
 
+}
+
+func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []models.AddImportedLineItemRequest) ([]models.LineItem, error) {
+	var createdLineItems []models.LineItem
+	for _, importedLineItem := range req {
+		query := `
+			INSERT INTO line_item
+			(id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+			RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope;
+		`
+		// TODO: handle duplicate based on xero_line_item_id
+		var lineItem models.LineItem
+		err := r.db.QueryRow(ctx, query,
+			uuid.New().String(),
+			importedLineItem.XeroLineItemID,
+			importedLineItem.Description,
+			importedLineItem.Quantity,
+			importedLineItem.UnitAmount,
+			importedLineItem.CompanyID,
+			importedLineItem.ContactID,
+			importedLineItem.Date.UTC(),
+			importedLineItem.CurrencyCode).
+			Scan(
+				&lineItem.ID,
+				&lineItem.XeroLineItemID,
+				&lineItem.Description,
+				&lineItem.Quantity,
+				&lineItem.UnitAmount,
+				&lineItem.CompanyID,
+				&lineItem.ContactID,
+				&lineItem.Date,
+				&lineItem.CurrencyCode,
+				&lineItem.EmissionFactorId,
+				&lineItem.CO2,
+				&lineItem.CO2Unit,
+				&lineItem.Scope)
+		if err != nil {
+			return nil, fmt.Errorf("error querying database: %w", err)
+		}
+		createdLineItems = append(createdLineItems, lineItem)
+	}
+	return createdLineItems, nil
 }
 
 func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []interface{}, error) {

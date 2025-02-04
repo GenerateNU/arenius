@@ -3,19 +3,20 @@ package models
 import "time"
 
 type LineItem struct {
-	ID               string    `json:"id"`
-	XeroLineItemID   *string   `json:"xero_line_item_id,omitempty"`
-	Description      string    `json:"description"`
-	Quantity         float64   `json:"quantity"`
-	UnitAmount       float64   `json:"unit_amount"`
-	CompanyID        string    `json:"company_id"`
-	ContactID        string    `json:"contact_id"`
-	Date             time.Time `json:"date"`
-	CurrencyCode     string    `json:"currency_code"`
-	EmissionFactorId *string   `json:"emission_factor_id,omitempty"`
-	CO2              *float64  `json:"co2,omitempty"`
-	Scope            *int      `json:"scope,omitempty"`
-	CO2Unit          *string   `json:"co2_unit,omitempty"`
+	ID                 string    `json:"id"`
+	XeroLineItemID     *string   `json:"xero_line_item_id,omitempty"`
+	Description        string    `json:"description"`
+	Quantity           float64   `json:"quantity"`
+	UnitAmount         float64   `json:"unit_amount"`
+	CompanyID          string    `json:"company_id"`
+	ContactID          string    `json:"contact_id"`
+	Date               time.Time `json:"date"`
+	CurrencyCode       string    `json:"currency_code"`
+	EmissionFactorId   *string   `json:"emission_factor_id,omitempty"`
+	EmissionFactorName *string   `json:"emission_factor_name,omitempty"`
+	CO2                *float64  `json:"co2,omitempty"`
+	Scope              *int      `json:"scope,omitempty"`
+	CO2Unit            *string   `json:"co2_unit,omitempty"`
 }
 
 type ReconcileLineItemRequest struct {
@@ -48,4 +49,15 @@ type GetLineItemsRequest struct {
 	CompanyID            *string    `json:"company_id"`
 	Date                 *time.Time `json:"date"`
 	ReconciliationStatus *bool      `json:"reconciliation_status"`
+}
+
+type AddImportedLineItemRequest struct {
+	XeroLineItemID string    `json:"xero_line_item_id,omitempty"`
+	Description    string    `json:"description"`
+	Quantity       float64   `json:"quantity"`
+	UnitAmount     float64   `json:"unit_amount"`
+	CompanyID      string    `json:"company_id"`
+	ContactID      string    `json:"contact_id"`
+	Date           time.Time `json:"date"`
+	CurrencyCode   string    `json:"currency_code"`
 }
