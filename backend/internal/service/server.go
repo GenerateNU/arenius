@@ -8,7 +8,7 @@ import (
 	"arenius/internal/service/handler/auth"
 	"arenius/internal/service/handler/carbon"
 	"arenius/internal/service/handler/emissionsFactor"
-	"arenius/internal/service/handler/lineItem"
+	"arenius/internal/service/handler/lineitem"
 	"arenius/internal/service/handler/summary"
 	"arenius/internal/service/handler/xero"
 	"arenius/internal/storage"
@@ -95,7 +95,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	app.Get("/callback", xeroAuthHandler.Callback)
 
-	lineItemHandler := lineItem.NewHandler(repo.LineItem)
+	lineItemHandler := lineitem.NewHandler(repo.LineItem)
 	app.Route("/line-item", func(r fiber.Router) {
 		r.Get("/", lineItemHandler.GetLineItems)
 		r.Patch("/:id", lineItemHandler.ReconcileLineItem)

@@ -1,4 +1,4 @@
-package lineItem
+package lineitem
 
 import (
 	"arenius/internal/errs"
