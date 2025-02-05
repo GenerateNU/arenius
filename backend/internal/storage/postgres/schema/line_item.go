@@ -219,7 +219,8 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 			ON  CONFLICT (xero_line_item_id) DO UPDATE
 			SET description=EXCLUDED.description, quantity=EXCLUDED.quantity,
 				unit_amount=EXCLUDED.unit_amount, company_id=EXCLUDED.company_id,
-				contact_id=EXCLUDED.contact_id, date=EXCLUDED.date, currency_code=EXCLUDED.currency_code
+				contact_id=EXCLUDED.contact_id, date=EXCLUDED.date, currency_code=EXCLUDED.currency_code,
+				emission_factor_id=NULL, co2=NULL, co2_unit=NULL, scope=NULL
 			RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope;
 		`
 		rows, err := r.db.Query(ctx, query, queryArgs...)
