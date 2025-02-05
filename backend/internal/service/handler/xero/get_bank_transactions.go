@@ -144,6 +144,8 @@ func parseTransactions(transactions []interface{}, company models.Company) ([]mo
 			}
 			if contactMap["ContactID"] != nil {
 				contactID = contactMap["ContactID"].(string)
+				// TODO: make contact table that has optional field xero_contact_id
+				// the value stored in contactID should be the internal contact id, not the xero contact id (it is currently the xero contact id)
 			} else {
 				return nil, errs.BadRequest("Missing ContactID")
 			}
