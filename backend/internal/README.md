@@ -28,7 +28,9 @@ POST `/transaction`
 # Carbon
 
 # Line Item
-GET `/line-item` 
+
+GET `/line-item`
+
 ```go
     - Body Parameters:
         CompanyID            *string    `json:"company_id"`
@@ -36,12 +38,12 @@ GET `/line-item`
         ReconciliationStatus *bool      `json:"reconciliation_status"`
     - Query Parameters:
         Page  int `query:"page"`
-	    Limit int `query:"limit"`
+     Limit int `query:"limit"`
 
 ```
 
-
 PATCH `/line-item`
+
 ```go
     - Body Parameters:
         - `emission-factor`: Name of the emissions factor
@@ -58,6 +60,7 @@ PATCH `/line-item`
 ```
 
 Post `/line-item`
+
 ```go
     - Body Parameters (*type) indicates an optional field
         Description    string   `json:"description"`               // the description for a line item, non-empty
@@ -73,8 +76,8 @@ Post `/line-item`
         CO2Unit        *string  `json:"co2_unit,omitempty"`        // the unit of CO2
 ```
 
+GET `/line-item`
 
-GET `/line-item` 
 ```go
     - Body Parameters:
         CompanyID            *string    `json:"company_id"`
@@ -82,7 +85,7 @@ GET `/line-item`
         ReconciliationStatus *bool      `json:"reconciliation_status"`
     - Query Parameters:
         Page  int `query:"page"`
-	    Limit int `query:"limit"`
+     Limit int `query:"limit"`
 
 ```
 
@@ -116,7 +119,7 @@ PATCH `climatiq/estimate`
 # Emissions Factors
 
 GET `/emissions-factor`
-    - returns all emissions factors, structured as a list of categories, each with a name and its list of emission factors. 
+    - returns all emissions factors, structured as a list of categories, each with a name and its list of emission factors.
 
 PATCH `/emissions-factor/populate`
     - populates emissions factors table
@@ -125,35 +128,38 @@ PATCH `/emissions-factor/populate`
 
 EmissionsFactor:
     Id            string `json:"id"`
-	ActivityId    string `json:"activity_id"`
-	Name          string `json:"name"`
-	Description   string `json:"description"`
-	Unit          string `json:"unit"`
-	UnitType      string `json:"unit_type"`
-	Year          int    `json:"year"`
-	Region        string `json:"region"`
-	Category      string `json:"category"`
-	Source        string `json:"source"`
-	SourceDataset string `json:"source_dataset"`
+ ActivityId    string `json:"activity_id"`
+ Name          string `json:"name"`
+ Description   string `json:"description"`
+ Unit          string `json:"unit"`
+ UnitType      string `json:"unit_type"`
+ Year          int    `json:"year"`
+ Region        string `json:"region"`
+ Category      string `json:"category"`
+ Source        string `json:"source"`
+ SourceDataset string `json:"source_dataset"`
 
 Category:
-	Name             string            `json:"name"`
-	EmissionsFactors []EmissionsFactor `json:"emissions_factors"`
+ Name             string            `json:"name"`
+ EmissionsFactors []EmissionsFactor `json:"emissions_factors"`
 
 ```
+
 # Xero Bank Transactions
 
 GET `/bank-transactions`
-	- provides a list of transactions specific to an organization including line items, currently configured for demo data
+
+- provides a list of transactions specific to an organization including line items, currently configured for demo data
+
  ``` go
 - Body Params:
-	- Session Access Token (stored through /xero/auth)
-	- Session Tenant ID (stored through /xero/auth)
+ - Session Access Token (stored through /xero/auth)
+ - Session Tenant ID (stored through /xero/auth)
 - Response:
-	- list of dictionaries contianing transaction information
+ - list of dictionaries contianing transaction information
 ```
-# Summaries
 
+# Summaries
 
 GET `/summary/gross`
     - provides the breakdown of total emissions per month by scope, for the previous `month_duration` months, as well as a cumulative total emissions for all line items for all time.

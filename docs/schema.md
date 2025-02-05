@@ -1,3 +1,5 @@
+#
+
 We are using a Supabase-hosted Postgres database. Our schema is relational and we handle changes by making migration scripts so that we have a changelog of the database schema history.
 
 The following pathway allows you to make and test schema changes locally via migration script without affecting the shared database until you're ready. More information on local development best practices can be found in the [Supabase docs](https://supabase.com/docs/guides/cli/local-development). **Note that running the DB locally requires Docker to be installed and running.**
@@ -13,20 +15,24 @@ The following pathway allows you to make and test schema changes locally via mig
 6. With Docker running, run `supabase start`
    - This will take some time on the first run, because the CLI needs to download the Docker images to your local machine. The CLI includes the entire Supabase toolset, and a few additional images that are useful for local development
 7. Run `supabase db reset` to apply your changes locally. This might also take some time. If there are any syntax errors with your migration script or `seed.sql` file, they'll be caught here.
-8. If applying the db changes goes smoothly, go to http://localhost:54323 to see a local version of the Supabase dashboard, where your sample data will be visible. Feel free to add/update data to test out your new schema and any constraints.
+8. If applying the db changes goes smoothly, go to <http://localhost:54323> to see a local version of the Supabase dashboard, where your sample data will be visible. Feel free to add/update data to test out your new schema and any constraints.
    - Anything you do in this local database won't impact our shared instance
 9. If you want to test new API functionality against the locally-running database, you can point the server
    at this database by going to `arenius/backend/internal/storage/postgres/storage.go` and modifying the first line of the ConnectDatabase method to
+
    ```go
    `dbConfig, err := pgxpool.ParseConfig("postgresql://postgres:postgres@127.0.0.1:54322/postgres")`
    ```
+
    > If your backend is Dockerized, you need to use the following instead:
+
    ```go
    `dbConfig, err := pgxpool.ParseConfig("postgresql://postgres:postgres@host.docker.internal:54322/postgres")`
    ```
+
    - This is a connection string for the local DB
    - Make sure to switch this back to what it was when you make your PR!
-11. When done, run `supabase stop` to stop the local instance of the DB.
+10. When done, run `supabase stop` to stop the local instance of the DB.
 
 After script is approved/merged:
 
