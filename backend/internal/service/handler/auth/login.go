@@ -2,12 +2,20 @@ package auth
 
 import (
 	"arenius/internal/auth"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func (h *Handler) Login(c *fiber.Ctx) error {
+
+	fmt.Println("YELLS")
+
 	var creds Credentials
+
+	fmt.Println(creds.Email)
+	fmt.Println(creds.Password)
+
 	if err := c.BodyParser(&creds); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
