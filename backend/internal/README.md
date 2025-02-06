@@ -158,7 +158,23 @@ GET `/bank-transactions`
 - Response:
  - list of dictionaries contianing transaction information
 ```
-
+```
+# Xero Credentials
+GET 'credentials/get'
+	- retrieves the latest access token, refresh token, and tenant id from Xero authentication
+	- response: json object of tokens 
+POST 'credentials/create'
+	- adds a newly generated access token, refresh token, and tenant id to be used for continuous authentication
+	- BODY PARAMS:
+		{
+		    "company_id": {uuid},
+		    "access_token": {uuid},
+		    "refresh_token": {uuid},
+		    "tenant_id": {uuid}
+		} 
+	- Response:
+		- new authentication credentials row in Xero Credentials table
+```
 # Summaries
 
 GET `/summary/gross`
