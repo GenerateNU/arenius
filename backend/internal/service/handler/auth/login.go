@@ -2,7 +2,6 @@ package auth
 
 import (
 	"arenius/internal/auth"
-	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
