@@ -31,9 +31,10 @@ export default function LoginPage() {
         router.push("/transactions"); 
       }
     } catch (error: any) {
-      console.error("Login failed:", error.response?.data?.message || "An error occurred");
+      console.error("Login failed:", error);
       alert(error.response?.data?.message || "Login failed. Please try again.");
     }
+    
   };
 
   return (
