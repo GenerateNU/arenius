@@ -12,3 +12,8 @@ export type CreateLineItemRequest = {
   unit_amount: number;
   currency_code: string;
 };
+
+export type LoginRequest = {
+  email: string; 
+  password: string; 
+}

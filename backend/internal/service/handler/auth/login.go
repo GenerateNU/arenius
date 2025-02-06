@@ -7,7 +7,9 @@ import (
 )
 
 func (h *Handler) Login(c *fiber.Ctx) error {
+
 	var creds Credentials
+
 	if err := c.BodyParser(&creds); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
