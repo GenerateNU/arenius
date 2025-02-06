@@ -28,11 +28,12 @@ export default function LoginPage() {
       });
 
       if (response?.status === 200) {
+
         router.push("/transactions"); 
       }
-    } catch (error: any) {
-      console.error("Login failed:", error);
-      alert(error.response?.data?.message || "Login failed. Please try again.");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      console.error("Login failed, please try again.")
     }
     
   };
@@ -74,7 +75,7 @@ export default function LoginPage() {
         </form>
 
         <div className="w-full mt-3 text-center text-black">
-          Don't have an account? <a href="" className="text-blue-500 hover:underline">Sign up!</a>
+          Don&apos;t have an account? <a href="" className="text-blue-500 hover:underline">Sign up!</a>
         </div>
       </div>
 
