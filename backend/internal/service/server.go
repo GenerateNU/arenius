@@ -38,6 +38,7 @@ type App struct {
 func InitApp(config config.Config) *App {
 	ctx := context.Background()
 	repo := postgres.NewRepository(ctx, config.DB)
+
 	climatiqClient := climatiq.NewClient()
 
 	app := SetupApp(config, repo, climatiqClient)
@@ -87,6 +88,14 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
 	})
 
+	app.Route("/credentials", func(router fiber.Router) {
+		router.Post("/create", func(c *fiber.Ctx) error {
+			return xeroAuthHandler.CreateCredentials(c, repo.Credentials)
+		})
+		router.Get("/get", func(c *fiber.Ctx) error {
+			return xeroAuthHandler.GetCredentials(c, repo.Credentials)
+		})
+	})
 	SupabaseAuthHandler := auth.NewHandler(config.Supabase, sess)
 	app.Route("/auth", func(router fiber.Router) {
 		router.Post("/signup", SupabaseAuthHandler.SignUp)

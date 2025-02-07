@@ -109,3 +109,4 @@ func (h *Handler) getAuthorisationHeader() (string, string) {
 		fmt.Sprintf("Basic %s:%s", h.config.OAuth2Config.ClientID, h.config.OAuth2Config.ClientSecret),
 	))
 }
+

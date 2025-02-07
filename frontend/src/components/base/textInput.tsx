@@ -25,7 +25,7 @@ const TextInput: React.FC<TextInputProps> = ({
 }) => {
   return (
     <div className="flex flex-col gap-1">
-      {label && <label className="text-sm font-medium">{label}</label>}
+      {label && <label className="text-sm font-medium text-black">{label}</label>}
       <input
         id={id}
         type={type}
@@ -34,7 +34,7 @@ const TextInput: React.FC<TextInputProps> = ({
         placeholder={placeholder}
         disabled={disabled}
         required={required}
-        className={`border rounded-lg p-2 focus:outline-none focus:ring-2 ${
+        className={`border rounded-lg p-2 focus:outline-none focus:ring-2 text-black ${
           error
             ? "border-red-500 focus:ring-red-300"
             : "border-gray-300 focus:ring-blue-300"
