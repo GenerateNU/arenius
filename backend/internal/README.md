@@ -32,8 +32,11 @@ GET `/line-item`
 ```go
     - Body Parameters:
         CompanyID            *string    `json:"company_id"`
-        Date                 *time.Time `json:"date"`
         ReconciliationStatus *bool      `json:"reconciliation_status"`
+        BeforeDate           *time.Time `json:"before_date"`
+        AfterDate            *time.Time `json:"after_date"`
+        Scope                *int       `json:"scope,omitempty"`
+        EmissionFactor       *string    `json:"emission_factor,omitempty"`
     - Query Parameters:
         Page  int `query:"page"`
 	    Limit int `query:"limit"`
