@@ -65,7 +65,6 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	ORDER BY li.date DESC
 	LIMIT $1 OFFSET $2
 	`
-	fmt.Println(query)
 
 	queryArgs := append([]interface{}{pagination.Limit, pagination.GetOffset()}, filterArgs...)
 	rows, err := r.db.Query(ctx, query, queryArgs...)
