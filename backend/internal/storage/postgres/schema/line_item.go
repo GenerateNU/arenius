@@ -5,11 +5,13 @@ import (
 	"arenius/internal/models"
 	"arenius/internal/service/utils"
 	"context"
+	"database/sql"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -205,12 +207,16 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 			importedLineItem.CurrencyCode)
 	}
 	if len(req) > 0 {
-		transaction, err := r.db.Begin(ctx)
-		if err != nil {
-			return nil, err
+		transaction, txErr := r.db.Begin(ctx)
+		if txErr != nil {
+			return nil, txErr
 		}
 
-		defer transaction.Rollback(ctx)
+		defer func() {
+			if rollbackErr := transaction.Rollback(ctx); rollbackErr != nil && rollbackErr != sql.ErrTxDone && txErr == nil {
+				txErr = rollbackErr
+			}
+		}()
 
 		query := `
 			INSERT INTO line_item
@@ -221,7 +227,7 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 				unit_amount=EXCLUDED.unit_amount, company_id=EXCLUDED.company_id,
 				contact_id=EXCLUDED.contact_id, date=EXCLUDED.date, currency_code=EXCLUDED.currency_code,
 				emission_factor_id=NULL, co2=NULL, co2_unit=NULL, scope=NULL
-			RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope;
+			RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, NULL as emission_factor_name, co2, co2_unit, scope;
 		`
 		rows, err := r.db.Query(ctx, query, queryArgs...)
 		if err != nil {
@@ -229,34 +235,16 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 		}
 		defer rows.Close()
 
-		var lineItems []models.LineItem
-		for rows.Next() {
-			var lineItem models.LineItem
-			if err := rows.Scan(
-				&lineItem.ID,
-				&lineItem.XeroLineItemID,
-				&lineItem.Description,
-				&lineItem.Quantity,
-				&lineItem.UnitAmount,
-				&lineItem.CompanyID,
-				&lineItem.ContactID,
-				&lineItem.Date,
-				&lineItem.CurrencyCode,
-				&lineItem.EmissionFactorId,
-				&lineItem.CO2,
-				&lineItem.CO2Unit,
-				&lineItem.Scope,
-			); err != nil {
-				return nil, err
-			}
-			lineItems = append(lineItems, lineItem)
-		}
-
-		if err = transaction.Commit(ctx); err != nil {
+		lineItems, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.LineItem])
+		if err != nil {
 			return nil, err
 		}
 
-		return lineItems, nil
+		if commitErr := transaction.Commit(ctx); commitErr != nil {
+			txErr = commitErr
+		}
+
+		return lineItems, txErr
 	}
 	return nil, nil
 }
