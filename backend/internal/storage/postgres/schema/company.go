@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -48,6 +49,24 @@ func (r *CompanyRepository) UpdateCompanyLastImportTime(ctx context.Context, id 
 		return nil, errs.BadRequest(fmt.Sprintf("Unable to update company last_import_time: %s", err))
 	}
 	return &company, nil
+}
+
+func (r *CompanyRepository) GetOrCreateCompany(ctx context.Context, xeroTenantID string, companyName string) (string, error) {
+	const query = `
+		INSERT INTO company (id, name, xero_tenant_id, last_import_time)
+		VALUES ($1, $2, $3, $4)
+		ON CONFLICT (xero_tenant_id) DO UPDATE SET xero_tenant_id = EXCLUDED.xero_tenant_id
+		RETURNING id;
+	`
+
+	companyID := uuid.New().String()
+	var existingCompanyID string
+	err := r.db.QueryRow(ctx, query, companyID, companyName, xeroTenantID, time.Now()).Scan(&existingCompanyID)
+	if err != nil {
+		return "", fmt.Errorf("error inserting or retrieving company: %w", err)
+	}
+
+	return existingCompanyID, nil
 }
 
 func NewCompanyRepository(db *pgxpool.Pool) *CompanyRepository {

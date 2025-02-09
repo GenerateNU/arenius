@@ -1,6 +1,7 @@
 package xero
 
 import (
+	"arenius/internal/errs"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -90,6 +91,23 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		}
 	}
 
+	// Get company name from Xero
+	// TODO: FINISH
+	companyName := "bruh"
+
+	// Set tenant ID in the session
+	id, ok := session.Get("tenantID").(string)
+	if !ok {
+		fmt.Println("Tenant ID not in session")
+	}
+
+	// Set the company ID in the session
+	companyID, err := h.getCompanyID(ctx, id, companyName)
+	if err != nil {
+		fmt.Println("Company ID retrieval failed")
+	}
+	session.Set("companyID", companyID)
+
 	err = session.Save()
 	if err != nil {
 		fmt.Println("Error saving session:", err)
@@ -104,9 +122,17 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 
 }
 
+func (h *Handler) getCompanyID(c *fiber.Ctx, xeroTenantID string, companyName string) (string, error) {
+	companyID, err := h.companyRepository.GetOrCreateCompany(c.Context(), xeroTenantID, companyName)
+	if err != nil {
+		return "", errs.BadRequest("Company existing check failed")
+	}
+
+	return companyID, nil
+}
+
 func (h *Handler) getAuthorisationHeader() (string, string) {
 	return "authorization", base64.StdEncoding.EncodeToString([]byte(
 		fmt.Sprintf("Basic %s:%s", h.config.OAuth2Config.ClientID, h.config.OAuth2Config.ClientSecret),
 	))
 }
-
