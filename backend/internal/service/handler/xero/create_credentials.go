@@ -12,6 +12,7 @@ import (
 func (h *Handler) CreateCredentials(c *fiber.Ctx, credsRepo storage.CredentialsRepository) error {
 
 	var xero_creds models.XeroCredentials
+	fmt.Println("CreateCredentials")
 
 	if err := c.BodyParser(&xero_creds); err != nil {
 		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))

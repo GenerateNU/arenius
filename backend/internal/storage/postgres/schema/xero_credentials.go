@@ -15,8 +15,14 @@ type CredentialsRepository struct {
 }
 
 func (c *CredentialsRepository) GetCredentials(ctx context.Context) (models.XeroCredentials, error) {
-	const query = `SELECT x.company_id, x.access_token, x.refresh_token, x.tenant_id FROM xero_credentials x`
+	const query = `SELECT 
+    x.company_id, 
+    COALESCE(x.access_token, '') AS access_token, 
+    COALESCE(x.refresh_token, '') AS refresh_token, 
+    COALESCE(x.tenant_id, '') AS tenant_id 
+	FROM xero_credentials x`
 
+	fmt.Println()
 	rows, err := c.db.Query(ctx, query)
 	if err != nil {
 		return models.XeroCredentials{}, err
