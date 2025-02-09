@@ -61,13 +61,13 @@ func (r *CompanyRepository) GetOrCreateCompany(ctx context.Context, xeroTenantID
 		return companyID, nil
 	}
 
-	// If there was an error (i.e., no company found), we create a new company
+	// If there was an error (i.e., no company found), we create a new company and set the credentials
 	if err != nil && err.Error() == "no rows in result set" {
 		// Generate a new UUID for the company
 		companyID = uuid.New().String()
 
 		// Insert a new company record
-		insertQuery := `INSERT INTO company (id, name, xero_tenant_id, last_import_time) 
+		const insertQuery = `INSERT INTO company (id, name, xero_tenant_id, last_import_time) 
 						VALUES ($1, $2, $3, $4)`
 		_, err := r.db.Exec(ctx, insertQuery, companyID, companyName, xeroTenantID, time.Now())
 		if err != nil {
@@ -80,6 +80,34 @@ func (r *CompanyRepository) GetOrCreateCompany(ctx context.Context, xeroTenantID
 
 	// In case of any other error, return an error
 	return "", fmt.Errorf("error checking company: %w", err)
+}
+
+func (r *CompanyRepository) SetCredentials(ctx context.Context, userID string, companyID string, accessToken string, refreshToken string, tenantID string) error {
+	// Define your query
+	const query = `
+		INSERT INTO public.user_credentials (
+			id, company_id, access_token, refresh_token, tenant_id
+		)
+		VALUES ($1, $2, $3, $4, $5)
+		ON CONFLICT (id)
+		DO UPDATE SET
+			company_id = EXCLUDED.company_id,
+			access_token = EXCLUDED.access_token,
+			refresh_token = EXCLUDED.refresh_token,
+			tenant_id = EXCLUDED.tenant_id
+			RETURNING id;
+	`
+
+	var userCredentialsID string
+
+	// Execute the query
+	err := r.db.QueryRow(ctx, query, userID, companyID, accessToken, refreshToken, tenantID).Scan(&userCredentialsID)
+	if err != nil {
+		return fmt.Errorf("error inserting user credentials: %w", err)
+	}
+
+	return nil
+
 }
 
 func NewCompanyRepository(db *pgxpool.Pool) *CompanyRepository {

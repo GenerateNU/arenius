@@ -65,7 +65,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		log.Fatalf("Error reading response body: %v", err)
 	}
 
-	fmt.Println(string(body))
 	if resp.StatusCode == http.StatusOK {
 		fmt.Println("Successfully fetched connections!")
 	} else {
@@ -93,7 +92,7 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	}
 
 	// Get the tenant ID from the session
-	id, ok := session.Get("tenantID").(string)
+	tenantID, ok := session.Get("tenantID").(string)
 	if !ok {
 		fmt.Println("Tenant ID not in session")
 	}
@@ -104,10 +103,20 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		fmt.Println("Company name retrieval failed")
 	}
 
+	userID, ok := session.Get("userID").(string)
+	if !ok {
+		fmt.Println("User ID not in session")
+	}
+
 	// Set the company ID in the session
-	companyID, err := h.getCompanyID(ctx, id, companyName)
+	companyID, err := h.getCompanyID(ctx, tenantID, companyName)
 	if err != nil {
 		fmt.Println("Company ID retrieval failed")
+	}
+
+	err = h.companyRepository.SetCredentials(ctx.Context(), userID, companyID, tok.AccessToken, tok.RefreshToken, tenantID)
+	if err != nil {
+		fmt.Println("Failed to set credentials")
 	}
 
 	session.Set("companyID", companyID)

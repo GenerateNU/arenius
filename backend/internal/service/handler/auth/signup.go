@@ -22,6 +22,7 @@ func (h *Handler) SignUp(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to get session"})
 	}
+	sess.Set("userID", response.User.ID)
 	sess.Set("jwt", response.AccessToken) // Store the JWT in the session
 	if err := sess.Save(); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to save session"})
