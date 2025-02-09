@@ -1,7 +1,6 @@
 package xero
 
 import (
-	"arenius/internal/errs"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -51,7 +50,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		log.Fatalf("Error creating request: %v", err)
 	}
 
-	fmt.Println("ACCESS", tok.AccessToken)
 	req.Header.Set("Authorization", "Bearer "+tok.AccessToken)
 	req.Header.Set("Content-Type", "application/json")
 
@@ -82,23 +80,28 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 
 	for _, connection := range connections {
 		if tenantID, ok := connection["tenantId"].(string); ok {
-			if connection["tenantName"] == "Demo Company (US)" {
-				session.Set("tenantID", tenantID)
-				fmt.Printf("Tenant ID Token: %s\n", tenantID)
+			tenantName, ok := connection["tenantName"].(string)
+			if !ok {
+				fmt.Println("Tenant Name not found or is not a string")
+				continue
 			}
+			session.Set("tenantName", tenantName)
+			session.Set("tenantID", tenantID)
 		} else {
 			fmt.Println("Tenant ID not found or is not a string")
 		}
 	}
 
-	// Get company name from Xero
-	// TODO: FINISH
-	companyName := "bruh"
-
-	// Set tenant ID in the session
+	// Get the tenant ID from the session
 	id, ok := session.Get("tenantID").(string)
 	if !ok {
 		fmt.Println("Tenant ID not in session")
+	}
+
+	// Get company name from Xero
+	companyName, ok := session.Get("tenantName").(string)
+	if !ok {
+		fmt.Println("Company name retrieval failed")
 	}
 
 	// Set the company ID in the session
@@ -106,6 +109,7 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	if err != nil {
 		fmt.Println("Company ID retrieval failed")
 	}
+
 	session.Set("companyID", companyID)
 
 	err = session.Save()
@@ -125,7 +129,7 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 func (h *Handler) getCompanyID(c *fiber.Ctx, xeroTenantID string, companyName string) (string, error) {
 	companyID, err := h.companyRepository.GetOrCreateCompany(c.Context(), xeroTenantID, companyName)
 	if err != nil {
-		return "", errs.BadRequest("Company existing check failed")
+		return "", err
 	}
 
 	return companyID, nil

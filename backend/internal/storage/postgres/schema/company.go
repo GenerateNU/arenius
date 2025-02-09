@@ -52,21 +52,34 @@ func (r *CompanyRepository) UpdateCompanyLastImportTime(ctx context.Context, id 
 }
 
 func (r *CompanyRepository) GetOrCreateCompany(ctx context.Context, xeroTenantID string, companyName string) (string, error) {
-	const query = `
-		INSERT INTO company (id, name, xero_tenant_id, last_import_time)
-		VALUES ($1, $2, $3, $4)
-		ON CONFLICT (xero_tenant_id) DO UPDATE SET xero_tenant_id = EXCLUDED.xero_tenant_id
-		RETURNING id;
-	`
-
-	companyID := uuid.New().String()
-	var existingCompanyID string
-	err := r.db.QueryRow(ctx, query, companyID, companyName, xeroTenantID, time.Now()).Scan(&existingCompanyID)
-	if err != nil {
-		return "", fmt.Errorf("error inserting or retrieving company: %w", err)
+	// First, try to get the company ID for the provided xeroTenantID
+	var companyID string
+	query := `SELECT id FROM company WHERE xero_tenant_id = $1`
+	err := r.db.QueryRow(ctx, query, xeroTenantID).Scan(&companyID)
+	if err == nil {
+		// If the company exists, return the existing company ID
+		return companyID, nil
 	}
 
-	return existingCompanyID, nil
+	// If there was an error (i.e., no company found), we create a new company
+	if err != nil && err.Error() == "no rows in result set" {
+		// Generate a new UUID for the company
+		companyID = uuid.New().String()
+
+		// Insert a new company record
+		insertQuery := `INSERT INTO company (id, name, xero_tenant_id, last_import_time) 
+						VALUES ($1, $2, $3, $4)`
+		_, err := r.db.Exec(ctx, insertQuery, companyID, companyName, xeroTenantID, time.Now())
+		if err != nil {
+			return "", fmt.Errorf("error creating company: %w", err)
+		}
+
+		// Return the newly created company ID
+		return companyID, nil
+	}
+
+	// In case of any other error, return an error
+	return "", fmt.Errorf("error checking company: %w", err)
 }
 
 func NewCompanyRepository(db *pgxpool.Pool) *CompanyRepository {
