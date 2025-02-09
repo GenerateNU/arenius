@@ -24,13 +24,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-dvh overflow-hidden">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex min-h-full flex-col`}
       >
-        <Navbar />
-
-        {children}
+        <header>
+          <Navbar />
+        </header>
+        <main className="grow">{children}</main>
       </body>
     </html>
   );
