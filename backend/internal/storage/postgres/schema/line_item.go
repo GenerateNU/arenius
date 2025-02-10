@@ -34,16 +34,28 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	filterArgs := []interface{}{}
 
 	if filterParams.CompanyID != nil {
-		filterColumns = append(filterColumns, "company_id")
+		filterColumns = append(filterColumns, "li.company_id=")
 		filterArgs = append(filterArgs, *filterParams.CompanyID)
 	}
-	if filterParams.Date != nil {
-		filterColumns = append(filterColumns, "date")
-		filterArgs = append(filterArgs, filterParams.Date.UTC())
+	if filterParams.BeforeDate != nil {
+		filterColumns = append(filterColumns, "li.date<=")
+		filterArgs = append(filterArgs, filterParams.BeforeDate.UTC())
+	}
+	if filterParams.AfterDate != nil {
+		filterColumns = append(filterColumns, "li.date>=")
+		filterArgs = append(filterArgs, filterParams.AfterDate.UTC())
+	}
+	if filterParams.Scope != nil {
+		filterColumns = append(filterColumns, "li.scope=")
+		filterArgs = append(filterArgs, *filterParams.Scope)
+	}
+	if filterParams.EmissionFactor != nil {
+		filterColumns = append(filterColumns, "ef.activity_id=")
+		filterArgs = append(filterArgs, *filterParams.EmissionFactor)
 	}
 
 	for i := 0; i < len(filterColumns); i++ {
-		filterQuery += fmt.Sprintf(" AND %s=$%d", filterColumns[i], i+3)
+		filterQuery += fmt.Sprintf(" AND %s$%d", filterColumns[i], i+3)
 	}
 
 	query := `
