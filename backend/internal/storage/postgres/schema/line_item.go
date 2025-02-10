@@ -44,9 +44,6 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		filterArgs = append(filterArgs, filterParams.AfterDate.UTC())
 	}
 	if filterParams.Scope != nil {
-		if *filterParams.Scope != 1 && *filterParams.Scope != 2 && *filterParams.Scope != 3 {
-			return nil, errs.BadRequest("Scope must be 1, 2, or 3")
-		}
 		filterColumns = append(filterColumns, "li.scope=")
 		filterArgs = append(filterArgs, *filterParams.Scope)
 	}
