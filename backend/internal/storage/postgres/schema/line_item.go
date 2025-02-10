@@ -5,11 +5,13 @@ import (
 	"arenius/internal/models"
 	"arenius/internal/service/utils"
 	"context"
+	"database/sql"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -193,17 +195,19 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 }
 
 func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []models.AddImportedLineItemRequest) ([]models.LineItem, error) {
-	var createdLineItems []models.LineItem
-	for _, importedLineItem := range req {
-		query := `
-			INSERT INTO line_item
-			(id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-			RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope;
-		`
-		// TODO: handle duplicate based on xero_line_item_id
-		var lineItem models.LineItem
-		err := r.db.QueryRow(ctx, query,
+	var valuesStrings []string
+	var queryArgs []interface{}
+
+	for index, importedLineItem := range req {
+		var inputNumbers []string
+
+		for i := 1; i <= 9; i += 1 {
+			inputNumbers = append(inputNumbers, fmt.Sprintf("$%d", (index*9)+i))
+		}
+
+		valuesStrings = append(valuesStrings, fmt.Sprintf("(%s)", strings.Join(inputNumbers, ",")))
+
+		queryArgs = append(queryArgs,
 			uuid.New().String(),
 			importedLineItem.XeroLineItemID,
 			importedLineItem.Description,
@@ -212,27 +216,49 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 			importedLineItem.CompanyID,
 			importedLineItem.ContactID,
 			importedLineItem.Date.UTC(),
-			importedLineItem.CurrencyCode).
-			Scan(
-				&lineItem.ID,
-				&lineItem.XeroLineItemID,
-				&lineItem.Description,
-				&lineItem.Quantity,
-				&lineItem.UnitAmount,
-				&lineItem.CompanyID,
-				&lineItem.ContactID,
-				&lineItem.Date,
-				&lineItem.CurrencyCode,
-				&lineItem.EmissionFactorId,
-				&lineItem.CO2,
-				&lineItem.CO2Unit,
-				&lineItem.Scope)
-		if err != nil {
-			return nil, fmt.Errorf("error querying database: %w", err)
-		}
-		createdLineItems = append(createdLineItems, lineItem)
+			importedLineItem.CurrencyCode)
 	}
-	return createdLineItems, nil
+	if len(req) > 0 {
+		transaction, txErr := r.db.Begin(ctx)
+		if txErr != nil {
+			return nil, txErr
+		}
+
+		defer func() {
+			if rollbackErr := transaction.Rollback(ctx); rollbackErr != nil && rollbackErr != sql.ErrTxDone && txErr == nil {
+				txErr = rollbackErr
+			}
+		}()
+
+		query := `
+			INSERT INTO line_item
+			(id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code)
+			VALUES ` + strings.Join(valuesStrings, ",") + `
+			ON  CONFLICT (xero_line_item_id) DO UPDATE
+			SET description=EXCLUDED.description, quantity=EXCLUDED.quantity,
+				unit_amount=EXCLUDED.unit_amount, company_id=EXCLUDED.company_id,
+				contact_id=EXCLUDED.contact_id, date=EXCLUDED.date, currency_code=EXCLUDED.currency_code,
+				emission_factor_id=NULL, co2=NULL, co2_unit=NULL, scope=NULL
+			RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, NULL as emission_factor_name, co2, co2_unit, scope;
+		`
+		rows, err := r.db.Query(ctx, query, queryArgs...)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+
+		lineItems, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.LineItem])
+		if err != nil {
+			return nil, err
+		}
+
+		if commitErr := transaction.Commit(ctx); commitErr != nil {
+			txErr = commitErr
+		}
+
+		return lineItems, txErr
+	}
+	return nil, nil
 }
 
 func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []interface{}, error) {
