@@ -17,8 +17,8 @@ func (h *Handler) BatchUpdateLineItems(c *fiber.Ctx) error {
 	var req UpdateLineItemsRequest
 
 	if err := c.BodyParser(&req); err != nil {
-		log.Println("Error parsing request body:", err)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request payload"})
+		return errs.BadRequest("Invalid request payload: " + err.Error())
+
 	}
 
 	if len(req.LineItemIDs) == 0 {
