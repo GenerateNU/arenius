@@ -6,18 +6,6 @@ import { ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Item } from "@/types";
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-// export type Payment = {
-//   id: string;
-//   date: Date;
-//   name: string;
-//   emissions_factor: string;
-//   amount: number;
-//   // status: "pending" | "processing" | "success" | "failed";
-//   // email: string;
-// };
-
 export const columns: ColumnDef<Item>[] = [
   {
     id: "select",
@@ -48,11 +36,6 @@ export const columns: ColumnDef<Item>[] = [
     enableHiding: false,
     cell: ({ row }) => {
       const amount = new Date(row.getValue("date")).toLocaleDateString();
-      // const formatted = new Intl.NumberFormat("en-US", {
-      //   style: "currency",
-      //   currency: "USD",
-      // }).format(amount);
-
       return <div className="text-right font-medium">{amount}</div>;
     },
   },
