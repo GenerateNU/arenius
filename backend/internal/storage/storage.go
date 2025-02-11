@@ -28,13 +28,14 @@ type SummaryRepository interface {
 }
 
 type CredentialsRepository interface {
-	GetCredentials(ctx context.Context) (models.XeroCredentials, error)
-	CreateCredentials(ctx context.Context, p models.XeroCredentials) (models.XeroCredentials, error)
+	GetCredentialsByUserID(ctx context.Context, userID string) (models.XeroCredentials, error)
 }
 
 type CompanyRepository interface {
 	GetCompanyByXeroTenantID(ctx context.Context, xeroTenantID string) (*models.Company, error)
 	UpdateCompanyLastImportTime(ctx context.Context, id string) (*models.Company, error)
+	GetOrCreateCompany(ctx context.Context, xeroTenantID string, companyName string) (string, error)
+	SetCredentials(ctx context.Context, userID string, companyID string, accessToken string, refreshToken string, tenantID string) error
 }
 
 type Repository struct {

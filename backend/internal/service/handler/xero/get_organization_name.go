@@ -2,18 +2,16 @@ package xero
 
 import (
 	"arenius/internal/errs"
-	"arenius/internal/models"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
+func (h *Handler) GetOrganizationName(ctx *fiber.Ctx) error {
 	session, err := h.sess.Get(ctx)
 	if err != nil {
 		return errs.BadRequest(fmt.Sprint("cannot retrieve session ", err))
@@ -48,7 +46,6 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 	pageNum := 1
 	pageSize := 100
 
-	client := &http.Client{}
 	for remainingTransactions {
 		paginatedUrl := fmt.Sprintf("%s?page=%d&pageSize=%d", url, pageNum, pageSize)
 		pageNum += 1
@@ -67,6 +64,7 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 			req.Header.Set("If-Modified-Since", company.LastImportTime.UTC().Format("2006-01-02T15:04:05"))
 		}
 
+		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
 			return errs.BadRequest(fmt.Sprint("error handling request: ", err))
@@ -125,94 +123,4 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(transactions)
-}
-
-func parseTransactions(transactions []interface{}, company models.Company) ([]models.AddImportedLineItemRequest, error) {
-	var newLineItems []models.AddImportedLineItemRequest
-	// Build an AddImportedLineItemRequest object
-	for _, transaction := range transactions {
-		txMap, ok := transaction.(map[string]interface{})
-		if !ok {
-			return nil, errs.BadRequest("Invalid Transaction format")
-		}
-
-		var contactID string
-		if txMap["Contact"] != nil {
-			contactMap, ok := txMap["Contact"].(map[string]interface{})
-			if !ok {
-				return nil, errs.BadRequest("Invalid Contact format")
-			}
-			if contactMap["ContactID"] != nil {
-				contactID = contactMap["ContactID"].(string)
-			} else {
-				return nil, errs.BadRequest("Missing ContactID")
-			}
-		}
-
-		var currencyCode string
-		if txMap["CurrencyCode"] != nil {
-			currencyCode = txMap["CurrencyCode"].(string)
-		} else {
-			currencyCode = "USD"
-		}
-
-		var date time.Time
-		var err error
-		if txMap["DateString"] != nil {
-			date, err = time.Parse("2006-01-02T15:04:05", txMap["DateString"].(string))
-			if err != nil {
-				return nil, errs.BadRequest(fmt.Sprintf("Error parsing date: %s", err))
-			}
-		} else {
-			return nil, errs.BadRequest("Missing Date string")
-		}
-
-		if txMap["LineItems"] != nil {
-			lineItemsArray, ok := txMap["LineItems"].([]interface{})
-			if !ok {
-				return nil, errs.BadRequest("Invalid LineItems format")
-			}
-
-			for _, rawLineItem := range lineItemsArray {
-				lineItem, ok := rawLineItem.(map[string]interface{})
-				if !ok {
-					return nil, errs.BadRequest("Invalid LineItem format")
-				}
-				var newLineItem models.AddImportedLineItemRequest
-				newLineItem.CompanyID = company.ID
-				newLineItem.CurrencyCode = currencyCode
-				newLineItem.ContactID = contactID
-				newLineItem.Date = date
-
-				if lineItem["LineItemID"] != nil {
-					newLineItem.XeroLineItemID = lineItem["LineItemID"].(string)
-				} else {
-					return nil, errs.BadRequest("Missing LineItemID")
-				}
-
-				if lineItem["Description"] != nil {
-					newLineItem.Description = lineItem["Description"].(string)
-				} else {
-					return nil, errs.BadRequest("Missing Description")
-				}
-
-				if lineItem["Quantity"] != nil {
-					newLineItem.Quantity = lineItem["Quantity"].(float64)
-				} else {
-					return nil, errs.BadRequest("Missing Quantity")
-				}
-
-				if lineItem["UnitAmount"] != nil {
-					newLineItem.UnitAmount = lineItem["UnitAmount"].(float64)
-				} else {
-					return nil, errs.BadRequest("Missing UnitAmount")
-				}
-
-				newLineItems = append(newLineItems, newLineItem)
-			}
-		}
-
-	}
-
-	return newLineItems, nil
 }

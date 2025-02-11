@@ -50,7 +50,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		log.Fatalf("Error creating request: %v", err)
 	}
 
-	fmt.Println("ACCESS", tok.AccessToken)
 	req.Header.Set("Authorization", "Bearer "+tok.AccessToken)
 	req.Header.Set("Content-Type", "application/json")
 
@@ -66,7 +65,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		log.Fatalf("Error reading response body: %v", err)
 	}
 
-	fmt.Println(string(body))
 	if resp.StatusCode == http.StatusOK {
 		fmt.Println("Successfully fetched connections!")
 	} else {
@@ -81,14 +79,47 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 
 	for _, connection := range connections {
 		if tenantID, ok := connection["tenantId"].(string); ok {
-			if connection["tenantName"] == "Demo Company (US)" {
-				session.Set("tenantID", tenantID)
-				fmt.Printf("Tenant ID Token: %s\n", tenantID)
+			tenantName, ok := connection["tenantName"].(string)
+			if !ok {
+				fmt.Println("Tenant Name not found or is not a string")
+				continue
 			}
+			session.Set("tenantName", tenantName)
+			session.Set("tenantID", tenantID)
 		} else {
 			fmt.Println("Tenant ID not found or is not a string")
 		}
 	}
+
+	// Get the tenant ID from the session
+	tenantID, ok := session.Get("tenantID").(string)
+	if !ok {
+		fmt.Println("Tenant ID not in session")
+	}
+
+	// Get company name from Xero
+	companyName, ok := session.Get("tenantName").(string)
+	if !ok {
+		fmt.Println("Company name retrieval failed")
+	}
+
+	userID, ok := session.Get("userID").(string)
+	if !ok {
+		fmt.Println("User ID not in session")
+	}
+
+	// Set the company ID in the session
+	companyID, err := h.getCompanyID(ctx, tenantID, companyName)
+	if err != nil {
+		fmt.Println("Company ID retrieval failed")
+	}
+
+	err = h.companyRepository.SetCredentials(ctx.Context(), userID, companyID, tok.AccessToken, tok.RefreshToken, tenantID)
+	if err != nil {
+		fmt.Println("Failed to set credentials")
+	}
+
+	session.Set("companyID", companyID)
 
 	err = session.Save()
 	if err != nil {
@@ -104,9 +135,17 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 
 }
 
+func (h *Handler) getCompanyID(c *fiber.Ctx, xeroTenantID string, companyName string) (string, error) {
+	companyID, err := h.companyRepository.GetOrCreateCompany(c.Context(), xeroTenantID, companyName)
+	if err != nil {
+		return "", err
+	}
+
+	return companyID, nil
+}
+
 func (h *Handler) getAuthorisationHeader() (string, string) {
 	return "authorization", base64.StdEncoding.EncodeToString([]byte(
 		fmt.Sprintf("Basic %s:%s", h.config.OAuth2Config.ClientID, h.config.OAuth2Config.ClientSecret),
 	))
 }
-
