@@ -90,6 +90,15 @@ GET `/line-item`
 
 ```
 
+Patch `/lint-item\batch`
+    - Allows you to update the scope and/or emissions factor on multiple line items
+```go
+    - Body Parameters:
+        LineItems           []uuid.UUID     `json:"line_item_ids"`
+        Scope               *int            `json:"scope"`
+        EmissionFactorId    *string         `json:"emissions_factor_id"`
+```
+
 # Climatiq
 
 PATCH `climatiq/estimate`

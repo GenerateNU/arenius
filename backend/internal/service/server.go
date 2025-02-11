@@ -107,6 +107,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	lineItemHandler := lineItem.NewHandler(repo.LineItem)
 	app.Route("/line-item", func(r fiber.Router) {
 		r.Get("/", lineItemHandler.GetLineItems)
+		r.Patch("/batch", lineItemHandler.BatchUpdateLineItems)
 		r.Patch("/:id", lineItemHandler.ReconcileLineItem)
 		r.Post("/", lineItemHandler.PostLineItem)
 	})
