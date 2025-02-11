@@ -1,17 +1,22 @@
 "use client";
 
-import ItemTable from "@/components/transactions/ItemTable";
 import ItemForm from "@/components/transactions/ItemForm";
 import { useEffect, useState } from "react";
 import { fetchLineItems } from "@/services/lineItems";
 import { Item } from "@/types";
+import { DataTable } from "../payments/data-table";
+import { columns } from "../payments/columns";
 
 export default function Transactions() {
   const [data, setData] = useState<Item[]>([]);
 
+  // const [columns, setColumns] = useState<Payment[]>([]);
+
   const getItems = async () => {
     const items = await fetchLineItems();
+    console.log(items);
     setData(items);
+    // setColumns(items);
   };
 
   useEffect(() => {
@@ -30,7 +35,11 @@ export default function Transactions() {
       </div>
       <hr className="mb-4 border border-black-100" />
 
-      <ItemTable items={data} />
+      {/* <div className="container mx-auto py-10"> */}
+      <DataTable columns={columns} data={data} />
+      {/* </div> */}
+
+      {/* <ItemTable items={data} /> */}
     </div>
   );
 }
