@@ -43,3 +43,4 @@ func Middleware(cfg *config.Supabase) fiber.Handler {
 		return c.Next()
 	}
 }
+

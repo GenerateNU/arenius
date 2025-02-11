@@ -1,21 +1,14 @@
-package lineItem 
+package lineItem
 
 import (
 	"arenius/internal/errs"
 	"arenius/internal/models"
 	"fmt"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func (h *Handler) ReconcileLineItem(c *fiber.Ctx) error {
-
-	lineItemId, err := strconv.Atoi(c.Params("id"))
-
-	if err != nil {
-		return err
-	}
 
 	var req models.ReconcileLineItemRequest
 
@@ -27,14 +20,8 @@ func (h *Handler) ReconcileLineItem(c *fiber.Ctx) error {
 	if req.EmissionsFactor == "" {
 		return errs.BadRequest("Emission factor cannot be empty in request.")
 	}
-	if req.Amount == 0 {
-		return errs.BadRequest("Amount cannot be empty in request.")
-	}
-	if req.Unit == "" {
-		return errs.BadRequest("Unit cannot be empty in request.")
-	}
 
-	lineItem, err := h.lineItemRepository.ReconcileLineItem(c.Context(), lineItemId, req)
+	lineItem, err := h.lineItemRepository.ReconcileLineItem(c.Context(), c.Params("id"), req)
 	if err != nil {
 		return errs.BadRequest(err.Error())
 	}

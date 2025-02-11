@@ -99,25 +99,39 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	return lineItems, nil
 }
 
-func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId int, req models.ReconcileLineItemRequest) (*models.LineItem, error) {
+func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, req models.ReconcileLineItemRequest) (*models.LineItem, error) {
 
-	query := `
-		UPDATE line_item
-		SET emission_factor_id = $1,
-		    amount = $2,
-			unit = $3
-		WHERE id = $4
-		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope
-	`
+	query := `UPDATE line_item SET emission_factor_id = $1`
+	args := []interface{}{req.EmissionsFactor}
+	argCount := 2
+
+	if req.Scope != 0 {
+		query += fmt.Sprintf(", scope = $%d", argCount)
+		args = append(args, req.Scope)
+		argCount++
+	}
+	if req.ContactID != nil {
+		query += fmt.Sprintf(", contact_id = $%d", argCount)
+		args = append(args, req.ContactID)
+		argCount++
+	}
+
+	query += fmt.Sprintf(" WHERE id = $%d RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope", argCount)
+	args = append(args, lineItemId)
+
 	var lineItem models.LineItem
-	err := r.db.QueryRow(ctx, query, req.EmissionsFactor, req.Amount, req.Unit, lineItemId).Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactorId, &lineItem.CO2, &lineItem.CO2Unit, &lineItem.Scope)
+	err := r.db.QueryRow(ctx, query, args...).Scan(
+		&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity,
+		&lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date,
+		&lineItem.CurrencyCode, &lineItem.EmissionFactorId, &lineItem.CO2, &lineItem.CO2Unit,
+		&lineItem.Scope,
+	)
 
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)
 	}
 
 	return &lineItem, nil
-
 }
 
 func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req models.LineItemEmissionsRequest) (*models.LineItem, error) {

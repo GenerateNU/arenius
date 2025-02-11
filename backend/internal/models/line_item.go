@@ -20,10 +20,10 @@ type LineItem struct {
 }
 
 type ReconcileLineItemRequest struct {
-	ID              string  `json:"id"`
-	EmissionsFactor string  `json:"emission_factor,omitempty"`
-	Amount          float64 `json:"amount,omitempty"`
-	Unit            string  `json:"unit,omitempty"`
+	ID              string `json:"id"`
+	EmissionsFactor string `json:"emission_factor,omitempty"`
+	Scope           int    `json:"scope,omitempty"`
+	ContactID       *string `json:"contact_id,omitempty"`
 }
 
 type LineItemEmissionsRequest struct {
