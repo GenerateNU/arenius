@@ -1,6 +1,7 @@
 package lineItem
 
 import (
+	"arenius/internal/errs"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
