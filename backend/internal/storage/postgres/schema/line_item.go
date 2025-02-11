@@ -318,8 +318,6 @@ func (r *LineItemRepository) BatchUpdateScopeEmissions(ctx context.Context, line
 		paramIndex++
 	}
 
-	fmt.Println("emissionsFactorID", emissionsFactorID)
-
 	if emissionsFactorID != nil {
 		updates = append(updates, fmt.Sprintf("emission_factor_id = $%d", paramIndex))
 		values = append(values, *emissionsFactorID)
