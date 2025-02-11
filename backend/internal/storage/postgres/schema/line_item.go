@@ -307,6 +307,37 @@ func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []in
 	return columns, queryArgs, nil
 }
 
+func (r *LineItemRepository) BatchUpdateScopeEmissions(ctx context.Context, lineItemIDs []uuid.UUID, scope *int, emissionsFactorID *string) error {
+	updates := []string{}
+	values := []interface{}{}
+	paramIndex := 1
+
+	if scope != nil {
+		updates = append(updates, fmt.Sprintf("scope = $%d", paramIndex))
+		values = append(values, *scope)
+		paramIndex++
+	}
+
+	fmt.Println("emissionsFactorID", emissionsFactorID)
+
+	if emissionsFactorID != nil {
+		updates = append(updates, fmt.Sprintf("emission_factor_id = $%d", paramIndex))
+		values = append(values, *emissionsFactorID)
+		paramIndex++
+	}
+
+	values = append(values, lineItemIDs)
+
+	query := fmt.Sprintf(
+		"UPDATE line_item SET %s WHERE id = ANY($%d)",
+		strings.Join(updates, ", "),
+		paramIndex,
+	)
+
+	_, err := r.db.Exec(ctx, query, values...)
+	return err
+}
+
 func NewLineItemRepository(db *pgxpool.Pool) *LineItemRepository {
 	return &LineItemRepository{
 		db,
