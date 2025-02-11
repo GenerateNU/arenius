@@ -46,9 +46,12 @@ type CreateLineItemRequest struct {
 }
 
 type GetLineItemsRequest struct {
-	CompanyID            *string    `json:"company_id"`
-	Date                 *time.Time `json:"date"`
-	ReconciliationStatus *bool      `json:"reconciliation_status"`
+	CompanyID            *string    `query:"company_id"`
+	ReconciliationStatus *bool      `query:"reconciliation_status"`
+	BeforeDate           *time.Time `query:"before_date"`
+	AfterDate            *time.Time `query:"after_date"`
+	Scope                *int       `query:"scope"`
+	EmissionFactor       *string    `query:"emission_factor"`
 }
 
 type AddImportedLineItemRequest struct {

@@ -21,12 +21,13 @@ func (h *Handler) GetLineItems(c *fiber.Ctx) error {
 
 	var filterParams models.GetLineItemsRequest
 
-	if len(c.Body()) == 0 {
-		// make an empty filter params
-		filterParams = models.GetLineItemsRequest{} 
-	} else {
-		if err := c.BodyParser(&filterParams); err != nil {
-			return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
+	if err := c.QueryParser(&filterParams); err != nil {
+		fmt.Println(filterParams)
+		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
+	}
+	if filterParams.Scope != nil {
+		if *filterParams.Scope != 1 && *filterParams.Scope != 2 && *filterParams.Scope != 3 {
+			return errs.BadRequest("Scope must be 1, 2, or 3")
 		}
 	}
 
