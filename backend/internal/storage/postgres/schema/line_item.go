@@ -24,10 +24,13 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 
 	if filterParams.ReconciliationStatus != nil {
 		if *filterParams.ReconciliationStatus {
-			filterQuery += " AND li.emission_factor_id IS NOT NULL"
+			filterQuery += " AND (li.emission_factor_id IS NOT NULL)"
 		} else {
-			filterQuery += " AND li.emission_factor_id IS NULL"
+			filterQuery += " AND (li.emission_factor_id IS NULL)"
 		}
+	}
+	if filterParams.SearchTerm != nil {
+		filterQuery += fmt.Sprintf(" AND (li.description ILIKE '%%%s%%')", *filterParams.SearchTerm)
 	}
 
 	filterColumns := []string{}
@@ -55,7 +58,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	}
 
 	for i := 0; i < len(filterColumns); i++ {
-		filterQuery += fmt.Sprintf(" AND %s$%d", filterColumns[i], i+3)
+		filterQuery += fmt.Sprintf(" AND (%s$%d)", filterColumns[i], i+3)
 	}
 
 	query := `
@@ -64,6 +67,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	ORDER BY li.date DESC
 	LIMIT $1 OFFSET $2
 	`
+	fmt.Println(query)
 
 	queryArgs := append([]interface{}{pagination.Limit, pagination.GetOffset()}, filterArgs...)
 	rows, err := r.db.Query(ctx, query, queryArgs...)
