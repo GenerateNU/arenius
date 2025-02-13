@@ -20,22 +20,35 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "../ui/button";
-import { reconcileBatch } from "@/services/lineItems";
 import { Input } from "../ui/input";
+import { reconcileBatch } from "@/services/lineItems";
+import { ReconcileBatchRequest } from "@/types";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 interface DataTableProps<TData> {
   columns: ColumnDef<TData, any>[];
   data: TData[];
   getRowId: (row: TData) => string;
+  onReconcile: () => void;
 }
 
-export function DataTable<TData>({
+export function LineItemTable<TData>({
   columns,
   data,
   getRowId,
+  onReconcile,
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [scope, setScope] = useState("");
+  const [emissionsFactorId, setEmissionsFactorId] = useState("");
 
   const table = useReactTable({
     data,
@@ -49,9 +62,15 @@ export function DataTable<TData>({
     },
   });
 
-  function reconcileItems() {
+  async function reconcileItems() {
     const selectedIds = table.getSelectedRowModel().rows.map((row) => row.id);
-    reconcileBatch(selectedIds, Number(scope));
+    const request: ReconcileBatchRequest = {
+      lineItemIds: selectedIds,
+      scope: Number(scope),
+      emissionsFactorId,
+    };
+    await reconcileBatch(request);
+    onReconcile();
   }
 
   return (
@@ -101,13 +120,23 @@ export function DataTable<TData>({
       <br />
 
       <div className="flex w-full max-w-sm items-center space-x-2">
+        <Select onValueChange={(value) => setScope(value)}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select scope" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1">1</SelectItem>
+            <SelectItem value="2">2</SelectItem>
+            <SelectItem value="3">3</SelectItem>
+          </SelectContent>
+        </Select>
         <Input
-          className="w-16"
-          type="number"
-          placeholder="Scope"
-          onChange={(e) => setScope(e.target.value)}
+          className="w-54"
+          type="text"
+          placeholder="Emissions factor"
+          onChange={(e) => setEmissionsFactorId(e.target.value)}
         />
-        <Button onClick={reconcileItems}>Set scope</Button>
+        <Button onClick={reconcileItems}>Reconcile</Button>
       </div>
     </div>
   );

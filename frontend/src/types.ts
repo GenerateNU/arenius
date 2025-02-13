@@ -18,3 +18,9 @@ export type LoginRequest = {
   email: string;
   password: string;
 };
+
+export type ReconcileBatchRequest = {
+  lineItemIds: string[];
+  scope: number;
+  emissionsFactorId: string;
+};

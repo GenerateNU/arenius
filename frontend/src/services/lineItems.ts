@@ -1,4 +1,8 @@
-import { CreateLineItemRequest, LineItem } from "../types";
+import {
+  LineItem,
+  CreateLineItemRequest,
+  ReconcileBatchRequest,
+} from "../types";
 import apiClient from "./apiClient";
 
 export async function fetchLineItems(): Promise<LineItem[]> {
@@ -35,11 +39,12 @@ export async function createLineItem(
     });
 }
 
-export async function reconcileBatch(lineItemIds: string[], scope: number) {
+export async function reconcileBatch(request: ReconcileBatchRequest) {
   try {
     await apiClient.patch("/line-item/batch", {
-      line_item_ids: lineItemIds,
-      scope,
+      line_item_ids: request.lineItemIds,
+      scope: request.scope,
+      emissions_factor_id: request.emissionsFactorId,
     });
   } catch (error) {
     console.error("Error updating dashboard items", error);
