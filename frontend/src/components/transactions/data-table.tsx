@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import {
   ColumnDef,
   flexRender,
@@ -17,18 +19,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
+import { Button } from "../ui/button";
+import { reconcileBatch } from "@/services/lineItems";
+import { Input } from "../ui/input";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+interface DataTableProps<TData> {
+  columns: ColumnDef<TData, any>[];
   data: TData[];
+  getRowId: (row: TData) => string;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData>({
   columns,
   data,
-}: DataTableProps<TData, TValue>) {
+  getRowId,
+}: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [scope, setScope] = useState("");
 
   const table = useReactTable({
     data,
@@ -36,10 +43,16 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    getRowId,
     state: {
       sorting,
     },
   });
+
+  function reconcileItems() {
+    const selectedIds = table.getSelectedRowModel().rows.map((row) => row.id);
+    reconcileBatch(selectedIds, Number(scope));
+  }
 
   return (
     <div className="rounded-md border">
@@ -85,6 +98,17 @@ export function DataTable<TData, TValue>({
           )}
         </TableBody>
       </Table>
+      <br />
+
+      <div className="flex w-full max-w-sm items-center space-x-2">
+        <Input
+          className="w-16"
+          type="number"
+          placeholder="Scope"
+          onChange={(e) => setScope(e.target.value)}
+        />
+        <Button onClick={reconcileItems}>Set scope</Button>
+      </div>
     </div>
   );
 }

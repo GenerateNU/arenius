@@ -3,12 +3,12 @@
 import ItemForm from "@/components/transactions/ItemForm";
 import { useEffect, useState } from "react";
 import { fetchLineItems } from "@/services/lineItems";
-import { Item } from "@/types";
-import { DataTable } from "../transactions/data-table";
-import { columns } from "../transactions/columns";
+import { LineItem } from "@/types";
+import { DataTable } from "../../components/transactions/data-table";
+import { columns } from "../../components/transactions/columns";
 
 export default function Transactions() {
-  const [data, setData] = useState<Item[]>([]);
+  const [data, setData] = useState<LineItem[]>([]);
 
   const getItems = async () => {
     const items = await fetchLineItems();
@@ -31,7 +31,7 @@ export default function Transactions() {
       </div>
       <hr className="mb-4 border border-black-100" />
 
-      <DataTable columns={columns} data={data} />
+      <DataTable columns={columns} data={data} getRowId={(row) => row.id} />
     </div>
   );
 }

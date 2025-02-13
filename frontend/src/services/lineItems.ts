@@ -1,7 +1,7 @@
-import { CreateLineItemRequest, Item } from "../types";
+import { CreateLineItemRequest, LineItem } from "../types";
 import apiClient from "./apiClient";
 
-export async function fetchLineItems(): Promise<Item[]> {
+export async function fetchLineItems(): Promise<LineItem[]> {
   try {
     const response = await apiClient.get("/line-item", {
       params: { reconciliation_status: true },
@@ -33,4 +33,15 @@ export async function createLineItem(
     .catch((error) => {
       console.log("Error creating line item:", error);
     });
+}
+
+export async function reconcileBatch(lineItemIds: string[], scope: number) {
+  try {
+    await apiClient.patch("/line-item/batch", {
+      line_item_ids: lineItemIds,
+      scope,
+    });
+  } catch (error) {
+    console.error("Error updating dashboard items", error);
+  }
 }
