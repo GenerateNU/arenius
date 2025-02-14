@@ -7,9 +7,7 @@ import apiClient from "./apiClient";
 
 export async function fetchLineItems(): Promise<LineItem[]> {
   try {
-    const response = await apiClient.get("/line-item", {
-      params: { reconciliation_status: true },
-    });
+    const response = await apiClient.get("/line-item");
     return response.data;
   } catch (error) {
     console.error("Error fetching dashboard items", error);
