@@ -21,6 +21,16 @@ export type LoginRequest = {
 
 export type ReconcileBatchRequest = {
   lineItemIds: string[];
-  scope: number;
-  emissionsFactorId: string;
+  scope?: number;
+  emissionsFactorId?: string;
+};
+
+export type EmissionsFactor = {
+  name: string;
+  activity_id: string;
+};
+
+export type EmissionsFactorCategory = {
+  name: string;
+  emissions_factors: EmissionsFactor[];
 };
