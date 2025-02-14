@@ -57,7 +57,7 @@ export const columns: ColumnDef<LineItem>[] = [
     header: ({ column }) => {
       return <ColumnHeader name="Contact" column={column} />;
     },
-    cell: ({ row }) => {
+    cell: ({}) => {
       // TODO: un-hard-code after contacts table is created
       return <div className="font-medium">Contact name</div>;
     },

@@ -26,15 +26,13 @@ import { ReconcileBatchRequest } from "@/types";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
 
-interface DataTableProps<TData> {
-  columns: ColumnDef<TData, any>[];
+interface DataTableProps<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[];
   data: TData[];
   getRowId: (row: TData) => string;
   onReconcile: () => void;
@@ -45,7 +43,7 @@ export function LineItemTable<TData>({
   data,
   getRowId,
   onReconcile,
-}: DataTableProps<TData>) {
+}: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [scope, setScope] = useState("");
   const [emissionsFactorId, setEmissionsFactorId] = useState("");
