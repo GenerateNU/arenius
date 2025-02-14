@@ -1,24 +1,46 @@
 "use client";
 
-import TextInput from "@/components/base/textInput";
-import Button from "@/components/base/button";
 import React, { useState } from "react";
-import { login } from "@/services/login";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { login } from "@/services/login";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormControl,
+  Form,
+} from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+
+const formSchema = z.object({
+  email: z.string(),
+  password: z.string(),
+});
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const router = useRouter();
+  const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await login({
-        email,
-        password,
+        email: values.email,
+        password: values.password,
       });
 
       if (response?.status === 200) {
@@ -29,49 +51,62 @@ export default function LoginPage() {
         err instanceof Error ? err.message : "An unexpected error occurred"
       );
     }
-  };
+  }
 
   return (
     <div className={styles.container}>
       <div className={styles.formContainer}>
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <h2 className={styles.header}>Welcome to Arenius!</h2>
-          <TextInput
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email address"
-            required
-          />
-          <TextInput
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            required
-          />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className={styles.form}>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormMessage />
+                  <FormControl>
+                    <Input placeholder="john@email.com" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormMessage />
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
-          <div className={styles.checkboxContainer}>
-            <label className="flex items-center">
-              <input type="checkbox" className="mr-2" />
-              Remember me
-            </label>
-            <a href="" className="text-black-500 hover:underline">
-              Forgot Password?
-            </a>
-          </div>
+            <div className={styles.actionContainer}>
+              <Label className={styles.checkboxContainer}>
+                <Checkbox />
+                Remember me
+              </Label>
+              <a href="" className={styles.forgotPassword}>
+                Forgot Password?
+              </a>
+            </div>
 
-          <Button id="login-btn" label="Login" type="submit" error={error} />
-        </form>
-
-        <div className={styles.signUpContainer}>
-          Don&apos;t have an account?{" "}
-          <a href="" className="text-blue-500 hover:underline">
-            Sign up!
-          </a>
-        </div>
+            <Button className="mt-4" type="submit" size="long">
+              Submit
+            </Button>
+            <div className={styles.signUpContainer}>
+              Don&apos;t have an account?{" "}
+              <a href="" className={styles.link}>
+                Sign up!
+              </a>
+            </div>
+            {error && <div className={styles.error}>{error}</div>}
+          </form>
+        </Form>
       </div>
 
       <div className="w-1/2 bg-gray-200"></div>
@@ -84,8 +119,10 @@ const styles = {
   formContainer:
     "w-1/2 flex flex-1 flex-col items-center justify-center bg-gray-100",
   form: "bg-white p-6 rounded-lg shadow-md w-96",
-  header: "text-xl font-semibold mb-4 text-black text-center",
-  checkboxContainer:
-    "flex justify-between items-center text-black text-sm mt-3",
+  actionContainer: "flex justify-between items-center text-black text-sm mt-3",
+  checkboxContainer: "flex items-center gap-2",
   signUpContainer: "w-full mt-3 text-center text-black",
+  error: "mt-4 text-red-500 text-center",
+  link: "text-blue-500 hover:underline",
+  forgotPassword: "text-black-500 hover:underline",
 };
