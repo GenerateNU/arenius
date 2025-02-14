@@ -38,7 +38,7 @@ interface DataTableProps<TData, TValue> {
   onReconcile: () => void;
 }
 
-export function LineItemTable<TData>({
+export function LineItemTable<TData, TValue>({
   columns,
   data,
   getRowId,
