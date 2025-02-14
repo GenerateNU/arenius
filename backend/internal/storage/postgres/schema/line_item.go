@@ -307,20 +307,20 @@ func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []in
 	return columns, queryArgs, nil
 }
 
-func (r *LineItemRepository) BatchUpdateScopeEmissions(ctx context.Context, lineItemIDs []uuid.UUID, scope *int, emissionsFactorID *string) error {
+func (r *LineItemRepository) BatchUpdateScopeEmissions(ctx context.Context, lineItemIDs []uuid.UUID, scope *int, emissionsFactorID string) error {
 	updates := []string{}
 	values := []interface{}{}
 	paramIndex := 1
 
 	if scope != nil {
 		updates = append(updates, fmt.Sprintf("scope = $%d", paramIndex))
-		values = append(values, *scope)
+		values = append(values, scope)
 		paramIndex++
 	}
 
-	if emissionsFactorID != nil {
+	if emissionsFactorID != "" {
 		updates = append(updates, fmt.Sprintf("emission_factor_id = $%d", paramIndex))
-		values = append(values, *emissionsFactorID)
+		values = append(values, emissionsFactorID)
 		paramIndex++
 	}
 
