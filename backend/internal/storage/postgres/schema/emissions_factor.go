@@ -115,7 +115,7 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context) ([]m
 		SELECT *
 		FROM latest_emission
 		WHERE rn = 1
-		ORDER BY category;
+		ORDER BY category, name;
 	`
 	rows, err := r.db.Query(ctx, query)
 	if err != nil {
