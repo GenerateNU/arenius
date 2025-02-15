@@ -1,4 +1,4 @@
-create table line_item (
+create table contact (
     id uuid not null primary key,
     xero_contact_id uuid,
     name text not null,
