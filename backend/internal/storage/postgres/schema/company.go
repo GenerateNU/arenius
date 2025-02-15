@@ -60,7 +60,7 @@ func (r *CompanyRepository) UpdateCompanyLastContactImportTime(ctx context.Conte
 	var company models.Company
 
 	err := r.db.QueryRow(ctx, query, time.Now().UTC(), id).Scan(
-		&company.ID, &company.Name, &company.XeroTenantID, &company.LastTransactionImportTime,
+		&company.ID, &company.Name, &company.XeroTenantID, &company.LastContactImportTime,
 	)
 	if err != nil {
 		return nil, errs.BadRequest(fmt.Sprintf("Unable to update company last_contact_import_time: %s", err))
