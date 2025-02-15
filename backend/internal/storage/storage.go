@@ -36,7 +36,12 @@ type CredentialsRepository interface {
 
 type CompanyRepository interface {
 	GetCompanyByXeroTenantID(ctx context.Context, xeroTenantID string) (*models.Company, error)
-	UpdateCompanyLastImportTime(ctx context.Context, id string) (*models.Company, error)
+	UpdateCompanyLastTransactionImportTime(ctx context.Context, id string) (*models.Company, error)
+	UpdateCompanyLastContactImportTime(ctx context.Context, id string) (*models.Company, error)
+}
+
+type ContactRepository interface {
+	AddImportedContacts(ctx context.Context, req []models.AddImportedContactRequest) ([]models.Contact, error)
 }
 
 type Repository struct {
@@ -46,6 +51,7 @@ type Repository struct {
 	Summary         SummaryRepository
 	Credentials     CredentialsRepository
 	Company         CompanyRepository
+	Contact 		ContactRepository
 }
 
 func (r *Repository) Close() error {
