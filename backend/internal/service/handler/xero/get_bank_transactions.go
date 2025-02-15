@@ -62,8 +62,8 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 		req.Header.Set("Xero-tenant-id", tenantId)
 
 		// filter the transaction results to only those after the last import time for this company
-		if company.LastImportTime != nil {
-			req.Header.Set("If-Modified-Since", company.LastImportTime.UTC().Format("2006-01-02T15:04:05"))
+		if company.LastTransactionImportTime != nil {
+			req.Header.Set("If-Modified-Since", company.LastTransactionImportTime.UTC().Format("2006-01-02T15:04:05"))
 		}
 
 		client := &http.Client{}
@@ -113,7 +113,7 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 	}
 
 	// update company.last_imported_at to now so that we don't fetch the same transactions later
-	_, err = h.companyRepository.UpdateCompanyLastImportTime(ctx.Context(), company.ID)
+	_, err = h.companyRepository.UpdateCompanyLastTransactionImportTime(ctx.Context(), company.ID)
 	if err != nil {
 		return err
 	}

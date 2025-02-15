@@ -36,7 +36,7 @@ type CredentialsRepository interface {
 
 type CompanyRepository interface {
 	GetCompanyByXeroTenantID(ctx context.Context, xeroTenantID string) (*models.Company, error)
-	UpdateCompanyLastImportTime(ctx context.Context, id string) (*models.Company, error)
+	UpdateCompanyLastTransactionImportTime(ctx context.Context, id string) (*models.Company, error)
 }
 
 type Repository struct {
