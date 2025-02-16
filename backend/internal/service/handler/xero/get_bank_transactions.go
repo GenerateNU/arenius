@@ -48,6 +48,8 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 	pageNum := 1
 	pageSize := 100
 
+	client := &http.Client{}
+
 	for remainingTransactions {
 		paginatedUrl := fmt.Sprintf("%s?page=%d&pageSize=%d", url, pageNum, pageSize)
 		pageNum += 1
@@ -62,11 +64,10 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 		req.Header.Set("Xero-tenant-id", tenantId)
 
 		// filter the transaction results to only those after the last import time for this company
-		if company.LastImportTime != nil {
-			req.Header.Set("If-Modified-Since", company.LastImportTime.UTC().Format("2006-01-02T15:04:05"))
+		if company.LastTransactionImportTime != nil {
+			req.Header.Set("If-Modified-Since", company.LastTransactionImportTime.UTC().Format("2006-01-02T15:04:05"))
 		}
 
-		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
 			return errs.BadRequest(fmt.Sprint("error handling request: ", err))
@@ -113,7 +114,7 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 	}
 
 	// update company.last_imported_at to now so that we don't fetch the same transactions later
-	_, err = h.companyRepository.UpdateCompanyLastImportTime(ctx.Context(), company.ID)
+	_, err = h.companyRepository.UpdateCompanyLastTransactionImportTime(ctx.Context(), company.ID)
 	if err != nil {
 		return err
 	}
@@ -137,6 +138,7 @@ func parseTransactions(transactions []interface{}, company models.Company) ([]mo
 		}
 
 		var contactID string
+		var contactName string
 		if txMap["Contact"] != nil {
 			contactMap, ok := txMap["Contact"].(map[string]interface{})
 			if !ok {
@@ -144,8 +146,14 @@ func parseTransactions(transactions []interface{}, company models.Company) ([]mo
 			}
 			if contactMap["ContactID"] != nil {
 				contactID = contactMap["ContactID"].(string)
+				// TODO: make contact table that has optional field xero_contact_id
+				// the value stored in contactID should be the internal contact id, not the xero contact id (it is currently the xero contact id)
 			} else {
 				return nil, errs.BadRequest("Missing ContactID")
+			}
+
+			if contactMap["Name"] != nil {
+				contactName = contactMap["Name"].(string)
 			}
 		}
 
@@ -154,6 +162,11 @@ func parseTransactions(transactions []interface{}, company models.Company) ([]mo
 			currencyCode = txMap["CurrencyCode"].(string)
 		} else {
 			currencyCode = "USD"
+		}
+
+		var transactionType string
+		if txMap["Type"] != nil {
+			transactionType = txMap["Type"].(string)
 		}
 
 		var date time.Time
@@ -190,10 +203,11 @@ func parseTransactions(transactions []interface{}, company models.Company) ([]mo
 					return nil, errs.BadRequest("Missing LineItemID")
 				}
 
-				if lineItem["Description"] != nil {
-					newLineItem.Description = lineItem["Description"].(string)
+				if lineItem["Description"] == nil || lineItem["Description"] == "" {
+					// both Type and Contact.Name are required on POST
+					newLineItem.Description = fmt.Sprintf("%s to %s", transactionType, contactName)
 				} else {
-					return nil, errs.BadRequest("Missing Description")
+					newLineItem.Description = lineItem["Description"].(string)
 				}
 
 				if lineItem["Quantity"] != nil {

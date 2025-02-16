@@ -30,15 +30,19 @@ POST `/transaction`
 # Line Item
 GET `/line-item` 
 ```go
-    - Body Parameters:
-        CompanyID            *string    `json:"company_id"`
-        Date                 *time.Time `json:"date"`
-        ReconciliationStatus *bool      `json:"reconciliation_status"`
     - Query Parameters:
-        Page  int `query:"page"`
-	    Limit int `query:"limit"`
+        CompanyID            *string    `query:"company_id"`
+        ReconciliationStatus *bool      `query:"reconciliation_status"`
+        BeforeDate           *time.Time `query:"before_date"`
+        AfterDate            *time.Time `query:"after_date"`
+        Scope                *int       `query:"scope"`
+        EmissionFactor       *string    `query:"emission_factor"`
+        SearchTerm           *string    `query:"search_term"`
+        Page                 int        `query:"page"`
+	    Limit                int        `query:"limit"`
 
 ```
+SearchTerm looks for matching line item descriptions, case insensitive.
 
 
 PATCH `/line-item`
@@ -84,6 +88,15 @@ GET `/line-item`
         Page  int `query:"page"`
 	    Limit int `query:"limit"`
 
+```
+
+Patch `/lint-item\batch`
+    - Allows you to update the scope and/or emissions factor on multiple line items
+```go
+    - Body Parameters:
+        LineItems           []uuid.UUID     `json:"line_item_ids"`
+        Scope               *int            `json:"scope"`
+        EmissionFactorId    *string         `json:"emissions_factor_id"`
 ```
 
 # Climatiq
@@ -151,6 +164,23 @@ GET `/bank-transactions`
 	- Session Tenant ID (stored through /xero/auth)
 - Response:
 	- list of dictionaries contianing transaction information
+```
+```
+# Xero Credentials
+GET 'credentials/get'
+	- retrieves the latest access token, refresh token, and tenant id from Xero authentication
+	- response: json object of tokens 
+POST 'credentials/create'
+	- adds a newly generated access token, refresh token, and tenant id to be used for continuous authentication
+	- BODY PARAMS:
+		{
+		    "company_id": {uuid},
+		    "access_token": {uuid},
+		    "refresh_token": {uuid},
+		    "tenant_id": {uuid}
+		} 
+	- Response:
+		- new authentication credentials row in Xero Credentials table
 ```
 # Summaries
 

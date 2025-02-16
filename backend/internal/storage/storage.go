@@ -6,6 +6,7 @@ import (
 	"arenius/internal/storage/postgres/schema"
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -16,6 +17,7 @@ type LineItemRepository interface {
 	AddLineItemEmissions(ctx context.Context, req models.LineItemEmissionsRequest) (*models.LineItem, error)
 	CreateLineItem(ctx context.Context, req models.CreateLineItemRequest) (*models.LineItem, error)
 	AddImportedLineItems(ctx context.Context, req []models.AddImportedLineItemRequest) ([]models.LineItem, error)
+	BatchUpdateScopeEmissions(ctx context.Context, lineItems []uuid.UUID, scope *int, emissionsFactorID string) error
 }
 
 type EmissionsFactorRepository interface {
@@ -34,7 +36,12 @@ type CredentialsRepository interface {
 
 type CompanyRepository interface {
 	GetCompanyByXeroTenantID(ctx context.Context, xeroTenantID string) (*models.Company, error)
-	UpdateCompanyLastImportTime(ctx context.Context, id string) (*models.Company, error)
+	UpdateCompanyLastTransactionImportTime(ctx context.Context, id string) (*models.Company, error)
+	UpdateCompanyLastContactImportTime(ctx context.Context, id string) (*models.Company, error)
+}
+
+type ContactRepository interface {
+	AddImportedContacts(ctx context.Context, req []models.AddImportedContactRequest) ([]models.Contact, error)
 }
 
 type OffsetRepository interface {
@@ -49,6 +56,7 @@ type Repository struct {
 	Credentials     CredentialsRepository
 	Company         CompanyRepository
 	Offset          OffsetRepository
+	Contact         ContactRepository
 }
 
 func (r *Repository) Close() error {
