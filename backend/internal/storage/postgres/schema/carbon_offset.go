@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"arenius/internal/errs"
 	"arenius/internal/models"
 	"context"
 	"fmt"
@@ -31,7 +32,7 @@ func (c *OffsetRepository) PostCarbonOffset(ctx context.Context, p models.Carbon
 
 	// If no rows were affected, log that
 	if affectedRows == 0 {
-		fmt.Println("No rows were inserted.")
+		return p, errs.BadRequest("Unable to insert given item")
 	}
 
 	return p, nil
