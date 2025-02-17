@@ -89,7 +89,6 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 			&lineItem.Date,
 			&lineItem.CurrencyCode,
 			&lineItem.EmissionFactorId,
-			&lineItem.EmissionFactorName,
 			&lineItem.CO2,
 			&lineItem.CO2Unit,
 			&lineItem.Scope,
@@ -104,31 +103,45 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 
 func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, req models.ReconcileLineItemRequest) (*models.LineItem, error) {
 
-	query := `UPDATE line_item SET emission_factor_id = $1`
-	args := []interface{}{req.EmissionsFactor}
-	argCount := 2
+	query := `UPDATE line_item SET`
+	updates := []string{}
+	args := []interface{}{}
+	argCount := 1
 
+	if req.EmissionsFactor != "" {
+		updates = append(updates, fmt.Sprintf("emission_factor_id = $%d", argCount))
+		args = append(args, req.EmissionsFactor)
+		argCount++
+	}
 	if req.Scope != 0 {
-		query += fmt.Sprintf(", scope = $%d", argCount)
+		updates = append(updates, fmt.Sprintf("scope = $%d", argCount))
 		args = append(args, req.Scope)
 		argCount++
 	}
 	if req.ContactID != nil {
-		query += fmt.Sprintf(", contact_id = $%d", argCount)
+		updates = append(updates, fmt.Sprintf("contact_id = $%d", argCount))
 		args = append(args, req.ContactID)
 		argCount++
 	}
 
-	query += fmt.Sprintf(" WHERE id = $%d RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope", argCount)
+	if len(updates) == 0 {
+		return nil, fmt.Errorf("no fields to update")
+	}
+
+	query += " " + strings.Join(updates, ", ")
+	query += fmt.Sprintf(" WHERE id = $%d", argCount)
 	args = append(args, lineItemId)
 
-	var lineItem models.LineItem
-	err := r.db.QueryRow(ctx, query, args...).Scan(
-		&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity,
-		&lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date,
-		&lineItem.CurrencyCode, &lineItem.EmissionFactorId, &lineItem.CO2, &lineItem.CO2Unit,
-		&lineItem.Scope,
-	)
+	query += " RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope"
+
+	rows, err := r.db.Query(ctx, query, args...)
+
+	if err != nil {
+		return nil, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	lineItem, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.LineItem])
 
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)

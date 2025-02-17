@@ -16,11 +16,6 @@ func (h *Handler) ReconcileLineItem(c *fiber.Ctx) error {
 		return errs.BadRequest(fmt.Sprint("invalid request body: ", err))
 	}
 
-	// assert that all the fields are there
-	if req.EmissionsFactor == "" {
-		return errs.BadRequest("Emission factor cannot be empty in request.")
-	}
-
 	lineItem, err := h.lineItemRepository.ReconcileLineItem(c.Context(), c.Params("id"), req)
 	if err != nil {
 		return errs.BadRequest(err.Error())
