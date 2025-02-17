@@ -1,12 +1,20 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { fetchLineItems } from "@/services/lineItems";
-import { LineItem } from "@/types";
+import { LineItem, LineItemFilters } from "@/types";
 
 interface LineItemsContextValue {
   items: LineItem[];
   fetchData: () => void;
+  filters: LineItemFilters;
+  setFilters: (filters: LineItemFilters) => void;
 }
 
 const LineItemsContext = createContext<LineItemsContextValue | undefined>(
@@ -17,18 +25,21 @@ export const LineItemsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [items, setItems] = useState<LineItem[]>([]);
+  const [filters, setFilters] = useState<LineItemFilters>({});
 
-  const fetchData = async () => {
-    const items = await fetchLineItems();
+  const fetchData = useCallback(async () => {
+    const items = await fetchLineItems(filters);
     setItems(items);
-  };
+  }, [filters]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData, filters]);
 
   return (
-    <LineItemsContext.Provider value={{ items, fetchData }}>
+    <LineItemsContext.Provider
+      value={{ items, fetchData, filters, setFilters }}
+    >
       {children}
     </LineItemsContext.Provider>
   );
