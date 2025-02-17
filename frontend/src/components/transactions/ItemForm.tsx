@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,10 +22,7 @@ import {
 } from "../ui/select";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-
-type FormProps = {
-  handleSubmit: () => void;
-};
+import { useLineItems } from "@/context/LineItemsContext";
 
 const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AUD"];
 
@@ -33,7 +32,9 @@ const formSchema = z.object({
   currency_code: z.enum([...CURRENCIES] as [string, ...string[]]),
 });
 
-export default function ItemForm({ handleSubmit }: FormProps) {
+export default function ItemForm() {
+  const { fetchData } = useLineItems();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,9 +50,10 @@ export default function ItemForm({ handleSubmit }: FormProps) {
       unit_amount: values.price,
       currency_code: values.currency_code,
     });
-    handleSubmit();
+    fetchData();
     form.reset();
   }
+
   return (
     <Form {...form}>
       <form
