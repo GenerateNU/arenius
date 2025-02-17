@@ -49,16 +49,17 @@ PATCH `/line-item`
 ```go
     - Body Parameters:
         - `emission-factor`: Name of the emissions factor
-        - `amount`: Price
-        - `unit`: Unit of the emissions factor
+        - `scope`: Scope, optional 
+        - `contact_id`: Contact ID, optional
     - Path Parameters:
         - `:id`: The ID of the line item
     - Example:
-        - URL: `http://127.0.0.1:8080/line-item/1`
-        - Parameters: {"emission_factor": "factor_UPDATE",
-                       "amount": 69,
-                       "unit": "gigabytes"
-                      }
+        - URL: `http://127.0.0.1:8080/line-item/0651d33f-e9f5-4df4-a1b4-155c0e6cceff`
+        - Parameters: {
+            "emission_factor": "consumer_goods-type_footwear",
+            "scope": 2, 
+            "contact_id": "33333333-3333-3333-3333-333333333333"
+        }
 ```
 
 Post `/line-item`
