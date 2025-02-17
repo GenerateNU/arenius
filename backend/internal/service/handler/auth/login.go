@@ -53,14 +53,6 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			fmt.Println("Failed to get credentials")
 		}
 		c.Cookie(&fiber.Cookie{
-			Name:     "accessToken",
-			Value:    creds.AccessToken.String(),
-			Expires:  time.Now().Add(24 * time.Hour),
-			HTTPOnly: true,
-			Secure:   true,
-			SameSite: "Lax",
-		})
-		c.Cookie(&fiber.Cookie{
 			Name:     "refreshToken",
 			Value:    creds.RefreshToken.String(),
 			Expires:  time.Now().Add(7 * 24 * time.Hour),
