@@ -1,11 +1,11 @@
-## API Documentation
+# API Documentation
 
-# Health Check
+## Health Check
 
 - GET `/health`
   - Returns 200 OK if the server is running.
 
-# Transactions
+## Transactions
 
 POST `/transaction`
 
@@ -25,9 +25,9 @@ POST `/transaction`
     - Query Parameters:
 ```
 
-# Carbon
+## Carbon
 
-# Line Item
+## Line Item
 
 GET `/line-item`
 
@@ -41,11 +41,11 @@ GET `/line-item`
         EmissionFactor       *string    `query:"emission_factor"`
         SearchTerm           *string    `query:"search_term"`
         Page                 int        `query:"page"`
-	    Limit                int        `query:"limit"`
+     Limit                int        `query:"limit"`
 
 ```
-SearchTerm looks for matching line item descriptions, case insensitive.
 
+SearchTerm looks for matching line item descriptions, case insensitive.
 
 PATCH `/line-item`
 
@@ -97,6 +97,7 @@ GET `/line-item`
 
 Patch `/lint-item\batch`
     - Allows you to update the scope and/or emissions factor on multiple line items
+
 ```go
     - Body Parameters:
         LineItems           []uuid.UUID     `json:"line_item_ids"`
@@ -104,11 +105,10 @@ Patch `/lint-item\batch`
         EmissionFactorId    *string         `json:"emissions_factor_id"`
 ```
 
-# Climatiq
+## Climatiq
 
 PATCH `climatiq/estimate`
     - Provides Carbon estimates for the given line items and updates the db based on Unit being Money
-
     - Body Parameters:
         List of Line Items
 
@@ -131,7 +131,7 @@ PATCH `climatiq/estimate`
         CO2Unit          *string   `json:"co2_unit"` //Optional
 ```
 
-# Emissions Factors
+## Emissions Factors
 
 GET `/emissions-factor`
     - returns all emissions factors, structured as a list of categories, each with a name and its list of emission factors.
@@ -160,7 +160,7 @@ Category:
 
 ```
 
-# Xero Bank Transactions
+## Xero Bank Transactions
 
 GET `/bank-transactions`
 
@@ -174,7 +174,7 @@ GET `/bank-transactions`
  - list of dictionaries contianing transaction information
 ```
 
-# Xero Credentials
+## Xero Credentials
 
 GET `credentials/get`
 
@@ -194,7 +194,7 @@ POST `credentials/create`
 - Response:
 - new authentication credentials row in Xero Credentials table
 
-# Summaries
+## Summaries
 
 GET `/summary/gross`
     - provides the breakdown of total emissions per month by scope, for the previous `month_duration` months, as well as a cumulative total emissions for all line items for all time.
@@ -205,7 +205,7 @@ GET `/summary/gross`
         - `company_id`: Company whose line items are being summarized
 ```
 
-# Auth
+## Auth
 
 POST `/auth/login`
     - login for user, returns access token and user info
@@ -227,12 +227,10 @@ POST `/auth/signup`
         - `last_name` (optional)
 ```
 
-
-# Contacts
+## Contacts
 
 GET `/contact/:companyId`
     - get all contact objects associated with a company
-
 
 POST `/contact`
     - create a new contact manually
