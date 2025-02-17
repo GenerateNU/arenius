@@ -19,9 +19,6 @@ func (h *Handler) SignUp(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Signup request failed: %v", err)})
 	}
 
-	fmt.Println("Supabase signup response:", response)
-	fmt.Println("Supabase signup response user ID:", response.User.ID.String())
-
 	_, err = h.userRepository.AddUser(c.Context(), response.User.ID.String(), creds.FirstName, creds.LastName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Adding User request failed: %v", err)})

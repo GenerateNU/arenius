@@ -36,9 +36,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).SendString("An error occurred while trying to exchange the authorization code with the Xero API.")
 	}
 
-	fmt.Println("Token: ", tok)
-	fmt.Println("Access Token: ", tok.AccessToken)
-
 	// Store tokens in cookies
 	ctx.Cookie(&fiber.Cookie{
 		Name:     "accessToken",
@@ -143,7 +140,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	if err != nil {
 		fmt.Println("Company ID retrieval failed")
 	}
-	fmt.Println("Company ID: ", companyID)
 
 	err = h.UserRepository.SetUserCredentials(ctx.Context(), userID, companyID, tok.RefreshToken, tenantID)
 	if err != nil {

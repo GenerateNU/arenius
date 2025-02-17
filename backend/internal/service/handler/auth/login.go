@@ -22,8 +22,6 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	fmt.Println("userID", signInResponse.User.ID.String())
-
 	// Set cookies
 	c.Cookie(&fiber.Cookie{
 		Name:     "userID",

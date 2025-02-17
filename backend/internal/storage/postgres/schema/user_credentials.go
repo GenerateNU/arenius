@@ -21,7 +21,6 @@ func (c *UserRepository) GetCredentialsByUserID(ctx context.Context, userID stri
 
 	// Query the database using the user_id
 	row := c.db.QueryRow(ctx, query, userID)
-	fmt.Println(userID)
 
 	var credentials models.XeroCredentials
 	err := row.Scan(&credentials.CompanyID, &credentials.RefreshToken, &credentials.TenantID)
@@ -53,7 +52,6 @@ func (r *UserRepository) AddUser(ctx context.Context, userID string, firstName *
 }
 
 func (r *UserRepository) SetUserCredentials(ctx context.Context, userID string, companyID string, refreshToken string, tenantID string) error {
-	fmt.Println("Setting user credentials in the database")
 	// Define your query
 	const query = `
 		INSERT INTO public.user_creds (
