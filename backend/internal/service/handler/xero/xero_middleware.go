@@ -9,30 +9,32 @@ import (
 )
 
 func (h *Handler) XeroAuthMiddleware(ctx *fiber.Ctx) error {
-	session, err := h.sess.Get(ctx)
 	fmt.Println("middleware")
-	if err != nil {
-		return ctx.Status(fiber.StatusUnauthorized).SendString("Session error")
-	}
 
-	accessToken := session.Get("accessToken").(string)
-	if accessToken == "" {
-		return ctx.Status(fiber.StatusUnauthorized).SendString("No access token")
+	accessToken := ctx.Cookies("accessToken", "")
+	// if accessToken == "" {
+	// 	return ctx.Status(fiber.StatusUnauthorized).SendString("No access token")
+	// }
+
+	expiryStr := ctx.Cookies("expiry", "")
+	expiry, err := time.Parse(time.RFC3339, expiryStr)
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).SendString("Invalid expiry format")
 	}
 
 	h.oAuthToken = &oauth2.Token{
 		AccessToken:  accessToken,
-		RefreshToken: session.Get("refreshToken").(string),
-		Expiry:       time.Now().Add(-1 * time.Minute), // Force refresh if unknown
+		RefreshToken: ctx.Cookies("refreshToken", ""),
+		Expiry:       expiry,
 	}
 
-	if h.oAuthToken.Expiry.Before(time.Now()) {
+	if h.oAuthToken.Expiry.Before(time.Now()) || h.oAuthToken.AccessToken == "" {
 		err := h.RefreshAccessToken(ctx)
 		if err != nil {
 			return ctx.Status(fiber.StatusUnauthorized).SendString("Failed to refresh token")
 		}
 	}
 
-	fmt.Println("Access token:", h.oAuthToken.AccessToken)
+	fmt.Println("Access token:", ctx.Cookies("accessToken", ""))
 	return ctx.Next() // Continue to next handler
 }

@@ -21,17 +21,34 @@ func (h *Handler) RefreshAccessToken(ctx *fiber.Ctx) error {
 	// Update the handler's token
 	h.oAuthToken = newToken
 
-	// Update session storage
-	session, err := h.sess.Get(ctx)
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to get session")
-	}
-	session.Set("accessToken", newToken.AccessToken)
-	session.Set("refreshToken", newToken.RefreshToken)
-	err = session.Save()
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to save session")
-	}
+	// Update Cookies
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "accessToken",
+		Value:    newToken.AccessToken,
+		Expires:  time.Now().Add(time.Hour * 1),
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: "Lax",
+	})
+
+	//Access token expiration time
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "expiry",
+		Value:    newToken.Expiry.Format(time.RFC3339),
+		Expires:  time.Now().Add(time.Hour * 1),
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: "Lax",
+	})
+
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "refreshToken",
+		Value:    newToken.RefreshToken,
+		Expires:  time.Now().Add(time.Hour * 24 * 30),
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: "Lax",
+	})
 
 	return nil
 }

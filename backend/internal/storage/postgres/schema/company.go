@@ -17,7 +17,7 @@ type CompanyRepository struct {
 
 func (r *CompanyRepository) GetCompanyByXeroTenantID(ctx context.Context, xeroTenantID string) (*models.Company, error) {
 	query := `
-		SELECT id, name, xero_tenant_id, last_import_time
+		SELECT id, name, xero_tenant_id, last_transaction_import_time, last_contact_import_time
 		FROM company 
 		WHERE xero_tenant_id=$1
 		LIMIT 1
@@ -25,7 +25,7 @@ func (r *CompanyRepository) GetCompanyByXeroTenantID(ctx context.Context, xeroTe
 	var company models.Company
 
 	err := r.db.QueryRow(ctx, query, xeroTenantID).Scan(
-		&company.ID, &company.Name, &company.XeroTenantID, &company.LastTransactionImportTime,
+		&company.ID, &company.Name, &company.XeroTenantID, &company.LastTransactionImportTime, &company.LastContactImportTime,
 	)
 	if err != nil {
 		return nil, errs.BadRequest(fmt.Sprintf("Error finding company with Xero Tenant ID: %s, %s", xeroTenantID, err))

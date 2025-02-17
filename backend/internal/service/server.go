@@ -92,7 +92,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
 	})
 
-	//app.Use(xeroAuthHandler.XeroAuthMiddleware)
+	app.Use(xeroAuthHandler.XeroAuthMiddleware)
 
 	SupabaseAuthHandler := auth.NewHandler(config.Supabase, sess, repo.User)
 
