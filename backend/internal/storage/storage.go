@@ -13,7 +13,7 @@ import (
 // Interfaces for repository layer.
 type LineItemRepository interface {
 	GetLineItems(ctx context.Context, pagination utils.Pagination, filterParams models.GetLineItemsRequest) ([]models.LineItem, error)
-	ReconcileLineItem(ctx context.Context, lineItemId int, req models.ReconcileLineItemRequest) (*models.LineItem, error)
+	ReconcileLineItem(ctx context.Context, lineItemId string, req models.ReconcileLineItemRequest) (*models.LineItem, error)
 	AddLineItemEmissions(ctx context.Context, req models.LineItemEmissionsRequest) (*models.LineItem, error)
 	CreateLineItem(ctx context.Context, req models.CreateLineItemRequest) (*models.LineItem, error)
 	AddImportedLineItems(ctx context.Context, req []models.AddImportedLineItemRequest) ([]models.LineItem, error)
@@ -46,6 +46,10 @@ type ContactRepository interface {
 	AddImportedContacts(ctx context.Context, req []models.AddImportedContactRequest) ([]models.Contact, error)
 }
 
+type OffsetRepository interface {
+	PostCarbonOffset(ctx context.Context, p models.CarbonOffset) (models.CarbonOffset, error)
+}
+
 type Repository struct {
 	db              *pgxpool.Pool
 	LineItem        LineItemRepository
@@ -53,7 +57,8 @@ type Repository struct {
 	Summary         SummaryRepository
 	Credentials     CredentialsRepository
 	Company         CompanyRepository
-	Contact 		ContactRepository
+	Offset          OffsetRepository
+	Contact         ContactRepository
 }
 
 func (r *Repository) Close() error {
@@ -73,5 +78,6 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		Summary:         schema.NewSummaryRepository(db),
 		Credentials:     schema.NewCredentialsRepository(db),
 		Company:         schema.NewCompanyRepository(db),
+		Offset:          schema.NewOffsetRepository(db),
 	}
 }

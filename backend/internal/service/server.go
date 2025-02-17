@@ -7,6 +7,7 @@ import (
 	"arenius/internal/service/ctxt"
 	"arenius/internal/service/handler/auth"
 	"arenius/internal/service/handler/carbon"
+	"arenius/internal/service/handler/carbonOffset"
 	"arenius/internal/service/handler/emissionsFactor"
 	"arenius/internal/service/handler/lineItem"
 	"arenius/internal/service/handler/contact"
@@ -141,6 +142,14 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	app.Get("/secret", supabase_auth.Middleware(&config.Supabase), func(c *fiber.Ctx) error {
 		return c.SendStatus(http.StatusOK)
+	})
+
+	offsetHandler := carbonOffset.NewHandler(repo.Offset)
+
+	app.Route("/carbon-offset", func(router fiber.Router) {
+		router.Post("/create", func(c *fiber.Ctx) error {
+			return offsetHandler.PostCarbonOffset(c)
+		})
 	})
 
 	// Apply Middleware to Protected Routes
