@@ -41,6 +41,8 @@ type CompanyRepository interface {
 }
 
 type ContactRepository interface {
+	GetContacts(ctx context.Context, pagination utils.Pagination, companyId string) ([]models.Contact, error)
+	CreateContact(ctx context.Context, req models.CreateContactRequest) (*models.Contact, error)
 	AddImportedContacts(ctx context.Context, req []models.AddImportedContactRequest) ([]models.Contact, error)
 }
 
@@ -77,5 +79,6 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		Credentials:     schema.NewCredentialsRepository(db),
 		Company:         schema.NewCompanyRepository(db),
 		Offset:          schema.NewOffsetRepository(db),
+		Contact: 		 schema.NewContactRepository(db),
 	}
 }

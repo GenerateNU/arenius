@@ -10,6 +10,7 @@ import (
 	"arenius/internal/service/handler/carbonOffset"
 	"arenius/internal/service/handler/emissionsFactor"
 	"arenius/internal/service/handler/lineItem"
+	"arenius/internal/service/handler/contact"
 	"arenius/internal/service/handler/summary"
 	"arenius/internal/service/handler/xero"
 	"arenius/internal/storage"
@@ -111,6 +112,12 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Patch("/batch", lineItemHandler.BatchUpdateLineItems)
 		r.Patch("/:id", lineItemHandler.ReconcileLineItem)
 		r.Post("/", lineItemHandler.PostLineItem)
+	})
+
+	contactHandler := contact.NewHandler(repo.Contact)
+	app.Route("/contact", func(r fiber.Router) {
+		r.Get("/:companyId", contactHandler.GetContacts)
+		r.Post("", contactHandler.PostContact)
 	})
 
 	emissionsFactorHandler := emissionsFactor.NewHandler(repo.EmissionsFactor)
