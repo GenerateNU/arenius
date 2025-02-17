@@ -19,7 +19,7 @@ type LineItemRepository struct {
 	db *pgxpool.Pool
 }
 
-func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.Pagination, filterParams models.GetLineItemsRequest) ([]models.LineItem, error) {
+func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.Pagination, filterParams models.GetLineItemsRequest) ([]models.LineItemWithDetails, error) {
 	filterQuery := "WHERE 1=1"
 
 	if filterParams.ReconciliationStatus != nil {
@@ -62,7 +62,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	}
 
 	query := `
-	SELECT li.id, li.xero_line_item_id, li.description, li.quantity, li.unit_amount, li.company_id, li.contact_id, li.date, li.currency_code, li.emission_factor_id, ef.name, li.co2, li.co2_unit, li.scope
+	SELECT li.id, li.xero_line_item_id, li.description, li.quantity, li.unit_amount, li.company_id, li.contact_id, li.date, li.currency_code, li.emission_factor_id, ef.name as emission_factor_name, li.co2, li.co2_unit, li.scope
 	FROM line_item li LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id ` + filterQuery + `
 	ORDER BY li.date DESC
 	LIMIT $1 OFFSET $2
@@ -75,27 +75,9 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	}
 	defer rows.Close()
 
-	var lineItems []models.LineItem
-	for rows.Next() {
-		var lineItem models.LineItem
-		if err := rows.Scan(
-			&lineItem.ID,
-			&lineItem.XeroLineItemID,
-			&lineItem.Description,
-			&lineItem.Quantity,
-			&lineItem.UnitAmount,
-			&lineItem.CompanyID,
-			&lineItem.ContactID,
-			&lineItem.Date,
-			&lineItem.CurrencyCode,
-			&lineItem.EmissionFactorId,
-			&lineItem.CO2,
-			&lineItem.CO2Unit,
-			&lineItem.Scope,
-		); err != nil {
-			return nil, err
-		}
-		lineItems = append(lineItems, lineItem)
+	lineItems, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.LineItemWithDetails])
+	if err != nil {
+		return nil, err
 	}
 
 	return lineItems, nil
@@ -159,21 +141,8 @@ func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req model
 		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope
 	`
 
-	var lineItem models.LineItem
-	err := r.db.QueryRow(ctx, query, req.CO2, req.CO2Unit, req.LineItemId).Scan(
-		&lineItem.ID,
-		&lineItem.XeroLineItemID,
-		&lineItem.Description,
-		&lineItem.Quantity,
-		&lineItem.UnitAmount,
-		&lineItem.CompanyID,
-		&lineItem.ContactID,
-		&lineItem.Date,
-		&lineItem.CurrencyCode,
-		&lineItem.EmissionFactorId,
-		&lineItem.CO2,
-		&lineItem.CO2Unit,
-		&lineItem.Scope)
+	rows, _ := r.db.Query(ctx, query, req.CO2, req.CO2Unit, req.LineItemId)
+	lineItem, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.LineItem])
 
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)
@@ -200,21 +169,9 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 		VALUES (` + strings.Join(numInputs, ", ") + `)
 		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope;
 	`
-	var lineItem models.LineItem
-	err := r.db.QueryRow(ctx, query, queryArgs...).Scan(
-		&lineItem.ID,
-		&lineItem.XeroLineItemID,
-		&lineItem.Description,
-		&lineItem.Quantity,
-		&lineItem.UnitAmount,
-		&lineItem.CompanyID,
-		&lineItem.ContactID,
-		&lineItem.Date,
-		&lineItem.CurrencyCode,
-		&lineItem.EmissionFactorId,
-		&lineItem.CO2,
-		&lineItem.CO2Unit,
-		&lineItem.Scope)
+
+	rows, _ := r.db.Query(ctx, query, queryArgs...)
+	lineItem, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.LineItem])
 
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)
@@ -269,7 +226,7 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 				unit_amount=EXCLUDED.unit_amount, company_id=EXCLUDED.company_id,
 				contact_id=EXCLUDED.contact_id, date=EXCLUDED.date, currency_code=EXCLUDED.currency_code,
 				emission_factor_id=NULL, co2=NULL, co2_unit=NULL, scope=NULL
-			RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, NULL as emission_factor_name, co2, co2_unit, scope;
+			RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope;
 		`
 		rows, err := r.db.Query(ctx, query, queryArgs...)
 		if err != nil {
