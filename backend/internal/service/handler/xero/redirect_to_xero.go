@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/oauth2"
@@ -25,7 +26,7 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	h.oAuthAuthorisationCode = ctx.Query("code")
 	fmt.Println("Callback")
 
-	// Exchanges the authorization code for an access token with the Xero auth server.
+	// Exchange the authorization code for an access token with the Xero auth server.
 	tok, err := h.config.OAuth2Config.Exchange(
 		ctx.Context(),
 		h.oAuthAuthorisationCode,
@@ -35,17 +36,29 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).SendString("An error occurred while trying to exchange the authorization code with the Xero API.")
 	}
 
-	// Update the server struct with the token.
-	h.oAuthToken = tok
-	session, err := h.sess.Get(ctx)
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to create session")
-	}
-	session.Set("accessToken", tok.AccessToken)
-	session.Set("refreshToken", tok.RefreshToken)
+	fmt.Println("Token: ", tok)
+	fmt.Println("Access Token: ", tok.AccessToken)
+
+	// Store tokens in cookies
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "accessToken",
+		Value:    tok.AccessToken,
+		Expires:  time.Now().Add(time.Hour * 1),
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: "Lax",
+	})
+
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "refreshToken",
+		Value:    tok.RefreshToken,
+		Expires:  time.Now().Add(time.Hour * 24 * 30),
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: "Lax",
+	})
 
 	url := os.Getenv("CONNECTIONS_URL")
-
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatalf("Error creating request: %v", err)
@@ -85,31 +98,37 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 				fmt.Println("Tenant Name not found or is not a string")
 				continue
 			}
-			session.Set("tenantName", tenantName)
-			session.Set("tenantID", tenantID)
+			ctx.Cookie(&fiber.Cookie{
+				Name:     "tenantName",
+				Value:    tenantName,
+				Expires:  time.Now().Add(time.Hour * 24),
+				HTTPOnly: true,
+				Secure:   true,
+				SameSite: "Lax",
+			})
+			ctx.Cookie(&fiber.Cookie{
+				Name:     "tenantID",
+				Value:    tenantID,
+				Expires:  time.Now().Add(time.Hour * 24),
+				HTTPOnly: true,
+				Secure:   true,
+				SameSite: "Lax",
+			})
 		} else {
 			fmt.Println("Tenant ID not found or is not a string")
 		}
 	}
 
-	// Get the tenant ID from the session
-	tenantID, ok := session.Get("tenantID").(string)
-	if !ok {
-		fmt.Println("Tenant ID not in session")
+	// Get user ID from request (assumed to be present in a previous step)
+	userID := ctx.Cookies("userID")
+	if userID == "" {
+		fmt.Println("User ID not in cookies")
 	}
 
-	// Get company name from Xero
-	companyName, ok := session.Get("tenantName").(string)
-	if !ok {
-		fmt.Println("Company name retrieval failed")
-	}
+	tenantID := ctx.Cookies("tenantID")
+	companyName := ctx.Cookies("tenantName")
 
-	userID, ok := session.Get("userID").(string)
-	if !ok {
-		fmt.Println("User ID not in session")
-	}
-
-	// Set the company ID in the session
+	// Get company ID
 	companyID, err := h.getCompanyID(ctx, tenantID, companyName)
 	if err != nil {
 		fmt.Println("Company ID retrieval failed")
@@ -120,20 +139,20 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		fmt.Println("Failed to set credentials")
 	}
 
-	session.Set("companyID", companyID)
-
-	err = session.Save()
-	if err != nil {
-		fmt.Println("Error saving session:", err)
-		return err
-	}
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "companyID",
+		Value:    companyID,
+		Expires:  time.Now().Add(time.Hour * 24),
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: "Lax",
+	})
 
 	// Set the HTTP client for subsequent requests.
 	h.oAuthHTTPClient = h.config.OAuth2Config.Client(ctx.Context(), tok)
 
 	// Redirect to the home page.
 	return ctx.Redirect("/health", fiber.StatusTemporaryRedirect)
-
 }
 
 func (h *Handler) getCompanyID(c *fiber.Ctx, xeroTenantID string, companyName string) (string, error) {
