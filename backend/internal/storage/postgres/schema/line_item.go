@@ -42,7 +42,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	}
 	if filterParams.BeforeDate != nil {
 		filterColumns = append(filterColumns, "li.date<=")
-		filterArgs = append(filterArgs, filterParams.BeforeDate.UTC())
+		filterArgs = append(filterArgs, filterParams.BeforeDate.UTC().Add(time.Hour*24))
 	}
 	if filterParams.AfterDate != nil {
 		filterColumns = append(filterColumns, "li.date>=")
