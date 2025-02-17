@@ -16,25 +16,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "../ui/button";
-import { reconcileBatch } from "@/services/lineItems";
-import { EmissionsFactor, LineItem, ReconcileBatchRequest } from "@/types";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import CategorySelector from "./CategorySelector";
+import { LineItem } from "@/types";
 import { useLineItems } from "@/context/LineItemsContext";
 import { columns } from "./columns";
+import LineItemTableActions from "./LineItemTableActions";
 
 export default function LineItemTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [scope, setScope] = useState("");
-  const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
-  const { items, fetchData } = useLineItems();
+  const { items } = useLineItems();
 
   const table = useReactTable({
     data: items,
@@ -47,23 +36,6 @@ export default function LineItemTable() {
       sorting,
     },
   });
-
-  async function reconcileItems() {
-    const selectedIds = table.getSelectedRowModel().rows.map((row) => row.id);
-    const request: ReconcileBatchRequest = {
-      lineItemIds: selectedIds,
-      ...(scope && { scope: Number(scope) }),
-      ...(emissionsFactor && {
-        emissionsFactorId: emissionsFactor.activity_id,
-      }),
-    };
-
-    await reconcileBatch(request);
-    table.resetRowSelection();
-    setScope("");
-    setEmissionsFactor(undefined);
-    fetchData();
-  }
 
   return (
     <>
@@ -118,25 +90,7 @@ export default function LineItemTable() {
         </Table>
       </div>
       <br />
-
-      <div className="flex w-full space-x-2 px-2 py-2">
-        <Select onValueChange={(value) => setScope(value)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select scope" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1">Scope 1</SelectItem>
-            <SelectItem value="2">Scope 2</SelectItem>
-            <SelectItem value="3">Scope 3</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <CategorySelector
-          emissionsFactor={emissionsFactor}
-          setEmissionsFactor={setEmissionsFactor}
-        />
-        <Button onClick={reconcileItems}>Reconcile</Button>
-      </div>
+      <LineItemTableActions table={table} />
     </>
   );
 }
