@@ -24,10 +24,13 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 
 	if filterParams.ReconciliationStatus != nil {
 		if *filterParams.ReconciliationStatus {
-			filterQuery += " AND li.emission_factor_id IS NOT NULL"
+			filterQuery += " AND (li.emission_factor_id IS NOT NULL)"
 		} else {
-			filterQuery += " AND li.emission_factor_id IS NULL"
+			filterQuery += " AND (li.emission_factor_id IS NULL)"
 		}
+	}
+	if filterParams.SearchTerm != nil {
+		filterQuery += fmt.Sprintf(" AND (li.description ILIKE '%%%s%%')", *filterParams.SearchTerm)
 	}
 
 	filterColumns := []string{}
@@ -55,7 +58,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	}
 
 	for i := 0; i < len(filterColumns); i++ {
-		filterQuery += fmt.Sprintf(" AND %s$%d", filterColumns[i], i+3)
+		filterQuery += fmt.Sprintf(" AND (%s$%d)", filterColumns[i], i+3)
 	}
 
 	query := `
@@ -305,6 +308,35 @@ func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []in
 	}
 
 	return columns, queryArgs, nil
+}
+
+func (r *LineItemRepository) BatchUpdateScopeEmissions(ctx context.Context, lineItemIDs []uuid.UUID, scope *int, emissionsFactorID string) error {
+	updates := []string{}
+	values := []interface{}{}
+	paramIndex := 1
+
+	if scope != nil {
+		updates = append(updates, fmt.Sprintf("scope = $%d", paramIndex))
+		values = append(values, scope)
+		paramIndex++
+	}
+
+	if emissionsFactorID != "" {
+		updates = append(updates, fmt.Sprintf("emission_factor_id = $%d", paramIndex))
+		values = append(values, emissionsFactorID)
+		paramIndex++
+	}
+
+	values = append(values, lineItemIDs)
+
+	query := fmt.Sprintf(
+		"UPDATE line_item SET %s WHERE id = ANY($%d)",
+		strings.Join(updates, ", "),
+		paramIndex,
+	)
+
+	_, err := r.db.Exec(ctx, query, values...)
+	return err
 }
 
 func NewLineItemRepository(db *pgxpool.Pool) *LineItemRepository {

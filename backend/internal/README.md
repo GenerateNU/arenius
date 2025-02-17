@@ -30,18 +30,19 @@ POST `/transaction`
 # Line Item
 GET `/line-item` 
 ```go
-    - Body Parameters:
-        CompanyID            *string    `json:"company_id"`
-        ReconciliationStatus *bool      `json:"reconciliation_status"`
-        BeforeDate           *time.Time `json:"before_date"`
-        AfterDate            *time.Time `json:"after_date"`
-        Scope                *int       `json:"scope,omitempty"`
-        EmissionFactor       *string    `json:"emission_factor,omitempty"`
     - Query Parameters:
-        Page  int `query:"page"`
-	    Limit int `query:"limit"`
+        CompanyID            *string    `query:"company_id"`
+        ReconciliationStatus *bool      `query:"reconciliation_status"`
+        BeforeDate           *time.Time `query:"before_date"`
+        AfterDate            *time.Time `query:"after_date"`
+        Scope                *int       `query:"scope"`
+        EmissionFactor       *string    `query:"emission_factor"`
+        SearchTerm           *string    `query:"search_term"`
+        Page                 int        `query:"page"`
+	    Limit                int        `query:"limit"`
 
 ```
+SearchTerm looks for matching line item descriptions, case insensitive.
 
 
 PATCH `/line-item`
@@ -87,6 +88,15 @@ GET `/line-item`
         Page  int `query:"page"`
 	    Limit int `query:"limit"`
 
+```
+
+Patch `/lint-item\batch`
+    - Allows you to update the scope and/or emissions factor on multiple line items
+```go
+    - Body Parameters:
+        LineItems           []uuid.UUID     `json:"line_item_ids"`
+        Scope               *int            `json:"scope"`
+        EmissionFactorId    *string         `json:"emissions_factor_id"`
 ```
 
 # Climatiq

@@ -46,12 +46,13 @@ type CreateLineItemRequest struct {
 }
 
 type GetLineItemsRequest struct {
-	CompanyID            *string    `json:"company_id"`
-	ReconciliationStatus *bool      `json:"reconciliation_status"`
-	BeforeDate           *time.Time `json:"before_date"`
-	AfterDate            *time.Time `json:"after_date"`
-	Scope                *int       `json:"scope,omitempty"`
-	EmissionFactor       *string    `json:"emission_factor,omitempty"`
+	CompanyID            *string    `query:"company_id"`
+	ReconciliationStatus *bool      `query:"reconciliation_status"`
+	BeforeDate           *time.Time `query:"before_date"`
+	AfterDate            *time.Time `query:"after_date"`
+	Scope                *int       `query:"scope"`
+	EmissionFactor       *string    `query:"emission_factor"`
+	SearchTerm           *string    `query:"search_term"`
 }
 
 type AddImportedLineItemRequest struct {
