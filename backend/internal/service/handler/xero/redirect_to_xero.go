@@ -49,6 +49,16 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		SameSite: "Lax",
 	})
 
+	//Access token expiration time
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "expiry",
+		Value:    tok.Expiry.Format(time.RFC3339),
+		Expires:  time.Now().Add(time.Hour * 1),
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: "Lax",
+	})
+
 	ctx.Cookie(&fiber.Cookie{
 		Name:     "refreshToken",
 		Value:    tok.RefreshToken,
@@ -133,6 +143,7 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	if err != nil {
 		fmt.Println("Company ID retrieval failed")
 	}
+	fmt.Println("Company ID: ", companyID)
 
 	err = h.UserRepository.SetUserCredentials(ctx.Context(), userID, companyID, tok.RefreshToken, tenantID)
 	if err != nil {

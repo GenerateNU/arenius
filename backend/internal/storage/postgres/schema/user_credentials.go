@@ -53,12 +53,13 @@ func (r *UserRepository) AddUser(ctx context.Context, userID string, firstName *
 }
 
 func (r *UserRepository) SetUserCredentials(ctx context.Context, userID string, companyID string, refreshToken string, tenantID string) error {
+	fmt.Println("Setting user credentials in the database")
 	// Define your query
 	const query = `
 		INSERT INTO public.user_creds (
 			user_id, company_id, refresh_token, tenant_id
 		)
-		VALUES ($1, $2, $4, $5)
+		VALUES ($1, $2, $3, $4)
 		ON CONFLICT (user_id)
 		DO UPDATE SET
 			company_id = EXCLUDED.company_id,
@@ -72,6 +73,7 @@ func (r *UserRepository) SetUserCredentials(ctx context.Context, userID string, 
 	// Execute the query
 	err := r.db.QueryRow(ctx, query, userID, companyID, refreshToken, tenantID).Scan(&userCredentialsID)
 	if err != nil {
+		fmt.Printf("Error inserting user credentials: %v\n", err)
 		return fmt.Errorf("error inserting user credentials: %w", err)
 	}
 

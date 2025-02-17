@@ -44,7 +44,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 	})
 
 	// Retrieve and store additional credentials if needed
-	if c.Cookies("tenantID") == "" || c.Cookies("accessToken") == "" || c.Cookies("refreshToken") == "" {
+	if c.Cookies("tenantID") == "" || c.Cookies("accessToken") == "" || c.Cookies("refreshToken") == "" || c.Cookies("expiry") == "" {
 		xeroCreds, err := h.userRepository.GetCredentialsByUserID(c.Context(), signInResponse.User.ID.String())
 		if err != nil {
 			fmt.Println("Failed to get credentials")
