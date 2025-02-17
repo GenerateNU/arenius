@@ -18,6 +18,11 @@ type LineItem struct {
 	CO2Unit          *string   `json:"co2_unit,omitempty"`
 }
 
+type LineItemWithDetails struct {
+	LineItem
+	EmissionFactorName *string `json:"emission_factor_name,omitempty"`
+}
+
 type ReconcileLineItemRequest struct {
 	ID              string  `json:"id"`
 	EmissionsFactor string  `json:"emission_factor,omitempty"`
