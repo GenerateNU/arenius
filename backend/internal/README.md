@@ -224,3 +224,23 @@ POST `/auth/signup`
         - `email`
         - `password`
 ```
+
+
+# Contacts
+
+GET `/contact/:companyId`
+    - get all contact objects associated with a company
+
+
+POST `/contact`
+    - create a new contact manually
+
+```go
+    - Body Parameters:
+        - `name`
+        - `email`
+        - `phone`
+        - `city`
+        - `state`
+        - `company_id`
+```

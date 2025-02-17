@@ -12,7 +12,7 @@ import (
 
 // Interfaces for repository layer.
 type LineItemRepository interface {
-	GetLineItems(ctx context.Context, pagination utils.Pagination, filterParams models.GetLineItemsRequest) ([]models.LineItem, error)
+	GetLineItems(ctx context.Context, pagination utils.Pagination, filterParams models.GetLineItemsRequest) ([]models.LineItemWithDetails, error)
 	ReconcileLineItem(ctx context.Context, lineItemId string, req models.ReconcileLineItemRequest) (*models.LineItem, error)
 	AddLineItemEmissions(ctx context.Context, req models.LineItemEmissionsRequest) (*models.LineItem, error)
 	CreateLineItem(ctx context.Context, req models.CreateLineItemRequest) (*models.LineItem, error)
@@ -43,6 +43,8 @@ type CompanyRepository interface {
 }
 
 type ContactRepository interface {
+	GetContacts(ctx context.Context, pagination utils.Pagination, companyId string) ([]models.Contact, error)
+	CreateContact(ctx context.Context, req models.CreateContactRequest) (*models.Contact, error)
 	AddImportedContacts(ctx context.Context, req []models.AddImportedContactRequest) ([]models.Contact, error)
 }
 
@@ -79,5 +81,6 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		User:            schema.NewUserRepository(db),
 		Company:         schema.NewCompanyRepository(db),
 		Offset:          schema.NewOffsetRepository(db),
+		Contact: 		 schema.NewContactRepository(db),
 	}
 }
