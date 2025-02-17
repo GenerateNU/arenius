@@ -18,7 +18,7 @@ type ContactRepository struct {
 	db *pgxpool.Pool
 }
 
-func (r *LineItemRepository) GetContacts(ctx context.Context, pagination utils.Pagination, companyId string) ([]models.Contact, error) {
+func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pagination, companyId string) ([]models.Contact, error) {
 	query := `
 		SELECT *
 		FROM contact
@@ -38,12 +38,12 @@ func (r *LineItemRepository) GetContacts(ctx context.Context, pagination utils.P
 		var contact models.Contact
 		if err := rows.Scan(
 			&contact.ID,
+			&contact.XeroContactID,
 			&contact.Name,
 			&contact.Email,
 			&contact.Phone,
 			&contact.City,
 			&contact.State,
-			&contact.XeroContactID,
 			&contact.CompanyID,
 		); err != nil {
 			return nil, err
@@ -94,7 +94,7 @@ func (r *ContactRepository) CreateContact(ctx context.Context, req models.Create
 	return &contact, nil
 }
 
-func (r *LineItemRepository) AddImportedContacts(ctx context.Context, req []models.AddImportedContactRequest) ([]models.Contact, error) {
+func (r *ContactRepository) AddImportedContacts(ctx context.Context, req []models.AddImportedContactRequest) ([]models.Contact, error) {
 	var valuesStrings []string
 	var queryArgs []interface{}
 

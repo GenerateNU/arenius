@@ -79,5 +79,6 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		Credentials:     schema.NewCredentialsRepository(db),
 		Company:         schema.NewCompanyRepository(db),
 		Offset:          schema.NewOffsetRepository(db),
+		Contact: 		 schema.NewContactRepository(db),
 	}
 }
