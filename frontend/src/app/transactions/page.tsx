@@ -1,5 +1,6 @@
 import ItemForm from "@/components/transactions/ItemForm";
 import LineItemTable from "@/components/transactions/LineItemTable";
+import LineItemTableFilters from "@/components/transactions/LineItemTableFilters";
 import { LineItemsProvider } from "@/context/LineItemsContext";
 
 export default function Transactions() {
@@ -11,7 +12,11 @@ export default function Transactions() {
           <ItemForm />
         </div>
         <hr className={styles.spacer} />
-        <LineItemTable />
+        <div>
+          <p className={styles.formTitle}>Transactions</p>
+          <LineItemTableFilters />
+          <LineItemTable />
+        </div>
       </div>
     </LineItemsProvider>
   );

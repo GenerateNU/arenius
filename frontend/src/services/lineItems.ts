@@ -2,12 +2,28 @@ import {
   LineItem,
   CreateLineItemRequest,
   ReconcileBatchRequest,
+  LineItemFilters,
 } from "../types";
 import apiClient from "./apiClient";
 
-export async function fetchLineItems(): Promise<LineItem[]> {
+function buildQueryParams(filters: LineItemFilters) {
+  const params: Record<string, string | Date | undefined> = {};
+
+  if (filters?.dates) {
+    params.after_date = filters.dates.from;
+    params.before_date = filters.dates.to;
+  }
+
+  return params;
+}
+
+export async function fetchLineItems(
+  filters: LineItemFilters
+): Promise<LineItem[]> {
   try {
-    const response = await apiClient.get("/line-item");
+    const response = await apiClient.get("/line-item", {
+      params: buildQueryParams(filters),
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching dashboard items", error);
