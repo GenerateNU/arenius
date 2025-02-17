@@ -51,6 +51,10 @@ func (r *LineItemRepository) GetContacts(ctx context.Context, pagination utils.P
 		contacts = append(contacts, contact)
 	}
 
+	if rowsErr := rows.Err(); rowsErr != nil {
+		return nil, fmt.Errorf("error iterating over contact rows: %w", rowsErr)
+	}
+
 	return contacts, nil
 }
 
