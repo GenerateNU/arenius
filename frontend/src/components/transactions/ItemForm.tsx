@@ -1,63 +1,118 @@
 import React from "react";
-import TextInput from "../base/textInput";
-import useItemForm from "@/hooks/useItemForm";
-import Dropdown from "../base/dropdown";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { createLineItem } from "@/services/lineItems";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+  Form,
+} from "../ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 type FormProps = {
-  onSubmit: () => void;
+  handleSubmit: () => void;
 };
 
-export default function Form({ onSubmit }: FormProps) {
-  const { formData, errors, handleChange, handleSubmit } =
-    useItemForm(onSubmit);
+const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AUD"];
 
+const formSchema = z.object({
+  description: z.string().min(2).max(50),
+  price: z.coerce.number().min(0),
+  currency_code: z.enum([...CURRENCIES] as [string, ...string[]]),
+});
+
+export default function ItemForm({ handleSubmit }: FormProps) {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      description: "",
+      price: 0,
+      currency_code: "USD",
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    await createLineItem({
+      description: values.description,
+      unit_amount: values.price,
+      currency_code: values.currency_code,
+    });
+    handleSubmit();
+    form.reset();
+  }
   return (
-    <div className={styles.container}>
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <TextInput
-          id="description"
-          value={formData.description}
-          onChange={handleChange}
-          label="Description"
-          placeholder="January electricity"
-          error={errors.description}
-          required
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="py-4 flex flex-row items-end space-x-8"
+      >
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormMessage />
+              <FormControl>
+                <Input placeholder="January electricity" {...field} />
+              </FormControl>
+            </FormItem>
+          )}
         />
-        <TextInput
-          id="unit_amount"
-          value={formData.unit_amount}
-          onChange={handleChange}
-          label="Price"
-          placeholder="$"
-          error={errors.unit_amount}
-          type="number"
-          required
+        <FormField
+          control={form.control}
+          name="price"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Price</FormLabel>
+              <FormMessage />
+              <FormControl>
+                <Input type="number" placeholder="100" {...field} />
+              </FormControl>
+            </FormItem>
+          )}
         />
-
-        <Dropdown
-          id="currency_code"
-          value={formData.currency_code}
-          onChange={handleChange}
-          options={["USD", "EUR", "GBP", "JPY", "AUD"]}
-          label="Currency"
-          error={errors.currency_code}
-          required
+        <FormField
+          control={form.control}
+          name="currency_code"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Currency code</FormLabel>
+              <FormControl>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="USD" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CURRENCIES.map((currency) => (
+                      <SelectItem key={currency} value={currency}>
+                        {currency}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-
-        <button type="submit" className={styles.button}>
-          Add Item
-        </button>
+        <Button type="submit">Submit</Button>
       </form>
-    </div>
+    </Form>
   );
 }
-
-const styles = {
-  container: "py-4",
-  form: "mb-4 flex flex-row gap-6",
-  label: "block mb-1 font-medium",
-  select: "border text-black rounded p-2 w-full",
-  error: "text-red-500",
-  button:
-    "bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mt-6 h-full",
-};

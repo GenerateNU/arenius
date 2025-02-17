@@ -68,8 +68,8 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	// Use CORS middleware to configure CORS and handle preflight/OPTIONS requests.
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",                   // Allow any source domain to access API
-		AllowMethods: "GET,POST,PUT,DELETE", // Using these methods.
+		AllowOrigins: "*",                         // Allow any source domain to access API
+		AllowMethods: "GET,POST,PUT,PATCH,DELETE", // Using these methods.
 	}))
 
 	// Middleware to set the climatiq client in the context
@@ -83,7 +83,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	})
 
 	sess := session.New()
-	xeroAuthHandler := xero.NewHandler(sess, repo.LineItem, repo.Company)
+	xeroAuthHandler := xero.NewHandler(sess, repo.LineItem, repo.Company, repo.Contact)
 	app.Route("/auth", func(r fiber.Router) {
 		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
 	})

@@ -1,0 +1,211 @@
+package xero
+
+import (
+	"arenius/internal/errs"
+	"arenius/internal/models"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+
+	"github.com/gofiber/fiber/v2"
+)
+
+func (h *Handler) GetContacts(ctx *fiber.Ctx) error {
+	session, err := h.sess.Get(ctx)
+	if err != nil {
+		return errs.BadRequest(fmt.Sprint("cannot retrieve session ", err))
+	}
+
+	accessToken, ok := session.Get("accessToken").(string)
+	if !ok {
+		return fmt.Errorf("missing required environment variables")
+	}
+
+	tenantId, ok := session.Get("tenantID").(string)
+	if !ok {
+		return fmt.Errorf("missing required environment variables")
+	}
+
+	url := os.Getenv("CONTACTS_URL")
+
+	if accessToken == "" || tenantId == "" || url == "" {
+		fmt.Printf("Examine env values: accessToken=%s, tenantId=%s, url=%s\n", accessToken, tenantId, url)
+		return fmt.Errorf("missing required environment variables")
+	}
+
+	// get the current company using the Xero tenant ID
+	company, err := h.companyRepository.GetCompanyByXeroTenantID(ctx.Context(), tenantId)
+	if err != nil {
+		return err
+	}
+
+	var contacts []interface{}
+	remainingContacts := true
+	client := &http.Client{}
+
+	pageNum := 1
+	pageSize := 100
+
+	for remainingContacts {
+		paginatedUrl := fmt.Sprintf("%s?page=%d&pageSize=%d", url, pageNum, pageSize)
+		pageNum += 1
+
+		req, err := http.NewRequest("GET", paginatedUrl, nil)
+		if err != nil {
+			return errs.BadRequest(fmt.Sprint("invalid request: ", err))
+		}
+
+		req.Header.Set("Authorization", "Bearer "+accessToken)
+		req.Header.Set("Accept", "application/json")
+		req.Header.Set("Xero-tenant-id", tenantId)
+
+		// filter the contact results to only those after the last import time for this company
+		if company.LastContactImportTime != nil {
+			req.Header.Set("If-Modified-Since", company.LastContactImportTime.UTC().Format("2006-01-02T15:04:05"))
+		}
+		resp, err := client.Do(req)
+		if err != nil {
+			return errs.BadRequest(fmt.Sprint("error handling request: ", err))
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			return errs.BadRequest(fmt.Sprint("response status unsuccessful: ", err))
+		}
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return errs.BadRequest(fmt.Sprint("unable to read response body: ", err))
+		}
+
+		var response map[string]interface{}
+		if err := json.Unmarshal(body, &response); err != nil {
+			return errs.BadRequest(fmt.Sprint("unable to unpack response: ", err))
+		}
+
+		paginatedContacts, ok := response["Contacts"].([]interface{})
+		if !ok {
+			return errs.BadRequest("unable to store response")
+		}
+
+		pagination, ok := response["pagination"].(map[string]interface{})
+		if !ok {
+			return errs.BadRequest("Invalid pagination format")
+		}
+
+		itemCount, ok := pagination["itemCount"].(float64)
+		if !ok {
+			return errs.BadRequest(fmt.Sprintf("Invalid Item Count value: %s", pagination["itemCount"]))
+		}
+		remainingContacts = int(itemCount) == 100
+
+		contacts = append(contacts, paginatedContacts...)
+	}
+
+	// parse the new line items from the fetched transactions
+	newContacts, err := parseContacts(contacts, *company)
+	if err != nil {
+		return err
+	}
+
+	// update company.last_imported_at to now so that we don't fetch the same transactions later
+	_, err = h.companyRepository.UpdateCompanyLastContactImportTime(ctx.Context(), company.ID)
+	if err != nil {
+		return err
+	}
+
+	// send the new line items to the repository layer
+	_, err = h.contactRepository.AddImportedContacts(ctx.Context(), newContacts)
+	if err != nil {
+		return err
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(contacts)
+}
+
+func parseContacts(contacts []interface{}, company models.Company) ([]models.AddImportedContactRequest, error) {
+	var newContacts []models.AddImportedContactRequest
+	
+	for _, contact := range contacts {
+		contactMap, ok := contact.(map[string]interface{})
+		if !ok {
+			return nil, errs.BadRequest("Invalid Contact format")
+		}
+
+		var xeroContactID string
+		if contactMap["ContactID"] != nil {
+			xeroContactID = contactMap["ContactID"].(string)
+		} else {
+			return nil, errs.BadRequest("Missing ContactID")
+		}
+
+		var name string
+		if contactMap["Name"] != nil {
+			name = contactMap["Name"].(string)
+		} else {
+			return nil, errs.BadRequest("Missing Name")
+		}
+
+		var email string
+		if contactMap["EmailAddress"] != nil {
+			email = contactMap["EmailAddress"].(string)
+		} else {
+			return nil, errs.BadRequest("Missing Email")
+		}
+
+		var phone string
+		if contactMap["Phones"] != nil {
+			phoneItems := contactMap["Phones"].([]map[string]interface{})
+			for _, phoneItem := range phoneItems {
+				if phoneItem["PhoneType"] != "DEFAULT" {
+					continue
+				}
+
+				if phoneItem["PhoneNumber"] != nil {
+					phone = phoneItem["PhoneNumber"].(string)
+				} else {
+					return nil, errs.BadRequest("Missing Phone")
+				}
+			}
+		}
+
+		var city string
+		var state string
+		if contactMap["Addresses"] != nil {
+			addressItems := contactMap["Addresses"].([]map[string]interface{})
+			for _, addressItem := range addressItems {
+				if addressItem["AddressType"] != "STREET" {
+					continue
+				}
+
+				if addressItem["City"] != nil {
+					city = addressItem["City"].(string)
+				} else {
+					return nil, errs.BadRequest("Missing City")
+				}
+
+				// Region?
+				if addressItem["Region"] != nil {
+					state = addressItem["Region"].(string)
+				} else {
+					return nil, errs.BadRequest("Missing State")
+				}
+			}
+		}
+
+		var newContact models.AddImportedContactRequest
+		newContact.Name = name
+		newContact.Email = email
+		newContact.Phone = phone
+		newContact.City = city
+		newContact.State = state
+		newContact.XeroContactID = &xeroContactID
+		newContact.CompanyID = company.ID
+
+		newContacts = append(newContacts, newContact)
+	}
+
+	return newContacts, nil
+}
