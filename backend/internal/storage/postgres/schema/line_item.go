@@ -141,7 +141,7 @@ func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req model
 		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope
 	`
 
-	rows, err := r.db.Query(ctx, query, req.CO2, req.CO2Unit, req.LineItemId)
+	rows, _ := r.db.Query(ctx, query, req.CO2, req.CO2Unit, req.LineItemId)
 	lineItem, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.LineItem])
 
 	if err != nil {
@@ -170,7 +170,7 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope;
 	`
 
-	rows, err := r.db.Query(ctx, query, queryArgs...)
+	rows, _ := r.db.Query(ctx, query, queryArgs...)
 	lineItem, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.LineItem])
 
 	if err != nil {
