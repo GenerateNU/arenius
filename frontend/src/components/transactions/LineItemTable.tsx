@@ -1,16 +1,13 @@
 "use client";
 
 import { useState } from "react";
-
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
   SortingState,
   useReactTable,
   getSortedRowModel,
 } from "@tanstack/react-table";
-
 import {
   Table,
   TableBody,
@@ -21,7 +18,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "../ui/button";
 import { reconcileBatch } from "@/services/lineItems";
-import { EmissionsFactor, ReconcileBatchRequest } from "@/types";
+import { EmissionsFactor, LineItem, ReconcileBatchRequest } from "@/types";
 import {
   Select,
   SelectContent,
@@ -30,31 +27,22 @@ import {
   SelectValue,
 } from "../ui/select";
 import CategorySelector from "./CategorySelector";
+import { useLineItems } from "@/context/LineItemsContext";
+import { columns } from "./columns";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  getRowId: (row: TData) => string;
-  onReconcile: () => void;
-}
-
-export function LineItemTable<TData, TValue>({
-  columns,
-  data,
-  getRowId,
-  onReconcile,
-}: DataTableProps<TData, TValue>) {
+export default function LineItemTable<TValue>() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [scope, setScope] = useState("");
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
+  const { items, fetchData } = useLineItems();
 
   const table = useReactTable({
-    data,
+    data: items,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    getRowId,
+    getRowId: (row: LineItem) => row.id,
     state: {
       sorting,
     },
@@ -74,7 +62,7 @@ export function LineItemTable<TData, TValue>({
     table.resetRowSelection();
     setScope("");
     setEmissionsFactor(undefined);
-    onReconcile();
+    fetchData();
   }
 
   return (
