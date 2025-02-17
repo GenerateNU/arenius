@@ -29,15 +29,16 @@ type SummaryRepository interface {
 	GetGrossSummary(ctx context.Context, req models.GetGrossSummaryRequest) (*models.GetGrossSummaryResponse, error)
 }
 
-type CredentialsRepository interface {
+type UserRepository interface {
 	GetCredentialsByUserID(ctx context.Context, userID string) (models.XeroCredentials, error)
+	AddUser(ctx context.Context, userId string, firstName *string, lastName *string) (*models.User, error)
+	SetUserCredentials(ctx context.Context, userID string, companyID string, refreshToken string, tenantID string) error
 }
 
 type CompanyRepository interface {
 	GetCompanyByXeroTenantID(ctx context.Context, xeroTenantID string) (*models.Company, error)
 	UpdateCompanyLastImportTime(ctx context.Context, id string) (*models.Company, error)
 	GetOrCreateCompany(ctx context.Context, xeroTenantID string, companyName string) (string, error)
-	SetCredentials(ctx context.Context, userID string, companyID string, accessToken string, refreshToken string, tenantID string) error
 }
 
 type Repository struct {
@@ -45,7 +46,7 @@ type Repository struct {
 	LineItem        LineItemRepository
 	EmissionsFactor EmissionsFactorRepository
 	Summary         SummaryRepository
-	Credentials     CredentialsRepository
+	User            UserRepository
 	Company         CompanyRepository
 }
 
@@ -64,7 +65,7 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		LineItem:        schema.NewLineItemRepository(db),
 		EmissionsFactor: schema.NewEmissionsFactorRepository(db),
 		Summary:         schema.NewSummaryRepository(db),
-		Credentials:     schema.NewCredentialsRepository(db),
+		User:            schema.NewUserRepository(db),
 		Company:         schema.NewCompanyRepository(db),
 	}
 }

@@ -83,15 +83,15 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	})
 
 	sess := session.New()
-	xeroAuthHandler := xero.NewHandler(sess, repo.LineItem, repo.Company)
+	xeroAuthHandler := xero.NewHandler(sess, repo.LineItem, repo.Company, repo.User)
 
 	app.Route("/auth", func(r fiber.Router) {
 		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
 	})
 
-	app.Use(xeroAuthHandler.XeroAuthMiddleware)
+	//app.Use(xeroAuthHandler.XeroAuthMiddleware)
 
-	SupabaseAuthHandler := auth.NewHandler(config.Supabase, sess, repo.Credentials)
+	SupabaseAuthHandler := auth.NewHandler(config.Supabase, sess, repo.User)
 
 	app.Route("/auth", func(router fiber.Router) {
 		router.Post("/signup", SupabaseAuthHandler.SignUp)

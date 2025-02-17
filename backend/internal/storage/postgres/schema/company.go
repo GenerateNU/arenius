@@ -82,34 +82,6 @@ func (r *CompanyRepository) GetOrCreateCompany(ctx context.Context, xeroTenantID
 	return "", fmt.Errorf("error checking company: %w", err)
 }
 
-func (r *CompanyRepository) SetCredentials(ctx context.Context, userID string, companyID string, accessToken string, refreshToken string, tenantID string) error {
-	// Define your query
-	const query = `
-		INSERT INTO public.user_credentials (
-			id, company_id, access_token, refresh_token, tenant_id
-		)
-		VALUES ($1, $2, $3, $4, $5)
-		ON CONFLICT (id)
-		DO UPDATE SET
-			company_id = EXCLUDED.company_id,
-			access_token = EXCLUDED.access_token,
-			refresh_token = EXCLUDED.refresh_token,
-			tenant_id = EXCLUDED.tenant_id
-			RETURNING id;
-	`
-
-	var userCredentialsID string
-
-	// Execute the query
-	err := r.db.QueryRow(ctx, query, userID, companyID, accessToken, refreshToken, tenantID).Scan(&userCredentialsID)
-	if err != nil {
-		return fmt.Errorf("error inserting user credentials: %w", err)
-	}
-
-	return nil
-
-}
-
 func NewCompanyRepository(db *pgxpool.Pool) *CompanyRepository {
 	return &CompanyRepository{
 		db,

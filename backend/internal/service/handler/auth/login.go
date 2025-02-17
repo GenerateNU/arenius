@@ -3,12 +3,12 @@ package auth
 import (
 	"arenius/internal/auth"
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func (h *Handler) Login(c *fiber.Ctx) error {
-
 	var creds Credentials
 
 	if err := c.BodyParser(&creds); err != nil {
@@ -21,26 +21,69 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	// Store JWT in session
-	sess, err := h.sess.Get(c)
+	xeroCreds, err := h.userRepository.GetCredentialsByUserID(c.Context(), signInResponse.User.ID.String())
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to get session"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to get credentials"})
 	}
-	sess.Set("userID", signInResponse.User.ID)
-	sess.Set("jwt", signInResponse.AccessToken)
-	if err := sess.Save(); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to save session"})
-	}
+	fmt.Println("xeroCreds", xeroCreds)
 
-	if sess.Get("tenantID").(string) == "" || sess.Get("accessToken").(string) == "" || sess.Get("refreshToken").(string) == "" {
-		creds, err := h.credRepo.GetCredentialsByUserID(c.Context(), signInResponse.User.ID.String())
+	// Set cookies
+	c.Cookie(&fiber.Cookie{
+		Name:     "userID",
+		Value:    signInResponse.User.ID.String(),
+		Expires:  time.Now().Add(24 * time.Hour),
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: "Lax",
+	})
+
+	c.Cookie(&fiber.Cookie{
+		Name:     "jwt",
+		Value:    signInResponse.AccessToken,
+		Expires:  time.Now().Add(24 * time.Hour),
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: "Lax",
+	})
+
+	// Retrieve and store additional credentials if needed
+	if c.Cookies("tenantID") == "" || c.Cookies("accessToken") == "" || c.Cookies("refreshToken") == "" {
+		creds, err := h.userRepository.GetCredentialsByUserID(c.Context(), signInResponse.User.ID.String())
 		if err != nil {
-			fmt.Printf("Failed to get credentials")
+			fmt.Println("Failed to get credentials")
 		}
-		sess.Set("accessToken", creds.AccessToken)
-		sess.Set("refreshToken", creds.RefreshToken)
-		sess.Set("tenantID", creds.TenantID)
-		sess.Set("companyID", creds.CompanyID)
+		c.Cookie(&fiber.Cookie{
+			Name:     "accessToken",
+			Value:    creds.AccessToken.String(),
+			Expires:  time.Now().Add(24 * time.Hour),
+			HTTPOnly: true,
+			Secure:   true,
+			SameSite: "Lax",
+		})
+		c.Cookie(&fiber.Cookie{
+			Name:     "refreshToken",
+			Value:    creds.RefreshToken.String(),
+			Expires:  time.Now().Add(7 * 24 * time.Hour),
+			HTTPOnly: true,
+			Secure:   true,
+			SameSite: "Lax",
+		})
+		c.Cookie(&fiber.Cookie{
+			Name:     "tenantID",
+			Value:    creds.TenantID.String(),
+			Expires:  time.Now().Add(24 * time.Hour),
+			HTTPOnly: true,
+			Secure:   true,
+			SameSite: "Lax",
+		})
+		c.Cookie(&fiber.Cookie{
+			Name:     "companyID",
+			Value:    creds.CompanyID.String(),
+			Expires:  time.Now().Add(24 * time.Hour),
+			HTTPOnly: true,
+			Secure:   true,
+			SameSite: "Lax",
+		})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(signInResponse)

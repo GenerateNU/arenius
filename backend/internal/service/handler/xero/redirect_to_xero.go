@@ -23,6 +23,7 @@ func (h *Handler) RedirectToAuthorisationEndpoint(ctx *fiber.Ctx) error {
 
 func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	h.oAuthAuthorisationCode = ctx.Query("code")
+	fmt.Println("Callback")
 
 	// Exchanges the authorization code for an access token with the Xero auth server.
 	tok, err := h.config.OAuth2Config.Exchange(
@@ -114,7 +115,7 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		fmt.Println("Company ID retrieval failed")
 	}
 
-	err = h.companyRepository.SetCredentials(ctx.Context(), userID, companyID, tok.AccessToken, tok.RefreshToken, tenantID)
+	err = h.UserRepository.SetUserCredentials(ctx.Context(), userID, companyID, tok.RefreshToken, tenantID)
 	if err != nil {
 		fmt.Println("Failed to set credentials")
 	}

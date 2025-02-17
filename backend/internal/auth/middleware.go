@@ -4,7 +4,6 @@ import (
 	"arenius/internal/config"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -12,8 +11,7 @@ import (
 // Middleware validates the JWT using Supabase's auth API
 func Middleware(cfg *config.Supabase) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		token := c.Get("Authorization", "")
-		token = strings.TrimPrefix(token, "Bearer ")
+		token := c.Cookies("jwt", "")
 
 		if token == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Token not found"})
