@@ -28,7 +28,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
 type App struct {
@@ -86,15 +85,14 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		return c.SendStatus(http.StatusOK)
 	})
 
-	sess := session.New()
-	xeroAuthHandler := xero.NewHandler(sess, repo.LineItem, repo.Company, repo.Contact, repo.User)
+	xeroAuthHandler := xero.NewHandler(repo.LineItem, repo.Company, repo.Contact, repo.User)
 	app.Route("/auth", func(r fiber.Router) {
 		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
 	})
 
 	app.Use(xeroAuthHandler.XeroAuthMiddleware)
 
-	SupabaseAuthHandler := auth.NewHandler(config.Supabase, sess, repo.User)
+	SupabaseAuthHandler := auth.NewHandler(config.Supabase, repo.User)
 
 	app.Route("/auth", func(router fiber.Router) {
 		router.Post("/signup", SupabaseAuthHandler.SignUp)

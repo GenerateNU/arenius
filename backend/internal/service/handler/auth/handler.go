@@ -3,13 +3,10 @@ package auth
 import (
 	"arenius/internal/config"
 	"arenius/internal/storage"
-
-	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
 type Handler struct {
 	config         config.Supabase
-	sess           *session.Store
 	userRepository storage.UserRepository
 }
 
@@ -20,10 +17,9 @@ type Credentials struct {
 	LastName  *string `json:"last_name"`
 }
 
-func NewHandler(config config.Supabase, store *session.Store, userRepository storage.UserRepository) *Handler {
+func NewHandler(config config.Supabase, userRepository storage.UserRepository) *Handler {
 	return &Handler{
 		config,
-		store,
 		userRepository,
 	}
 }

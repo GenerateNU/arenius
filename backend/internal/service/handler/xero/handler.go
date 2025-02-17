@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/gofiber/fiber/v2/middleware/session"
 	"golang.org/x/oauth2"
 )
 
@@ -14,7 +13,6 @@ type Config struct {
 }
 
 type Handler struct {
-	sess                   *session.Store
 	config                 *Config
 	oAuthAuthorisationCode string
 	oAuthToken             *oauth2.Token
@@ -25,7 +23,7 @@ type Handler struct {
 	UserRepository         storage.UserRepository
 }
 
-func NewHandler(sess *session.Store, lineItemRepository storage.LineItemRepository, companyRepository storage.CompanyRepository, contactRepository storage.ContactRepository, userRepository storage.UserRepository) *Handler {
+func NewHandler(lineItemRepository storage.LineItemRepository, companyRepository storage.CompanyRepository, contactRepository storage.ContactRepository, userRepository storage.UserRepository) *Handler {
 	client_id := os.Getenv("CLIENT_ID")
 	client_secret := os.Getenv("CLIENT_SECRET")
 	redirect_url := os.Getenv("REDIRECT_URL")
@@ -52,5 +50,5 @@ func NewHandler(sess *session.Store, lineItemRepository storage.LineItemReposito
 		},
 	}
 
-	return &Handler{sess, &Config{oauthConfig}, "", nil, nil, lineItemRepository, companyRepository, contactRepository, userRepository}
+	return &Handler{&Config{oauthConfig}, "", nil, nil, lineItemRepository, companyRepository, contactRepository, userRepository}
 }

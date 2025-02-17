@@ -223,6 +223,8 @@ POST `/auth/signup`
     - Body Parameters:
         - `email`
         - `password`
+        - `first_name` (optional)
+        - `last_name` (optional)
 ```
 
 
