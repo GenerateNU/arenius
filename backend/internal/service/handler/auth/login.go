@@ -18,14 +18,11 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 	// Call SupabaseLogin function
 	signInResponse, err := auth.SupabaseLogin(&h.config, creds.Email, creds.Password)
 	if err != nil {
+		fmt.Println("Supabase login error:", err)
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	xeroCreds, err := h.userRepository.GetCredentialsByUserID(c.Context(), signInResponse.User.ID.String())
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to get credentials"})
-	}
-	fmt.Println("xeroCreds", xeroCreds)
+	fmt.Println("userID", signInResponse.User.ID.String())
 
 	// Set cookies
 	c.Cookie(&fiber.Cookie{
@@ -48,13 +45,13 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 
 	// Retrieve and store additional credentials if needed
 	if c.Cookies("tenantID") == "" || c.Cookies("accessToken") == "" || c.Cookies("refreshToken") == "" {
-		creds, err := h.userRepository.GetCredentialsByUserID(c.Context(), signInResponse.User.ID.String())
+		xeroCreds, err := h.userRepository.GetCredentialsByUserID(c.Context(), signInResponse.User.ID.String())
 		if err != nil {
 			fmt.Println("Failed to get credentials")
 		}
 		c.Cookie(&fiber.Cookie{
 			Name:     "refreshToken",
-			Value:    creds.RefreshToken.String(),
+			Value:    xeroCreds.RefreshToken.String(),
 			Expires:  time.Now().Add(7 * 24 * time.Hour),
 			HTTPOnly: true,
 			Secure:   true,
@@ -62,7 +59,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		})
 		c.Cookie(&fiber.Cookie{
 			Name:     "tenantID",
-			Value:    creds.TenantID.String(),
+			Value:    xeroCreds.TenantID.String(),
 			Expires:  time.Now().Add(24 * time.Hour),
 			HTTPOnly: true,
 			Secure:   true,
@@ -70,7 +67,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		})
 		c.Cookie(&fiber.Cookie{
 			Name:     "companyID",
-			Value:    creds.CompanyID.String(),
+			Value:    xeroCreds.CompanyID.String(),
 			Expires:  time.Now().Add(24 * time.Hour),
 			HTTPOnly: true,
 			Secure:   true,

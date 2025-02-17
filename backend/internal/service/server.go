@@ -8,9 +8,9 @@ import (
 	"arenius/internal/service/handler/auth"
 	"arenius/internal/service/handler/carbon"
 	"arenius/internal/service/handler/carbonOffset"
+	"arenius/internal/service/handler/contact"
 	"arenius/internal/service/handler/emissionsFactor"
 	"arenius/internal/service/handler/lineItem"
-	"arenius/internal/service/handler/contact"
 	"arenius/internal/service/handler/summary"
 	"arenius/internal/service/handler/xero"
 	"arenius/internal/storage"
@@ -70,8 +70,10 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	// Use CORS middleware to configure CORS and handle preflight/OPTIONS requests.
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",                         // Allow any source domain to access API
-		AllowMethods: "GET,POST,PUT,PATCH,DELETE", // Using these methods.
+		AllowOrigins:     "http://localhost:3000, http://localhost:8080", // Allow any source domain to access API
+		AllowMethods:     "GET,POST,PUT,PATCH,DELETE",                    // Using these methods.
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowCredentials: true, // Allow cookies
 	}))
 
 	// Middleware to set the climatiq client in the context
