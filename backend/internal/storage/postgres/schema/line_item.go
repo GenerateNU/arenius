@@ -24,10 +24,13 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 
 	if filterParams.ReconciliationStatus != nil {
 		if *filterParams.ReconciliationStatus {
-			filterQuery += " AND li.emission_factor_id IS NOT NULL"
+			filterQuery += " AND (li.emission_factor_id IS NOT NULL)"
 		} else {
-			filterQuery += " AND li.emission_factor_id IS NULL"
+			filterQuery += " AND (li.emission_factor_id IS NULL)"
 		}
+	}
+	if filterParams.SearchTerm != nil {
+		filterQuery += fmt.Sprintf(" AND (li.description ILIKE '%%%s%%')", *filterParams.SearchTerm)
 	}
 
 	filterColumns := []string{}
@@ -55,7 +58,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	}
 
 	for i := 0; i < len(filterColumns); i++ {
-		filterQuery += fmt.Sprintf(" AND %s$%d", filterColumns[i], i+3)
+		filterQuery += fmt.Sprintf(" AND (%s$%d)", filterColumns[i], i+3)
 	}
 
 	query := `
@@ -86,7 +89,6 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 			&lineItem.Date,
 			&lineItem.CurrencyCode,
 			&lineItem.EmissionFactorId,
-			&lineItem.EmissionFactorName,
 			&lineItem.CO2,
 			&lineItem.CO2Unit,
 			&lineItem.Scope,
@@ -99,25 +101,53 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	return lineItems, nil
 }
 
-func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId int, req models.ReconcileLineItemRequest) (*models.LineItem, error) {
+func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, req models.ReconcileLineItemRequest) (*models.LineItem, error) {
 
-	query := `
-		UPDATE line_item
-		SET emission_factor_id = $1,
-		    amount = $2,
-			unit = $3
-		WHERE id = $4
-		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope
-	`
-	var lineItem models.LineItem
-	err := r.db.QueryRow(ctx, query, req.EmissionsFactor, req.Amount, req.Unit, lineItemId).Scan(&lineItem.ID, &lineItem.XeroLineItemID, &lineItem.Description, &lineItem.Quantity, &lineItem.UnitAmount, &lineItem.CompanyID, &lineItem.ContactID, &lineItem.Date, &lineItem.CurrencyCode, &lineItem.EmissionFactorId, &lineItem.CO2, &lineItem.CO2Unit, &lineItem.Scope)
+	query := `UPDATE line_item SET`
+	updates := []string{}
+	args := []interface{}{}
+	argCount := 1
+
+	if req.EmissionsFactor != "" {
+		updates = append(updates, fmt.Sprintf("emission_factor_id = $%d", argCount))
+		args = append(args, req.EmissionsFactor)
+		argCount++
+	}
+	if req.Scope != 0 {
+		updates = append(updates, fmt.Sprintf("scope = $%d", argCount))
+		args = append(args, req.Scope)
+		argCount++
+	}
+	if req.ContactID != nil {
+		updates = append(updates, fmt.Sprintf("contact_id = $%d", argCount))
+		args = append(args, req.ContactID)
+		argCount++
+	}
+
+	if len(updates) == 0 {
+		return nil, fmt.Errorf("no fields to update")
+	}
+
+	query += " " + strings.Join(updates, ", ")
+	query += fmt.Sprintf(" WHERE id = $%d", argCount)
+	args = append(args, lineItemId)
+
+	query += " RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope"
+
+	rows, err := r.db.Query(ctx, query, args...)
+
+	if err != nil {
+		return nil, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	lineItem, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.LineItem])
 
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)
 	}
 
 	return &lineItem, nil
-
 }
 
 func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req models.LineItemEmissionsRequest) (*models.LineItem, error) {
@@ -307,20 +337,20 @@ func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []in
 	return columns, queryArgs, nil
 }
 
-func (r *LineItemRepository) BatchUpdateScopeEmissions(ctx context.Context, lineItemIDs []uuid.UUID, scope *int, emissionsFactorID *string) error {
+func (r *LineItemRepository) BatchUpdateScopeEmissions(ctx context.Context, lineItemIDs []uuid.UUID, scope *int, emissionsFactorID string) error {
 	updates := []string{}
 	values := []interface{}{}
 	paramIndex := 1
 
 	if scope != nil {
 		updates = append(updates, fmt.Sprintf("scope = $%d", paramIndex))
-		values = append(values, *scope)
+		values = append(values, scope)
 		paramIndex++
 	}
 
-	if emissionsFactorID != nil {
+	if emissionsFactorID != "" {
 		updates = append(updates, fmt.Sprintf("emission_factor_id = $%d", paramIndex))
-		values = append(values, *emissionsFactorID)
+		values = append(values, emissionsFactorID)
 		paramIndex++
 	}
 

@@ -32,34 +32,37 @@ POST `/transaction`
 GET `/line-item`
 
 ```go
-    - Body Parameters:
-        CompanyID            *string    `json:"company_id"`
-        ReconciliationStatus *bool      `json:"reconciliation_status"`
-        BeforeDate           *time.Time `json:"before_date"`
-        AfterDate            *time.Time `json:"after_date"`
-        Scope                *int       `json:"scope,omitempty"`
-        EmissionFactor       *string    `json:"emission_factor,omitempty"`
     - Query Parameters:
-        Page  int `query:"page"`
-     Limit int `query:"limit"`
+        CompanyID            *string    `query:"company_id"`
+        ReconciliationStatus *bool      `query:"reconciliation_status"`
+        BeforeDate           *time.Time `query:"before_date"`
+        AfterDate            *time.Time `query:"after_date"`
+        Scope                *int       `query:"scope"`
+        EmissionFactor       *string    `query:"emission_factor"`
+        SearchTerm           *string    `query:"search_term"`
+        Page                 int        `query:"page"`
+	    Limit                int        `query:"limit"`
 
 ```
+SearchTerm looks for matching line item descriptions, case insensitive.
+
 
 PATCH `/line-item`
 
 ```go
     - Body Parameters:
         - `emission-factor`: Name of the emissions factor
-        - `amount`: Price
-        - `unit`: Unit of the emissions factor
+        - `scope`: Scope, optional 
+        - `contact_id`: Contact ID, optional
     - Path Parameters:
         - `:id`: The ID of the line item
     - Example:
-        - URL: `http://127.0.0.1:8080/line-item/1`
-        - Parameters: {"emission_factor": "factor_UPDATE",
-                       "amount": 69,
-                       "unit": "gigabytes"
-                      }
+        - URL: `http://127.0.0.1:8080/line-item/0651d33f-e9f5-4df4-a1b4-155c0e6cceff`
+        - Parameters: {
+            "emission_factor": "consumer_goods-type_footwear",
+            "scope": 2, 
+            "contact_id": "33333333-3333-3333-3333-333333333333"
+        }
 ```
 
 Post `/line-item`

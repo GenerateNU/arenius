@@ -7,6 +7,7 @@ import (
 	"arenius/internal/service/ctxt"
 	"arenius/internal/service/handler/auth"
 	"arenius/internal/service/handler/carbon"
+	"arenius/internal/service/handler/carbonOffset"
 	"arenius/internal/service/handler/emissionsFactor"
 	"arenius/internal/service/handler/lineItem"
 	"arenius/internal/service/handler/summary"
@@ -68,8 +69,8 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	// Use CORS middleware to configure CORS and handle preflight/OPTIONS requests.
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",                   // Allow any source domain to access API
-		AllowMethods: "GET,POST,PUT,DELETE", // Using these methods.
+		AllowOrigins: "*",                         // Allow any source domain to access API
+		AllowMethods: "GET,POST,PUT,PATCH,DELETE", // Using these methods.
 	}))
 
 	// Middleware to set the climatiq client in the context
@@ -83,8 +84,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	})
 
 	sess := session.New()
-	xeroAuthHandler := xero.NewHandler(sess, repo.LineItem, repo.Company, repo.User)
-
+	xeroAuthHandler := xero.NewHandler(sess, repo.LineItem, repo.Company, repo.Contact, repo.User)
 	app.Route("/auth", func(r fiber.Router) {
 		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
 	})
@@ -130,6 +130,14 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	app.Get("/secret", supabase_auth.Middleware(&config.Supabase), func(c *fiber.Ctx) error {
 		return c.SendStatus(http.StatusOK)
+	})
+
+	offsetHandler := carbonOffset.NewHandler(repo.Offset)
+
+	app.Route("/carbon-offset", func(router fiber.Router) {
+		router.Post("/create", func(c *fiber.Ctx) error {
+			return offsetHandler.PostCarbonOffset(c)
+		})
 	})
 
 	// Apply Middleware to Protected Routes

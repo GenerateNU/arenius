@@ -13,11 +13,11 @@ import (
 // Interfaces for repository layer.
 type LineItemRepository interface {
 	GetLineItems(ctx context.Context, pagination utils.Pagination, filterParams models.GetLineItemsRequest) ([]models.LineItem, error)
-	ReconcileLineItem(ctx context.Context, lineItemId int, req models.ReconcileLineItemRequest) (*models.LineItem, error)
+	ReconcileLineItem(ctx context.Context, lineItemId string, req models.ReconcileLineItemRequest) (*models.LineItem, error)
 	AddLineItemEmissions(ctx context.Context, req models.LineItemEmissionsRequest) (*models.LineItem, error)
 	CreateLineItem(ctx context.Context, req models.CreateLineItemRequest) (*models.LineItem, error)
 	AddImportedLineItems(ctx context.Context, req []models.AddImportedLineItemRequest) ([]models.LineItem, error)
-	BatchUpdateScopeEmissions(ctx context.Context, lineItems []uuid.UUID, scope *int, emissionsFactorID *string) error
+	BatchUpdateScopeEmissions(ctx context.Context, lineItems []uuid.UUID, scope *int, emissionsFactorID string) error
 }
 
 type EmissionsFactorRepository interface {
@@ -37,8 +37,16 @@ type UserRepository interface {
 
 type CompanyRepository interface {
 	GetCompanyByXeroTenantID(ctx context.Context, xeroTenantID string) (*models.Company, error)
-	UpdateCompanyLastImportTime(ctx context.Context, id string) (*models.Company, error)
-	GetOrCreateCompany(ctx context.Context, xeroTenantID string, companyName string) (string, error)
+	UpdateCompanyLastTransactionImportTime(ctx context.Context, id string) (*models.Company, error)
+	UpdateCompanyLastContactImportTime(ctx context.Context, id string) (*models.Company, error)
+}
+
+type ContactRepository interface {
+	AddImportedContacts(ctx context.Context, req []models.AddImportedContactRequest) ([]models.Contact, error)
+}
+
+type OffsetRepository interface {
+	PostCarbonOffset(ctx context.Context, p models.CarbonOffset) (models.CarbonOffset, error)
 }
 
 type Repository struct {
@@ -48,6 +56,8 @@ type Repository struct {
 	Summary         SummaryRepository
 	User            UserRepository
 	Company         CompanyRepository
+	Offset          OffsetRepository
+	Contact         ContactRepository
 }
 
 func (r *Repository) Close() error {
@@ -67,5 +77,6 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		Summary:         schema.NewSummaryRepository(db),
 		User:            schema.NewUserRepository(db),
 		Company:         schema.NewCompanyRepository(db),
+		Offset:          schema.NewOffsetRepository(db),
 	}
 }
