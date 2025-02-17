@@ -52,6 +52,7 @@ type GetLineItemsRequest struct {
 	AfterDate            *time.Time `query:"after_date"`
 	Scope                *int       `query:"scope"`
 	EmissionFactor       *string    `query:"emission_factor"`
+	SearchTerm           *string    `query:"search_term"`
 }
 
 type AddImportedLineItemRequest struct {
