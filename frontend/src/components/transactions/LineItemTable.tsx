@@ -30,7 +30,7 @@ import CategorySelector from "./CategorySelector";
 import { useLineItems } from "@/context/LineItemsContext";
 import { columns } from "./columns";
 
-export default function LineItemTable<TValue>() {
+export default function LineItemTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [scope, setScope] = useState("");
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
