@@ -44,6 +44,10 @@ type ContactRepository interface {
 	AddImportedContacts(ctx context.Context, req []models.AddImportedContactRequest) ([]models.Contact, error)
 }
 
+type OffsetRepository interface {
+	PostCarbonOffset(ctx context.Context, p models.CarbonOffset) (models.CarbonOffset, error)
+}
+
 type Repository struct {
 	db              *pgxpool.Pool
 	LineItem        LineItemRepository
@@ -51,7 +55,8 @@ type Repository struct {
 	Summary         SummaryRepository
 	Credentials     CredentialsRepository
 	Company         CompanyRepository
-	Contact 		ContactRepository
+	Offset          OffsetRepository
+	Contact         ContactRepository
 }
 
 func (r *Repository) Close() error {
@@ -71,5 +76,6 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		Summary:         schema.NewSummaryRepository(db),
 		Credentials:     schema.NewCredentialsRepository(db),
 		Company:         schema.NewCompanyRepository(db),
+		Offset:          schema.NewOffsetRepository(db),
 	}
 }
