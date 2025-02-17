@@ -147,13 +147,13 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		})
 	})
 
-	// Apply Middleware to Protected Routes
-	app.Use(supabase_auth.Middleware(&config.Supabase))
+	// // Apply Middleware to Protected Routes
+	// app.Use(supabase_auth.Middleware(&config.Supabase))
 
-	// Protected route example
-	app.Get("/protected", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{"message": "Access granted!"})
-	})
+	// // Protected route example
+	// app.Get("/protected", func(c *fiber.Ctx) error {
+	// 	return c.JSON(fiber.Map{"message": "Access granted!"})
+	// })
 
 	return app
 }
