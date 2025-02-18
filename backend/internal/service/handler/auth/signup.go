@@ -3,6 +3,7 @@ package auth
 import (
 	"arenius/internal/auth"
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -20,14 +21,30 @@ func (h *Handler) SignUp(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Signup request failed: %v", err)})
 	}
 
-	sess, err := h.sess.Get(c) // Get the session from the store
+	_, err = h.userRepository.AddUser(c.Context(), response.User.ID.String(), creds.FirstName, creds.LastName)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to get session"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Adding User request failed: %v", err)})
 	}
-	sess.Set("jwt", response.AccessToken) // Store the JWT in the session
-	if err := sess.Save(); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to save session"})
-	}
+
+	// Set cookies with the JWT token
+	expiration := time.Now().Add(24 * time.Hour) // Set cookie expiration time
+	c.Cookie(&fiber.Cookie{
+		Name:     "jwt",
+		Value:    response.AccessToken,
+		Expires:  expiration,
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: "Lax",
+	})
+
+	c.Cookie(&fiber.Cookie{
+		Name:     "userID",
+		Value:    response.User.ID.String(),
+		Expires:  expiration,
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: "Lax",
+	})
 
 	return c.Status(fiber.StatusCreated).JSON(response)
 }

@@ -13,20 +13,10 @@ import (
 )
 
 func (h *Handler) GetContacts(ctx *fiber.Ctx) error {
-	session, err := h.sess.Get(ctx)
-	if err != nil {
-		return errs.BadRequest(fmt.Sprint("cannot retrieve session ", err))
-	}
 
-	accessToken, ok := session.Get("accessToken").(string)
-	if !ok {
-		return fmt.Errorf("missing required environment variables")
-	}
+	accessToken := ctx.Cookies("accessToken", "")
 
-	tenantId, ok := session.Get("tenantID").(string)
-	if !ok {
-		return fmt.Errorf("missing required environment variables")
-	}
+	tenantId := ctx.Cookies("tenantID", "")
 
 	url := os.Getenv("CONTACTS_URL")
 
@@ -127,7 +117,7 @@ func (h *Handler) GetContacts(ctx *fiber.Ctx) error {
 
 func parseContacts(contacts []interface{}, company models.Company) ([]models.AddImportedContactRequest, error) {
 	var newContacts []models.AddImportedContactRequest
-	
+
 	for _, contact := range contacts {
 		contactMap, ok := contact.(map[string]interface{})
 		if !ok {

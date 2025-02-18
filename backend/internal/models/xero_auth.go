@@ -6,7 +6,6 @@ import (
 
 type XeroCredentials struct {
 	CompanyID    uuid.UUID `json:"company_id"`
-	AccessToken  uuid.UUID `json:"access_token"`
 	RefreshToken uuid.UUID `json:"refresh_token"`
 	TenantID     uuid.UUID `json:"tenant_id"`
 }
