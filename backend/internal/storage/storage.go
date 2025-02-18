@@ -17,7 +17,7 @@ type LineItemRepository interface {
 	AddLineItemEmissions(ctx context.Context, req models.LineItemEmissionsRequest) (*models.LineItem, error)
 	CreateLineItem(ctx context.Context, req models.CreateLineItemRequest) (*models.LineItem, error)
 	AddImportedLineItems(ctx context.Context, req []models.AddImportedLineItemRequest) ([]models.LineItem, error)
-	BatchUpdateScopeEmissions(ctx context.Context, lineItems []uuid.UUID, scope *int, emissionsFactorID string) error
+	BatchUpdateScopeEmissions(ctx context.Context, lineItems []uuid.UUID, scope *int, emissionsFactorID *string) error
 }
 
 type EmissionsFactorRepository interface {
@@ -29,15 +29,17 @@ type SummaryRepository interface {
 	GetGrossSummary(ctx context.Context, req models.GetGrossSummaryRequest) (*models.GetGrossSummaryResponse, error)
 }
 
-type CredentialsRepository interface {
-	GetCredentials(ctx context.Context) (models.XeroCredentials, error)
-	CreateCredentials(ctx context.Context, p models.XeroCredentials) (models.XeroCredentials, error)
+type UserRepository interface {
+	GetCredentialsByUserID(ctx context.Context, userID string) (models.XeroCredentials, error)
+	AddUser(ctx context.Context, userId string, firstName *string, lastName *string) (*models.User, error)
+	SetUserCredentials(ctx context.Context, userID string, companyID string, refreshToken string, tenantID string) error
 }
 
 type CompanyRepository interface {
 	GetCompanyByXeroTenantID(ctx context.Context, xeroTenantID string) (*models.Company, error)
 	UpdateCompanyLastTransactionImportTime(ctx context.Context, id string) (*models.Company, error)
 	UpdateCompanyLastContactImportTime(ctx context.Context, id string) (*models.Company, error)
+	GetOrCreateCompany(ctx context.Context, xeroTenantID string, companyName string) (string, error)
 }
 
 type ContactRepository interface {
@@ -55,7 +57,7 @@ type Repository struct {
 	LineItem        LineItemRepository
 	EmissionsFactor EmissionsFactorRepository
 	Summary         SummaryRepository
-	Credentials     CredentialsRepository
+	User            UserRepository
 	Company         CompanyRepository
 	Offset          OffsetRepository
 	Contact         ContactRepository
@@ -76,7 +78,7 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		LineItem:        schema.NewLineItemRepository(db),
 		EmissionsFactor: schema.NewEmissionsFactorRepository(db),
 		Summary:         schema.NewSummaryRepository(db),
-		Credentials:     schema.NewCredentialsRepository(db),
+		User:            schema.NewUserRepository(db),
 		Company:         schema.NewCompanyRepository(db),
 		Offset:          schema.NewOffsetRepository(db),
 		Contact: 		 schema.NewContactRepository(db),

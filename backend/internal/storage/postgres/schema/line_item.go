@@ -294,7 +294,7 @@ func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []in
 	return columns, queryArgs, nil
 }
 
-func (r *LineItemRepository) BatchUpdateScopeEmissions(ctx context.Context, lineItemIDs []uuid.UUID, scope *int, emissionsFactorID string) error {
+func (r *LineItemRepository) BatchUpdateScopeEmissions(ctx context.Context, lineItemIDs []uuid.UUID, scope *int, emissionsFactorID *string) error {
 	updates := []string{}
 	values := []interface{}{}
 	paramIndex := 1
@@ -305,7 +305,7 @@ func (r *LineItemRepository) BatchUpdateScopeEmissions(ctx context.Context, line
 		paramIndex++
 	}
 
-	if emissionsFactorID != "" {
+	if emissionsFactorID != nil {
 		updates = append(updates, fmt.Sprintf("emission_factor_id = $%d", paramIndex))
 		values = append(values, emissionsFactorID)
 		paramIndex++

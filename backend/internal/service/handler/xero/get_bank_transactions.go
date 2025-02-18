@@ -14,26 +14,16 @@ import (
 )
 
 func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
-	session, err := h.sess.Get(ctx)
-	if err != nil {
-		return errs.BadRequest(fmt.Sprint("cannot retrieve session ", err))
-	}
 
-	accessToken, ok := session.Get("accessToken").(string)
-	if !ok {
-		return fmt.Errorf("missing required environment variables")
-	}
+	accessToken := ctx.Cookies("accessToken", "")
 
-	tenantId, ok := session.Get("tenantID").(string)
-	if !ok {
-		return fmt.Errorf("missing required environment variables")
-	}
+	tenantId := ctx.Cookies("tenantID", "")
 
 	url := os.Getenv("TRANSACTIONS_URL")
 
 	if accessToken == "" || tenantId == "" || url == "" {
-		fmt.Printf("Examine env values: accessToken=%s, tenantId=%s, url=%s\n", accessToken, tenantId, url)
-		return fmt.Errorf("missing required environment variables")
+		fmt.Printf("Examine values: accessToken=%s, tenantId=%s, url=%s\n", accessToken, tenantId, url)
+		return fmt.Errorf("missing required environment variablesS")
 	}
 
 	// get the current company using the Xero tenant ID
