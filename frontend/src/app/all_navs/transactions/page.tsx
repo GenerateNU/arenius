@@ -4,8 +4,8 @@ import ItemForm from "@/components/transactions/ItemForm";
 import { useEffect, useState } from "react";
 import { fetchLineItems } from "@/services/lineItems";
 import { LineItem } from "@/types";
-import { LineItemTable } from "../../components/transactions/LineItemTable";
-import { columns } from "../../components/transactions/columns";
+import { LineItemTable } from "@/components/transactions/LineItemTable";
+import { columns} from "@/components/transactions/columns";
 
 export default function Transactions() {
   const [data, setData] = useState<LineItem[]>([]);
