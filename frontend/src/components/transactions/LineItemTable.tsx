@@ -21,7 +21,7 @@ import { useLineItems } from "@/context/LineItemsContext";
 import { columns } from "./columns";
 import LineItemTableActions from "./LineItemTableActions";
 
-export default function LineItemTable() {
+export default function LineItemTable({ columns, data, getRowId, onReconcile }) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const { items } = useLineItems();
 

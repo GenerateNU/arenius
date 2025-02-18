@@ -29,12 +29,8 @@ export default function Transactions() {
       </div>
       <hr className="mb-4 border border-black-100" />
 
-      <LineItemTable
-        columns={columns}
-        data={data}
-        getRowId={(row) => row.id}
-        onReconcile={getItems}
-      />
+      <LineItemTable columns={columns} data={data} getRowId={(row) => row.id} onReconcile={getItems} />
+
     </div>
   );
 }

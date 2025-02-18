@@ -32,7 +32,11 @@ const formSchema = z.object({
   currency_code: z.enum([...CURRENCIES] as [string, ...string[]]),
 });
 
-export default function ItemForm() {
+interface ItemFormProps {
+  handleSubmit: () => void;
+}
+
+export default function ItemForm({ handleSubmit }: ItemFormProps) {
   const { fetchData } = useLineItems();
 
   const form = useForm<z.infer<typeof formSchema>>({
