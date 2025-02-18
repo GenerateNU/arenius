@@ -2,10 +2,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signup } from "@/services/signup";
-import ImageStack from "@/components/ui/onboarding-nav";
+import ImageStack from "@/components/onboarding/onboarding-nav";
 import FormProviderWrapper from "@/components/ui/form-provider"; 
-import SignupForm from "@/components/ui/signup-form";
-import XeroSSOButton from "@/components/ui/xero-button"; 
+import SignupForm from "@/components/onboarding/signup-form";
+import XeroSSOButton from "@/components/onboarding/xero-button"; 
 
 export default function CustomForm() {
   const router = useRouter();

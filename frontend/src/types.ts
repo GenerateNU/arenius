@@ -1,3 +1,5 @@
+import { DateRange } from "react-day-picker";
+
 export type LineItem = {
   id: string;
   description: string;
@@ -7,6 +9,10 @@ export type LineItem = {
   emission_factor_name?: string;
   scope?: number;
 };
+
+export interface LineItemFilters {
+  dates?: DateRange;
+}
 
 export type CreateLineItemRequest = {
   description: string;

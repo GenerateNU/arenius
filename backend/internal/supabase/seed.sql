@@ -2,7 +2,7 @@ DELETE FROM line_item;
 
 DELETE FROM company;
 
-INSERT INTO company (id, name, xero_tenant_id, last_import_time)
+INSERT INTO company (id, name, xero_tenant_id, last_transaction_import_time)
 VALUES
     ('d2a4f6d4-8f59-4b2b-a59d-7a3ff633cf9f', 'Acme Corp', '2a7b5b84-4e28-45a9-b38f-8d4a28e20638', '2025-01-10 12:34:56'),
     ('0a67f5d3-88b6-4e8f-aac0-5137b29917fd', 'Beta Solutions', 'd1c9f519-123f-4b34-820b-c9d5dffde6ea', '2025-01-09 09:22:15'),

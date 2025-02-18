@@ -1,11 +1,11 @@
-## API Documentation
+# API Documentation
 
-# Health Check
+## Health Check
 
 - GET `/health`
   - Returns 200 OK if the server is running.
 
-# Transactions
+## Transactions
 
 POST `/transaction`
 
@@ -25,10 +25,12 @@ POST `/transaction`
     - Query Parameters:
 ```
 
-# Carbon
+## Carbon
 
-# Line Item
-GET `/line-item` 
+## Line Item
+
+GET `/line-item`
+
 ```go
     - Query Parameters:
         CompanyID            *string    `query:"company_id"`
@@ -39,29 +41,32 @@ GET `/line-item`
         EmissionFactor       *string    `query:"emission_factor"`
         SearchTerm           *string    `query:"search_term"`
         Page                 int        `query:"page"`
-	    Limit                int        `query:"limit"`
+     Limit                int        `query:"limit"`
 
 ```
+
 SearchTerm looks for matching line item descriptions, case insensitive.
 
-
 PATCH `/line-item`
+
 ```go
     - Body Parameters:
         - `emission-factor`: Name of the emissions factor
-        - `amount`: Price
-        - `unit`: Unit of the emissions factor
+        - `scope`: Scope, optional 
+        - `contact_id`: Contact ID, optional
     - Path Parameters:
         - `:id`: The ID of the line item
     - Example:
-        - URL: `http://127.0.0.1:8080/line-item/1`
-        - Parameters: {"emission_factor": "factor_UPDATE",
-                       "amount": 69,
-                       "unit": "gigabytes"
-                      }
+        - URL: `http://127.0.0.1:8080/line-item/0651d33f-e9f5-4df4-a1b4-155c0e6cceff`
+        - Parameters: {
+            "emission_factor": "consumer_goods-type_footwear",
+            "scope": 2, 
+            "contact_id": "33333333-3333-3333-3333-333333333333"
+        }
 ```
 
 Post `/line-item`
+
 ```go
     - Body Parameters (*type) indicates an optional field
         Description    string   `json:"description"`               // the description for a line item, non-empty
@@ -77,8 +82,8 @@ Post `/line-item`
         CO2Unit        *string  `json:"co2_unit,omitempty"`        // the unit of CO2
 ```
 
+GET `/line-item`
 
-GET `/line-item` 
 ```go
     - Body Parameters:
         CompanyID            *string    `json:"company_id"`
@@ -86,12 +91,13 @@ GET `/line-item`
         ReconciliationStatus *bool      `json:"reconciliation_status"`
     - Query Parameters:
         Page  int `query:"page"`
-	    Limit int `query:"limit"`
+     Limit int `query:"limit"`
 
 ```
 
 Patch `/lint-item\batch`
     - Allows you to update the scope and/or emissions factor on multiple line items
+
 ```go
     - Body Parameters:
         LineItems           []uuid.UUID     `json:"line_item_ids"`
@@ -99,11 +105,10 @@ Patch `/lint-item\batch`
         EmissionFactorId    *string         `json:"emissions_factor_id"`
 ```
 
-# Climatiq
+## Climatiq
 
 PATCH `climatiq/estimate`
     - Provides Carbon estimates for the given line items and updates the db based on Unit being Money
-
     - Body Parameters:
         List of Line Items
 
@@ -126,10 +131,10 @@ PATCH `climatiq/estimate`
         CO2Unit          *string   `json:"co2_unit"` //Optional
 ```
 
-# Emissions Factors
+## Emissions Factors
 
 GET `/emissions-factor`
-    - returns all emissions factors, structured as a list of categories, each with a name and its list of emission factors. 
+    - returns all emissions factors, structured as a list of categories, each with a name and its list of emission factors.
 
 PATCH `/emissions-factor/populate`
     - populates emissions factors table
@@ -138,52 +143,58 @@ PATCH `/emissions-factor/populate`
 
 EmissionsFactor:
     Id            string `json:"id"`
-	ActivityId    string `json:"activity_id"`
-	Name          string `json:"name"`
-	Description   string `json:"description"`
-	Unit          string `json:"unit"`
-	UnitType      string `json:"unit_type"`
-	Year          int    `json:"year"`
-	Region        string `json:"region"`
-	Category      string `json:"category"`
-	Source        string `json:"source"`
-	SourceDataset string `json:"source_dataset"`
+ ActivityId    string `json:"activity_id"`
+ Name          string `json:"name"`
+ Description   string `json:"description"`
+ Unit          string `json:"unit"`
+ UnitType      string `json:"unit_type"`
+ Year          int    `json:"year"`
+ Region        string `json:"region"`
+ Category      string `json:"category"`
+ Source        string `json:"source"`
+ SourceDataset string `json:"source_dataset"`
 
 Category:
-	Name             string            `json:"name"`
-	EmissionsFactors []EmissionsFactor `json:"emissions_factors"`
+ Name             string            `json:"name"`
+ EmissionsFactors []EmissionsFactor `json:"emissions_factors"`
 
 ```
-# Xero Bank Transactions
+
+## Xero Bank Transactions
 
 GET `/bank-transactions`
-	- provides a list of transactions specific to an organization including line items, currently configured for demo data
+
+- provides a list of transactions specific to an organization including line items, currently configured for demo data
+
  ``` go
 - Body Params:
-	- Session Access Token (stored through /xero/auth)
-	- Session Tenant ID (stored through /xero/auth)
+ - Session Access Token (stored through /xero/auth)
+ - Session Tenant ID (stored through /xero/auth)
 - Response:
-	- list of dictionaries contianing transaction information
+ - list of dictionaries contianing transaction information
 ```
-```
-# Xero Credentials
-GET 'credentials/get'
-	- retrieves the latest access token, refresh token, and tenant id from Xero authentication
-	- response: json object of tokens 
-POST 'credentials/create'
-	- adds a newly generated access token, refresh token, and tenant id to be used for continuous authentication
-	- BODY PARAMS:
-		{
-		    "company_id": {uuid},
-		    "access_token": {uuid},
-		    "refresh_token": {uuid},
-		    "tenant_id": {uuid}
-		} 
-	- Response:
-		- new authentication credentials row in Xero Credentials table
-```
-# Summaries
 
+## Xero Credentials
+
+GET `credentials/get`
+
+- retrieves the latest access token, refresh token, and tenant id from Xero authentication
+- response: json object of tokens
+
+POST `credentials/create`
+
+- adds a newly generated access token, refresh token, and tenant id to be used for continuous authentication
+- BODY PARAMS:
+  {
+      "company_id": {uuid},
+      "access_token": {uuid},
+      "refresh_token": {uuid},
+      "tenant_id": {uuid}
+  }
+- Response:
+- new authentication credentials row in Xero Credentials table
+
+## Summaries
 
 GET `/summary/gross`
     - provides the breakdown of total emissions per month by scope, for the previous `month_duration` months, as well as a cumulative total emissions for all line items for all time.
@@ -194,7 +205,7 @@ GET `/summary/gross`
         - `company_id`: Company whose line items are being summarized
 ```
 
-# Auth
+## Auth
 
 POST `/auth/login`
     - login for user, returns access token and user info
@@ -212,4 +223,24 @@ POST `/auth/signup`
     - Body Parameters:
         - `email`
         - `password`
+        - `first_name` (optional)
+        - `last_name` (optional)
+```
+
+## Contacts
+
+GET `/contact/:companyId`
+    - get all contact objects associated with a company
+
+POST `/contact`
+    - create a new contact manually
+
+```go
+    - Body Parameters:
+        - `name`
+        - `email`
+        - `phone`
+        - `city`
+        - `state`
+        - `company_id`
 ```

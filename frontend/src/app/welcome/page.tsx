@@ -1,5 +1,5 @@
 import React from "react";
-import ImageStack from "@/components/ui/onboarding-nav";
+import ImageStack from "@/components/onboarding/onboarding-nav";
 
 const WelcomeMessage: React.FC = () => {
   return (

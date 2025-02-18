@@ -8,6 +8,10 @@ import (
 	"arenius/internal/service/handler/auth"
 	"arenius/internal/service/handler/carbon"
 	"arenius/internal/service/handler/carbonOffset"
+<<<<<<< HEAD
+=======
+	"arenius/internal/service/handler/contact"
+>>>>>>> 2527b94a99c59112ff978526185b8827f3dfb0ff
 	"arenius/internal/service/handler/emissionsFactor"
 	"arenius/internal/service/handler/lineItem"
 	"arenius/internal/service/handler/summary"
@@ -27,7 +31,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
 type App struct {
@@ -69,8 +72,10 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	// Use CORS middleware to configure CORS and handle preflight/OPTIONS requests.
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",                         // Allow any source domain to access API
-		AllowMethods: "GET,POST,PUT,PATCH,DELETE", // Using these methods.
+		AllowOrigins:     "http://localhost:3000, http://localhost:8080", // Allow any source domain to access API
+		AllowMethods:     "GET,POST,PUT,PATCH,DELETE",                    // Using these methods.
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowCredentials: true, // Allow cookies
 	}))
 
 	// Middleware to set the climatiq client in the context
@@ -83,25 +88,19 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		return c.SendStatus(http.StatusOK)
 	})
 
-	sess := session.New()
-	xeroAuthHandler := xero.NewHandler(sess, repo.LineItem, repo.Company, repo.Contact)
+	xeroAuthHandler := xero.NewHandler(repo.LineItem, repo.Company, repo.Contact, repo.User)
 	app.Route("/auth", func(r fiber.Router) {
 		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
 	})
 
-	app.Route("/credentials", func(router fiber.Router) {
-		router.Post("/create", func(c *fiber.Ctx) error {
-			return xeroAuthHandler.CreateCredentials(c, repo.Credentials)
-		})
-		router.Get("/get", func(c *fiber.Ctx) error {
-			return xeroAuthHandler.GetCredentials(c, repo.Credentials)
-		})
-	})
-	SupabaseAuthHandler := auth.NewHandler(config.Supabase, sess)
+	SupabaseAuthHandler := auth.NewHandler(config.Supabase, repo.User)
+
 	app.Route("/auth", func(router fiber.Router) {
 		router.Post("/signup", SupabaseAuthHandler.SignUp)
 		router.Post("/login", SupabaseAuthHandler.Login)
 	})
+
+	app.Use(xeroAuthHandler.XeroAuthMiddleware)
 
 	app.Get("/callback", xeroAuthHandler.Callback)
 
@@ -111,6 +110,12 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Patch("/batch", lineItemHandler.BatchUpdateLineItems)
 		r.Patch("/:id", lineItemHandler.ReconcileLineItem)
 		r.Post("/", lineItemHandler.PostLineItem)
+	})
+
+	contactHandler := contact.NewHandler(repo.Contact)
+	app.Route("/contact", func(r fiber.Router) {
+		r.Get("/:companyId", contactHandler.GetContacts)
+		r.Post("", contactHandler.PostContact)
 	})
 
 	emissionsFactorHandler := emissionsFactor.NewHandler(repo.EmissionsFactor)
@@ -147,11 +152,14 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	// Apply Middleware to Protected Routes
 	app.Use(supabase_auth.Middleware(&config.Supabase))
+	
+	// // Apply Middleware to Protected Routes
+	// app.Use(supabase_auth.Middleware(&config.Supabase))
 
-	// Protected route example
-	app.Get("/protected", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{"message": "Access granted!"})
-	})
+	// // Protected route example
+	// app.Get("/protected", func(c *fiber.Ctx) error {
+	// 	return c.JSON(fiber.Map{"message": "Access granted!"})
+	// })
 
 	return app
 }

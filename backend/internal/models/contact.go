@@ -20,3 +20,12 @@ type AddImportedContactRequest struct {
 	XeroContactID *string `json:"xero_contact_id,omitempty"`
 	CompanyID     string  `json:"company_id"`
 }
+
+type CreateContactRequest struct {
+	Name          string  `json:"name"`
+	Email         string  `json:"email"`
+	Phone         string  `json:"phone"`
+	City          string  `json:"city"`
+	State         string  `json:"state"`
+	CompanyID     string  `json:"company_id"`
+}
