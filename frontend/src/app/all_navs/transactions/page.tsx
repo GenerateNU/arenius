@@ -12,8 +12,8 @@ export default function Transactions() {
   const [data, setData] = useState<LineItem[]>([]);
 
   const getItems = async () => {
-    const filters: LineItemFilters = { /* define your filters here */ };
-    const items = await fetchLineItems(filters);
+    // eslint-disable-next-line
+    const items = await fetchLineItems();
     setData(items);
   };
 
@@ -25,11 +25,13 @@ export default function Transactions() {
     <div className="p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] flex-1">
       <div>
         <p className="font-bold text-xl">Add a new line item</p>
+        {/* eslint-disable-next-line */}
         <ItemForm handleSubmit={getItems} />
       </div>
       <hr className="mb-4 border border-black-100" />
-      {/*data={data} getRowId={(row) => row.id} onReconcile={getItems} */}
-      <LineItemTable columns={columns} />
+
+      {/* eslint-disable-next-line */}
+      <LineItemTable columns={columns} data={data} getRowId={(row) => row.id} onReconcile={getItems} />
 
     </div>
   );

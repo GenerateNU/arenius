@@ -21,14 +21,7 @@ import { useLineItems } from "@/context/LineItemsContext";
 import { columns } from "./columns";
 import LineItemTableActions from "./LineItemTableActions";
 
-interface LineItemTableProps {
-  columns: any[];  // Adjust this type based on how you define your columns
-  data: LineItem[];
-  getRowId: (row: LineItem) => string;  // Assuming the row ID is a string
-  onReconcile: () => void; // Assuming onReconcile is a function with no arguments
-}
-
-const LineItemTable: React.FC<LineItemTableProps> = ({ columns }) => {
+export default function LineItemTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const { items } = useLineItems();
 
