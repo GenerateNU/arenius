@@ -8,12 +8,9 @@ import SignupForm from "@/components/ui/signup-form";
 import XeroSSOButton from "@/components/ui/xero-button"; 
 
 export default function CustomForm() {
-  const router = useRouter();
-  const [error, setError] = useState("");
-  
   const [useForm, setUseForm] = useState(true); 
 
-  async function onSubmit(values: any) {
+  async function onSubmit(values) {
     console.log("Submitted Values:", values);
 
     if (!values.email || !values.password) {

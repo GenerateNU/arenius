@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import logo from "../../assets/onboarding-logo.png";
@@ -11,7 +11,6 @@ export default function SignupForm({ setIsLoginPage }) {
   const handleLogin = () => {
     setIsLoginPage(true); 
   };
-
 
   const handleSignup = () => {
     router.push("/onboarding");

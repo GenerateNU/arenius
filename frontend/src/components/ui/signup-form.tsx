@@ -3,7 +3,7 @@ import { useFormContext } from "react-hook-form";
 import { FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 
 interface SignupFormProps {
-  onSubmit: (data: any) => void;
+  onSubmit: (data) => void;
 }
 
 export default function SignupForm({ onSubmit }: SignupFormProps) {
