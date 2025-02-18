@@ -31,7 +31,6 @@ export default function CustomForm() {
       }
     } catch (err) {
       console.error("Signup failed:", err);
-      setError("Signup failed. Please try again.");
     }
   }
 
