@@ -79,6 +79,48 @@ func (r *UserRepository) SetUserCredentials(ctx context.Context, userID string, 
 
 }
 
+func (r *UserRepository) GetAllTenants(ctx context.Context) ([]models.User, error) {
+	const query = `SELECT DISTINCT ON (tenant_id) user_id, first_name, last_name, refresh_token, tenant_id FROM public.user_creds`
+
+	rows, err := r.db.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("error querying database: %w", err)
+	}
+	defer rows.Close()
+
+	var users []models.User
+	for rows.Next() {
+		var user models.User
+		if err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.RefreshToken, &user.TenantID); err != nil {
+			return nil, fmt.Errorf("error scanning row: %w", err)
+		}
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over rows: %w", err)
+	}
+
+	return users, nil
+}
+
+func (r *UserRepository) GetUserByTenantID(ctx context.Context, tenantID string) (*models.User, error) {
+	const query = `SELECT user_id, first_name, last_name, refresh_token, tenant_id FROM public.user_creds WHERE tenant_id = $1 AND refresh_token IS NOT NULL LIMIT 1`
+
+	row := r.db.QueryRow(ctx, query, tenantID)
+
+	var user models.User
+	err := row.Scan(&user.ID, &user.FirstName, &user.LastName, &user.RefreshToken, &user.TenantID)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, errors.New("no user found for the given tenant ID")
+		}
+		return nil, fmt.Errorf("error querying database: %w", err)
+	}
+
+	return &user, nil
+}
+
 func NewUserRepository(db *pgxpool.Pool) *UserRepository {
 	return &UserRepository{
 		db,

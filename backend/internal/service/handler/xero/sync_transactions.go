@@ -9,22 +9,23 @@ import (
 
 func (h *Handler) SyncTransactions(ctx *fiber.Ctx) error {
 	tenantId := ctx.Query("tenantId")
+	fmt.Println("Syncing transactions for tenantId:", tenantId)
 
-	var companies []models.Company
+	var companies []models.Tenant
 	var err error
 
 	if tenantId != "" {
 		// Sync transactions for a specific company
-		company, err := h.companyRepository.GetCompanyByXeroTenantID(ctx.Context(), tenantId)
+		company, err := h.companyRepository.GetTenantByTenantID(ctx.Context(), tenantId)
 		if err != nil {
 			return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 				"error": "Company not found for the given tenantId",
 			})
 		}
-		companies = []models.Company{*company} // Convert single company to slice
+		companies = []models.Tenant{*company} // Convert single company to slice
 	} else {
 		// Sync transactions for all companies
-		companies, err = h.companyRepository.GetAllCompanies(ctx.Context())
+		companies, err = h.companyRepository.GetAllTenants(ctx.Context())
 		if err != nil {
 			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": "Failed to retrieve companies",

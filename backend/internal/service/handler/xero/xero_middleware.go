@@ -19,6 +19,7 @@ func (h *Handler) XeroAuthMiddleware(ctx *fiber.Ctx) error {
 	expiryStr := ctx.Cookies("expiry", "")
 	expiry, err := time.Parse(time.RFC3339, expiryStr)
 	if err != nil {
+		fmt.Println("Error parsing expiry time:", err)
 		return ctx.Status(fiber.StatusUnauthorized).SendString("Invalid expiry format")
 	}
 

@@ -33,6 +33,8 @@ type UserRepository interface {
 	GetCredentialsByUserID(ctx context.Context, userID string) (models.XeroCredentials, error)
 	AddUser(ctx context.Context, userId string, firstName *string, lastName *string) (*models.User, error)
 	SetUserCredentials(ctx context.Context, userID string, companyID string, refreshToken string, tenantID string) error
+	GetUserByTenantID(ctx context.Context, tenantID string) (*models.User, error)
+	GetAllTenants(ctx context.Context) ([]models.User, error)
 }
 
 type CompanyRepository interface {
@@ -40,6 +42,8 @@ type CompanyRepository interface {
 	UpdateCompanyLastTransactionImportTime(ctx context.Context, id string) (*models.Company, error)
 	UpdateCompanyLastContactImportTime(ctx context.Context, id string) (*models.Company, error)
 	GetOrCreateCompany(ctx context.Context, xeroTenantID string, companyName string) (string, error)
+	GetAllTenants(ctx context.Context) ([]models.Tenant, error)
+	GetTenantByTenantID(ctx context.Context, tenantID string) (*models.Tenant, error)
 }
 
 type ContactRepository interface {
@@ -81,6 +85,6 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		User:            schema.NewUserRepository(db),
 		Company:         schema.NewCompanyRepository(db),
 		Offset:          schema.NewOffsetRepository(db),
-		Contact: 		 schema.NewContactRepository(db),
+		Contact:         schema.NewContactRepository(db),
 	}
 }
