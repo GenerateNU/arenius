@@ -10,9 +10,11 @@ import { columns} from "@/components/transactions/columns";
 export default function Transactions() {
   const [data, setData] = useState<LineItem[]>([]);
 
+  // eslint-disable-next-line 
   const getItems = async () => {
     // eslint-disable-next-line
     const items = await fetchLineItems();
+    // eslint-disable-next-line
     setData(items);
   };
 
