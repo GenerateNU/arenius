@@ -5,11 +5,6 @@ import { z } from "zod";
 import LoginForm from "@/components/onboarding/login-form";
 import SignupForm from "@/components/onboarding/landing";
 
-const formSchema = z.object({
-  email: z.string(),
-  password: z.string(),
-});
-
 export default function LoginPage() {
   const [isLoginPage, setIsLoginPage] = useState(false); 
 

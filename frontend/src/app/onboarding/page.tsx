@@ -1,6 +1,5 @@
 "use client"
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { signup } from "@/services/signup";
 import ImageStack from "@/components/onboarding/onboarding-nav";
 import FormProviderWrapper from "@/components/onboarding/form-provider"; 
@@ -8,9 +7,7 @@ import SignupForm from "@/components/onboarding/signup-form";
 import XeroSSOButton from "@/components/onboarding/xero-button"; 
 
 export default function CustomForm() {
-  const router = useRouter();
-  const [error, setError] = useState("");
-  
+
   const [useForm, setUseForm] = useState(true); 
 
   async function onSubmit(values: any) {
@@ -35,7 +32,6 @@ export default function CustomForm() {
       }
     } catch (err) {
       console.error("Signup failed:", err);
-      setError("Signup failed. Please try again.");
     }
   }
 
