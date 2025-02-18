@@ -28,8 +28,8 @@ export default function Transactions() {
         <ItemForm handleSubmit={getItems} />
       </div>
       <hr className="mb-4 border border-black-100" />
-
-      <LineItemTable columns={columns} data={data} getRowId={(row) => row.id} onReconcile={getItems} />
+      {/*data={data} getRowId={(row) => row.id} onReconcile={getItems} */}
+      <LineItemTable columns={columns} />
 
     </div>
   );
