@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { z } from "zod";
-import LoginForm from "@/components/ui/login-form";
-import SignupForm from "@/components/ui/landing";
+import LoginForm from "@/components/onboarding/login-form";
+import SignupForm from "@/components/onboarding/landing";
 
 const formSchema = z.object({
   email: z.string(),
@@ -28,7 +28,7 @@ export default function LoginPage() {
 
 const styles = {
   container:
-    "h-screen w-full bg-[url('../assets/onboarding-bg.jpeg')] bg-cover bg-center flex",
+    "h-screen w-full bg-[url('../assets/onboarding-bg.png')] bg-cover bg-center flex",
   login:
   "w-1/2 h-full flex items-center justify-start pl-20"
 };

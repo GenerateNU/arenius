@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signup } from "@/services/signup";
 import ImageStack from "@/components/onboarding/onboarding-nav";
-import FormProviderWrapper from "@/components/ui/form-provider"; 
+import FormProviderWrapper from "@/components/onboarding/form-provider"; 
 import SignupForm from "@/components/onboarding/signup-form";
 import XeroSSOButton from "@/components/onboarding/xero-button"; 
 
