@@ -25,12 +25,12 @@ export default function Transactions() {
     <div className="p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] flex-1">
       <div>
         <p className="font-bold text-xl">Add a new line item</p>
-        {/* // eslint-disable-next-line */}
+        {/* eslint-disable-next-line */}
         <ItemForm handleSubmit={getItems} />
       </div>
       <hr className="mb-4 border border-black-100" />
 
-      {/* // eslint-disable-next-line */}
+      {/* eslint-disable-next-line */}
       <LineItemTable columns={columns} data={data} getRowId={(row) => row.id} onReconcile={getItems} />
 
     </div>
