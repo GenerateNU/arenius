@@ -4,7 +4,7 @@ import Image from "next/image";
 import onboardingLogo from "@/assets/onboarding-logo.png";
 import Link from "next/link"; 
 
-const Layout: React.FC = ({ children }) => {
+const Layout: React.FC = ( children ) => {
   const [activeTab, setActiveTab] = useState<string>("all_navs/dashboard");
 
   const handleTabClick = (tab: string) => {
