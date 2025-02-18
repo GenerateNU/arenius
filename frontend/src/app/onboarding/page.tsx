@@ -1,6 +1,5 @@
 "use client"
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { signup } from "@/services/signup";
 import ImageStack from "@/components/ui/onboarding-nav";
 import FormProviderWrapper from "@/components/ui/form-provider"; 
