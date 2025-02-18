@@ -14,9 +14,18 @@ func (h *Handler) XeroAuthMiddleware(ctx *fiber.Ctx) error {
 	// }
 
 	expiryStr := ctx.Cookies("expiry", "")
-	expiry, err := time.Parse(time.RFC3339, expiryStr)
-	if err != nil {
-		return ctx.Status(fiber.StatusUnauthorized).SendString("Invalid expiry format")
+	var expiry time.Time
+	var err error
+
+	// Handle missing or invalid expiry cookie
+	if expiryStr != "" {
+		expiry, err = time.Parse(time.RFC3339, expiryStr)
+		if err != nil {
+			// Invalid expiry format, assuming expired token.
+			expiry = time.Now().Add(-time.Minute) // Force refresh if parsing fails
+		}
+	} else {
+		expiry = time.Now().Add(-time.Minute) // Force refresh if expiry is missing
 	}
 
 	h.oAuthToken = &oauth2.Token{
