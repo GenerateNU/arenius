@@ -34,3 +34,8 @@ export type EmissionsFactorCategory = {
   name: string;
   emissions_factors: EmissionsFactor[];
 };
+
+export type SignupRequest = {
+  email: string;
+  password: string;
+};

@@ -100,7 +100,7 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	h.oAuthHTTPClient = h.config.OAuth2Config.Client(ctx.Context(), tok)
 
 	// Redirect to the home page.
-	return ctx.Redirect("/health", fiber.StatusTemporaryRedirect)
+	return ctx.Redirect("http://localhost:3000/welcome", fiber.StatusTemporaryRedirect)
 
 }
 
@@ -109,4 +109,3 @@ func (h *Handler) getAuthorisationHeader() (string, string) {
 		fmt.Sprintf("Basic %s:%s", h.config.OAuth2Config.ClientID, h.config.OAuth2Config.ClientSecret),
 	))
 }
-
