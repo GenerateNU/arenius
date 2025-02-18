@@ -6,12 +6,14 @@ import { fetchLineItems } from "@/services/lineItems";
 import { LineItem } from "@/types";
 import LineItemTable from "@/components/transactions/LineItemTable"
 import { columns} from "@/components/transactions/columns";
+import { LineItemFilters } from "@/types";
 
 export default function Transactions() {
   const [data, setData] = useState<LineItem[]>([]);
 
   const getItems = async () => {
-    const items = await fetchLineItems();
+    const filters: LineItemFilters = { /* define your filters here */ };
+    const items = await fetchLineItems(filters);
     setData(items);
   };
 
