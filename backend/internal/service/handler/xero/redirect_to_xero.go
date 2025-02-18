@@ -160,6 +160,8 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	// Redirect to the home page.
 	return ctx.Redirect("http://localhost:3000/welcome", fiber.StatusTemporaryRedirect)
 
+}
+
 func (h *Handler) getCompanyID(c *fiber.Ctx, xeroTenantID string, companyName string) (string, error) {
 	companyID, err := h.companyRepository.GetOrCreateCompany(c.Context(), xeroTenantID, companyName)
 	if err != nil {

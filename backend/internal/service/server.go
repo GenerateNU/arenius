@@ -8,10 +8,7 @@ import (
 	"arenius/internal/service/handler/auth"
 	"arenius/internal/service/handler/carbon"
 	"arenius/internal/service/handler/carbonOffset"
-<<<<<<< HEAD
-=======
 	"arenius/internal/service/handler/contact"
->>>>>>> 2527b94a99c59112ff978526185b8827f3dfb0ff
 	"arenius/internal/service/handler/emissionsFactor"
 	"arenius/internal/service/handler/lineItem"
 	"arenius/internal/service/handler/summary"
@@ -152,7 +149,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	// Apply Middleware to Protected Routes
 	app.Use(supabase_auth.Middleware(&config.Supabase))
-	
+
 	// // Apply Middleware to Protected Routes
 	// app.Use(supabase_auth.Middleware(&config.Supabase))
 
