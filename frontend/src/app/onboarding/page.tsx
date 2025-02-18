@@ -10,7 +10,7 @@ export default function CustomForm() {
 
   const [useForm, setUseForm] = useState(true); 
 
-  async function onSubmit(values: any) {
+  async function onSubmit(values) {
     console.log("Submitted Values:", values);
 
     if (!values.email || !values.password) {
