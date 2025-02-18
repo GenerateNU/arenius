@@ -1,10 +1,14 @@
 "use client"
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import Image from "next/image";
 import onboardingLogo from "@/assets/onboarding-logo.png";
 import Link from "next/link"; 
 
-const Layout: React.FC = ( children ) => {
+interface LayoutProps {
+    children: ReactNode;
+}
+
+const Layout: React.FC<LayoutProps> = ({children}) => {
   const [activeTab, setActiveTab] = useState<string>("all_navs/dashboard");
 
   const handleTabClick = (tab: string) => {
