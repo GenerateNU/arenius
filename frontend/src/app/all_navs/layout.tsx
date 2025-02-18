@@ -2,22 +2,18 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import onboardingLogo from "@/assets/onboarding-logo.png";
-import Link from "next/link"; // For navigation
+import Link from "next/link"; 
 
 const Layout: React.FC = ({ children }) => {
-  // State to track the active tab
   const [activeTab, setActiveTab] = useState<string>("all_navs/dashboard");
 
-  // Function to handle tab selection
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
   };
 
   return (
     <div className="relative max-h-screen overflow-x-hidden flex-1">
-    {/* Container for logo and sidebar */}
-      <div className="flex absolute top-0 left-0 w-full p-4 space-x-8"> {/* Adjusted left position */}
-        {/* Logo */}
+      <div className="flex absolute top-0 left-0 w-full p-4 space-x-8"> 
         <div>
           <Image
             src={onboardingLogo}
@@ -27,9 +23,7 @@ const Layout: React.FC = ({ children }) => {
           />
         </div>
 
-        {/* Tabs / Sidebar */}
         <div className="flex justify-end w-full max-w-full p-4 space-x-4">
-        {/* Dashboard Tab */}
           <svg
             onClick={() => handleTabClick("all_navs/dashboard")}
             width="30"
@@ -54,7 +48,6 @@ const Layout: React.FC = ({ children }) => {
             Dashboard
           </Link>
 
-          {/* Transactions Tab */}
           <svg
             onClick={() => handleTabClick("all_navs/transactions")}
             width="30"
@@ -97,7 +90,6 @@ const Layout: React.FC = ({ children }) => {
             Transactions
           </Link>
 
-          {/* Contacts Tab */}
           <svg
             onClick={() => handleTabClick("all_navs/contacts")}
             width="30"
@@ -121,7 +113,6 @@ const Layout: React.FC = ({ children }) => {
         </div>
       </div>
 
-      {/* Children (Dynamic content) */}
       <div className="pt-20 pl-20 pr-10 pb-5">
         {children}
       </div>
