@@ -30,6 +30,11 @@ func SupabaseSignup(cfg *config.Supabase, email string, password string) (signup
 	supabaseURL := cfg.URL
 	apiKey := cfg.Key
 
+	fmt.Println("SupabaseSignup function called")
+	fmt.Println("Supabase URL:", cfg.URL)
+	fmt.Println("Supabase API Key:", cfg.Key)
+	fmt.Println("Email:", email)
+	fmt.Println("Password:", password)
 	// Prepare the request payload
 	payload := Payload{
 		Email:    email,
