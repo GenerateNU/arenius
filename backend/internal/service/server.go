@@ -147,6 +147,9 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		})
 	})
 
+	// Apply Middleware to Protected Routes
+	app.Use(supabase_auth.Middleware(&config.Supabase))
+
 	// // Apply Middleware to Protected Routes
 	// app.Use(supabase_auth.Middleware(&config.Supabase))
 
