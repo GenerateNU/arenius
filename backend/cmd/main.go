@@ -12,7 +12,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
 	"github.com/sethvargo/go-envconfig"
 )
