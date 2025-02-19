@@ -17,9 +17,9 @@ function buildQueryParams(filters: LineItemFilters) {
   if (filters?.emissionsFactor) {
     params.emissions_factor_id = filters.emissionsFactor;
   }
-  if (filters?.amount) {
-    params.amount = filters.amount;
-  }
+  // if (filters?.amount) {
+  //   params.amount = filters.amount;
+  // }
 
   return params;
 }
