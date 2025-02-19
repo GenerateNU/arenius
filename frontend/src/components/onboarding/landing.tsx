@@ -5,7 +5,11 @@ import logo from "../../assets/onboarding-logo.png";
 import { Button } from "@/components/ui/button";  
 
 
-export default function SignupForm({ setIsLoginPage }) {
+type SignupFormProps = {
+  setIsLoginPage: (value: boolean) => void; 
+};
+
+export default function SignupForm({ setIsLoginPage }: SignupFormProps) {
   const router = useRouter();
 
   const handleLogin = () => {
