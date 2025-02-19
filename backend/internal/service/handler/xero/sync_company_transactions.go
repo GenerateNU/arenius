@@ -3,6 +3,7 @@ package xero
 import (
 	"arenius/internal/errs"
 	"arenius/internal/models"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -96,7 +97,7 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	}
 
 	// Parse transactions and filter out duplicates
-	newLineItems, err := h.parseTenantTransactions(ctx, transactions, company)
+	newLineItems, err := h.parseTenantTransactions(ctx.Context(), transactions, company)
 	if err != nil {
 		return err
 	}
@@ -118,7 +119,7 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	return nil
 }
 
-func (h *Handler) parseTenantTransactions(ctx *fiber.Ctx, transactions []interface{}, company models.Tenant) ([]models.AddImportedLineItemRequest, error) {
+func (h *Handler) parseTenantTransactions(ctx context.Context, transactions []interface{}, company models.Tenant) ([]models.AddImportedLineItemRequest, error) {
 	var newLineItems []models.AddImportedLineItemRequest
 	// Build an AddImportedLineItemRequest object
 	for _, transaction := range transactions {
