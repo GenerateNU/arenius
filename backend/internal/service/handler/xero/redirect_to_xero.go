@@ -158,8 +158,10 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	// Set the HTTP client for subsequent requests.
 	h.oAuthHTTPClient = h.config.OAuth2Config.Client(ctx.Context(), tok)
 
+	frontendURL := os.Getenv("FRONTEND_BASE_URL")
 	// Redirect to the home page.
-	return ctx.Redirect("/health", fiber.StatusTemporaryRedirect)
+	return ctx.Redirect(frontendURL+"/welcome", fiber.StatusTemporaryRedirect)
+
 }
 
 func (h *Handler) getCompanyID(c *fiber.Ctx, xeroTenantID string, companyName string) (string, error) {
