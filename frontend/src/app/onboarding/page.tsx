@@ -45,7 +45,7 @@ export default function CustomForm() {
       <div className="w-3/4 -ml-60 flex items-center justify-center p-8">
         {useForm ? (
           <FormProviderWrapper>
-            <SignupForm />
+            <SignupForm onSubmit={onSubmit} />
           </FormProviderWrapper>
         ) : (
           <XeroSSOButton onGoBack={handleGoBack} />

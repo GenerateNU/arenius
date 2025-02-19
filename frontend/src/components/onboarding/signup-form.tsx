@@ -8,8 +8,11 @@ import {
 } from "@/components/ui/form";
 import { SignupRequest } from "@/types";
 
+interface SignupFormProps {
+  onSubmit: (data: SignupRequest) => void;
+}
 
-export default function SignupForm() {
+export default function SignupForm({ onSubmit }: SignupFormProps) {
   const {
     register,
     formState: { errors },
