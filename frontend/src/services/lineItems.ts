@@ -14,6 +14,13 @@ function buildQueryParams(filters: LineItemFilters) {
     params.before_date = filters.dates.to;
   }
 
+  if (filters?.emissionsFactor) {
+    params.emissions_factor_id = filters.emissionsFactor;
+  }
+  if (filters?.amount) {
+    params.amount = filters.amount;
+  }
+
   return params;
 }
 

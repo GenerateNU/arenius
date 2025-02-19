@@ -12,6 +12,8 @@ export type LineItem = {
 
 export interface LineItemFilters {
   dates?: DateRange;
+  emissionsFactor?: string;
+  amount?: number;
 }
 
 export type CreateLineItemRequest = {
