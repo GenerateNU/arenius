@@ -40,3 +40,17 @@ export type EmissionsFactorCategory = {
   name: string;
   emissions_factors: EmissionsFactor[];
 };
+
+export type Contact = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  city: string;
+  state: string;
+  scope?: string;
+};
+
+export type GetContactsRequest = {
+  company_id: string;
+}
