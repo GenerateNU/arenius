@@ -8,11 +8,11 @@ import {
 } from "@/components/ui/form";
 import { SignupRequest } from "@/types";
 
-interface SignupFormProps {
-  onSubmit: (data: SignupRequest) => void;
-}
+itype SignupFormProps = {
+  setIsLoginPage: (value: boolean) => void;
+};
 
-export default function SignupForm({ onSubmit }: SignupFormProps) {
+export default function SignupForm({ setIsLoginPage }: SignupFormProps) {
   const {
     register,
     formState: { errors },
