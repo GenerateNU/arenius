@@ -25,6 +25,13 @@ export type LoginRequest = {
   password: string;
 };
 
+export type SignupRequest = {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+};
+
 export type ReconcileBatchRequest = {
   lineItemIds: string[];
   scope?: number;
@@ -39,9 +46,4 @@ export type EmissionsFactor = {
 export type EmissionsFactorCategory = {
   name: string;
   emissions_factors: EmissionsFactor[];
-};
-
-export type SignupRequest = {
-  email: string;
-  password: string;
 };

@@ -1,19 +1,34 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
-import { FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { SignupRequest } from "@/types";
 
 interface SignupFormProps {
-  onSubmit: (data) => void;
+  onSubmit: (data: SignupRequest) => void;
 }
 
 export default function SignupForm({ onSubmit }: SignupFormProps) {
-  const { register, formState: { errors }, handleSubmit } = useFormContext();
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useFormContext<SignupRequest>();
 
   return (
     <div className="w-full max-w-lg space-y-6">
-      <h2 className="text-2xl font-semibold text-center">Let&apos;s set up your account</h2>
-      
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full p-8 bg-white rounded-lg">
+      <h2 className="text-2xl font-semibold text-center">
+        Let&apos;s set up your account
+      </h2>
+
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-6 w-full p-8 bg-white rounded-lg"
+      >
         <FormItem>
           <FormLabel>First Name</FormLabel>
           <FormControl>
@@ -64,7 +79,10 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
           <FormMessage>{errors.password?.message}</FormMessage>
         </FormItem>
 
-        <button type="submit" className="mt-4 p-4 bg-[#59C295] text-white rounded-md w-full">
+        <button
+          type="submit"
+          className="mt-4 p-4 bg-[#59C295] text-white rounded-md w-full"
+        >
           Next
         </button>
       </form>

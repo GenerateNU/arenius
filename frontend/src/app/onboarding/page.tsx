@@ -1,34 +1,31 @@
-"use client"
-import { useState, useEffect } from "react";
+"use client";
+import { useState } from "react";
 import { signup } from "@/services/signup";
 import ImageStack from "@/components/onboarding/onboarding-nav";
-import FormProviderWrapper from "@/components/onboarding/form-provider"; 
+import FormProviderWrapper from "@/components/onboarding/form-provider";
 import SignupForm from "@/components/onboarding/signup-form";
-import XeroSSOButton from "@/components/onboarding/xero-button"; 
+import XeroSSOButton from "@/components/onboarding/xero-button";
+import { SignupRequest } from "@/types";
 
 export default function CustomForm() {
+  const [useForm, setUseForm] = useState(true);
 
-  const [useForm, setUseForm] = useState(true); 
-
-  async function onSubmit(values) {
-    console.log("Submitted Values:", values);
-
+  async function onSubmit(values: SignupRequest) {
     if (!values.email || !values.password) {
       console.error("Email or password is missing!");
       return;
     }
 
     try {
-      console.log("HELLO");
       const response = await signup({
         email: values.email,
         password: values.password,
+        firstName: values.firstName,
+        lastName: values.lastName,
       });
 
-      console.log("Response:", response);
-
       if (response.status === 201 || response.status === 200) {
-        setUseForm(false); 
+        setUseForm(false);
       }
     } catch (err) {
       console.error("Signup failed:", err);
@@ -36,12 +33,8 @@ export default function CustomForm() {
   }
 
   const handleGoBack = () => {
-    setUseForm(true); 
+    setUseForm(true);
   };
-
-  useEffect(() => {
-    console.log("useForm state updated:", useForm);
-  }, [useForm]);
 
   return (
     <div className="flex h-screen w-full">
@@ -52,10 +45,10 @@ export default function CustomForm() {
       <div className="w-3/4 -ml-60 flex items-center justify-center p-8">
         {useForm ? (
           <FormProviderWrapper>
-            <SignupForm onSubmit={onSubmit} /> 
+            <SignupForm onSubmit={onSubmit} />
           </FormProviderWrapper>
         ) : (
-          <XeroSSOButton onGoBack={handleGoBack} /> 
+          <XeroSSOButton onGoBack={handleGoBack} />
         )}
       </div>
     </div>
