@@ -27,6 +27,7 @@ func (h *Handler) SyncTransactions(ctx *fiber.Ctx) error {
 		// Sync transactions for all companies
 		companies, err = h.companyRepository.GetAllTenants(ctx.Context())
 		if err != nil {
+			fmt.Println("Error retrieving companies:", err)
 			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": "Failed to retrieve companies",
 			})
