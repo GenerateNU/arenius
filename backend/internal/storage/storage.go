@@ -48,6 +48,7 @@ type ContactRepository interface {
 	GetContacts(ctx context.Context, pagination utils.Pagination, companyId string) ([]models.Contact, error)
 	CreateContact(ctx context.Context, req models.CreateContactRequest) (*models.Contact, error)
 	AddImportedContacts(ctx context.Context, req []models.AddImportedContactRequest) ([]models.Contact, error)
+	GetContactIDByXeroContactID(ctx context.Context, xeroContactID string) (string, error)
 }
 
 type OffsetRepository interface {

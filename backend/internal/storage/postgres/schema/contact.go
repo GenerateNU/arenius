@@ -174,6 +174,23 @@ func createContactValidations(req models.CreateContactRequest) ([]string, []inte
 	return columns, queryArgs, nil
 }
 
+func (r *ContactRepository) GetContactIDByXeroContactID(ctx context.Context, xeroContactID string) (string, error) {
+	query := `
+		SELECT id
+		FROM contact
+		WHERE xero_contact_id = $1
+	`
+	var contactID string
+	err := r.db.QueryRow(ctx, query, xeroContactID).Scan(&contactID)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return "", errs.NotFound("Contact not found", "xeroContactID", xeroContactID)
+		}
+		return "", fmt.Errorf("error querying database: %w", err)
+	}
+	return contactID, nil
+}
+
 func NewContactRepository(db *pgxpool.Pool) *ContactRepository {
 	return &ContactRepository{
 		db,

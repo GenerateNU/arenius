@@ -96,7 +96,7 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	}
 
 	// Parse transactions and filter out duplicates
-	newLineItems, err := parseTenantTransactions(transactions, company)
+	newLineItems, err := h.parseTenantTransactions(ctx, transactions, company)
 	if err != nil {
 		return err
 	}
@@ -118,7 +118,7 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	return nil
 }
 
-func parseTenantTransactions(transactions []interface{}, company models.Tenant) ([]models.AddImportedLineItemRequest, error) {
+func (h *Handler) parseTenantTransactions(ctx *fiber.Ctx, transactions []interface{}, company models.Tenant) ([]models.AddImportedLineItemRequest, error) {
 	var newLineItems []models.AddImportedLineItemRequest
 	// Build an AddImportedLineItemRequest object
 	for _, transaction := range transactions {
@@ -128,6 +128,7 @@ func parseTenantTransactions(transactions []interface{}, company models.Tenant) 
 		}
 
 		var contactID string
+		var e error
 		var contactName string
 		if txMap["Contact"] != nil {
 			contactMap, ok := txMap["Contact"].(map[string]interface{})
@@ -135,9 +136,11 @@ func parseTenantTransactions(transactions []interface{}, company models.Tenant) 
 				return nil, errs.BadRequest("Invalid Contact format")
 			}
 			if contactMap["ContactID"] != nil {
-				contactID = contactMap["ContactID"].(string)
-				// TODO: make contact table that has optional field xero_contact_id
-				// the value stored in contactID should be the internal contact id, not the xero contact id (it is currently the xero contact id)
+				xeroContactID := contactMap["ContactID"].(string)
+				contactID, e = h.contactRepository.GetContactIDByXeroContactID(ctx, xeroContactID)
+				if e != nil {
+					return nil, errs.BadRequest(fmt.Sprintf("Error finding contact with Xero Contact ID: %s, %s", xeroContactID, e))
+				}
 			} else {
 				return nil, errs.BadRequest("Missing ContactID")
 			}
