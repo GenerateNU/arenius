@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: "http://localhost:8080", // Add this to an env file, and tell everyone to add it to their env file. For production, just plug in the real URL of the backend to Heroku or some shit
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",

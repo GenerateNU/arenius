@@ -10,17 +10,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/joho/godotenv"
 	"github.com/sethvargo/go-envconfig"
 )
 
 func main() {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-		return
-	}
-
 	var config config.Config
 	if err := envconfig.Process(context.Background(), &config); err != nil {
 		log.Fatalln("Error processing .env file: ", err)
