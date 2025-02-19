@@ -16,8 +16,13 @@ import (
 )
 
 func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant) error {
+	refreshToken := ""
+	if company.RefreshToken != nil {
+	    refreshToken = *company.RefreshToken
+	}
+	
 	token := &oauth2.Token{
-		RefreshToken: *company.RefreshToken,
+		RefreshToken: refreshToken,
 	}
 	tenantId := company.XeroTenantID
 	url := os.Getenv("TRANSACTIONS_URL")
@@ -49,7 +54,7 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 			return errs.BadRequest(fmt.Sprintf("invalid request: %s", err))
 		}
 
-		req.Header.Set("Authorization", "Bearer "+accessToken)
+		req.Header.Set("Authorization", "Bearer "+ accessToken)
 		req.Header.Set("Accept", "application/json")
 		req.Header.Set("Xero-tenant-id", *tenantId)
 
