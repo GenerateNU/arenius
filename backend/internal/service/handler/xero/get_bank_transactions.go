@@ -23,7 +23,7 @@ func (h *Handler) GetBankTransactions(ctx *fiber.Ctx) error {
 
 	if accessToken == "" || tenantId == "" || url == "" {
 		fmt.Printf("Examine values: accessToken=%s, tenantId=%s, url=%s\n", accessToken, tenantId, url)
-		return fmt.Errorf("missing required environment variables")
+		return fmt.Errorf("missing required environment variablesS")
 	}
 
 	// get the current company using the Xero tenant ID

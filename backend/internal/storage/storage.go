@@ -18,6 +18,7 @@ type LineItemRepository interface {
 	CreateLineItem(ctx context.Context, req models.CreateLineItemRequest) (*models.LineItem, error)
 	AddImportedLineItems(ctx context.Context, req []models.AddImportedLineItemRequest) ([]models.LineItem, error)
 	BatchUpdateScopeEmissions(ctx context.Context, lineItems []uuid.UUID, scope *int, emissionsFactorID *string) error
+	BatchUpdateScopeEmissions(ctx context.Context, lineItems []uuid.UUID, scope *int, emissionsFactorID *string) error
 }
 
 type EmissionsFactorRepository interface {
@@ -62,6 +63,7 @@ type Repository struct {
 	EmissionsFactor EmissionsFactorRepository
 	Summary         SummaryRepository
 	User            UserRepository
+	User            UserRepository
 	Company         CompanyRepository
 	Offset          OffsetRepository
 	Contact         ContactRepository
@@ -82,6 +84,7 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		LineItem:        schema.NewLineItemRepository(db),
 		EmissionsFactor: schema.NewEmissionsFactorRepository(db),
 		Summary:         schema.NewSummaryRepository(db),
+		User:            schema.NewUserRepository(db),
 		User:            schema.NewUserRepository(db),
 		Company:         schema.NewCompanyRepository(db),
 		Offset:          schema.NewOffsetRepository(db),
