@@ -11,4 +11,6 @@ RUN go mod download
 # Copy the entire project
 COPY . .
 
-WORKDIR /app/cmd
+WORKDIR /app/cmd 
+
+CMD ["go", "run", "main.go"]
