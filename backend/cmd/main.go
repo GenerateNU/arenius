@@ -68,7 +68,7 @@ func startCronJobs(apiURL string) {
 	c := cron.New()
 
 	// Schedule the job to run at midnight every day
-	c.AddFunc("@daily", func() {
+	_, err := c.AddFunc("@daily", func() {
 		err := callSyncTransactionsEndpoint(apiURL)
 		if err != nil {
 			log.Println("Error calling sync transactions endpoint:", err)
@@ -76,6 +76,9 @@ func startCronJobs(apiURL string) {
 			log.Println("Sync transactions triggered successfully")
 		}
 	})
+	if err != nil {
+		log.Fatalf("Failed to schedule cron job: %v", err) // Properly handle the error
+	}
 
 	c.Start()
 }
