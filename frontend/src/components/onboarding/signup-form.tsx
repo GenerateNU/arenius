@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/form";
 import { SignupRequest } from "@/types";
 
-itype SignupFormProps = {
+type SignupFormProps = {
   setIsLoginPage: (value: boolean) => void;
 };
 
