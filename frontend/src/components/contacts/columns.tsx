@@ -55,15 +55,15 @@ export const columns: ColumnDef<Contact>[] = [
   },
 
   {
-    accessorKey: "location",
+    accessorKey: "city",
     header: ({ column }) => {
       return <ColumnHeader name="Location" column={column} />;
     },
     cell: ({ row }) => {
         const city = String(row.getValue("city"))
-        const state = String(row.getValue("state"))
-        if (state && state !== "") {
-            return <div className="font-medium">{city}, {state}</div>;
+        const state = row.getValue("state")
+        if (state !== undefined) {
+            return <div className="font-medium">{city}, {String(state)}</div>;
         } else {
             return <div className="font-medium">{city}</div>;
         }
@@ -71,10 +71,21 @@ export const columns: ColumnDef<Contact>[] = [
   },
 
   {
+    accessorKey: "state",
+    header: ({}) => {
+      // This is so that the above location column can see the state column in the database
+      return <></>;
+    },
+    cell: ({}) => {
+      return <></>
+    }
+  },
+
+  {
     accessorKey: "email",
     header: ({ column }) => {
       return (
-        <ColumnHeader name="Email" column={column} className="text-right" />
+        <ColumnHeader name="Email" column={column} />
       );
     },
   },
