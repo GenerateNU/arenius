@@ -46,7 +46,7 @@ func main() {
 
 	go startCronJobs("http://localhost:" + port) // Change this URL if your API is hosted elsewhere
 
-	select {}
+	//select {}
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
