@@ -24,7 +24,6 @@ func (h *Handler) RedirectToAuthorisationEndpoint(ctx *fiber.Ctx) error {
 
 func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	h.oAuthAuthorisationCode = ctx.Query("code")
-	fmt.Println("Callback")
 
 	// Exchange the authorization code for an access token with the Xero auth server.
 	tok, err := h.config.OAuth2Config.Exchange(
@@ -158,8 +157,10 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	// Set the HTTP client for subsequent requests.
 	h.oAuthHTTPClient = h.config.OAuth2Config.Client(ctx.Context(), tok)
 
+	frontendURL := os.Getenv("FRONTEND_BASE_URL")
 	// Redirect to the home page.
-	return ctx.Redirect("/health", fiber.StatusTemporaryRedirect)
+	return ctx.Redirect(frontendURL+"/welcome", fiber.StatusTemporaryRedirect)
+
 }
 
 func (h *Handler) getCompanyID(c *fiber.Ctx, xeroTenantID string, companyName string) (string, error) {

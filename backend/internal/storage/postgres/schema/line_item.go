@@ -56,6 +56,14 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		filterColumns = append(filterColumns, "ef.activity_id=")
 		filterArgs = append(filterArgs, *filterParams.EmissionFactor)
 	}
+	if filterParams.MinPrice != nil {
+		filterColumns = append(filterColumns, "(li.unit_amount * li.quantity)>=")
+		filterArgs = append(filterArgs, *filterParams.MinPrice)
+	}
+	if filterParams.MaxPrice != nil {
+		filterColumns = append(filterColumns, "(li.unit_amount * li.quantity)<=")
+		filterArgs = append(filterArgs, *filterParams.MaxPrice)
+	}
 
 	for i := 0; i < len(filterColumns); i++ {
 		filterQuery += fmt.Sprintf(" AND (%s$%d)", filterColumns[i], i+3)

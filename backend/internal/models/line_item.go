@@ -57,6 +57,8 @@ type GetLineItemsRequest struct {
 	Scope                *int       `query:"scope"`
 	EmissionFactor       *string    `query:"emission_factor"`
 	SearchTerm           *string    `query:"search_term"`
+	MinPrice             *float64   `query:"min_price"`
+	MaxPrice             *float64   `query:"max_price"`
 }
 
 type AddImportedLineItemRequest struct {

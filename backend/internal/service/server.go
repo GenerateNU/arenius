@@ -69,8 +69,8 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	// Use CORS middleware to configure CORS and handle preflight/OPTIONS requests.
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000, http://localhost:8080", // Allow any source domain to access API
-		AllowMethods:     "GET,POST,PUT,PATCH,DELETE",                    // Using these methods.
+		AllowOrigins:     "http://localhost:3000, http://localhost:8080, https://arenius.onrender.com", // Allow any source domain to access API
+		AllowMethods:     "GET,POST,PUT,PATCH,DELETE",                                                  // Using these methods.
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true, // Allow cookies
 	}))
@@ -90,14 +90,14 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
 	})
 
-	app.Use(xeroAuthHandler.XeroAuthMiddleware)
-
 	SupabaseAuthHandler := auth.NewHandler(config.Supabase, repo.User)
 
 	app.Route("/auth", func(router fiber.Router) {
 		router.Post("/signup", SupabaseAuthHandler.SignUp)
 		router.Post("/login", SupabaseAuthHandler.Login)
 	})
+
+	app.Use(xeroAuthHandler.XeroAuthMiddleware)
 
 	app.Get("/callback", xeroAuthHandler.Callback)
 
@@ -146,6 +146,9 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 			return offsetHandler.PostCarbonOffset(c)
 		})
 	})
+
+	// Apply Middleware to Protected Routes
+	app.Use(supabase_auth.Middleware(&config.Supabase))
 
 	// // Apply Middleware to Protected Routes
 	// app.Use(supabase_auth.Middleware(&config.Supabase))

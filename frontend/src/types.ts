@@ -12,6 +12,10 @@ export type LineItem = {
 
 export interface LineItemFilters {
   dates?: DateRange;
+  emissionFactor?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  searchTerm?: string;
 }
 
 export type CreateLineItemRequest = {
@@ -25,6 +29,13 @@ export type LoginRequest = {
   password: string;
 };
 
+export type SignupRequest = {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+};
+
 export type ReconcileBatchRequest = {
   lineItemIds: string[];
   scope?: number;
@@ -36,7 +47,36 @@ export type EmissionsFactor = {
   activity_id: string;
 };
 
+export type Price = {
+  minPrice: number;
+  maxPrice: number;
+}
+
 export type EmissionsFactorCategory = {
   name: string;
   emissions_factors: EmissionsFactor[];
+};
+
+export type Contact = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  city: string;
+  state: string;
+  xero_contact_id?: string;
+  company_id: string;
+};
+
+export type GetContactsRequest = {
+  company_id: string;
+};
+
+export type CreateContactRequest = {
+  name: string;
+  email: string;
+  phone: string;
+  city: string;
+  state: string;
+  company_id: string;
 };
