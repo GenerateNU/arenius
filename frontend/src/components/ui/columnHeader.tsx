@@ -1,11 +1,10 @@
 import React from "react";
-import { ColumnObject } from "@/types";
 import { Column } from "@tanstack/react-table";
 import { Button } from "./button";
 import Image from "next/image";
 
 type ColumnHeaderProps = {
-  column: Column<Object>;
+  column: Column<object>;
   name: string;
   className?: string;
 };
