@@ -3,7 +3,6 @@
 import * as React from "react";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -19,11 +18,10 @@ export function DatePickerWithRange({
   className,
 }: React.HTMLAttributes<HTMLDivElement>) {
   const { filters, setFilters } = useLineItems();
-  const [date, setDate] = React.useState<DateRange | undefined>(filters.dates);
+  const dates = filters.dates;
 
   const handleFilterChange = (e: DateRange | undefined) => {
     setFilters({ ...filters, dates: e });
-    setDate(e);
   };
 
   return (
@@ -31,14 +29,14 @@ export function DatePickerWithRange({
       <Popover>
         <PopoverTrigger asChild>
           <Button id="date" variant={"ghost"}>
-            {date?.from ? (
-              date.to ? (
+            {dates?.from ? (
+              dates.to ? (
                 <>
-                  {format(date.from, "LLL dd, y")} -{" "}
-                  {format(date.to, "LLL dd, y")}
+                  {format(dates.from, "LLL dd, y")} -{" "}
+                  {format(dates.to, "LLL dd, y")}
                 </>
               ) : (
-                format(date.from, "LLL dd, y")
+                format(dates.from, "LLL dd, y")
               )
             ) : (
               <span>All dates</span>
@@ -53,8 +51,8 @@ export function DatePickerWithRange({
           <Calendar
             initialFocus
             mode="range"
-            defaultMonth={date?.from}
-            selected={date}
+            defaultMonth={dates?.from}
+            selected={dates}
             onSelect={handleFilterChange}
             numberOfMonths={2}
           />

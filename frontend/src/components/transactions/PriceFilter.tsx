@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Popover,
   PopoverTrigger,
@@ -20,6 +20,16 @@ export default function PriceFilter({
   const [minPrice, setMinPrice] = useState(filters.minPrice || undefined);
   const [maxPrice, setMaxPrice] = useState(filters.maxPrice || undefined);
 
+  // TODO: replace local states to directly read from filters in context
+  useEffect(() => {
+    if (!filters.maxPrice) {
+      setMaxPrice(undefined);
+    }
+    if (!filters.minPrice) {
+      setMinPrice(undefined);
+    }
+  }, [filters]);
+
   const handleApply = () => {
     const min = minPrice || 0;
     const max = maxPrice || Number.MAX_SAFE_INTEGER;
@@ -38,9 +48,9 @@ export default function PriceFilter({
             {minPrice !== undefined && maxPrice !== undefined
               ? `Price: $${minPrice} - $${maxPrice}`
               : minPrice === undefined && maxPrice !== undefined
-              ? `Price: > $${maxPrice}`
+              ? `Price: < $${maxPrice}`
               : maxPrice === undefined && minPrice !== undefined
-              ? `Price: < $${minPrice}`
+              ? `Price: > $${minPrice}`
               : "All Amounts"}
             <ChevronDown className={styles.chevronDown} />
           </Button>

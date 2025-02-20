@@ -8,13 +8,14 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import ItemForm from "./ItemForm";
-import { Button } from "../ui/button";
+import { buttonVariants } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 const ManualEntryModal = () => {
   return (
     <Dialog>
-      <DialogTrigger>
-        <Button>Manual entry</Button>
+      <DialogTrigger className={cn(buttonVariants({ variant: "default" }))}>
+        Manual entry
       </DialogTrigger>
       <DialogContent className="w-[600px]">
         <DialogHeader>
