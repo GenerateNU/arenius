@@ -7,6 +7,7 @@ import {
   SortingState,
   useReactTable,
   getSortedRowModel,
+  Row,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -20,10 +21,15 @@ import { LineItem } from "@/types";
 import { useLineItems } from "@/context/LineItemsContext";
 import { columns } from "./columns";
 import LineItemTableActions from "./LineItemTableActions";
+import  { ModalDialog } from "./ModalDialog";
+import { Button } from "../ui/button";
 
 export default function LineItemTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const { items } = useLineItems();
+
+  const [selectedRowData, setSelectedRowData] = useState<Row<LineItem> | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const table = useReactTable({
     data: items,
@@ -36,6 +42,11 @@ export default function LineItemTable() {
       sorting,
     },
   });
+
+  const openReconcileDialog = (row: Row<LineItem>) => {
+    setSelectedRowData(row);
+    setIsDialogOpen(true);
+  };
 
   return (
     <>
@@ -63,18 +74,23 @@ export default function LineItemTable() {
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
                       )}
-                    </TableCell>
-                  ))}
-                </TableRow>
+                  </TableCell>
+                ))}
+                <TableCell>
+                  <Button onClick={() => openReconcileDialog(row)}>
+                    Reconcile
+                  </Button>
+                </TableCell>
+              </TableRow>
               ))
             ) : (
               <TableRow>
@@ -89,6 +105,15 @@ export default function LineItemTable() {
           </TableBody>
         </Table>
       </div>
+
+      {selectedRowData && (
+        <ModalDialog
+          selectedRowData={selectedRowData}
+          isDialogOpen={isDialogOpen}
+          setIsDialogOpen={setIsDialogOpen}
+        />
+      )}
+
       <br />
       <LineItemTableActions table={table} />
     </>
