@@ -68,6 +68,10 @@ export type Contact = {
   company_id: string;
 };
 
+export type GetContactsRequest = {
+  company_id: string;
+};
+
 export type CreateContactRequest = {
   name: string;
   email: string;
