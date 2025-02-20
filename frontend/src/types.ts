@@ -57,7 +57,7 @@ export type Contact = {
   state: string;
   xero_contact_id?: string;
   company_id: string;
-}
+};
 
 export type CreateContactRequest = {
   name: string;
@@ -66,4 +66,4 @@ export type CreateContactRequest = {
   city: string;
   state: string;
   company_id: string;
-}
+};
