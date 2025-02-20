@@ -1,11 +1,11 @@
 "use client";
 
-import ItemForm from "@/components/transactions/ItemForm";
 import LineItemTable from "@/components/transactions/LineItemTable";
 import LineItemTableFilters from "@/components/transactions/LineItemTableFilters";
 import { LineItemsProvider, useLineItems } from "@/context/LineItemsContext";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import ManualEntryModal from "@/components/transactions/ManualEntryModal";
 
 export default function Transactions() {
   return (
@@ -25,27 +25,25 @@ function TransactionsContent() {
 
   return (
     <div className={styles.container}>
-      <div>
-        <p className={styles.formTitle}>Add a new line item</p>
-        <ItemForm />
-      </div>
-      <hr className={styles.spacer} />
+      {/* <hr className={styles.spacer} /> */}
 
       {/* Title and Search Bar in One Line */}
       <div className="flex items-center justify-between mb-4">
         <p className={styles.formTitle}>Transactions</p>
-        <div className="relative w-80">
-          <Search className={styles.searchIcon} />
-          <Input
-            placeholder="Search your transactions..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className={styles.input}
-          />
+        <div className="flex space-x-8">
+          <div className="relative w-80">
+            <Search className={styles.searchIcon} />
+            <Input
+              placeholder="Search your transactions..."
+              value={searchTerm}
+              onChange={handleSearch}
+              className={styles.input}
+            />
+          </div>
+          <ManualEntryModal />
         </div>
       </div>
 
-      {/* Table and Filters */}
       <LineItemTableFilters />
       <LineItemTable />
     </div>

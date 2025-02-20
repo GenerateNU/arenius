@@ -20,7 +20,7 @@ export default {
           DEFAULT: "var(--secondary)",
           foreground: "var(--secondary-foreground)",
         },
-        silver: "#ecebff",
+        moss: "var(--moss)",
         card: {
           DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",

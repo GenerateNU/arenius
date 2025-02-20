@@ -5,15 +5,15 @@ import LoginForm from "@/components/onboarding/login-form";
 import SignupForm from "@/components/onboarding/landing";
 
 export default function LoginPage() {
-  const [isLoginPage, setIsLoginPage] = useState(false); 
+  const [isLoginPage, setIsLoginPage] = useState(false);
 
   return (
     <div className={styles.container}>
       <div className={styles.login}>
-      {isLoginPage ? (
-          <LoginForm /> 
+        {isLoginPage ? (
+          <LoginForm />
         ) : (
-          <SignupForm setIsLoginPage={setIsLoginPage} /> 
+          <SignupForm setIsLoginPage={setIsLoginPage} />
         )}
       </div>
     </div>
@@ -22,7 +22,6 @@ export default function LoginPage() {
 
 const styles = {
   container:
-    "h-screen w-full bg-[url('../assets/onboarding-bg.png')] bg-cover bg-center flex",
-  login:
-  "w-1/2 h-full flex items-center justify-start pl-20"
+    "h-screen w-full bg-[url('../assets/onboarding-bg.jpeg')] bg-cover bg-center flex",
+  login: "w-1/2 h-full flex items-center justify-start pl-20",
 };

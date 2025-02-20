@@ -36,7 +36,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Link
             href="/dashboard"
             className={`text-lg font-bold ${
-              activeTab === "dashboard" ? "text-[#07AC5D]" : "text-gray-700"
+              activeTab === "dashboard" ? "text-primary" : "text-gray-700"
             } pr-5`}
             onClick={() => handleTabClick("dashboard")}
           >
@@ -48,7 +48,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Link
             href="/transactions"
             className={`text-lg font-bold ${
-              activeTab === "transactions" ? "text-[#07AC5D]" : "text-gray-700"
+              activeTab === "transactions" ? "text-primary" : "text-gray-700"
             } pr-5`}
             onClick={() => handleTabClick("transactions")}
           >
@@ -60,7 +60,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Link
             href="/contacts"
             className={`text-lg font-bold ${
-              activeTab === "contacts" ? "text-[#07AC5D]" : "text-gray-700"
+              activeTab === "contacts" ? "text-primary" : "text-gray-700"
             } pr-5`}
             onClick={() => handleTabClick("contacts")}
           >

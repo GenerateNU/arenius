@@ -1,13 +1,11 @@
-"use client"
+"use client";
 import React from "react";
 import { DatePickerWithRange } from "./DatePicker";
 import PriceFilter from "./PriceFilter";
 import EmissionsFactorFilter from "./EmissionsFactorFilter";
 import ContactFilter from "./ContactFilter";
 
-
 export default function LineItemTableFilters() {
-
   return (
     <div className={styles.container}>
       <DatePickerWithRange className={styles.filter} />
@@ -18,8 +16,7 @@ export default function LineItemTableFilters() {
   );
 }
 
-
 const styles = {
-  container: "flex gap-4 my-4 p-4 bg-white shadow-md rounded-lg border border-gray-200 w-full",
-  filter: "flex-1 min-w-0",
+  container: "flex gap-4 my-4 p-4 bg-gray-100 rounded-lg w-full",
+  filter: "flex-1 min-w-0 ",
 };
