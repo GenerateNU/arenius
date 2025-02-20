@@ -12,7 +12,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [activeTab, setActiveTab] = useState<string>("all_navs/dashboard");
+  const [activeTab, setActiveTab] = useState<string>("transactions");
 
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
@@ -36,11 +36,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Link
             href="/dashboard"
             className={`text-lg font-bold ${
-              activeTab === "all_navs/dashboard"
-                ? "text-[#07AC5D]"
-                : "text-gray-700"
+              activeTab === "dashboard" ? "text-[#07AC5D]" : "text-gray-700"
             } pr-5`}
-            onClick={() => handleTabClick("all_navs/dashboard")}
+            onClick={() => handleTabClick("dashboard")}
           >
             Dashboard
           </Link>
@@ -50,11 +48,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Link
             href="/transactions"
             className={`text-lg font-bold ${
-              activeTab === "all_navs/transactions"
-                ? "text-[#07AC5D]"
-                : "text-gray-700"
+              activeTab === "transactions" ? "text-[#07AC5D]" : "text-gray-700"
             } pr-5`}
-            onClick={() => handleTabClick("all_navs/transactions")}
+            onClick={() => handleTabClick("transactions")}
           >
             Transactions
           </Link>
@@ -64,11 +60,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Link
             href="/contacts"
             className={`text-lg font-bold ${
-              activeTab === "all_navs/contacts"
-                ? "text-[#07AC5D]"
-                : "text-gray-700"
+              activeTab === "contacts" ? "text-[#07AC5D]" : "text-gray-700"
             } pr-5`}
-            onClick={() => handleTabClick("all_navs/contacts")}
+            onClick={() => handleTabClick("contacts")}
           >
             Contacts
           </Link>
