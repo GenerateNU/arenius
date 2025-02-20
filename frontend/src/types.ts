@@ -48,7 +48,22 @@ export type EmissionsFactorCategory = {
   emissions_factors: EmissionsFactor[];
 };
 
-export type SignupRequest = {
+export type Contact = {
+  id: string;
+  name: string;
   email: string;
-  password: string;
+  phone: string;
+  city: string;
+  state: string;
+  xero_contact_id?: string;
+  company_id: string;
+};
+
+export type CreateContactRequest = {
+  name: string;
+  email: string;
+  phone: string;
+  city: string;
+  state: string;
+  company_id: string;
 };
