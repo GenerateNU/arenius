@@ -14,6 +14,19 @@ function buildQueryParams(filters: LineItemFilters) {
     params.before_date = filters.dates.to;
   }
 
+  if (filters?.emissionFactor) {
+    params.emission_factor = filters.emissionFactor;
+  }
+  if (filters?.minPrice) {
+    params.min_price = filters.minPrice?.toString();
+  }
+  if (filters?.maxPrice) {
+    params.max_price = filters.maxPrice?.toString();
+  }
+  if (filters?.searchTerm) {
+    params.search_term = filters.searchTerm;
+  }
+
   return params;
 }
 

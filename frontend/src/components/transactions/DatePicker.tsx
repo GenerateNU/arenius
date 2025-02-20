@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
@@ -14,6 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useLineItems } from "@/context/LineItemsContext";
+import { ChevronDown } from "lucide-react";
 
 export function DatePickerWithRange({
   className,
@@ -33,12 +33,8 @@ export function DatePickerWithRange({
           <Button
             id="date"
             variant={"outline"}
-            className={cn(
-              "w-[300px] justify-start text-left font-normal",
-              !date && "text-muted-foreground"
-            )}
+            className={styles.button}
           >
-            <CalendarIcon />
             {date?.from ? (
               date.to ? (
                 <>
@@ -51,9 +47,10 @@ export function DatePickerWithRange({
             ) : (
               <span>All dates</span>
             )}
+            <ChevronDown className={styles.chevronDown} />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 border-gray-200 shadow-lg rounded-lg" align="start">
           <Calendar
             initialFocus
             mode="range"
@@ -67,3 +64,8 @@ export function DatePickerWithRange({
     </div>
   );
 }
+
+const styles = {
+  button: "flex gap-8",
+  chevronDown: "h-4 w-4 opacity-50",
+};
