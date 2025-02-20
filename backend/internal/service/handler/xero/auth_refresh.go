@@ -12,6 +12,11 @@ func (h *Handler) RefreshAccessToken(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusUnauthorized).SendString("No refresh token available")
 	}
 
+	userId, companyId, tenantId, err := h.UserRepository.GetUserbyRefreshToken(ctx.Context(), h.oAuthToken.RefreshToken)
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).SendString("No user found for the given refresh token")
+	}
+
 	tokenSource := h.config.OAuth2Config.TokenSource(ctx.Context(), h.oAuthToken)
 	newToken, err := tokenSource.Token()
 	if err != nil {
@@ -20,6 +25,8 @@ func (h *Handler) RefreshAccessToken(ctx *fiber.Ctx) error {
 
 	// Update the handler's token
 	h.oAuthToken = newToken
+
+	h.UserRepository.SetUserCredentials(ctx.Context(), userId, companyId, newToken.RefreshToken, tenantId)
 
 	// Update Cookies
 	ctx.Cookie(&fiber.Cookie{

@@ -103,7 +103,7 @@ func (r *CompanyRepository) GetOrCreateCompany(ctx context.Context, xeroTenantID
 
 func (r *CompanyRepository) GetTenantByTenantID(ctx context.Context, xeroTenantID string) (*models.Tenant, error) {
 	query := `
-		SELECT id, name, xero_tenant_id, last_transaction_import_time, last_contact_import_time, refresh_token
+		SELECT id, name, xero_tenant_id, last_transaction_import_time, last_contact_import_time, refresh_token, user_id
 		FROM company JOIN user_creds ON company.xero_tenant_id = user_creds.tenant_id
 		WHERE xero_tenant_id=$1
 		LIMIT 1
@@ -111,7 +111,7 @@ func (r *CompanyRepository) GetTenantByTenantID(ctx context.Context, xeroTenantI
 	var tenant models.Tenant
 
 	err := r.db.QueryRow(ctx, query, xeroTenantID).Scan(
-		&tenant.ID, &tenant.Name, &tenant.XeroTenantID, &tenant.LastTransactionImportTime, &tenant.LastContactImportTime, &tenant.RefreshToken,
+		&tenant.ID, &tenant.Name, &tenant.XeroTenantID, &tenant.LastTransactionImportTime, &tenant.LastContactImportTime, &tenant.RefreshToken, &tenant.UserID,
 	)
 	if err != nil {
 		return nil, errs.BadRequest(fmt.Sprintf("Error finding company with Xero Tenant ID: %s, %s", xeroTenantID, err))
@@ -121,7 +121,7 @@ func (r *CompanyRepository) GetTenantByTenantID(ctx context.Context, xeroTenantI
 
 func (r *CompanyRepository) GetAllTenants(ctx context.Context) ([]models.Tenant, error) {
 	query := `
-		SELECT DISTINCT ON (tenant_id) id, name, xero_tenant_id, last_transaction_import_time, last_contact_import_time, refresh_token
+		SELECT DISTINCT ON (tenant_id) id, name, xero_tenant_id, last_transaction_import_time, last_contact_import_time, refresh_token, user_id
 		FROM company JOIN user_creds ON company.xero_tenant_id = user_creds.tenant_id
 	`
 	rows, err := r.db.Query(ctx, query)
@@ -134,7 +134,7 @@ func (r *CompanyRepository) GetAllTenants(ctx context.Context) ([]models.Tenant,
 	for rows.Next() {
 		var tenant models.Tenant
 		if err := rows.Scan(
-			&tenant.ID, &tenant.Name, &tenant.XeroTenantID, &tenant.LastTransactionImportTime, &tenant.LastContactImportTime, &tenant.RefreshToken,
+			&tenant.ID, &tenant.Name, &tenant.XeroTenantID, &tenant.LastTransactionImportTime, &tenant.LastContactImportTime, &tenant.RefreshToken, &tenant.UserID,
 		); err != nil {
 			return nil, err
 		}

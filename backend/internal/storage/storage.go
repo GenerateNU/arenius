@@ -33,6 +33,7 @@ type UserRepository interface {
 	GetCredentialsByUserID(ctx context.Context, userID string) (models.XeroCredentials, error)
 	AddUser(ctx context.Context, userId string, firstName *string, lastName *string) (*models.User, error)
 	SetUserCredentials(ctx context.Context, userID string, companyID string, refreshToken string, tenantID string) error
+	GetUserbyRefreshToken(ctx context.Context, refreshToken string) (userId, companyId, tenantId string, e error)
 }
 
 type CompanyRepository interface {

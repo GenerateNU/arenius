@@ -17,6 +17,7 @@ import (
 
 func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant) error {
 	refreshToken := ""
+	fmt.Println("company: ", company.RefreshToken)
 	if company.RefreshToken != nil {
 		refreshToken = *company.RefreshToken
 	}
@@ -30,10 +31,14 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	tokenSource := h.config.OAuth2Config.TokenSource(ctx.Context(), token)
 	newToken, err := tokenSource.Token()
 	if err != nil {
+		fmt.Println(err)
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to refresh access token")
 	}
 
 	accessToken := newToken.AccessToken
+	h.UserRepository.SetUserCredentials(ctx.Context(), *company.UserID, company.ID, newToken.RefreshToken, *company.XeroTenantID)
+
+	fmt.Println("accessToken: ", accessToken)
 
 	if accessToken == "" || *tenantId == "" || url == "" {
 		return fmt.Errorf("missing required environment variables")
@@ -101,6 +106,7 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 		transactions = append(transactions, paginatedTransactions...)
 	}
 
+	fmt.Println("transactions: ", transactions)
 	// Parse transactions and filter out duplicates
 	newLineItems, err := h.parseTenantTransactions(ctx.Context(), transactions, company)
 	if err != nil {
@@ -141,6 +147,7 @@ func (h *Handler) parseTenantTransactions(ctx context.Context, transactions []in
 			if !ok {
 				return nil, errs.BadRequest("Invalid Contact format")
 			}
+			fmt.Println(contactMap)
 			if contactMap["ContactID"] != nil {
 				xeroContactID := contactMap["ContactID"].(string)
 

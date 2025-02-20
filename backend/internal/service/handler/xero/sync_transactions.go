@@ -38,8 +38,10 @@ func (h *Handler) SyncTransactions(ctx *fiber.Ctx) error {
 	for _, company := range companies {
 		err := h.syncCompanyTransactions(ctx, company)
 		if err != nil {
+			fmt.Println("ERRORORORORO", err)
 			fmt.Printf("Error syncing transactions for company %s: %s\n", company.ID, err)
 		}
+		fmt.Println("1")
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
