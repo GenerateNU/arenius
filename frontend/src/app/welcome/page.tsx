@@ -14,8 +14,8 @@ const WelcomeMessage: React.FC = () => {
           All done! Welcome to Arenius!
         </h1>
         <Link href="/transactions">
-          <button className="w-40 h-10 bg-accent text-white text-sm font-semibold rounded-md">
-            Go to dashboard
+          <button className="w-40 h-10 bg-moss text-white text-sm font-semibold rounded-md">
+            Go to transactions
           </button>
         </Link>
       </div>
