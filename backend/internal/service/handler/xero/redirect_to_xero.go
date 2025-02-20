@@ -24,6 +24,7 @@ func (h *Handler) RedirectToAuthorisationEndpoint(ctx *fiber.Ctx) error {
 
 func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	h.oAuthAuthorisationCode = ctx.Query("code")
+	fmt.Println("Callback")
 
 	// Exchange the authorization code for an access token with the Xero auth server.
 	tok, err := h.config.OAuth2Config.Exchange(

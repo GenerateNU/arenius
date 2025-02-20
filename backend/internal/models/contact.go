@@ -27,5 +27,6 @@ type CreateContactRequest struct {
 	Phone         string  `json:"phone"`
 	City          string  `json:"city"`
 	State         string  `json:"state"`
+	XeroContactID *string `json:"xero_contact_id,omitempty"`
 	CompanyID     string  `json:"company_id"`
 }
