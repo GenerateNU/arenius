@@ -4,8 +4,11 @@ import { EmissionsFactor } from "@/types";
 import EmissionsFactorSelector from "./CategorySelector";
 import { useEffect, useState } from "react";
 import { useLineItems } from "@/context/LineItemsContext";
+import { cn } from "@/lib/utils";
 
-export default function EmissionsFactorFilter() {
+export default function EmissionsFactorFilter({
+  className,
+}: React.HTMLAttributes<HTMLDivElement>) {
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
   const { filters, setFilters } = useLineItems();
   
@@ -17,7 +20,7 @@ export default function EmissionsFactorFilter() {
   }, [emissionsFactor]); // Runs whenever emissionsFactor updates
 
   return (
-    <div>
+    <div className={cn("grid gap-2", className)}>
       <EmissionsFactorSelector
                   emissionsFactor={emissionsFactor}
                   setEmissionsFactor={setEmissionsFactor}

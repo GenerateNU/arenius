@@ -3,19 +3,23 @@ import React from "react";
 import { DatePickerWithRange } from "./DatePicker";
 import PriceFilter from "./PriceFilter";
 import EmissionsFactorFilter from "./EmissionsFactorFilter";
+import ContactFilter from "./ContactFilter";
 
 
 export default function LineItemTableFilters() {
 
   return (
     <div className={styles.container}>
-      <DatePickerWithRange />
-      <EmissionsFactorFilter />
-      <PriceFilter />
+      <DatePickerWithRange className={styles.filter} />
+      <EmissionsFactorFilter className={styles.filter} />
+      <ContactFilter className={styles.filter} />
+      <PriceFilter className={styles.filter} />
     </div>
   );
 }
 
+
 const styles = {
-  container: "flex gap-4 my-4",
+  container: "flex gap-4 my-4 p-4 bg-white shadow-md rounded-lg border border-gray-200 w-full",
+  filter: "flex-1 min-w-0",
 };
