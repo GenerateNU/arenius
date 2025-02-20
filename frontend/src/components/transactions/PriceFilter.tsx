@@ -32,7 +32,7 @@ export default function PriceFilter({
     <Popover>
       <PopoverTrigger asChild>
       <Button className={styles.button} variant="outline">
-          {minPrice ? `${minPrice} - ${maxPrice}` : "All Amounts"}
+          {minPrice || maxPrice ? `${minPrice} - ${maxPrice}` : "All Amounts"}
           <ChevronDown className={styles.chevronDown} />
         </Button>
       </PopoverTrigger>
