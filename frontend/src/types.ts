@@ -12,8 +12,10 @@ export type LineItem = {
 
 export interface LineItemFilters {
   dates?: DateRange;
-  emissionsFactor?: string;
-  amount?: number;
+  emissionFactor?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  searchTerm?: string;
 }
 
 export type CreateLineItemRequest = {
@@ -44,6 +46,11 @@ export type EmissionsFactor = {
   name: string;
   activity_id: string;
 };
+
+export type Price = {
+  minPrice: number;
+  maxPrice: number;
+}
 
 export type EmissionsFactorCategory = {
   name: string;
