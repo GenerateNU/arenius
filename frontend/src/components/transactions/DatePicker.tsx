@@ -30,11 +30,7 @@ export function DatePickerWithRange({
     <div className={cn("grid gap-2", className)}>
       <Popover>
         <PopoverTrigger asChild>
-          <Button
-            id="date"
-            variant={"outline"}
-            className={styles.button}
-          >
+          <Button id="date" variant={"ghost"}>
             {date?.from ? (
               date.to ? (
                 <>
@@ -50,7 +46,10 @@ export function DatePickerWithRange({
             <ChevronDown className={styles.chevronDown} />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 border-gray-200 shadow-lg rounded-lg" align="start">
+        <PopoverContent
+          className="w-auto p-0 border-gray-200 shadow-lg rounded-lg"
+          align="start"
+        >
           <Calendar
             initialFocus
             mode="range"
@@ -66,6 +65,5 @@ export function DatePickerWithRange({
 }
 
 const styles = {
-  button: "flex gap-8",
   chevronDown: "h-4 w-4 opacity-50",
 };

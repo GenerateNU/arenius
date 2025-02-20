@@ -18,5 +18,5 @@ export default function LineItemTableFilters() {
 
 const styles = {
   container: "flex gap-4 my-4 p-4 bg-gray-100 rounded-lg w-full",
-  filter: "flex-1 min-w-0 ",
+  filter: "flex-1 min-w-0 bg-gray-100",
 };
