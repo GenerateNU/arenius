@@ -86,7 +86,7 @@ func (r *CompanyRepository) GetOrCreateCompany(ctx context.Context, xeroTenantID
 		companyID = uuid.New().String()
 
 		// Insert a new company record
-		const insertQuery = `INSERT INTO company (id, name, xero_tenant_id, last_import_time) 
+		const insertQuery = `INSERT INTO company (id, name, xero_tenant_id, last_transaction_import_time) 
 						VALUES ($1, $2, $3, $4)`
 		_, err := r.db.Exec(ctx, insertQuery, companyID, companyName, xeroTenantID, time.Now())
 		if err != nil {
