@@ -11,6 +11,8 @@ require (
 	golang.org/x/oauth2 v0.25.0
 )
 
+require github.com/robfig/cron/v3 v3.0.1 // indirect
+
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/google/go-querystring v1.1.0
