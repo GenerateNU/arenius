@@ -18,9 +18,9 @@ import (
 func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant) error {
 	refreshToken := ""
 	if company.RefreshToken != nil {
-	    refreshToken = *company.RefreshToken
+		refreshToken = *company.RefreshToken
 	}
-	
+
 	token := &oauth2.Token{
 		RefreshToken: refreshToken,
 	}
@@ -54,7 +54,7 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 			return errs.BadRequest(fmt.Sprintf("invalid request: %s", err))
 		}
 
-		req.Header.Set("Authorization", "Bearer "+ accessToken)
+		req.Header.Set("Authorization", "Bearer "+accessToken)
 		req.Header.Set("Accept", "application/json")
 		req.Header.Set("Xero-tenant-id", *tenantId)
 
@@ -143,9 +143,42 @@ func (h *Handler) parseTenantTransactions(ctx context.Context, transactions []in
 			}
 			if contactMap["ContactID"] != nil {
 				xeroContactID := contactMap["ContactID"].(string)
-				contactID, e = h.contactRepository.GetContactIDByXeroContactID(ctx, xeroContactID)
+
+				contactName := ""
+				if contactMap["Name"] != nil {
+					contactName = contactMap["Name"].(string)
+				}
+				email := ""
+				if contactMap["EmailAddress"] != nil {
+					email = contactMap["EmailAddress"].(string)
+				}
+				phone := ""
+				if contactMap["Phones"] != nil {
+					phonesArray, ok := contactMap["Phones"].([]interface{})
+					if ok && len(phonesArray) > 0 {
+						phoneMap, _ := phonesArray[0].(map[string]interface{})
+						if phoneMap["PhoneNumber"] != nil {
+							phone = phoneMap["PhoneNumber"].(string)
+						}
+					}
+				}
+				city, state := "", ""
+				if contactMap["Addresses"] != nil {
+					addressesArray, ok := contactMap["Addresses"].([]interface{})
+					if ok && len(addressesArray) > 0 {
+						addressMap, _ := addressesArray[0].(map[string]interface{})
+						if addressMap["City"] != nil {
+							city = addressMap["City"].(string)
+						}
+						if addressMap["Region"] != nil {
+							state = addressMap["Region"].(string)
+						}
+					}
+				}
+
+				contactID, e = h.contactRepository.GetOrCreateXeroContact(ctx, xeroContactID, contactName, email, phone, city, state, company.ID)
 				if e != nil {
-					return nil, errs.BadRequest(fmt.Sprintf("Error finding contact with Xero Contact ID: %s, %s", xeroContactID, e))
+					return nil, errs.BadRequest(fmt.Sprintf("Error getting or creating contact: %s", e))
 				}
 			} else {
 				return nil, errs.BadRequest("Missing ContactID")

@@ -174,20 +174,32 @@ func createContactValidations(req models.CreateContactRequest) ([]string, []inte
 	return columns, queryArgs, nil
 }
 
-func (r *ContactRepository) GetContactIDByXeroContactID(ctx context.Context, xeroContactID string) (string, error) {
-	query := `
-		SELECT id
-		FROM contact
-		WHERE xero_contact_id = $1
-	`
+func (r *ContactRepository) GetOrCreateXeroContact(ctx context.Context, xeroContactID, name, email, phone, city, state string, companyID string) (string, error) {
 	var contactID string
+	query := `
+		SELECT id FROM contact WHERE xero_contact_id = $1
+	`
 	err := r.db.QueryRow(ctx, query, xeroContactID).Scan(&contactID)
-	if err != nil {
-		if err == pgx.ErrNoRows {
-			return "", errs.NotFound("Contact not found", "xeroContactID", xeroContactID)
-		}
+	if err == nil {
+		// Contact exists, return the ID
+		return contactID, nil
+	} else if err != pgx.ErrNoRows {
+		// Unexpected error
 		return "", fmt.Errorf("error querying database: %w", err)
 	}
+
+	// Contact does not exist, insert a new one
+	insertQuery := `
+		INSERT INTO contact (id, xero_contact_id, name, email, phone, city, state, company_id)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		RETURNING id
+	`
+	newID := uuid.New()
+	err = r.db.QueryRow(ctx, insertQuery, newID, xeroContactID, name, email, phone, city, state, companyID).Scan(&contactID)
+	if err != nil {
+		return "", fmt.Errorf("error inserting new contact: %w", err)
+	}
+
 	return contactID, nil
 }
 
