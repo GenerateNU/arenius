@@ -1,11 +1,10 @@
 import React from "react";
-import { LineItem } from "@/types";
 import { Column } from "@tanstack/react-table";
 import { Button } from "./button";
 import Image from "next/image";
 
-type ColumnHeaderProps = {
-  column: Column<LineItem>;
+type ColumnHeaderProps<T extends object> = {
+  column: Column<T>;
   name: string;
   className?: string;
 };
@@ -14,7 +13,7 @@ function SortIcon() {
   return <Image src={"sort.svg"} width={20} height={20} alt="Sort column" />;
 }
 
-const ColumnHeader = ({ column, name, className }: ColumnHeaderProps) => {
+const ColumnHeader = <T extends object>({ column, name, className }: ColumnHeaderProps<T>) => {
   return (
     <div className={className}>
       <Button
