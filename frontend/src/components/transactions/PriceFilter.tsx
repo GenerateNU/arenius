@@ -18,11 +18,13 @@ export default function PriceFilter({
   const [maxPrice, setMaxPrice] = useState(filters.maxPrice || undefined);
 
   const handleApply = () => {
-    const updatedFilters = {
-      minPrice: minPrice ?? 0,
-      maxPrice: maxPrice ?? Number.MAX_SAFE_INTEGER,
-    };
-    setFilters(updatedFilters); // Updates filters only when "Apply" is pressed
+    const min = minPrice || 0;
+    const max = maxPrice || Number.MAX_SAFE_INTEGER;
+    setFilters({
+      ...filters,
+      minPrice: min,
+      maxPrice: max,
+    });
   };
   
   return (
