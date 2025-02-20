@@ -1,9 +1,6 @@
 import { DateRange } from "react-day-picker";
 
-export interface ColumnObject {
-}
-
-export type LineItem = ColumnObject & {
+export type LineItem = {
   id: string;
   description: string;
   quantity: number;
@@ -51,7 +48,7 @@ export type EmissionsFactorCategory = {
   emissions_factors: EmissionsFactor[];
 };
 
-export type Contact = ColumnObject & {
+export type Contact = {
   id: string;
   name: string;
   email: string;
