@@ -1,13 +1,22 @@
-// app/contacts/page.tsx
+import ContactTable from "@/components/contacts/ContactTable";
+import { ContactsProvider } from "@/context/ContactsContext";
 
-import React from "react";
-
-const ContactsPage: React.FC = () => {
+export default function Contacts() {
   return (
-    <div className="flex justify-center items-center w-screen h-screen">
-      <h1 className="text-3xl font-bold">Contacts Page</h1>
-    </div>
+    <ContactsProvider>
+      <div className={styles.container}>
+        <div>
+          <p className={styles.formTitle}>Contacts</p>
+          <ContactTable />
+        </div>
+      </div>
+    </ContactsProvider>
   );
-};
+}
 
-export default ContactsPage;
+const styles = {
+  container:
+    "p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] flex-1",
+  formTitle: "font-bold text-xl",
+  spacer: "mb-4 border border-black-100",
+};
