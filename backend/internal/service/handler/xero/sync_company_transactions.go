@@ -36,7 +36,10 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	}
 
 	accessToken := newToken.AccessToken
-	h.UserRepository.SetUserCredentials(ctx.Context(), *company.UserID, company.ID, newToken.RefreshToken, *company.XeroTenantID)
+	e := h.UserRepository.SetUserCredentials(ctx.Context(), *company.UserID, company.ID, newToken.RefreshToken, *company.XeroTenantID)
+	if e != nil {
+		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to update user credentials")
+	}
 
 	fmt.Println("accessToken: ", accessToken)
 

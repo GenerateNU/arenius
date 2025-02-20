@@ -26,7 +26,10 @@ func (h *Handler) RefreshAccessToken(ctx *fiber.Ctx) error {
 	// Update the handler's token
 	h.oAuthToken = newToken
 
-	h.UserRepository.SetUserCredentials(ctx.Context(), userId, companyId, newToken.RefreshToken, tenantId)
+	e := h.UserRepository.SetUserCredentials(ctx.Context(), userId, companyId, newToken.RefreshToken, tenantId)
+	if e != nil {
+		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to update user credentials")
+	}
 
 	// Update Cookies
 	ctx.Cookie(&fiber.Cookie{
