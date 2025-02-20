@@ -19,7 +19,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="relative max-h-screen overflow-x-hidden flex-1">
+    <div className="relative overflow-x-hidden flex-1">
       <div className="flex absolute top-0 left-0 w-full p-4 space-x-8">
         <div>
           <Image
@@ -74,7 +74,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </Link>
         </div>
       </div>
-      <div className="pt-20 pl-20 pr-10 pb-5">{children}</div>
+      <div className="pt-10 px-20">{children}</div>
     </div>
   );
 };
