@@ -61,7 +61,7 @@ export type Contact = {
 
 export type GetContactsRequest = {
   company_id: string;
-}
+};
 
 export type CreateContactRequest = {
   name: string;
@@ -70,4 +70,4 @@ export type CreateContactRequest = {
   city: string;
   state: string;
   company_id: string;
-}
+};
