@@ -79,6 +79,27 @@ func (r *UserRepository) SetUserCredentials(ctx context.Context, userID string, 
 
 }
 
+func (c *UserRepository) GetUserbyRefreshToken(ctx context.Context, refreshToken string) (userId, companyId, tenantId string, e error) {
+	const query = `SELECT user_id, company_id, tenant_id 
+                   FROM public.user_creds 
+                   WHERE refresh_token = $1`
+
+	// Query the database using the user_id
+	row := c.db.QueryRow(ctx, query, refreshToken)
+
+	var user models.User
+	err := row.Scan(&user.ID, &user.CompanyID, &user.TenantID)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return "", "", "", errors.New("no user found")
+		}
+		return "", "", "", err
+	}
+
+	// Return the credentials found for the user
+	return user.ID, *user.CompanyID, *user.TenantID, nil
+}
+
 func NewUserRepository(db *pgxpool.Pool) *UserRepository {
 	return &UserRepository{
 		db,

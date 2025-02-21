@@ -16,10 +16,11 @@ body {
     --popover-foreground: #1c0a00;
     --primary: #07ac5d;
     --primary-foreground: #f5f8fa;
-    --secondary: #e9ebf3;
+    --secondary: #d8d8d8;
     --secondary-foreground: #2e2e2e;
     --muted: #e9ebf3;
     --muted-foreground: #767676;
+    --moss: #225244;
     --accent: #e9ebf3;
     --accent-foreground: #2e2e2e;
     --destructive: #d93636;

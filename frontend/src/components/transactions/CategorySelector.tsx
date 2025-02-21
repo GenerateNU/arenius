@@ -1,6 +1,5 @@
 "use client";
 
-
 import { useEffect, useState } from "react";
 import {
   Popover,
@@ -21,6 +20,15 @@ import { EmissionsFactorCategory, EmissionsFactor } from "@/types";
 interface CategorySelectorProps {
   emissionsFactor?: EmissionsFactor;
   setEmissionsFactor: (factor: EmissionsFactor) => void;
+  variant?:
+    | "link"
+    | "secondary"
+    | "destructive"
+    | "outline"
+    | "default"
+    | "ghost"
+    | null
+    | undefined;
 }
 
 interface CategoryListProps {
@@ -32,6 +40,7 @@ interface CategoryListProps {
 export default function CategorySelector({
   emissionsFactor,
   setEmissionsFactor,
+  variant = "outline",
 }: CategorySelectorProps) {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -56,7 +65,7 @@ export default function CategorySelector({
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button className={styles.button} variant="outline">
+        <Button className={styles.button} variant={variant}>
           {emissionsFactor?.name || "Select emissions factor"}
           <ChevronDown className={styles.chevronDown} />
         </Button>

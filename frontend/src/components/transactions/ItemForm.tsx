@@ -80,7 +80,7 @@ export default function ItemForm() {
             <FormItem>
               <FormLabel>Price</FormLabel>
               <FormMessage />
-              <FormControl>
+              <FormControl className="w-[100px]">
                 <Input type="number" placeholder="100" {...field} />
               </FormControl>
             </FormItem>
@@ -97,7 +97,7 @@ export default function ItemForm() {
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="w-[100px]">
                     <SelectValue placeholder="USD" />
                   </SelectTrigger>
                   <SelectContent>

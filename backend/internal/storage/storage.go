@@ -33,6 +33,7 @@ type UserRepository interface {
 	GetCredentialsByUserID(ctx context.Context, userID string) (models.XeroCredentials, error)
 	AddUser(ctx context.Context, userId string, firstName *string, lastName *string) (*models.User, error)
 	SetUserCredentials(ctx context.Context, userID string, companyID string, refreshToken string, tenantID string) error
+	GetUserbyRefreshToken(ctx context.Context, refreshToken string) (userId, companyId, tenantId string, e error)
 }
 
 type CompanyRepository interface {
@@ -40,12 +41,15 @@ type CompanyRepository interface {
 	UpdateCompanyLastTransactionImportTime(ctx context.Context, id string) (*models.Company, error)
 	UpdateCompanyLastContactImportTime(ctx context.Context, id string) (*models.Company, error)
 	GetOrCreateCompany(ctx context.Context, xeroTenantID string, companyName string) (string, error)
+	GetAllTenants(ctx context.Context) ([]models.Tenant, error)
+	GetTenantByTenantID(ctx context.Context, tenantID string) (*models.Tenant, error)
 }
 
 type ContactRepository interface {
 	GetContacts(ctx context.Context, pagination utils.Pagination, companyId string) ([]models.Contact, error)
 	CreateContact(ctx context.Context, req models.CreateContactRequest) (*models.Contact, error)
 	AddImportedContacts(ctx context.Context, req []models.AddImportedContactRequest) ([]models.Contact, error)
+	GetOrCreateXeroContact(ctx context.Context, xeroContactID, name, email, phone, city, state string, companyID string) (string, error)
 }
 
 type OffsetRepository interface {

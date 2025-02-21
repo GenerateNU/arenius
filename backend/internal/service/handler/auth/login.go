@@ -3,6 +3,8 @@ package auth
 import (
 	"arenius/internal/auth"
 	"fmt"
+	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -71,6 +73,23 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			Secure:   true,
 			SameSite: "Lax",
 		})
+	}
+
+	// Get tenant ID from cookies
+	tenantID := c.Cookies("tenantID")
+
+	// Build the URL with tenant ID as a query parameter
+	syncURL := fmt.Sprintf("http://localhost:8080/sync-transactions?tenantID=%s", url.QueryEscape(tenantID))
+
+	// Make the HTTP request to sync transactions
+	resp, err := http.Post(syncURL, "application/json", nil)
+	if err != nil {
+		return fmt.Errorf("error making request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("error syncing transactions, status code: %d", resp.StatusCode)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(signInResponse)

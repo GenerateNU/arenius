@@ -4,12 +4,15 @@ import (
 	"arenius/internal/config"
 	"arenius/internal/service"
 	"context"
+	"fmt"
 	"log"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/robfig/cron/v3"
 	"github.com/sethvargo/go-envconfig"
 )
 
@@ -34,6 +37,10 @@ func main() {
 		}
 	}()
 
+	go startCronJobs("http://localhost:" + port) // Change this URL if your API is hosted elsewhere
+
+	//select {}
+
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
@@ -47,4 +54,38 @@ func main() {
 	}
 
 	slog.Info("Server shutdown")
+}
+
+// Function to start the cron job
+func startCronJobs(apiURL string) {
+	c := cron.New()
+
+	// Schedule the job to run at midnight every day
+	_, err := c.AddFunc("@daily", func() {
+		err := callSyncTransactionsEndpoint(apiURL)
+		if err != nil {
+			log.Println("Error calling sync transactions endpoint:", err)
+		} else {
+			log.Println("Sync transactions triggered successfully")
+		}
+	})
+	if err != nil {
+		log.Fatalf("Failed to schedule cron job: %v", err) // Properly handle the error
+	}
+
+	c.Start()
+}
+
+func callSyncTransactionsEndpoint(apiURL string) error {
+	resp, err := http.Post(apiURL+"/sync-transactions", "application/json", nil)
+	if err != nil {
+		return fmt.Errorf("error making request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("failed with status code %d", resp.StatusCode)
+	}
+
+	return nil
 }
