@@ -1,4 +1,3 @@
-import EmissionsFactorFilter from "@/components/transactions/EmissionsFactorFilter";
 import {
   LineItem,
   CreateLineItemRequest,

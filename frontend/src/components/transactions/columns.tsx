@@ -4,7 +4,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnHeader } from "@/components/ui/columnHeader";
 import { LineItem } from "@/types";
-import { Button } from "../ui/button";
 
 export const columns: ColumnDef<LineItem>[] = [
   {
