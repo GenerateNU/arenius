@@ -34,34 +34,42 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
   const date = new Date(selectedRowData.getValue("date"));
   const formattedDate = date.getFullYear() + "/" + date.getMonth() + 1 + "/" + date.getDate();
 
+  const amount = parseFloat(selectedRowData.getValue("unit_amount"));
+  const formattedAmount = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(amount);
+
   async function reconcileItems() {
     const request: ReconcileRequest = {
       lineItemId: selectedRowData.original.id,
-      scope: Number(scope),
-      emissionsFactorId: emissionsFactor?.activity_id,
+      ...(scope && { scope: Number(scope) }), 
+      ...(emissionsFactor?.activity_id && { emissionsFactorId: emissionsFactor.activity_id }), 
     };
-
+  
     await reconcile(request);
     setIsDialogOpen(false);
-    onReconcileSuccess(); 
+    onReconcileSuccess();
   }
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent className="sm:max-w-xl max-w-4xl p-8">
-        <DialogHeader className="flex justify-between items-center">
-          <DialogTitle className="text-lg font-semibold text-gray-500">{formattedDate}</DialogTitle>
+
+        <DialogHeader className="flex-row justify-between items-center">
+          <div className="text-lg text-gray-500">{formattedDate}</div>
+          <DialogTitle className="text-lg text-gray-500">Actions</DialogTitle>
         </DialogHeader>
 
-        <div className="flex space-x-8 mt-4 w-full">
-          <div className="flex-1 space-y-4">
+        <div className="flex mt-4 w-full">
+          <div className="flex flex-col space-y-2 w-1/3">
             <p className="text-md font-medium">CVS</p>
-            <p className="text-md font-medium">{selectedRowData.getValue('description')}</p>
+            <p className="text-3xl font-bold">{formattedAmount}</p>
+            <p className="text-sm font-medium text-gray-500">{selectedRowData.getValue('description')}</p>
           </div>
 
           <div className="flex-1 space-y-4">
-            <p className="text-md font-medium">Actions</p>
-            
+
             <div className="space-y-2">
               <p className="text-md font-small text-gray-500">Emissions Scope</p>
               <Select onValueChange={(value) => setScope(value)}>
@@ -97,13 +105,8 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
           </div>
         </div>
 
-
-        <DialogFooter className="mt-6">
-          <DialogClose asChild>
-            <Button variant="secondary">Close</Button>
-          </DialogClose>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
+
   );
 };
