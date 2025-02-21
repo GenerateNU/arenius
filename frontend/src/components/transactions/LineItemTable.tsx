@@ -31,6 +31,8 @@ export default function LineItemTable() {
   const [selectedRowData, setSelectedRowData] = useState<Row<LineItem> | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  const { fetchData } = useLineItems();
+
   const table = useReactTable({
     data: items,
     columns,
@@ -46,6 +48,11 @@ export default function LineItemTable() {
   const openReconcileDialog = (row: Row<LineItem>) => {
     setSelectedRowData(row);
     setIsDialogOpen(true);
+  };
+
+  const handleReconcileSuccess = () => {
+    fetchData(); 
+    setIsDialogOpen(false); 
   };
 
   return (
@@ -111,6 +118,7 @@ export default function LineItemTable() {
           selectedRowData={selectedRowData}
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
+          onReconcileSuccess={handleReconcileSuccess}
         />
       )}
 

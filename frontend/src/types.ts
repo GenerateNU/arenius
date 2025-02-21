@@ -42,6 +42,13 @@ export type ReconcileBatchRequest = {
   emissionsFactorId?: string;
 };
 
+export type ReconcileRequest = {
+  lineItemId: string;
+  scope?: number;
+  emissionsFactorId?: string;
+  contactId?: string;
+}
+
 export type EmissionsFactor = {
   name: string;
   activity_id: string;

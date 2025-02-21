@@ -10,20 +10,22 @@ import {
 } from "../ui/select";
 import EmissionsFactorSelector from "./CategorySelector";
 import React, { useState } from "react";
-import { EmissionsFactor, ReconcileBatchRequest } from "@/types";
-import { reconcileBatch } from "@/services/lineItems";
+import { EmissionsFactor, ReconcileRequest } from "@/types";
+import { reconcile } from "@/services/lineItems";
 import { Row } from "@tanstack/react-table";
 
 interface ModalDialogProps {
   selectedRowData: Row<LineItem>;
   isDialogOpen: boolean;
   setIsDialogOpen: (open: boolean) => void;
+  onReconcileSuccess: () => void;
 }
 
 export const ModalDialog: React.FC<ModalDialogProps> = ({
   selectedRowData,
   isDialogOpen,
   setIsDialogOpen,
+  onReconcileSuccess,
 }) => {
 
   const [scope, setScope] = useState("");
@@ -33,19 +35,15 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
   const formattedDate = date.getFullYear() + "/" + date.getMonth() + 1 + "/" + date.getDate();
 
   async function reconcileItems() {
-
-    const request: ReconcileBatchRequest = {
-      lineItemIds: [selectedRowData.original.id],
-      ...(scope && { scope: Number(scope) }),
-      ...(emissionsFactor && {
-        emissionsFactorId: emissionsFactor.activity_id,
-      }),
+    const request: ReconcileRequest = {
+      lineItemId: selectedRowData.original.id,
+      scope: Number(scope),
+      emissionsFactorId: emissionsFactor?.activity_id,
     };
 
-    await reconcileBatch(request);
-    setScope("");
-    setEmissionsFactor(undefined);
-
+    await reconcile(request);
+    setIsDialogOpen(false);
+    onReconcileSuccess(); 
   }
 
   return (
