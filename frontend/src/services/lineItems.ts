@@ -2,6 +2,7 @@ import {
   LineItem,
   CreateLineItemRequest,
   ReconcileBatchRequest,
+  ReconcileRequest,
   LineItemFilters,
 } from "../types";
 import apiClient from "./apiClient";
@@ -72,6 +73,18 @@ export async function reconcileBatch(request: ReconcileBatchRequest) {
       line_item_ids: request.lineItemIds,
       scope: request.scope,
       emissions_factor_id: request.emissionsFactorId,
+    });
+  } catch (error) {
+    console.error("Error updating dashboard items", error);
+  }
+}
+
+export async function reconcile(request: ReconcileRequest) {
+  try {
+    await apiClient.patch(`line-item/${request.lineItemId}`, {
+      scope: request.scope,
+      emission_factor: request.emissionsFactorId,
+      contact_id: request.contactId,
     });
   } catch (error) {
     console.error("Error updating dashboard items", error);

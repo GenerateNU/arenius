@@ -17,6 +17,7 @@ export default function EmissionsFactorFilter({
     if (emissionsFactor) {
       setFilters({ ...filters, emissionFactor: emissionsFactor.activity_id });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emissionsFactor]); // Runs whenever emissionsFactor updates
 
   return (
