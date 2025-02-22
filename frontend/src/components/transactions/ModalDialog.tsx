@@ -32,7 +32,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
 
   const date = new Date(selectedRowData.getValue("date"));
-  const formattedDate = date.getFullYear() + "/" + date.getMonth() + 1 + "/" + date.getDate();
+  const formattedDate = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
 
   const amount = parseFloat(selectedRowData.getValue("unit_amount"));
   const formattedAmount = new Intl.NumberFormat("en-US", {

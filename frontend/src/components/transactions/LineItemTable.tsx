@@ -22,7 +22,7 @@ import { useLineItems } from "@/context/LineItemsContext";
 import { columns } from "./columns";
 import LineItemTableActions from "./LineItemTableActions";
 import  { ModalDialog } from "./ModalDialog";
-import { Button } from "../ui/button";
+import Image from "next/image"
 
 export default function LineItemTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -93,9 +93,14 @@ export default function LineItemTable() {
                   </TableCell>
                 ))}
                 <TableCell>
-                  <Button onClick={() => openReconcileDialog(row)}>
-                    Reconcile
-                  </Button>
+                  <Image
+                    src="/arrow.svg" 
+                    alt="Reconcile"
+                    width={24}  
+                    height={24}
+                    onClick={() => openReconcileDialog(row)}
+                    style={{ cursor: "pointer" }}  
+                  />
                 </TableCell>
               </TableRow>
               ))
