@@ -17,12 +17,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Contact } from "@/types";
-import { useContact } from "@/context/ContactsContext";
+import { useContacts } from "@/context/ContactsContext";
 import { columns } from "./columns";
 
 export default function ContactTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { contacts } = useContact();
+  const { data: contacts } = useContacts();
 
   const table = useReactTable({
     data: contacts,

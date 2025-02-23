@@ -10,7 +10,11 @@ export type LineItem = {
   scope?: number;
 };
 
-export interface LineItemFilters {
+export interface RequestObject {
+  data?: string; // TODO fix this to pass linter
+}
+
+export interface LineItemFilters extends RequestObject{
   dates?: DateRange;
   emissionFactor?: string;
   minPrice?: number;
@@ -75,7 +79,7 @@ export type Contact = {
   company_id: string;
 };
 
-export type GetContactsRequest = {
+export interface GetContactsRequest extends RequestObject {
   company_id: string;
 };
 

@@ -6,14 +6,16 @@ import { LineItemsProvider, useLineItems } from "@/context/LineItemsContext";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ManualEntryModal from "@/components/transactions/ManualEntryModal";
+import { fetchLineItems } from "@/services/lineItems";
 
 export default function Transactions() {
   return (
-    <LineItemsProvider>
+    <LineItemsProvider fetchFunction={fetchLineItems} initialFilters={{}}>
       <TransactionsContent />
     </LineItemsProvider>
   );
 }
+
 
 function TransactionsContent() {
   const { filters, setFilters } = useLineItems();

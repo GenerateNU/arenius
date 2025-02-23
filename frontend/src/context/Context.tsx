@@ -1,0 +1,63 @@
+"use client";
+
+import { RequestObject } from "@/types";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+
+interface DataProviderProps<T extends object, F extends RequestObject> {
+  children: React.ReactNode;
+  fetchFunction: (filters: F) => Promise<T[]>;
+  initialFilters: F;
+}
+
+interface DataContextValue<T extends object, F extends RequestObject> {
+  data: T[];
+  fetchData: () => void;
+  filters: F;
+  setFilters: (filters: F) => void;
+}
+
+export const createDataContext = <T extends object, F extends RequestObject>() => {
+  const DataContext = createContext<DataContextValue<T, F> | undefined>(
+    undefined
+  );
+
+  const DataProvider: React.FC<DataProviderProps<T, F>> = ({
+    children,
+    fetchFunction,
+    initialFilters,
+  }) => {
+    const [data, setData] = useState<T[]>([]);
+    const [filters, setFilters] = useState<F>(initialFilters);
+
+    const fetchData = useCallback(async () => {
+      const result = await fetchFunction(filters);
+      setData(result);
+    }, [filters, fetchFunction]);
+
+    useEffect(() => {
+      fetchData();
+    }, [fetchData]);
+
+    return (
+      <DataContext.Provider value={{ data, fetchData, filters, setFilters }}>
+        {children}
+      </DataContext.Provider>
+    );
+  };
+
+  const useData = () => {
+    const context = useContext(DataContext);
+    if (!context) {
+      throw new Error("useData must be used within a DataProvider");
+    }
+    return context;
+  };
+
+  return { DataProvider, useData };
+};
