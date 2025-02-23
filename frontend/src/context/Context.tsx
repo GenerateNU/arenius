@@ -1,6 +1,5 @@
 "use client";
 
-import { RequestObject } from "@/types";
 import React, {
   createContext,
   useContext,
@@ -9,20 +8,20 @@ import React, {
   useCallback,
 } from "react";
 
-interface DataProviderProps<T extends object, F extends RequestObject> {
+interface DataProviderProps<T extends object, F extends object> {
   children: React.ReactNode;
   fetchFunction: (filters: F) => Promise<T[]>;
   initialFilters: F;
 }
 
-interface DataContextValue<T extends object, F extends RequestObject> {
+interface DataContextValue<T extends object, F extends object> {
   data: T[];
   fetchData: () => void;
   filters: F;
   setFilters: (filters: F) => void;
 }
 
-export const createDataContext = <T extends object, F extends RequestObject>() => {
+export const createDataContext = <T extends object, F extends object>() => {
   const DataContext = createContext<DataContextValue<T, F> | undefined>(
     undefined
   );

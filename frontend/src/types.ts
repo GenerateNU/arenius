@@ -10,10 +10,7 @@ export type LineItem = {
   scope?: number;
 };
 
-export interface RequestObject {
-}
-
-export interface LineItemFilters extends RequestObject{
+export interface LineItemFilters {
   dates?: DateRange;
   emissionFactor?: string;
   minPrice?: number;
@@ -78,7 +75,7 @@ export type Contact = {
   company_id: string;
 };
 
-export interface GetContactsRequest extends RequestObject {
+export interface GetContactsRequest {
   company_id: string;
 };
 
