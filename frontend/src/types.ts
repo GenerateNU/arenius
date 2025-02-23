@@ -11,7 +11,6 @@ export type LineItem = {
 };
 
 export interface RequestObject {
-  data?: string; // TODO fix this to pass linter
 }
 
 export interface LineItemFilters extends RequestObject{
