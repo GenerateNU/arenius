@@ -23,7 +23,7 @@ export async function fetchContacts(
   req: GetContactsRequest
 ): Promise<Contact[]> {
   try {
-    const response = await apiClient.get(`/contacts/${req.company_id}`);
+    const response = await apiClient.get(`/contact/${req.company_id}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching contacts", error);

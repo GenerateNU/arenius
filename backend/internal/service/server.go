@@ -97,10 +97,6 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		router.Post("/login", SupabaseAuthHandler.Login)
 	})
 
-	app.Use(xeroAuthHandler.XeroAuthMiddleware)
-
-	app.Get("/callback", xeroAuthHandler.Callback)
-
 	lineItemHandler := lineItem.NewHandler(repo.LineItem)
 	app.Route("/line-item", func(r fiber.Router) {
 		r.Get("/", lineItemHandler.GetLineItems)
@@ -132,6 +128,9 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	app.Route("/summary", func(r fiber.Router) {
 		r.Get("/gross", summaryHandler.GetGrossSummary)
 	})
+
+	app.Use(xeroAuthHandler.XeroAuthMiddleware)
+	app.Get("/callback", xeroAuthHandler.Callback)
 
 	app.Get("/bank-transactions", xeroAuthHandler.GetBankTransactions)
 
