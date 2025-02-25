@@ -1,10 +1,12 @@
+"use client";
+
 import ContactTable from "@/components/contacts/ContactTable";
 import { ContactsProvider } from "@/context/ContactsContext";
 import { fetchContacts } from "@/services/contacts";
 
 export default function Contacts() {
   return (
-    <ContactsProvider fetchFunction={fetchContacts} initialFilters={{ company_id: "0a67f5d3-88b6-4e8f-aac0-5137b29917fd" }}>
+    <ContactsProvider fetchFunction={fetchContacts}>
       <div className={styles.container}>
         <div>
           <p className={styles.formTitle}>Contacts</p>

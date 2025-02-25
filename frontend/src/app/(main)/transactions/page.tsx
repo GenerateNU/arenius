@@ -10,7 +10,7 @@ import { fetchLineItems } from "@/services/lineItems";
 
 export default function Transactions() {
   return (
-    <LineItemsProvider fetchFunction={fetchLineItems} initialFilters={{}}>
+    <LineItemsProvider fetchFunction={fetchLineItems}>
       <TransactionsContent />
     </LineItemsProvider>
   );

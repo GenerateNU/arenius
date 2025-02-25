@@ -11,7 +11,6 @@ import React, {
 interface DataProviderProps<T extends object, F extends object> {
   children: React.ReactNode;
   fetchFunction: (filters: F) => Promise<T[]>;
-  initialFilters: F;
 }
 
 interface DataContextValue<T extends object, F extends object> {
@@ -29,13 +28,12 @@ export const createDataContext = <T extends object, F extends object>() => {
   const DataProvider: React.FC<DataProviderProps<T, F>> = ({
     children,
     fetchFunction,
-    initialFilters,
   }) => {
     const [data, setData] = useState<T[]>([]);
-    const [filters, setFilters] = useState<F>(initialFilters);
+    const [filters, setFilters] = useState<F>({} as F);
 
     const fetchData = useCallback(async () => {
-      const result = await fetchFunction(filters);
+      const result = await fetchFunction({...filters, company_id: "0a67f5d3-88b6-4e8f-aac0-5137b29917fd"});
       setData(result);
     }, [filters, fetchFunction]);
 
