@@ -133,8 +133,8 @@ PATCH `climatiq/estimate`
 
 ## Emissions Factors
 
-GET `/emissions-factor`
-    - returns all emissions factors, structured as a list of categories, each with a name and its list of emission factors.
+GET `/emissions-factor/:companyId`
+    - returns all emissions factors, structured as a list of categories, each with a name and its list of emission factors. The first category is the company's "favorites"
 
 PATCH `/emissions-factor/populate`
     - populates emissions factors table
@@ -142,7 +142,7 @@ PATCH `/emissions-factor/populate`
 ```go
 
 EmissionsFactor:
-    Id            string `json:"id"`
+ Id            string `json:"id"`
  ActivityId    string `json:"activity_id"`
  Name          string `json:"name"`
  Description   string `json:"description"`
