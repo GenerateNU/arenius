@@ -1,9 +1,12 @@
+"use client";
+
 import ContactTable from "@/components/contacts/ContactTable";
 import { ContactsProvider } from "@/context/ContactsContext";
+import { fetchContacts } from "@/services/contacts";
 
 export default function Contacts() {
   return (
-    <ContactsProvider>
+    <ContactsProvider fetchFunction={fetchContacts}>
       <div className={styles.container}>
         <div>
           <p className={styles.formTitle}>Contacts</p>

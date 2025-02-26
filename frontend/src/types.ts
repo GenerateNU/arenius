@@ -75,7 +75,7 @@ export type Contact = {
   company_id: string;
 };
 
-export type GetContactsRequest = {
+export interface GetContactsRequest {
   company_id: string;
 };
 
