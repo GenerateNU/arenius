@@ -198,6 +198,13 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 			Name: categoryName,
 			EmissionsFactors: factors,
 		})
+
+		// Some LeetCode shit
+		if categoryName == "Favorites" {
+			l := len(categories)
+
+			categories[0], categories[l-1] = categories[l-1], categories[0]
+		}
 	}
 
 	return categories, nil
