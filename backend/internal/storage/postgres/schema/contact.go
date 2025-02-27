@@ -18,6 +18,53 @@ type ContactRepository struct {
 	db *pgxpool.Pool
 }
 
+func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*models.ContactWithDetails, error) {
+	query := `
+		SELECT *
+		FROM contact
+		WHERE contact.id = $1
+		LIMIT 1
+	`
+
+	rows, err := r.db.Query(ctx, query, contactId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	contact, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.Contact])
+
+	if err != nil {
+		return nil, fmt.Errorf("error querying database for contact: %w", err)
+	}
+
+	summaryQuery := `
+		SELECT 
+			COALESCE(SUM(total_amount), 0) AS total_spent,
+			COUNT(*) AS total_transactions,
+			COALESCE(SUM(co2), 0) AS total_emissions
+		FROM line_item
+		WHERE contact_id = $1;
+	`
+
+	summaryRows, err := r.db.Query(ctx, summaryQuery, contactId)
+	if err != nil {
+		return nil, err
+	}
+	defer summaryRows.Close()
+
+	summary, err := pgx.CollectOneRow(summaryRows, pgx.RowToStructByName[models.Summary])
+
+	if err != nil {
+		return nil, fmt.Errorf("error querying database for summary: %w", err)
+	}
+	
+	return &models.ContactWithDetails{
+		Contact: contact,
+		Summary: summary,
+	}, nil
+}
+
 func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pagination, companyId string) ([]models.Contact, error) {
 	query := `
 		SELECT *
