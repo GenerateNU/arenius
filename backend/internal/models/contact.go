@@ -31,7 +31,7 @@ type CreateContactRequest struct {
 	CompanyID     string  `json:"company_id"`
 }
 
-type Summary struct {
+type ContactSummary struct {
 	TotalSpent        float64 `json:"total_spent"`
 	TotalTransactions int     `json:"total_transactions"`
 	TotalEmissions    float64 `json:"total_emissions"`
@@ -39,5 +39,5 @@ type Summary struct {
 
 type ContactWithDetails struct {
 	Contact Contact `json:"contact"`
-	Summary Summary `json:"summary"`
+	Summary ContactSummary `json:"summary"`
 }

@@ -20,7 +20,15 @@ type ContactRepository struct {
 
 func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*models.ContactWithDetails, error) {
 	const query = `
-		SELECT *
+		SELECT 
+			id,
+			name,
+			email,
+			phone,
+			city,
+			state,
+			xero_contact_id,
+			company_id
 		FROM contact
 		WHERE contact.id = $1
 		LIMIT 1
@@ -53,7 +61,7 @@ func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*
 	}
 	defer summaryRows.Close()
 
-	summary, err := pgx.CollectOneRow(summaryRows, pgx.RowToStructByName[models.Summary])
+	summary, err := pgx.CollectOneRow(summaryRows, pgx.RowToStructByName[models.ContactSummary])
 
 	if err != nil {
 		return nil, fmt.Errorf("error querying database for summary: %w", err)
