@@ -64,14 +64,14 @@ export const columns: ColumnDef<LineItem>[] = [
   },
 
   {
-    accessorKey: "unit_amount",
+    accessorKey: "total_amount",
     header: ({ column }) => {
       return (
         <ColumnHeader name="Amount" column={column} className="text-right" />
       );
     },
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("unit_amount"));
+      const amount = parseFloat(row.getValue("total_amount"));
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",

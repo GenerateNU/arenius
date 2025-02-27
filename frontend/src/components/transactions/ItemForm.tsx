@@ -47,7 +47,7 @@ export default function ItemForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await createLineItem({
       description: values.description,
-      unit_amount: values.price,
+      total_amount: values.price,
       currency_code: values.currency_code,
     });
     fetchData();

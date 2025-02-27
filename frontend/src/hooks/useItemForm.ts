@@ -3,20 +3,20 @@ import { useState } from "react";
 
 interface FormData {
   description: string;
-  unit_amount: string;
+  total_amount: string;
   currency_code: string;
 }
 
 interface FormErrors {
   description?: string;
-  unit_amount?: string;
+  total_amount?: string;
   currency_code?: string;
 }
 
 const useItemForm = (onSubmit: () => void) => {
   const defaultForm: FormData = {
     description: "",
-    unit_amount: "",
+    total_amount: "",
     currency_code: "USD",
   };
 
@@ -40,8 +40,8 @@ const useItemForm = (onSubmit: () => void) => {
     if (!formData.description) {
       newErrors.description = "Description is required";
     }
-    if (!formData.unit_amount || Number(formData.unit_amount) <= 0) {
-      newErrors.unit_amount = "Price must be positive";
+    if (!formData.total_amount || Number(formData.total_amount) <= 0) {
+      newErrors.total_amount = "Price must be positive";
     }
     if (!formData.currency_code) {
       newErrors.currency_code = "Currency code is required";
@@ -60,7 +60,7 @@ const useItemForm = (onSubmit: () => void) => {
 
     await createLineItem({
       description: formData.description,
-      unit_amount: Number(formData.unit_amount),
+      total_amount: Number(formData.total_amount),
       currency_code: formData.currency_code,
     });
 
