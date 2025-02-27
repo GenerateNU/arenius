@@ -21,6 +21,10 @@ type AddImportedContactRequest struct {
 	CompanyID     string  `json:"company_id"`
 }
 
+type GetContactsRequest struct {
+	SearchTerm *string `query:"search_term"`
+}
+
 type CreateContactRequest struct {
 	Name          string  `json:"name"`
 	Email         string  `json:"email"`
@@ -38,6 +42,6 @@ type ContactSummary struct {
 }
 
 type ContactWithDetails struct {
-	Contact Contact `json:"contact"`
+	Contact Contact        `json:"contact"`
 	Summary ContactSummary `json:"summary"`
 }

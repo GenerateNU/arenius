@@ -22,7 +22,6 @@ func (h *Handler) GetLineItems(c *fiber.Ctx) error {
 	var filterParams models.GetLineItemsRequest
 
 	if err := c.QueryParser(&filterParams); err != nil {
-		fmt.Println(filterParams)
 		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
 	}
 	if filterParams.Scope != nil {

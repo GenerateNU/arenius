@@ -73,11 +73,17 @@ func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*
 	}, nil
 }
 
-func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pagination, companyId string) ([]models.Contact, error) {
+func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pagination, filterParams models.GetContactsRequest, companyId string) ([]models.Contact, error) {
+	filterQuery := ""
+
+	if filterParams.SearchTerm != nil {
+		filterQuery += fmt.Sprintf(" AND (contact.description ILIKE '%%%s%%')", *filterParams.SearchTerm)
+	}
+	
 	query := `
 		SELECT *
 		FROM contact
-		WHERE contact.company_id = $1
+		WHERE contact.company_id = $1` + filterQuery + `
 		LIMIT $2 OFFSET $3
 	`
 
