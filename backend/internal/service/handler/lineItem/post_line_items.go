@@ -18,7 +18,7 @@ func (h *Handler) PostLineItem(c *fiber.Ctx) error {
 	if req.Description == "" {
 		return errs.BadRequest("Description is required")
 	}
-	if req.UnitAmount == 0 {
+	if req.TotalAmount == 0 {
 		return errs.BadRequest("Non-zero unit amount is required")
 	}
 	if req.CompanyID == "" {

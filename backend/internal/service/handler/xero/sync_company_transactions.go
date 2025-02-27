@@ -252,16 +252,10 @@ func (h *Handler) parseTenantTransactions(ctx context.Context, transactions []in
 					newLineItem.Description = lineItem["Description"].(string)
 				}
 
-				if lineItem["Quantity"] != nil {
-					newLineItem.Quantity = lineItem["Quantity"].(float64)
+				if lineItem["TotalAmount"] != nil {
+					newLineItem.TotalAmount = lineItem["TotalAmount"].(float64)
 				} else {
-					return nil, errs.BadRequest("Missing Quantity")
-				}
-
-				if lineItem["UnitAmount"] != nil {
-					newLineItem.UnitAmount = lineItem["UnitAmount"].(float64)
-				} else {
-					return nil, errs.BadRequest("Missing UnitAmount")
+					return nil, errs.BadRequest("Missing TotalAmount")
 				}
 
 				newLineItems = append(newLineItems, newLineItem)

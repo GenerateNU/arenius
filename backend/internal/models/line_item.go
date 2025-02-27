@@ -6,8 +6,7 @@ type LineItem struct {
 	ID               string    `json:"id"`
 	XeroLineItemID   *string   `json:"xero_line_item_id,omitempty"`
 	Description      string    `json:"description"`
-	Quantity         float64   `json:"quantity"`
-	UnitAmount       float64   `json:"unit_amount"`
+	TotalAmount      float64   `json:"total_amount"`
 	CompanyID        string    `json:"company_id"`
 	ContactID        string    `json:"contact_id"`
 	Date             time.Time `json:"date"`
@@ -38,8 +37,7 @@ type LineItemEmissionsRequest struct {
 
 type CreateLineItemRequest struct {
 	Description    string   `json:"description"`
-	Quantity       float64  `json:"quantity"`
-	UnitAmount     float64  `json:"unit_amount"`
+	TotalAmount    float64  `json:"total_amount"`
 	CompanyID      string   `json:"company_id"`
 	ContactID      string   `json:"contact_id"`
 	CurrencyCode   string   `json:"currency_code"`
@@ -64,8 +62,7 @@ type GetLineItemsRequest struct {
 type AddImportedLineItemRequest struct {
 	XeroLineItemID string    `json:"xero_line_item_id,omitempty"`
 	Description    string    `json:"description"`
-	Quantity       float64   `json:"quantity"`
-	UnitAmount     float64   `json:"unit_amount"`
+	TotalAmount    float64   `json:"total_amount"`
 	CompanyID      string    `json:"company_id"`
 	ContactID      string    `json:"contact_id"`
 	Date           time.Time `json:"date"`
