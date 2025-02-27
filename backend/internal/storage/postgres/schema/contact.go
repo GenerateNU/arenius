@@ -19,7 +19,7 @@ type ContactRepository struct {
 }
 
 func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*models.ContactWithDetails, error) {
-	query := `
+	const query = `
 		SELECT *
 		FROM contact
 		WHERE contact.id = $1
@@ -38,7 +38,7 @@ func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*
 		return nil, fmt.Errorf("error querying database for contact: %w", err)
 	}
 
-	summaryQuery := `
+	const summaryQuery = `
 		SELECT 
 			COALESCE(SUM(total_amount), 0) AS total_spent,
 			COUNT(*) AS total_transactions,
