@@ -107,7 +107,6 @@ func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pa
 		return nil, fmt.Errorf("error collecting contacts: %w", err)
 	}
 
-	
 	return contacts, nil
 }
 
