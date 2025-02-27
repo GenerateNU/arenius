@@ -77,7 +77,7 @@ func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pa
 	filterQuery := ""
 
 	if filterParams.SearchTerm != nil {
-		filterQuery += fmt.Sprintf(" AND (contact.description ILIKE '%%%s%%')", *filterParams.SearchTerm)
+		filterQuery += fmt.Sprintf(" AND (contact.name ILIKE '%%%s%%')", *filterParams.SearchTerm)
 	}
 	
 	query := `
