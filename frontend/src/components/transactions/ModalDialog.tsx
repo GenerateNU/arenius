@@ -34,7 +34,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
   const date = new Date(selectedRowData.getValue("date"));
   const formattedDate = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
 
-  const amount = parseFloat(selectedRowData.getValue("unit_amount"));
+  const amount = parseFloat(selectedRowData.getValue("total_amount"));
   const formattedAmount = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",

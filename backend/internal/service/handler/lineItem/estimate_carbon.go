@@ -38,7 +38,7 @@ func (h *Handler) EstimateCarbonEmissions(c *fiber.Ctx) error {
 				DataVersion: "^20", // Assuming the most recent version; adjust as needed
 			},
 			Parameters: climatiq.Parameters{
-				Money:     item.UnitAmount * item.Quantity,
+				Money:     item.TotalAmount,
 				MoneyUnit: strings.ToLower(item.CurrencyCode),
 			},
 		})
