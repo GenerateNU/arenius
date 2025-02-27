@@ -125,8 +125,6 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 
 	categoryMap := make(map[string][]models.EmissionsFactor)
 
-	favorites := []models.EmissionsFactor{}
-
 	categories := make([]models.Category, 0, len(categoryMap) + 1)
 
 	if companyId != "" {
@@ -143,26 +141,9 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 		}
 		defer favoriteRows.Close()
 
-		for favoriteRows.Next() {
-			var emissionsFactor models.EmissionsFactor
-
-			err := favoriteRows.Scan(
-				&emissionsFactor.Id,
-				&emissionsFactor.ActivityId,
-				&emissionsFactor.Name,
-				&emissionsFactor.Description,
-				&emissionsFactor.Unit,
-				&emissionsFactor.UnitType,
-				&emissionsFactor.Year,
-				&emissionsFactor.Region,
-				&emissionsFactor.Category,
-				&emissionsFactor.Source,
-				&emissionsFactor.SourceDataset,
-			)
-			if err != nil {
-				return nil, err
-			}
-			favorites = append(favorites, emissionsFactor)
+		favorites, err := pgx.CollectRows(favoriteRows, pgx.RowToStructByName[models.EmissionsFactor])
+		if err != nil {
+			return nil, err
 		}
 
 		if favoriteRowsErr := favoriteRows.Err(); favoriteRowsErr != nil {
