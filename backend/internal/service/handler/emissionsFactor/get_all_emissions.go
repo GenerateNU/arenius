@@ -5,7 +5,7 @@ import (
 )
 
 func (h *Handler) GetEmissionFactors(c *fiber.Ctx) error {
-	companyId := c.Params("companyId")
+	companyId := c.Query("companyId")
 	emissionFactors, err := h.emissionsFactorRepository.GetEmissionFactors(c.Context(), companyId)
 	if err != nil {
 		return err

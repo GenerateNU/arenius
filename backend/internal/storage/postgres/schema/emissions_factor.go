@@ -123,45 +123,56 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 	}
 	defer rows.Close()
 
-	const favoriteQuery = `
-		SELECT id, activity_id, name, description, unit, unit_type, year, region, category, source, source_dataset
-		FROM emission_factor JOIN company_favorite ON emission_factor.id = company_favorite.emissions_factor_id
-		WHERE company_favorite.company_id = $1
-		ORDER BY emission_factor.name;
-	`
-
-	favoriteRows, favoriteErr := r.db.Query(ctx, favoriteQuery, companyId)
-	if favoriteErr != nil {
-		return nil, favoriteErr
-	}
-	defer favoriteRows.Close()
-
-	// parse results into a map of category : list of emissions factor
 	categoryMap := make(map[string][]models.EmissionsFactor)
-	for favoriteRows.Next() {
-		var emissionsFactor models.EmissionsFactor
 
-		err := favoriteRows.Scan(
-			&emissionsFactor.Id,
-			&emissionsFactor.ActivityId,
-			&emissionsFactor.Name,
-			&emissionsFactor.Description,
-			&emissionsFactor.Unit,
-			&emissionsFactor.UnitType,
-			&emissionsFactor.Year,
-			&emissionsFactor.Region,
-			&emissionsFactor.Category,
-			&emissionsFactor.Source,
-			&emissionsFactor.SourceDataset,
-		)
-		if err != nil {
-			return nil, err
+	favorites := []models.EmissionsFactor{}
+
+	categories := make([]models.Category, 0, len(categoryMap) + 1)
+
+	if companyId != "" {
+		const favoriteQuery = `
+			SELECT id, activity_id, name, description, unit, unit_type, year, region, category, source, source_dataset
+			FROM emission_factor JOIN company_favorite ON emission_factor.id = company_favorite.emissions_factor_id
+			WHERE company_favorite.company_id = $1
+			ORDER BY emission_factor.name;
+		`
+
+		favoriteRows, favoriteErr := r.db.Query(ctx, favoriteQuery, companyId)
+		if favoriteErr != nil {
+			return nil, favoriteErr
 		}
-		categoryMap["Favorites"] = append(categoryMap["Favorites"], emissionsFactor)
-	}
+		defer favoriteRows.Close()
 
-	if favoriteRowsErr := favoriteRows.Err(); favoriteRowsErr != nil {
-		return nil, fmt.Errorf("error iterating over favorite emission factor rows: %w", favoriteRowsErr)
+		for favoriteRows.Next() {
+			var emissionsFactor models.EmissionsFactor
+
+			err := favoriteRows.Scan(
+				&emissionsFactor.Id,
+				&emissionsFactor.ActivityId,
+				&emissionsFactor.Name,
+				&emissionsFactor.Description,
+				&emissionsFactor.Unit,
+				&emissionsFactor.UnitType,
+				&emissionsFactor.Year,
+				&emissionsFactor.Region,
+				&emissionsFactor.Category,
+				&emissionsFactor.Source,
+				&emissionsFactor.SourceDataset,
+			)
+			if err != nil {
+				return nil, err
+			}
+			favorites = append(favorites, emissionsFactor)
+		}
+
+		if favoriteRowsErr := favoriteRows.Err(); favoriteRowsErr != nil {
+			return nil, fmt.Errorf("error iterating over favorite emission factor rows: %w", favoriteRowsErr)
+		}
+
+		categories = append(categories, models.Category{
+			Name: "Favorites",
+			EmissionsFactors: favorites,
+		})
 	}
 
 	for rows.Next() {
@@ -191,20 +202,11 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 		return nil, fmt.Errorf("error iterating over emission factor rows: %w", err)
 	}
 
-	// convert results into a []models.Category
-	categories := make([]models.Category, 0, len(categoryMap))
 	for categoryName, factors := range categoryMap {
 		categories = append(categories, models.Category{
 			Name: categoryName,
 			EmissionsFactors: factors,
 		})
-
-		// Some LeetCode shit
-		if categoryName == "Favorites" {
-			l := len(categories)
-
-			categories[0], categories[l-1] = categories[l-1], categories[0]
-		}
 	}
 
 	return categories, nil
