@@ -103,7 +103,7 @@ func (r *EmissionsFactorRepository) AddEmissionsFactors(ctx context.Context, emi
 	return emissionFactors, nil
 }
 
-func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context) ([]models.Category, error) {
+func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, companyId string) ([]models.Category, error) {
 
 	const query = `
 		WITH latest_emission AS (
@@ -123,8 +123,58 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context) ([]m
 	}
 	defer rows.Close()
 
-	// parse results into a map of category : list of emissions factor
 	categoryMap := make(map[string][]models.EmissionsFactor)
+
+	favorites := []models.EmissionsFactor{}
+
+	categories := make([]models.Category, 0, len(categoryMap) + 1)
+
+	if companyId != "" {
+		const favoriteQuery = `
+			SELECT id, activity_id, name, description, unit, unit_type, year, region, category, source, source_dataset
+			FROM emission_factor JOIN company_favorite ON emission_factor.id = company_favorite.emissions_factor_id
+			WHERE company_favorite.company_id = $1
+			ORDER BY emission_factor.name;
+		`
+
+		favoriteRows, favoriteErr := r.db.Query(ctx, favoriteQuery, companyId)
+		if favoriteErr != nil {
+			return nil, favoriteErr
+		}
+		defer favoriteRows.Close()
+
+		for favoriteRows.Next() {
+			var emissionsFactor models.EmissionsFactor
+
+			err := favoriteRows.Scan(
+				&emissionsFactor.Id,
+				&emissionsFactor.ActivityId,
+				&emissionsFactor.Name,
+				&emissionsFactor.Description,
+				&emissionsFactor.Unit,
+				&emissionsFactor.UnitType,
+				&emissionsFactor.Year,
+				&emissionsFactor.Region,
+				&emissionsFactor.Category,
+				&emissionsFactor.Source,
+				&emissionsFactor.SourceDataset,
+			)
+			if err != nil {
+				return nil, err
+			}
+			favorites = append(favorites, emissionsFactor)
+		}
+
+		if favoriteRowsErr := favoriteRows.Err(); favoriteRowsErr != nil {
+			return nil, fmt.Errorf("error iterating over favorite emission factor rows: %w", favoriteRowsErr)
+		}
+
+		categories = append(categories, models.Category{
+			Name: "Favorites",
+			EmissionsFactors: favorites,
+		})
+	}
+
 	for rows.Next() {
 		var emissionsFactor models.EmissionsFactor
 		var rn int // this is unused 
@@ -152,8 +202,6 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context) ([]m
 		return nil, fmt.Errorf("error iterating over emission factor rows: %w", err)
 	}
 
-	// convert results into a []models.Category
-	categories := make([]models.Category, 0, len(categoryMap))
 	for categoryName, factors := range categoryMap {
 		categories = append(categories, models.Category{
 			Name: categoryName,
