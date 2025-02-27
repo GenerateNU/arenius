@@ -30,3 +30,14 @@ type CreateContactRequest struct {
 	XeroContactID *string `json:"xero_contact_id,omitempty"`
 	CompanyID     string  `json:"company_id"`
 }
+
+type ContactSummary struct {
+	TotalSpent        float64 `json:"total_spent"`
+	TotalTransactions int     `json:"total_transactions"`
+	TotalEmissions    float64 `json:"total_emissions"`
+}
+
+type ContactWithDetails struct {
+	Contact Contact `json:"contact"`
+	Summary ContactSummary `json:"summary"`
+}

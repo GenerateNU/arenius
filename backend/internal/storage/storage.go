@@ -46,6 +46,7 @@ type CompanyRepository interface {
 }
 
 type ContactRepository interface {
+	GetContact(ctx context.Context, contactId string) (*models.ContactWithDetails, error)
 	GetContacts(ctx context.Context, pagination utils.Pagination, companyId string) ([]models.Contact, error)
 	CreateContact(ctx context.Context, req models.CreateContactRequest) (*models.Contact, error)
 	AddImportedContacts(ctx context.Context, req []models.AddImportedContactRequest) ([]models.Contact, error)

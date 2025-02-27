@@ -227,7 +227,10 @@ POST `/auth/signup`
 
 ## Contacts
 
-GET `/contact/:companyId`
+GET `/contact/:contactId`
+    - get a contact with details object, which includes the contact as well as total emissions, total amount spent, and total transactions
+
+GET `/contact/company/:companyId`
     - get all contact objects associated with a company
 
 POST `/contact`
