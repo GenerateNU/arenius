@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { login } from "@/services/login";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,6 +30,7 @@ const formSchema = z.object({
 export default function LoginForm() {
   const router = useRouter();
   const [error, setError] = useState("");
+  const { login } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,7 +47,7 @@ export default function LoginForm() {
         password: values.password,
       });
 
-      if (response?.status === 200) {
+      if (response?.response?.status === 200) {
         router.push("/transactions");
       }
     } catch (err) {

@@ -3,20 +3,23 @@
 import React, { useState } from "react";
 import LoginForm from "@/components/onboarding/login-form";
 import SignupForm from "@/components/onboarding/landing";
+import { AuthProvider } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const [isLoginPage, setIsLoginPage] = useState(false);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.login}>
-        {isLoginPage ? (
-          <LoginForm />
-        ) : (
-          <SignupForm setIsLoginPage={setIsLoginPage} />
-        )}
+    <AuthProvider>
+      <div className={styles.container}>
+        <div className={styles.login}>
+          {isLoginPage ? (
+            <LoginForm />
+          ) : (
+            <SignupForm setIsLoginPage={setIsLoginPage} />
+          )}
+        </div>
       </div>
-    </div>
+    </AuthProvider>
   );
 }
 
