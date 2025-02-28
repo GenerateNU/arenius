@@ -2,6 +2,7 @@ package contact
 
 import (
 	"arenius/internal/errs"
+	"arenius/internal/models"
 	"arenius/internal/service/utils"
 	"fmt"
 
@@ -18,9 +19,15 @@ func (h *Handler) GetContacts(c *fiber.Ctx) error {
 		return errs.BadRequest(fmt.Sprint("invalid pagination values: ", errors))
 	}
 
+	var filterParams models.GetContactsRequest
+
+	if err := c.QueryParser(&filterParams); err != nil {
+		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
+	}
+
 	companyId := c.Params("companyId")
 
-	contacts, err := h.contactRepository.GetContacts(c.Context(), pagination, companyId)
+	contacts, err := h.contactRepository.GetContacts(c.Context(), pagination, filterParams, companyId)
 	if err != nil {
 		return err
 	}

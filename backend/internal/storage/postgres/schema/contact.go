@@ -20,7 +20,7 @@ type ContactRepository struct {
 
 func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*models.ContactWithDetails, error) {
 	const query = `
-		SELECT 
+		SELECT
 			id,
 			name,
 			email,
@@ -73,11 +73,25 @@ func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*
 	}, nil
 }
 
-func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pagination, companyId string) ([]models.Contact, error) {
+func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pagination, filterParams models.GetContactsRequest, companyId string) ([]models.Contact, error) {
+	filterQuery := ""
+
+	if filterParams.SearchTerm != nil {
+		filterQuery += fmt.Sprintf(" AND (contact.name ILIKE '%%%s%%')", *filterParams.SearchTerm)
+	}
+
 	query := `
-		SELECT *
+		SELECT
+			id,
+			name,
+			email,
+			phone,
+			city,
+			state,
+			xero_contact_id,
+			company_id
 		FROM contact
-		WHERE contact.company_id = $1
+		WHERE contact.company_id = $1` + filterQuery + `
 		LIMIT $2 OFFSET $3
 	`
 
@@ -88,26 +102,9 @@ func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pa
 	}
 	defer rows.Close()
 
-	var contacts []models.Contact
-	for rows.Next() {
-		var contact models.Contact
-		if err := rows.Scan(
-			&contact.ID,
-			&contact.XeroContactID,
-			&contact.Name,
-			&contact.Email,
-			&contact.Phone,
-			&contact.City,
-			&contact.State,
-			&contact.CompanyID,
-		); err != nil {
-			return nil, err
-		}
-		contacts = append(contacts, contact)
-	}
-
-	if rowsErr := rows.Err(); rowsErr != nil {
-		return nil, fmt.Errorf("error iterating over contact rows: %w", rowsErr)
+	contacts, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.Contact])
+	if err != nil {
+		return nil, fmt.Errorf("error collecting contacts: %w", err)
 	}
 
 	return contacts, nil

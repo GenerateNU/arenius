@@ -74,8 +74,9 @@ export type Contact = {
   company_id: string;
 };
 
-export interface GetContactsRequest {
+export type GetContactsRequest = {
   company_id: string;
+  search_term: string;
 };
 
 export type CreateContactRequest = {
