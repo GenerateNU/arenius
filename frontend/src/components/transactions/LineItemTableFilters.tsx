@@ -1,11 +1,10 @@
 "use client";
-import React from "react";
-import { DatePickerWithRange } from "./DatePicker";
-import PriceFilter from "./PriceFilter";
-import EmissionsFactorFilter from "./EmissionsFactorFilter";
-import ContactFilter from "./ContactFilter";
-import { Button } from "../ui/button";
 import { useLineItems } from "@/context/LineItemsContext";
+import { Button } from "../ui/button";
+import ContactFilter from "./ContactFilter";
+import { DatePickerWithRange } from "./DatePicker";
+import EmissionsFactorFilter from "./EmissionsFactorFilter";
+import PriceFilter from "./PriceFilter";
 
 export default function LineItemTableFilters() {
   const { setFilters } = useLineItems();

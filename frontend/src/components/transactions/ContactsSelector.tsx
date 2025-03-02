@@ -34,29 +34,27 @@ export default function ContactSelector({
     const { data: contacts } = useContacts();
   
     return (
-      <div>        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant={variant}>
-              {contact ? contact.name : "Select Contact"}
-              <ChevronDown className="ml-2" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-80">
-            {contacts && contacts.length > 0 ? (
-              contacts.map((c) => (
-                <DropdownMenuItem
-                  key={c.id}
-                  onClick={() => setContact(c)} 
-                >
-                  {c.name}
-                </DropdownMenuItem>
-              ))
-            ) : (
-              <DropdownMenuItem disabled>No contacts available</DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant={variant}>
+            {contact ? contact.name : "Select Contact"}
+            <ChevronDown className="ml-2" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-80">
+          {contacts && contacts.length > 0 ? (
+            contacts.map((c) => (
+              <DropdownMenuItem
+                key={c.id}
+                onClick={() => setContact(c)} 
+              >
+                {c.name}
+              </DropdownMenuItem>
+            ))
+          ) : (
+            <DropdownMenuItem disabled>No contacts available</DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   }
