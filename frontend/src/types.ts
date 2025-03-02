@@ -88,3 +88,26 @@ export type CreateContactRequest = {
   state: string;
   company_id: string;
 };
+
+export type GetGrossEmissionsRequest = {
+  company_id: string;
+  month_duration: number;
+}
+
+export type ScopeSummary = {
+  scope_one: number;
+  scope_two: number;
+  scope_three: number;
+}
+
+export type MonthSummary = {
+  month_start: Date;
+  scopes: ScopeSummary;
+}
+
+export type GrossSummary = {
+  total_co2: number;
+  start_date: Date | undefined;
+  end_date: Date | undefined;
+  months: MonthSummary[];
+}

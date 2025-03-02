@@ -1,13 +1,16 @@
-// app/contacts/page.tsx
-
+// TODO: use client here?
+import { GrossEmissionsBarGraph } from "@/components/dashboard/GrossEmissionsBarGraph";
 import React from "react";
 
-const ContactsPage: React.FC = () => {
+const DashboardPage: React.FC = () => {
   return (
-    <div className="flex justify-center items-center w-screen h-screen">
+    <div className="flex-col flex-row justify-center items-center">
+      <br />
       <h1 className="text-3xl font-bold">Dashboard Page</h1>
+      <br />
+      <GrossEmissionsBarGraph />
     </div>
   );
 };
 
-export default ContactsPage;
+export default DashboardPage;
