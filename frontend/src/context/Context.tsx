@@ -7,6 +7,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface DataProviderProps<T extends object, F extends object> {
   children: React.ReactNode;
@@ -20,6 +21,7 @@ interface DataContextValue<T extends object, F extends object> {
   setFilters: (filters: F) => void;
 }
 
+
 export const createDataContext = <T extends object, F extends object>() => {
   const DataContext = createContext<DataContextValue<T, F> | undefined>(
     undefined
@@ -31,11 +33,12 @@ export const createDataContext = <T extends object, F extends object>() => {
   }) => {
     const [data, setData] = useState<T[]>([]);
     const [filters, setFilters] = useState<F>({} as F);
+    const { companyId } = useAuth();
 
     const fetchData = useCallback(async () => {
-      const result = await fetchFunction({...filters, company_id: "0a67f5d3-88b6-4e8f-aac0-5137b29917fd"});
+      const result = await fetchFunction({...filters, company_id: companyId});
       setData(result);
-    }, [filters, fetchFunction]);
+    }, [filters, fetchFunction, companyId]);
 
     useEffect(() => {
       fetchData();
