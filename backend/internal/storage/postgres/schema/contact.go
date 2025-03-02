@@ -18,11 +18,80 @@ type ContactRepository struct {
 	db *pgxpool.Pool
 }
 
-func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pagination, companyId string) ([]models.Contact, error) {
-	query := `
-		SELECT *
+func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*models.ContactWithDetails, error) {
+	const query = `
+		SELECT
+			id,
+			name,
+			email,
+			phone,
+			city,
+			state,
+			xero_contact_id,
+			company_id
 		FROM contact
-		WHERE contact.company_id = $1
+		WHERE contact.id = $1
+		LIMIT 1
+	`
+
+	rows, err := r.db.Query(ctx, query, contactId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	contact, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.Contact])
+
+	if err != nil {
+		return nil, fmt.Errorf("error querying database for contact: %w", err)
+	}
+
+	const summaryQuery = `
+		SELECT 
+			COALESCE(SUM(total_amount), 0) AS total_spent,
+			COUNT(*) AS total_transactions,
+			COALESCE(SUM(co2), 0) AS total_emissions
+		FROM line_item
+		WHERE contact_id = $1;
+	`
+
+	summaryRows, err := r.db.Query(ctx, summaryQuery, contactId)
+	if err != nil {
+		return nil, err
+	}
+	defer summaryRows.Close()
+
+	summary, err := pgx.CollectOneRow(summaryRows, pgx.RowToStructByName[models.ContactSummary])
+
+	if err != nil {
+		return nil, fmt.Errorf("error querying database for summary: %w", err)
+	}
+	
+	return &models.ContactWithDetails{
+		Contact: contact,
+		Summary: summary,
+	}, nil
+}
+
+func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pagination, filterParams models.GetContactsRequest, companyId string) ([]models.Contact, error) {
+	filterQuery := ""
+
+	if filterParams.SearchTerm != nil {
+		filterQuery += fmt.Sprintf(" AND (contact.name ILIKE '%%%s%%')", *filterParams.SearchTerm)
+	}
+
+	query := `
+		SELECT
+			id,
+			name,
+			email,
+			phone,
+			city,
+			state,
+			xero_contact_id,
+			company_id
+		FROM contact
+		WHERE contact.company_id = $1` + filterQuery + `
 		LIMIT $2 OFFSET $3
 	`
 
@@ -33,26 +102,9 @@ func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pa
 	}
 	defer rows.Close()
 
-	var contacts []models.Contact
-	for rows.Next() {
-		var contact models.Contact
-		if err := rows.Scan(
-			&contact.ID,
-			&contact.XeroContactID,
-			&contact.Name,
-			&contact.Email,
-			&contact.Phone,
-			&contact.City,
-			&contact.State,
-			&contact.CompanyID,
-		); err != nil {
-			return nil, err
-		}
-		contacts = append(contacts, contact)
-	}
-
-	if rowsErr := rows.Err(); rowsErr != nil {
-		return nil, fmt.Errorf("error iterating over contact rows: %w", rowsErr)
+	contacts, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.Contact])
+	if err != nil {
+		return nil, fmt.Errorf("error collecting contacts: %w", err)
 	}
 
 	return contacts, nil

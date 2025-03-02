@@ -70,8 +70,7 @@ Post `/line-item`
 ```go
     - Body Parameters (*type) indicates an optional field
         Description    string   `json:"description"`               // the description for a line item, non-empty
-        Quantity       float64  `json:"quantity"`                  // the quantity of items purchased, >= 0
-        UnitAmount     float64  `json:"unit_amount"`               // the price, >= 0
+        TotalAmount    float64  `json:"total_amount"`              // the price, >= 0
         CompanyID      string   `json:"company_id"`                // the id of the associated company, uuid
         ContactID      string   `json:"contact_id"`                // the id of the associated contact, uuid
         EmissionFactor *string  `json:"emission_factor,omitempty"` // the emission factor as known by climatiq
@@ -117,8 +116,7 @@ PATCH `climatiq/estimate`
         ID               string    `json:"id"` //Required
         XeroLineItemID   *string   `json:"xero_line_item_id"` //Optional
         Description      string    `json:"description"` //Optional
-        Quantity         float64   `json:"quantity"` //Required
-        UnitAmount       float64   `json:"unit_amount"` //Required
+        TotalAmount      float64   `json:"total_amount"` //Required
         CompanyID        string    `json:"company_id"` //Optional
         ContactID        string    `json:"contact_id"` //Optional
         Date             time.Time `json:"date"` //Optional
@@ -133,8 +131,8 @@ PATCH `climatiq/estimate`
 
 ## Emissions Factors
 
-GET `/emissions-factor`
-    - returns all emissions factors, structured as a list of categories, each with a name and its list of emission factors.
+GET `/emissions-factor/:companyId`
+    - returns all emissions factors, structured as a list of categories, each with a name and its list of emission factors. The first category is the company's "favorites"
 
 PATCH `/emissions-factor/populate`
     - populates emissions factors table
@@ -142,7 +140,7 @@ PATCH `/emissions-factor/populate`
 ```go
 
 EmissionsFactor:
-    Id            string `json:"id"`
+ Id            string `json:"id"`
  ActivityId    string `json:"activity_id"`
  Name          string `json:"name"`
  Description   string `json:"description"`
@@ -229,7 +227,10 @@ POST `/auth/signup`
 
 ## Contacts
 
-GET `/contact/:companyId`
+GET `/contact/:contactId`
+    - get a contact with details object, which includes the contact as well as total emissions, total amount spent, and total transactions
+
+GET `/contact/company/:companyId`
     - get all contact objects associated with a company
 
 POST `/contact`

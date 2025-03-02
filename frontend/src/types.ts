@@ -3,8 +3,7 @@ import { DateRange } from "react-day-picker";
 export type LineItem = {
   id: string;
   description: string;
-  quantity: number;
-  unit_amount: number;
+  total_amount: number;
   currency_code: string;
   emission_factor_name?: string;
   scope?: number;
@@ -20,7 +19,7 @@ export interface LineItemFilters {
 
 export type CreateLineItemRequest = {
   description: string;
-  unit_amount: number;
+  total_amount: number;
   currency_code: string;
 };
 
@@ -77,6 +76,7 @@ export type Contact = {
 
 export type GetContactsRequest = {
   company_id: string;
+  search_term: string;
 };
 
 export type CreateContactRequest = {

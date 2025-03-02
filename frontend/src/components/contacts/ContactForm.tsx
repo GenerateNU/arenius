@@ -24,6 +24,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(2).max(50),
@@ -39,6 +40,8 @@ const formSchema = z.object({
 const SCOPES = ["Scope 1", "Scope 2", "Scope 3"];
 
 export default function ContactForm() {
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,18 +50,26 @@ export default function ContactForm() {
       phone: "",
       city: "",
       state: "",
-      scope: "",
+      scope: "Scope 1",
       client_overview: "",
       notes: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    await createContact({
-      ...values,
-      company_id: "",
-    });
-    form.reset();
+    try {
+      const response = await createContact({
+        ...values,
+        company_id: "",
+      });
+  
+      if (response) {
+        form.reset();
+        router.push("/contacts");
+      }
+    } catch (error) {
+      console.error("Error creating contact:", error);
+    }
   }
 
   return (

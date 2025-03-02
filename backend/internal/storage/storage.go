@@ -22,7 +22,7 @@ type LineItemRepository interface {
 
 type EmissionsFactorRepository interface {
 	AddEmissionsFactors(ctx context.Context, emissionFactor []models.EmissionsFactor) ([]models.EmissionsFactor, error)
-	GetEmissionFactors(ctx context.Context) ([]models.Category, error)
+	GetEmissionFactors(ctx context.Context, companyId string) ([]models.Category, error)
 }
 
 type SummaryRepository interface {
@@ -46,7 +46,8 @@ type CompanyRepository interface {
 }
 
 type ContactRepository interface {
-	GetContacts(ctx context.Context, pagination utils.Pagination, companyId string) ([]models.Contact, error)
+	GetContact(ctx context.Context, contactId string) (*models.ContactWithDetails, error)
+	GetContacts(ctx context.Context, pagination utils.Pagination, filterParams models.GetContactsRequest, companyId string) ([]models.Contact, error)
 	CreateContact(ctx context.Context, req models.CreateContactRequest) (*models.Contact, error)
 	AddImportedContacts(ctx context.Context, req []models.AddImportedContactRequest) ([]models.Contact, error)
 	GetOrCreateXeroContact(ctx context.Context, xeroContactID, name, email, phone, city, state string, companyID string) (string, error)

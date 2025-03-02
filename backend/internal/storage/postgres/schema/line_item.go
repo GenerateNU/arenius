@@ -57,11 +57,11 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		filterArgs = append(filterArgs, *filterParams.EmissionFactor)
 	}
 	if filterParams.MinPrice != nil {
-		filterColumns = append(filterColumns, "(li.unit_amount * li.quantity)>=")
+		filterColumns = append(filterColumns, "li.total_amount >=")
 		filterArgs = append(filterArgs, *filterParams.MinPrice)
 	}
 	if filterParams.MaxPrice != nil {
-		filterColumns = append(filterColumns, "(li.unit_amount * li.quantity)<=")
+		filterColumns = append(filterColumns, "li.total_amount <=")
 		filterArgs = append(filterArgs, *filterParams.MaxPrice)
 	}
 
@@ -70,7 +70,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	}
 
 	query := `
-	SELECT li.id, li.xero_line_item_id, li.description, li.quantity, li.unit_amount, li.company_id, li.contact_id, li.date, li.currency_code, li.emission_factor_id, ef.name as emission_factor_name, li.co2, li.co2_unit, li.scope
+	SELECT li.id, li.xero_line_item_id, li.description, li.total_amount, li.company_id, li.contact_id, li.date, li.currency_code, li.emission_factor_id, ef.name as emission_factor_name, li.co2, li.co2_unit, li.scope
 	FROM line_item li LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id ` + filterQuery + `
 	ORDER BY li.date DESC
 	LIMIT $1 OFFSET $2
@@ -122,7 +122,7 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId s
 	query += fmt.Sprintf(" WHERE id = $%d", argCount)
 	args = append(args, lineItemId)
 
-	query += " RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope"
+	query += " RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope"
 
 	rows, err := r.db.Query(ctx, query, args...)
 
@@ -146,7 +146,7 @@ func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req model
 		SET co2 = $1,
 		    co2_unit = $2
 		WHERE id = $3
-		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope
+		RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope
 	`
 
 	rows, _ := r.db.Query(ctx, query, req.CO2, req.CO2Unit, req.LineItemId)
@@ -175,7 +175,7 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 		INSERT INTO line_item
 		(` + strings.Join(columns, ", ") + `)
 		VALUES (` + strings.Join(numInputs, ", ") + `)
-		RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope;
+		RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope;
 	`
 
 	rows, _ := r.db.Query(ctx, query, queryArgs...)
@@ -206,8 +206,7 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 			uuid.New().String(),
 			importedLineItem.XeroLineItemID,
 			importedLineItem.Description,
-			importedLineItem.Quantity,
-			importedLineItem.UnitAmount,
+			importedLineItem.TotalAmount,
 			importedLineItem.CompanyID,
 			importedLineItem.ContactID,
 			importedLineItem.Date.UTC(),
@@ -227,14 +226,21 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 
 		query := `
 			INSERT INTO line_item
-			(id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code)
+			(id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code)
 			VALUES ` + strings.Join(valuesStrings, ",") + `
 			ON  CONFLICT (xero_line_item_id) DO UPDATE
-			SET description=EXCLUDED.description, quantity=EXCLUDED.quantity,
-				unit_amount=EXCLUDED.unit_amount, company_id=EXCLUDED.company_id,
-				contact_id=EXCLUDED.contact_id, date=EXCLUDED.date, currency_code=EXCLUDED.currency_code,
-				emission_factor_id=NULL, co2=NULL, co2_unit=NULL, scope=NULL
-			RETURNING id, xero_line_item_id, description, quantity, unit_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope;
+			SET
+				description=EXCLUDED.description,
+				total_amount=EXCLUDED.total_amount,
+				company_id=EXCLUDED.company_id,
+				contact_id=EXCLUDED.contact_id,
+				date=EXCLUDED.date,
+				currency_code=EXCLUDED.currency_code,
+				emission_factor_id=NULL,
+				co2=NULL,
+				co2_unit=NULL,
+				scope=NULL
+			RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope;
 		`
 		rows, err := r.db.Query(ctx, query, queryArgs...)
 		if err != nil {
@@ -259,21 +265,18 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []interface{}, error) {
 	id := uuid.New().String()
 	createdAt := time.Now().UTC()
-	columns := []string{"id", "description", "quantity", "unit_amount", "company_id", "contact_id", "date", "currency_code"}
+	columns := []string{"id", "description", "total_amount", "company_id", "contact_id", "date", "currency_code"}
 	// TODO: fix company id
-	queryArgs := []interface{}{id, req.Description, req.Quantity, req.UnitAmount, req.CompanyID, req.ContactID, createdAt, req.CurrencyCode}
+	queryArgs := []interface{}{id, req.Description, req.TotalAmount, req.CompanyID, req.ContactID, createdAt, req.CurrencyCode}
 
 	// validate values in existing columns
-	if req.Quantity < 0 {
-		return nil, nil, errs.BadRequest("Quantity must be >= 0")
-	}
 	if _, err := uuid.Parse(req.ContactID); err != nil {
 		return nil, nil, errs.BadRequest("Contact ID must be a UUID")
 	}
 	if _, err := uuid.Parse(req.CompanyID); err != nil {
 		return nil, nil, errs.BadRequest("Company ID must be a UUID")
 	}
-	if req.UnitAmount < 0 {
+	if req.TotalAmount < 0 {
 		return nil, nil, errs.BadRequest("Unit amount must be >= 0")
 	}
 

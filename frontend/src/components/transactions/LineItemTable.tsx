@@ -26,7 +26,7 @@ import Image from "next/image"
 
 export default function LineItemTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { items } = useLineItems();
+  const { data: items } = useLineItems();
 
   const [selectedRowData, setSelectedRowData] = useState<Row<LineItem> | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
