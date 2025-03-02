@@ -25,11 +25,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [authActionTriggered, setAuthActionTriggered] = useState<"login" | "signup" | null>(null);
 
   useEffect(() => {
-    console.log("useEffect triggered");
 
     if (authActionTriggered) {
       const storedCompanyId = Cookies.get("companyID");
-      console.log("storedCompanyId:", storedCompanyId);
 
       if (storedCompanyId) {
         setCompanyId(storedCompanyId);
@@ -45,18 +43,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUserId(storedUserId);
       }
 
-      console.log("AuthContext updated after", authActionTriggered);
-      console.log("companyId:", storedCompanyId);
-      console.log("tenantId:", storedTenantId);
-      console.log("userId:", storedUserId);
-
       // Reset the action after the effect runs to avoid it running continuously
       setAuthActionTriggered(null);
     }
   }, [authActionTriggered]);
 
   const login = async (item: LoginRequest): Promise<{ response: AxiosResponse }> => {
-    console.log("login function called");
 
     setIsLoading(true);  // Set loading to true when login starts
 
@@ -71,7 +63,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signup = async (item: SignupRequest): Promise<{ response: AxiosResponse }> => {
-    console.log("Signup function called");
 
     setIsLoading(true);  // Set loading to true when signup starts
 

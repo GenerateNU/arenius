@@ -41,13 +41,11 @@ export default function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("onSubmit called with values:", values); // <-- Add this log to verify form submission
     try {
       const response = await login({
         email: values.email,
         password: values.password,
       });
-      console.log("Login response:", response); // <-- Add this log to check the response
   
       if (response?.response?.status === 200) {
         router.push("/transactions");
