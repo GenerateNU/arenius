@@ -1,9 +1,9 @@
 import {
-  LineItem,
   CreateLineItemRequest,
+  LineItem,
+  LineItemFilters,
   ReconcileBatchRequest,
   ReconcileRequest,
-  LineItemFilters,
 } from "../types";
 import apiClient from "./apiClient";
 
@@ -26,6 +26,9 @@ function buildQueryParams(filters: LineItemFilters) {
   }
   if (filters?.searchTerm) {
     params.search_term = filters.searchTerm;
+  }
+  if (filters?.contactID) {
+    params.search_term = filters.contactID;
   }
 
   return params;

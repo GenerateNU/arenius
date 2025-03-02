@@ -7,6 +7,7 @@ export type LineItem = {
   currency_code: string;
   emission_factor_name?: string;
   scope?: number;
+  contact_name?: string;
 };
 
 export interface LineItemFilters {
@@ -15,6 +16,7 @@ export interface LineItemFilters {
   minPrice?: number;
   maxPrice?: number;
   searchTerm?: string;
+  contactID?: string;
 }
 
 export type CreateLineItemRequest = {
