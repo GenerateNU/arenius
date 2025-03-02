@@ -30,6 +30,8 @@ func (h *Handler) GetLineItems(c *fiber.Ctx) error {
 		}
 	}
 
+	fmt.Println(filterParams)
+
 	lineItems, err := h.lineItemRepository.GetLineItems(c.Context(), pagination, filterParams)
 	if err != nil {
 		return err

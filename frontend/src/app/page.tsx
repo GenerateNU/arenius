@@ -3,13 +3,11 @@
 import React, { useState } from "react";
 import LoginForm from "@/components/onboarding/login-form";
 import SignupForm from "@/components/onboarding/landing";
-import { AuthProvider } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const [isLoginPage, setIsLoginPage] = useState(false);
 
   return (
-    <AuthProvider>
       <div className={styles.container}>
         <div className={styles.login}>
           {isLoginPage ? (
@@ -19,7 +17,6 @@ export default function LoginPage() {
           )}
         </div>
       </div>
-    </AuthProvider>
   );
 }
 

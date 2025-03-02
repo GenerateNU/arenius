@@ -27,6 +27,9 @@ function buildQueryParams(filters: LineItemFilters) {
   if (filters?.searchTerm) {
     params.search_term = filters.searchTerm;
   }
+  if (filters?.company_id) {
+    params.company_id = filters.company_id;
+  }
 
   return params;
 }

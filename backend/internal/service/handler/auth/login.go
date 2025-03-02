@@ -29,7 +29,6 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		Name:     "userID",
 		Value:    signInResponse.User.ID.String(),
 		Expires:  time.Now().Add(24 * time.Hour),
-		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "Lax",
 	})
@@ -62,7 +61,6 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			Name:     "tenantID",
 			Value:    xeroCreds.TenantID.String(),
 			Expires:  time.Now().Add(24 * time.Hour),
-			HTTPOnly: true,
 			Secure:   true,
 			SameSite: "Lax",
 		})
@@ -70,7 +68,6 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			Name:     "companyID",
 			Value:    xeroCreds.CompanyID.String(),
 			Expires:  time.Now().Add(24 * time.Hour),
-			HTTPOnly: true,
 			Secure:   true,
 			SameSite: "Lax",
 		})

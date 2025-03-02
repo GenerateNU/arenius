@@ -5,20 +5,25 @@ import EmissionsFactorSelector from "./CategorySelector";
 import { useEffect, useState } from "react";
 import { useLineItems } from "@/context/LineItemsContext";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 export default function EmissionsFactorFilter({
   className,
 }: React.HTMLAttributes<HTMLDivElement>) {
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
   const { filters, setFilters } = useLineItems();
+  const { companyId } = useAuth();
 
   // Update filter whenever emissionsFactor changes
   useEffect(() => {
     if (emissionsFactor) {
       setFilters({ ...filters, emissionFactor: emissionsFactor.activity_id });
     }
+    if (companyId && filters.company_id !== companyId) {
+      setFilters({ ...filters, company_id: companyId });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [emissionsFactor]); // Runs whenever emissionsFactor updates
+  }, [companyId, emissionsFactor]); // Runs whenever emissionsFactor updates
 
   return (
     <div className={cn("grid gap-2", className)}>

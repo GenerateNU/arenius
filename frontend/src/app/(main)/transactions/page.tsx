@@ -7,6 +7,8 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ManualEntryModal from "@/components/transactions/ManualEntryModal";
 import { fetchLineItems } from "@/services/lineItems";
+import { useAuth } from "@/context/AuthContext";
+import { useEffect } from "react";
 
 export default function Transactions() {
   return (
@@ -20,10 +22,17 @@ export default function Transactions() {
 function TransactionsContent() {
   const { filters, setFilters } = useLineItems();
   const searchTerm = filters.searchTerm || "";
+  const { companyId } = useAuth(); // Get companyId from AuthContext
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters({ ...filters, searchTerm: e.target.value });
   };
+
+  useEffect(() => {
+      if (companyId && filters.company_id !== companyId) {
+        setFilters({ ...filters, company_id: companyId });
+      }
+    }, [companyId, filters, setFilters]);
 
   return (
     <div className={styles.container}>

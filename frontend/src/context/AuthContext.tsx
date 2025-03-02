@@ -10,6 +10,7 @@ interface AuthContextType {
   companyId: string | null;
   tenantId: string | null;
   userId: string | null;
+  isLoading: boolean;  // Add isLoading to the context
   login: (item: LoginRequest) => Promise<{ response: AxiosResponse }>;
   signup: (item: SignupRequest) => Promise<{ response: AxiosResponse }>;
 }
@@ -20,17 +21,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [tenantId, setTenantId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-
-  // New state to track if login or signup was called
+  const [isLoading, setIsLoading] = useState<boolean>(false);  // Track loading state
   const [authActionTriggered, setAuthActionTriggered] = useState<"login" | "signup" | null>(null);
 
-  // The useEffect hook that will run when authActionTriggered changes
   useEffect(() => {
-    console.log("useEffect triggered"); // <-- Add this log to check if the effect is running
+    console.log("useEffect triggered");
 
-    // Retrieve id from cookies only when login/signup is triggered
     if (authActionTriggered) {
       const storedCompanyId = Cookies.get("companyID");
+      console.log("storedCompanyId:", storedCompanyId);
+
       if (storedCompanyId) {
         setCompanyId(storedCompanyId);
       }
@@ -56,29 +56,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [authActionTriggered]);
 
   const login = async (item: LoginRequest): Promise<{ response: AxiosResponse }> => {
-    console.log("login function called"); // <-- Add this log
+    console.log("login function called");
+
+    setIsLoading(true);  // Set loading to true when login starts
 
     const response = await apiClient.post("/auth/login", item);
 
     // Trigger the effect by setting the state
     setAuthActionTriggered("login");
 
+    setIsLoading(false);  // Set loading to false when login finishes
+
     return { response };
   };
 
   const signup = async (item: SignupRequest): Promise<{ response: AxiosResponse }> => {
-    console.log("Signup function called"); // <-- Add this log
+    console.log("Signup function called");
+
+    setIsLoading(true);  // Set loading to true when signup starts
 
     const response = await apiClient.post("/auth/signup", item);
 
     // Trigger the effect by setting the state
     setAuthActionTriggered("signup");
 
+    setIsLoading(false);  // Set loading to false when signup finishes
+
     return { response };
   };
 
   return (
-    <AuthContext.Provider value={{ companyId, tenantId, userId, login, signup }}>
+    <AuthContext.Provider value={{ companyId, tenantId, userId, isLoading, login, signup }}>
       {children}
     </AuthContext.Provider>
   );
