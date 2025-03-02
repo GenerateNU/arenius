@@ -9,6 +9,7 @@ type LineItem struct {
 	TotalAmount      float64   `json:"total_amount"`
 	CompanyID        string    `json:"company_id"`
 	ContactID        string    `json:"contact_id"`
+	ContactName      string    `json:"contact_name"`
 	Date             time.Time `json:"date"`
 	CurrencyCode     string    `json:"currency_code"`
 	EmissionFactorId *string   `json:"emission_factor_id,omitempty"`
