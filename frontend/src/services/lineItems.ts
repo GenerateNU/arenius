@@ -28,7 +28,7 @@ function buildQueryParams(filters: LineItemFilters) {
     params.search_term = filters.searchTerm;
   }
   if (filters?.contactID) {
-    params.search_term = filters.contactID;
+    params.contact_id = filters.contactID;
   }
 
   return params;
