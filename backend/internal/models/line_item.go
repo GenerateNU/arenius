@@ -57,6 +57,7 @@ type GetLineItemsRequest struct {
 	SearchTerm           *string    `query:"search_term"`
 	MinPrice             *float64   `query:"min_price"`
 	MaxPrice             *float64   `query:"max_price"`
+	ContactID            *string    `query:"contact_id"`
 }
 
 type AddImportedLineItemRequest struct {

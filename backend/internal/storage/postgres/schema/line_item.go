@@ -64,6 +64,10 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		filterColumns = append(filterColumns, "li.total_amount <=")
 		filterArgs = append(filterArgs, *filterParams.MaxPrice)
 	}
+	if filterParams.ContactID != nil {
+		filterColumns = append(filterColumns, "li.contact_id=")
+		filterArgs = append(filterArgs, *filterParams.ContactID)
+	}
 
 	for i := 0; i < len(filterColumns); i++ {
 		filterQuery += fmt.Sprintf(" AND (%s$%d)", filterColumns[i], i+3)
@@ -80,7 +84,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	rows, err := r.db.Query(ctx, query, queryArgs...)
 	if err != nil {
 		return nil, err
-	}
+	} 
 	defer rows.Close()
 
 	lineItems, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.LineItemWithDetails])
@@ -88,7 +92,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		return nil, err
 	}
 
-	return lineItems, nil
+	return lineItems, nil 
 }
 
 func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, req models.ReconcileLineItemRequest) (*models.LineItem, error) {
