@@ -122,7 +122,6 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	carbonHandler := carbon.NewHandler()
 	app.Route("/climatiq", func(r fiber.Router) {
 		r.Get("/", carbonHandler.SearchEmissionFactors)
-		r.Patch("estimate", lineItemHandler.EstimateCarbonEmissions)
 	})
 
 	summaryHandler := summary.NewHandler(repo.Summary)
