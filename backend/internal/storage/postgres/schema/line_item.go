@@ -98,7 +98,6 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 }
 
 func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, req models.ReconcileLineItemRequest) (*models.LineItem, error) {
-
 	query := `UPDATE line_item SET`
 	updates := []string{}
 	args := []interface{}{}
@@ -125,23 +124,32 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId s
 	}
 
 	query += " " + strings.Join(updates, ", ")
-	query += fmt.Sprintf(" WHERE id = $%d", argCount)
+	query += fmt.Sprintf(" WHERE id = $%d RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope", argCount)
 	args = append(args, lineItemId)
 
-	query += " RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope"
+	row := r.db.QueryRow(ctx, query, args...)
 
-	rows, err := r.db.Query(ctx, query, args...)
-
-	if err != nil {
-		return nil, fmt.Errorf("error executing query: %w", err)
-	}
-	defer rows.Close()
-
-	lineItem, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.LineItem])
-
+	var lineItem models.LineItem
+	err := row.Scan(
+		&lineItem.ID,
+		&lineItem.XeroLineItemID,
+		&lineItem.Description,
+		&lineItem.TotalAmount,
+		&lineItem.CompanyID,
+		&lineItem.ContactID,
+		&lineItem.Date,
+		&lineItem.CurrencyCode,
+		&lineItem.EmissionFactorId,
+		&lineItem.CO2,
+		&lineItem.CO2Unit,
+		&lineItem.Scope,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)
 	}
+
+	// manually set the contactName since we didn't query for it
+	lineItem.ContactName = ""
 
 	return &lineItem, nil
 }
