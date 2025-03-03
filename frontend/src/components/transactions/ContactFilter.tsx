@@ -17,6 +17,7 @@ export default function ContactFilter({
       console.log(contact.id)
       setFilters({ ...filters, contactID: contact.id });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contact]);
 
   return (
