@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { ContactsProvider, useContacts } from "@/context/ContactsContext";
 import { fetchContacts } from "@/services/contacts";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import { useEffect } from "react";
 
 export default function Contacts() {
   return (
@@ -18,10 +20,18 @@ export default function Contacts() {
 function ContactsContent() {
   const { filters, setFilters } = useContacts();
   const searchTerm = filters.search_term || "";
+  const { companyId } = useAuth(); // Get companyId from AuthContext
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters({ ...filters, search_term: e.target.value });
   };
+
+  // Include companyId in filters when fetching contacts
+  useEffect(() => {
+    if (companyId && filters.company_id !== companyId) {
+      setFilters({ ...filters, company_id: companyId });
+    }
+  }, [companyId, filters, setFilters]);
 
   return (
     <div className={styles.container}>

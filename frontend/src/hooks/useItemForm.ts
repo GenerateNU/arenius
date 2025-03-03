@@ -1,5 +1,6 @@
 import { createLineItem } from "@/services/lineItems";
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface FormData {
   description: string;
@@ -19,6 +20,7 @@ const useItemForm = (onSubmit: () => void) => {
     total_amount: "",
     currency_code: "USD",
   };
+  const { companyId } = useAuth();
 
   const [formData, setFormData] = useState<FormData>(defaultForm);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -58,11 +60,18 @@ const useItemForm = (onSubmit: () => void) => {
       return;
     }
 
-    await createLineItem({
-      description: formData.description,
-      total_amount: Number(formData.total_amount),
-      currency_code: formData.currency_code,
-    });
+    if (companyId) {
+      await createLineItem(
+        {
+          description: formData.description,
+          total_amount: Number(formData.total_amount),
+          currency_code: formData.currency_code,
+        },
+        companyId
+      );
+    } else {
+      console.error("Company ID is null");
+    }
 
     setFormData(defaultForm);
     onSubmit();

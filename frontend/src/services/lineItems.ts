@@ -27,6 +27,9 @@ function buildQueryParams(filters: LineItemFilters) {
   if (filters?.searchTerm) {
     params.search_term = filters.searchTerm;
   }
+  if (filters?.company_id) {
+    params.company_id = filters.company_id;
+  }
 
   return params;
 }
@@ -34,6 +37,7 @@ function buildQueryParams(filters: LineItemFilters) {
 export async function fetchLineItems(
   filters: LineItemFilters
 ): Promise<LineItem[]> {
+
   try {
     const response = await apiClient.get("/line-item", {
       params: buildQueryParams(filters),
@@ -46,13 +50,15 @@ export async function fetchLineItems(
 }
 
 export async function createLineItem(
-  item: CreateLineItemRequest
+  item: CreateLineItemRequest,
+  companyId: string
 ): Promise<void> {
+  
   const new_item = {
     description: item.description,
     total_amount: item.total_amount,
     currency_code: item.currency_code,
-    company_id: "0a67f5d3-88b6-4e8f-aac0-5137b29917fd",
+    company_id: companyId,
     contact_id: "b8c4b3e2-08f1-45e9-94a0-125a7e73b4d6",
     amount: 12,
   };

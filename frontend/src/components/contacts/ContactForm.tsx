@@ -25,6 +25,7 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 const formSchema = z.object({
   name: z.string().min(2).max(50),
@@ -56,12 +57,19 @@ export default function ContactForm() {
     },
   });
 
+  const { companyId } = useAuth();
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!companyId) {
+      console.error("Company ID is null");
+      return;
+    }
+
     try {
       const response = await createContact({
         ...values,
         company_id: "",
-      });
+      }, companyId);
   
       if (response) {
         form.reset();
@@ -87,7 +95,7 @@ export default function ContactForm() {
               height={180}
               className="rounded-full border border-gray-300 shadow-md"
             />
-            <button className="w-10 h-10 absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md border border-gray-300 flex items-center justify-center">
+            <button title="Edit Profile" className="w-10 h-10 absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md border border-gray-300 flex items-center justify-center">
               <Image
                 src="/edit.svg"
                 alt="Edit"

@@ -8,15 +8,15 @@ export default function LoginPage() {
   const [isLoginPage, setIsLoginPage] = useState(false);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.login}>
-        {isLoginPage ? (
-          <LoginForm />
-        ) : (
-          <SignupForm setIsLoginPage={setIsLoginPage} />
-        )}
+      <div className={styles.container}>
+        <div className={styles.login}>
+          {isLoginPage ? (
+            <LoginForm />
+          ) : (
+            <SignupForm setIsLoginPage={setIsLoginPage} />
+          )}
+        </div>
       </div>
-    </div>
   );
 }
 
