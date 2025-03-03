@@ -9,6 +9,7 @@ type LineItem struct {
 	TotalAmount      float64   `json:"total_amount"`
 	CompanyID        string    `json:"company_id"`
 	ContactID        string    `json:"contact_id"`
+	ContactName      string    `json:"contact_name"`
 	Date             time.Time `json:"date"`
 	CurrencyCode     string    `json:"currency_code"`
 	EmissionFactorId *string   `json:"emission_factor_id,omitempty"`
@@ -57,6 +58,7 @@ type GetLineItemsRequest struct {
 	SearchTerm           *string    `query:"search_term"`
 	MinPrice             *float64   `query:"min_price"`
 	MaxPrice             *float64   `query:"max_price"`
+	ContactID            *string    `query:"contact_id"`
 }
 
 type AddImportedLineItemRequest struct {

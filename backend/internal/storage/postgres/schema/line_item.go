@@ -64,14 +64,20 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		filterColumns = append(filterColumns, "li.total_amount <=")
 		filterArgs = append(filterArgs, *filterParams.MaxPrice)
 	}
+	if filterParams.ContactID != nil {
+		filterColumns = append(filterColumns, "li.contact_id=")
+		filterArgs = append(filterArgs, *filterParams.ContactID)
+	}
 
 	for i := 0; i < len(filterColumns); i++ {
 		filterQuery += fmt.Sprintf(" AND (%s$%d)", filterColumns[i], i+3)
 	}
 
 	query := `
-	SELECT li.id, li.xero_line_item_id, li.description, li.total_amount, li.company_id, li.contact_id, li.date, li.currency_code, li.emission_factor_id, ef.name as emission_factor_name, li.co2, li.co2_unit, li.scope
-	FROM line_item li LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id ` + filterQuery + `
+	SELECT li.id, li.xero_line_item_id, li.description, li.total_amount, li.company_id, li.contact_id, c.name as contact_name, li.date, li.currency_code, li.emission_factor_id, ef.name as emission_factor_name, li.co2, li.co2_unit, li.scope
+	FROM line_item li 
+	LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id
+	LEFT JOIN contact c on li.contact_id = c.id ` + filterQuery + `
 	ORDER BY li.date DESC
 	LIMIT $1 OFFSET $2
 	`
@@ -92,7 +98,6 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 }
 
 func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, req models.ReconcileLineItemRequest) (*models.LineItem, error) {
-
 	query := `UPDATE line_item SET`
 	updates := []string{}
 	args := []interface{}{}
@@ -119,23 +124,32 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId s
 	}
 
 	query += " " + strings.Join(updates, ", ")
-	query += fmt.Sprintf(" WHERE id = $%d", argCount)
+	query += fmt.Sprintf(" WHERE id = $%d RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope", argCount)
 	args = append(args, lineItemId)
 
-	query += " RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope"
+	row := r.db.QueryRow(ctx, query, args...)
 
-	rows, err := r.db.Query(ctx, query, args...)
-
-	if err != nil {
-		return nil, fmt.Errorf("error executing query: %w", err)
-	}
-	defer rows.Close()
-
-	lineItem, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.LineItem])
-
+	var lineItem models.LineItem
+	err := row.Scan(
+		&lineItem.ID,
+		&lineItem.XeroLineItemID,
+		&lineItem.Description,
+		&lineItem.TotalAmount,
+		&lineItem.CompanyID,
+		&lineItem.ContactID,
+		&lineItem.Date,
+		&lineItem.CurrencyCode,
+		&lineItem.EmissionFactorId,
+		&lineItem.CO2,
+		&lineItem.CO2Unit,
+		&lineItem.Scope,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %w", err)
 	}
+
+	// manually set the contactName since we didn't query for it
+	lineItem.ContactName = ""
 
 	return &lineItem, nil
 }

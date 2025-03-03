@@ -53,13 +53,9 @@ export const columns: ColumnDef<LineItem>[] = [
   },
 
   {
-    accessorKey: "contact",
+    accessorKey: "contact_name",
     header: ({ column }) => {
       return <ColumnHeader name="Contact" column={column} />;
-    },
-    cell: ({}) => {
-      // TODO: un-hard-code after contacts table is created
-      return <div className="font-medium">Contact name</div>;
     },
   },
 

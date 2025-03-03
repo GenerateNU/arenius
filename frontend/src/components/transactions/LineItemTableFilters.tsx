@@ -1,11 +1,12 @@
 "use client";
-import React from "react";
-import { DatePickerWithRange } from "./DatePicker";
-import PriceFilter from "./PriceFilter";
-import EmissionsFactorFilter from "./EmissionsFactorFilter";
-import ContactFilter from "./ContactFilter";
-import { Button } from "../ui/button";
 import { useLineItems } from "@/context/LineItemsContext";
+import { Button } from "../ui/button";
+import ContactFilter from "./ContactFilter";
+import { DatePickerWithRange } from "./DatePicker";
+import EmissionsFactorFilter from "./EmissionsFactorFilter";
+import PriceFilter from "./PriceFilter";
+import { fetchContacts } from "@/services/contacts";
+import { ContactsProvider } from "@/context/ContactsContext";
 
 export default function LineItemTableFilters() {
   const { setFilters } = useLineItems();
@@ -15,7 +16,9 @@ export default function LineItemTableFilters() {
       <div className={styles.container}>
         <DatePickerWithRange className={styles.filter} />
         <EmissionsFactorFilter className={styles.filter} />
-        <ContactFilter className={styles.filter} />
+        <ContactsProvider fetchFunction={fetchContacts}>
+          <ContactFilter className={styles.filter} />
+        </ContactsProvider>
         <PriceFilter className={styles.filter} />
       </div>
       <div className="flex justify-end">
