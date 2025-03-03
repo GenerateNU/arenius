@@ -10,6 +10,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/lib/pq"
+	"github.com/pkg/errors"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -332,6 +335,35 @@ func (r *LineItemRepository) BatchUpdateScopeEmissions(ctx context.Context, line
 
 	_, err := r.db.Exec(ctx, query, values...)
 	return err
+}
+
+func (r *LineItemRepository) GetLineItemsByIds(ctx context.Context, lineItemIDs []uuid.UUID) ([]models.LineItem, error) {
+	if len(lineItemIDs) == 0 {
+		return nil, errors.New("no line item IDs provided")
+	}
+
+	query := "SELECT id, total_amount, currency_code, emission_factor_id FROM line_item WHERE id = ANY($1)"
+	rows, err := r.db.Query(ctx, query, pq.Array(lineItemIDs))
+	if err != nil {
+		return nil, errors.Wrap(err, "error querying line items")
+	}
+	defer rows.Close()
+
+	var lineItems []models.LineItem
+	for rows.Next() {
+		var item models.LineItem
+		err := rows.Scan(&item.ID, &item.TotalAmount, &item.CurrencyCode, &item.EmissionFactorId)
+		if err != nil {
+			return nil, errors.Wrap(err, "error scanning line item row")
+		}
+		lineItems = append(lineItems, item)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, errors.Wrap(err, "error iterating over line item rows")
+	}
+
+	return lineItems, nil
 }
 
 func NewLineItemRepository(db *pgxpool.Pool) *LineItemRepository {
