@@ -94,26 +94,26 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	return lineItems, nil
 }
 
-func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, req models.ReconcileLineItemRequest) (*models.LineItem, error) {
+func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, scope int, emissionsFactorId string, contactID *string) (*models.LineItem, error) {
 
 	query := `UPDATE line_item SET`
 	updates := []string{}
 	args := []interface{}{}
 	argCount := 1
 
-	if req.EmissionsFactor != "" {
+	if emissionsFactorId != "" {
 		updates = append(updates, fmt.Sprintf("emission_factor_id = $%d", argCount))
-		args = append(args, req.EmissionsFactor)
+		args = append(args, emissionsFactorId)
 		argCount++
 	}
-	if req.Scope != 0 {
+	if scope != 0 {
 		updates = append(updates, fmt.Sprintf("scope = $%d", argCount))
-		args = append(args, req.Scope)
+		args = append(args, scope)
 		argCount++
 	}
-	if req.ContactID != nil {
+	if contactID != nil {
 		updates = append(updates, fmt.Sprintf("contact_id = $%d", argCount))
-		args = append(args, req.ContactID)
+		args = append(args, contactID)
 		argCount++
 	}
 
@@ -342,7 +342,7 @@ func (r *LineItemRepository) GetLineItemsByIds(ctx context.Context, lineItemIDs 
 		return nil, errors.New("no line item IDs provided")
 	}
 
-	query := "SELECT id, total_amount, currency_code, emission_factor_id FROM line_item WHERE id = ANY($1)"
+	const query = "SELECT id, total_amount, currency_code, emission_factor_id FROM line_item WHERE id = ANY($1)"
 	rows, err := r.db.Query(ctx, query, pq.Array(lineItemIDs))
 	if err != nil {
 		return nil, errors.Wrap(err, "error querying line items")

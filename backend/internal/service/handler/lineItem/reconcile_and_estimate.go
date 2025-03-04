@@ -13,11 +13,18 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func (h *Handler) ReconcileAndEstimate(ctx *fiber.Ctx, lineItemIDs []uuid.UUID, scope *int, emissionsFactorID *string) error {
+func (h *Handler) ReconcileAndEstimate(ctx *fiber.Ctx, lineItemIDs []uuid.UUID, scope *int, emissionsFactorID *string, contactID *string) error {
 	// Step 1: Update Line Items in Supabase
-	err := h.lineItemRepository.BatchUpdateScopeEmissions(ctx.Context(), lineItemIDs, scope, emissionsFactorID)
-	if err != nil {
-		return fmt.Errorf("error updating line items: %w", err)
+	if contactID != nil && len(lineItemIDs) == 1 {
+		_, err := h.lineItemRepository.ReconcileLineItem(ctx.Context(), lineItemIDs[0].String(), *scope, *emissionsFactorID, contactID)
+		if err != nil {
+			return fmt.Errorf("error updating line items: %w", err)
+		}
+	} else {
+		err := h.lineItemRepository.BatchUpdateScopeEmissions(ctx.Context(), lineItemIDs, scope, emissionsFactorID)
+		if err != nil {
+			return fmt.Errorf("error updating line items: %w", err)
+		}
 	}
 
 	// Step 2: Fetch updated Line Items for Estimation
