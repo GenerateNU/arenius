@@ -11,8 +11,8 @@ interface AuthContextType {
   tenantId: string | null;
   userId: string | null;
   isLoading: boolean;  // Add isLoading to the context
-  login: (item: LoginRequest) => Promise<{ response: AxiosResponse }>;
-  signup: (item: SignupRequest) => Promise<{ response: AxiosResponse }>;
+  login: (item: LoginRequest) => Promise<{ response?: AxiosResponse, error?: unknown }>;
+  signup: (item: SignupRequest) => Promise<{ response?: AxiosResponse, error?: unknown }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -48,33 +48,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [authActionTriggered]);
 
-  const login = async (item: LoginRequest): Promise<{ response: AxiosResponse }> => {
-
-    setIsLoading(true);  // Set loading to true when login starts
-
-    const response = await apiClient.post("/auth/login", item);
-
-    // Trigger the effect by setting the state
-    setAuthActionTriggered("login");
-
-    setIsLoading(false);  // Set loading to false when login finishes
-
-    return { response };
+  const login = async (item: LoginRequest): Promise<{ response?: AxiosResponse; error?: unknown }> => {
+    setIsLoading(true); // Set loading to true when login starts
+  
+    try {
+      const response = await apiClient.post("/auth/login", item);
+      
+      // Trigger the effect by setting the state
+      setAuthActionTriggered("login");
+  
+      return { response };
+    } catch (error) {
+      console.error("Login error:", error);
+      return { error };
+    } finally {
+      setIsLoading(false); // Set loading to false when login finishes
+    }
   };
-
-  const signup = async (item: SignupRequest): Promise<{ response: AxiosResponse }> => {
-
-    setIsLoading(true);  // Set loading to true when signup starts
-
-    const response = await apiClient.post("/auth/signup", item);
-
-    // Trigger the effect by setting the state
-    setAuthActionTriggered("signup");
-
-    setIsLoading(false);  // Set loading to false when signup finishes
-
-    return { response };
-  };
+  
+  const signup = async (item: SignupRequest): Promise<{ response?: AxiosResponse; error?: unknown }> => {
+    setIsLoading(true); // Set loading to true when signup starts
+  
+    try {
+      const response = await apiClient.post("/auth/signup", item);
+      
+      // Trigger the effect by setting the state
+      setAuthActionTriggered("signup");
+  
+      return { response };
+    } catch (error) {
+      console.error("Signup error:", error);
+      return { error };
+    } finally {
+      setIsLoading(false); // Set loading to false when signup finishes
+    }
+  };  
 
   return (
     <AuthContext.Provider value={{ companyId, tenantId, userId, isLoading, login, signup }}>

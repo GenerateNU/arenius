@@ -41,8 +41,12 @@ export const createDataContext = <T extends object, F extends object>() => {
         return;  // Don't fetch if companyId is not available
       }
 
-      const result = await fetchFunction({ ...filters, company_id: companyId });
-      setData(result);
+      try {
+        const result = await fetchFunction({ ...filters, company_id: companyId });
+        setData(result);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     }, [filters, fetchFunction, companyId, isLoading]);  // Add `isLoading` to dependencies
 
     useEffect(() => {
