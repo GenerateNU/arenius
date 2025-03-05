@@ -10,6 +10,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/lib/pq"
+	"github.com/pkg/errors"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -91,26 +94,26 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	return lineItems, nil
 }
 
-func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, req models.ReconcileLineItemRequest) (*models.LineItem, error) {
+func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, scope int, emissionsFactorId string, contactID *string) (*models.LineItem, error) {
 
 	query := `UPDATE line_item SET`
 	updates := []string{}
 	args := []interface{}{}
 	argCount := 1
 
-	if req.EmissionsFactor != "" {
+	if emissionsFactorId != "" {
 		updates = append(updates, fmt.Sprintf("emission_factor_id = $%d", argCount))
-		args = append(args, req.EmissionsFactor)
+		args = append(args, emissionsFactorId)
 		argCount++
 	}
-	if req.Scope != 0 {
+	if scope != 0 {
 		updates = append(updates, fmt.Sprintf("scope = $%d", argCount))
-		args = append(args, req.Scope)
+		args = append(args, scope)
 		argCount++
 	}
-	if req.ContactID != nil {
+	if contactID != nil {
 		updates = append(updates, fmt.Sprintf("contact_id = $%d", argCount))
-		args = append(args, req.ContactID)
+		args = append(args, contactID)
 		argCount++
 	}
 
@@ -332,6 +335,35 @@ func (r *LineItemRepository) BatchUpdateScopeEmissions(ctx context.Context, line
 
 	_, err := r.db.Exec(ctx, query, values...)
 	return err
+}
+
+func (r *LineItemRepository) GetLineItemsByIds(ctx context.Context, lineItemIDs []uuid.UUID) ([]models.LineItem, error) {
+	if len(lineItemIDs) == 0 {
+		return nil, errors.New("no line item IDs provided")
+	}
+
+	const query = "SELECT id, total_amount, currency_code, emission_factor_id FROM line_item WHERE id = ANY($1)"
+	rows, err := r.db.Query(ctx, query, pq.Array(lineItemIDs))
+	if err != nil {
+		return nil, errors.Wrap(err, "error querying line items")
+	}
+	defer rows.Close()
+
+	var lineItems []models.LineItem
+	for rows.Next() {
+		var item models.LineItem
+		err := rows.Scan(&item.ID, &item.TotalAmount, &item.CurrencyCode, &item.EmissionFactorId)
+		if err != nil {
+			return nil, errors.Wrap(err, "error scanning line item row")
+		}
+		lineItems = append(lineItems, item)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, errors.Wrap(err, "error iterating over line item rows")
+	}
+
+	return lineItems, nil
 }
 
 func NewLineItemRepository(db *pgxpool.Pool) *LineItemRepository {
