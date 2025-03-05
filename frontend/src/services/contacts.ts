@@ -2,12 +2,13 @@ import { Contact, CreateContactRequest, GetContactsRequest } from "../types";
 import apiClient from "./apiClient";
 
 export async function createContact(
-  contact: CreateContactRequest
+  contact: CreateContactRequest,
+  companyId: string
 ): Promise<Contact | null> {
   try {
     const new_contact = {
       ...contact,
-      company_id: "0a67f5d3-88b6-4e8f-aac0-5137b29917fd",
+      company_id: companyId,
     };
 
     const response = await apiClient.post("/contact", new_contact);

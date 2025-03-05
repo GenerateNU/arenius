@@ -7,6 +7,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface DataProviderProps<T extends object, F extends object> {
   children: React.ReactNode;
@@ -20,26 +21,43 @@ interface DataContextValue<T extends object, F extends object> {
   setFilters: (filters: F) => void;
 }
 
-export const createDataContext = <T extends object, F extends object>() => {
-  const DataContext = createContext<DataContextValue<T, F> | undefined>(
-    undefined
-  );
 
-  const DataProvider: React.FC<DataProviderProps<T, F>> = ({
-    children,
-    fetchFunction,
-  }) => {
+export const createDataContext = <T extends object, F extends object>() => {
+  const DataContext = createContext<DataContextValue<T, F> | undefined>(undefined);
+
+  const DataProvider: React.FC<DataProviderProps<T, F>> = ({ children, fetchFunction }) => {
     const [data, setData] = useState<T[]>([]);
     const [filters, setFilters] = useState<F>({} as F);
+    const { companyId, isLoading } = useAuth(); // Using `companyId` and `isLoading`
 
     const fetchData = useCallback(async () => {
-      const result = await fetchFunction({...filters, company_id: "0a67f5d3-88b6-4e8f-aac0-5137b29917fd"});
-      setData(result);
-    }, [filters, fetchFunction]);
+      if (isLoading) {
+        console.log("Authentication is still in progress. Please wait...");
+        return;  // Don't fetch data if the auth process is still ongoing
+      }
+
+      if (!companyId) {
+        console.log("Company ID is not available yet");
+        return;  // Don't fetch if companyId is not available
+      }
+
+      try {
+        const result = await fetchFunction({ ...filters, company_id: companyId });
+        setData(result);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }, [filters, fetchFunction, companyId, isLoading]);  // Add `isLoading` to dependencies
 
     useEffect(() => {
-      fetchData();
-    }, [fetchData]);
+      if (companyId) {
+        fetchData();
+      }
+    }, [companyId, fetchData]); // Fetch data when companyId or filters change
+
+    if (isLoading) {
+      return <div>Loading...</div>;  // Or any loading state you want
+    }
 
     return (
       <DataContext.Provider value={{ data, fetchData, filters, setFilters }}>

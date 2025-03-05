@@ -48,6 +48,7 @@ func SupabaseSignup(cfg *config.Supabase, email string, password string) (signup
 	// Create the HTTP POST request
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/auth/v1/signup", supabaseURL), bytes.NewBuffer(payloadBytes))
 	if err != nil {
+		fmt.Println("Error creating request:", err)
 		return signupResponse{}, errs.BadRequest(fmt.Sprintf("failed to create request: %v", err))
 	}
 
@@ -59,6 +60,7 @@ func SupabaseSignup(cfg *config.Supabase, email string, password string) (signup
 	// Execute the request
 	resp, err := Client.Do(req)
 	if err != nil {
+		fmt.Println("Error executing request:", err)
 		return signupResponse{}, errs.BadRequest(fmt.Sprintf("failed to execute request: %v, %s", err, supabaseURL))
 	}
 	defer resp.Body.Close()
@@ -66,17 +68,20 @@ func SupabaseSignup(cfg *config.Supabase, email string, password string) (signup
 	// Read the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		fmt.Println("Error reading response body:", err)
 		return signupResponse{}, errs.BadRequest("failed to read response body")
 	}
 
 	// Check if the response was successful
 	if resp.StatusCode != http.StatusOK {
+		fmt.Println("Error response:", resp.StatusCode, string(body))
 		return signupResponse{}, errs.BadRequest(fmt.Sprintf("failed to login %d, %s", resp.StatusCode, body))
 	}
 
 	// Parse the response
 	var response signupResponse
 	if err := json.Unmarshal(body, &response); err != nil {
+		fmt.Println("Error parsing response:", err)
 		return signupResponse{}, errs.BadRequest("failed to parse response")
 	}
 
