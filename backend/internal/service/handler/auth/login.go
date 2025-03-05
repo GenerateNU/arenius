@@ -29,7 +29,6 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		Name:     "userID",
 		Value:    signInResponse.User.ID.String(),
 		Expires:  time.Now().Add(24 * time.Hour),
-		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "Lax",
 	})
@@ -47,11 +46,12 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 	if c.Cookies("tenantID") == "" || c.Cookies("accessToken") == "" || c.Cookies("refreshToken") == "" || c.Cookies("expiry") == "" {
 		xeroCreds, err := h.userRepository.GetCredentialsByUserID(c.Context(), signInResponse.User.ID.String())
 		if err != nil {
+			fmt.Println("Error getting credentials:", err)
 			fmt.Println("Failed to get credentials")
 		}
 		c.Cookie(&fiber.Cookie{
 			Name:     "refreshToken",
-			Value:    xeroCreds.RefreshToken.String(),
+			Value:    xeroCreds.RefreshToken,
 			Expires:  time.Now().Add(7 * 24 * time.Hour),
 			HTTPOnly: true,
 			Secure:   true,
@@ -61,7 +61,6 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			Name:     "tenantID",
 			Value:    xeroCreds.TenantID.String(),
 			Expires:  time.Now().Add(24 * time.Hour),
-			HTTPOnly: true,
 			Secure:   true,
 			SameSite: "Lax",
 		})
@@ -69,7 +68,6 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			Name:     "companyID",
 			Value:    xeroCreds.CompanyID.String(),
 			Expires:  time.Now().Add(24 * time.Hour),
-			HTTPOnly: true,
 			Secure:   true,
 			SameSite: "Lax",
 		})
