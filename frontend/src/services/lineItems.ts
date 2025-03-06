@@ -28,6 +28,7 @@ function buildQueryParams(filters: LineItemFilters) {
   }
   if (filters?.contactID) {
     params.contact_id = filters.contactID;
+  }
   if (filters?.company_id) {
     params.company_id = filters.company_id;
   }
