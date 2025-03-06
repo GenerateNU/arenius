@@ -107,27 +107,6 @@ Patch `/lint-item\batch` - Allows you to update the scope and/or emissions facto
 
 ## Climatiq
 
-PATCH `climatiq/estimate` - Provides Carbon estimates for the given line items and updates the db based on Unit being Money - Body Parameters:
-List of Line Items
-
-```go
-    Line Item:
-        ID               string    `json:"id"` //Required
-        XeroLineItemID   *string   `json:"xero_line_item_id"` //Optional
-        Description      string    `json:"description"` //Optional
-        TotalAmount      float64   `json:"total_amount"` //Required
-        CompanyID        string    `json:"company_id"` //Optional
-        ContactID        string    `json:"contact_id"` //Optional
-        Date             time.Time `json:"date"` //Optional
-        CurrencyCode     string    `json:"currency_code"` //Required
-        EmissionFactorId *string   `json:"emission_factor_id"` //Required
-        Amount           *float64  `json:"amount"` //Optional
-        Unit             *string   `json:"unit"` //Optional
-        CO2              *float64  `json:"co2"` //Optional
-        Scope            *int      `json:"scope"` //Optional
-        CO2Unit          *string   `json:"co2_unit"` //Optional
-```
-
 ## Emissions Factors
 
 GET `/emissions-factor/:companyId` - returns all emissions factors, structured as a list of categories, each with a name and its list of emission factors. The first category is the company's "favorites"
