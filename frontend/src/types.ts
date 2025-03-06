@@ -17,6 +17,7 @@ export interface LineItemFilters {
   maxPrice?: number;
   searchTerm?: string;
   contactID?: string;
+  company_id?: string;
 }
 
 export type CreateLineItemRequest = {
