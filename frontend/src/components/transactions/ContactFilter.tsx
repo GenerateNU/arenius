@@ -6,6 +6,8 @@ import ContactsSelector from "./ContactsSelector";
 import { useEffect, useState } from "react";
 import { useLineItems } from "@/context/LineItemsContext";
 import { Contact } from "@/types";
+import { ContactsProvider } from "@/context/ContactsContext";
+import { fetchContacts } from "@/services/contacts";
 
 export default function ContactFilter({
   className,
@@ -22,11 +24,13 @@ export default function ContactFilter({
 
   return (
     <div className={cn("grid gap-2", className)}>
-      <ContactsSelector
-        contact={contact}
-        setContact={setContact}
-        variant="ghost"
-      />
+      <ContactsProvider fetchFunction={fetchContacts}>
+        <ContactsSelector
+          contact={contact}
+          setContact={setContact}
+          variant='ghost'
+        />
+      </ContactsProvider>
     </div>
   );
 }
