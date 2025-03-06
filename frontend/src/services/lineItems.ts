@@ -1,9 +1,9 @@
 import {
-  LineItem,
   CreateLineItemRequest,
+  LineItem,
+  LineItemFilters,
   ReconcileBatchRequest,
   ReconcileRequest,
-  LineItemFilters,
 } from "../types";
 import apiClient from "./apiClient";
 
@@ -14,7 +14,6 @@ function buildQueryParams(filters: LineItemFilters) {
     params.after_date = filters.dates.from;
     params.before_date = filters.dates.to;
   }
-
   if (filters?.emissionFactor) {
     params.emission_factor = filters.emissionFactor;
   }
@@ -26,6 +25,9 @@ function buildQueryParams(filters: LineItemFilters) {
   }
   if (filters?.searchTerm) {
     params.search_term = filters.searchTerm;
+  }
+  if (filters?.contactID) {
+    params.contact_id = filters.contactID;
   }
   if (filters?.company_id) {
     params.company_id = filters.company_id;
