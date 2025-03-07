@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -21,6 +22,7 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	if company.RefreshToken != nil {
 		refreshToken = *company.RefreshToken
 	}
+	fmt.Println("refreshToken: ", refreshToken)
 
 	token := &oauth2.Token{
 		RefreshToken: refreshToken,
@@ -70,20 +72,33 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 			req.Header.Set("If-Modified-Since", company.LastTransactionImportTime.UTC().Format("2006-01-02T15:04:05"))
 		}
 
+		// resp, err := client.Do(req)
+		// if err != nil {
+		// 	return errs.BadRequest(fmt.Sprintf("error handling request: %s", err))
+		// }
+		// defer resp.Body.Close()
+
+		// if resp.StatusCode != http.StatusOK {
+		// 	return errs.BadRequest(fmt.Sprintf("response status unsuccessful: %s", err))
+		// }
+
 		resp, err := client.Do(req)
 		if err != nil {
-			return errs.BadRequest(fmt.Sprintf("error handling request: %s", err))
+			log.Printf("HTTP request failed: %v", err)
+			return err
 		}
 		defer resp.Body.Close()
 
+		body, _ := io.ReadAll(resp.Body) // Read response body
 		if resp.StatusCode != http.StatusOK {
-			return errs.BadRequest(fmt.Sprintf("response status unsuccessful: %s", err))
+			log.Printf("HTTP error: %d response body: %s", resp.StatusCode, string(body))
+			return fmt.Errorf("HTTP error: %d - %s", resp.StatusCode, string(body))
 		}
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return errs.BadRequest(fmt.Sprintf("unable to read response body: %s", err))
-		}
+		// body, err := io.ReadAll(resp.Body)
+		// if err != nil {
+		// 	return errs.BadRequest(fmt.Sprintf("unable to read response body: %s", err))
+		// }
 
 		var response map[string]interface{}
 		if err := json.Unmarshal(body, &response); err != nil {
