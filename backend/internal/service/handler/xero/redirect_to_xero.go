@@ -86,6 +86,8 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		log.Fatalf("Error reading response body: %v", err)
 	}
 
+	fmt.Println("Raw response body:", string(body))
+
 	if resp.StatusCode == http.StatusOK {
 		fmt.Println("Successfully fetched connections!")
 	} else {
@@ -97,6 +99,7 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	if err != nil {
 		log.Fatalf("Error parsing JSON: %v", err)
 	}
+	fmt.Println("Decoded connections:", connections)
 
 	for _, connection := range connections {
 		if tenantID, ok := connection["tenantId"].(string); ok {

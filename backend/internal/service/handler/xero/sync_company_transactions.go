@@ -109,10 +109,11 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 		transactions = append(transactions, paginatedTransactions...)
 	}
 
-	fmt.Println("transactions: ", transactions)
+	//fmt.Println("transactions: ", transactions)
 	// Parse transactions and filter out duplicates
 	newLineItems, err := h.parseTenantTransactions(ctx.Context(), transactions, company)
 	if err != nil {
+		fmt.Println("Error parsing transactions:", err)
 		return err
 	}
 
@@ -120,12 +121,14 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	if len(newLineItems) > 0 {
 		_, err = h.lineItemRepository.AddImportedLineItems(ctx.Context(), newLineItems)
 		if err != nil {
+			fmt.Println("Error adding line items:", err)
 			return err
 		}
 
 		// Update last import time
 		_, err = h.companyRepository.UpdateCompanyLastTransactionImportTime(ctx.Context(), company.ID)
 		if err != nil {
+			fmt.Println("Error updating last import time:", err)
 			return err
 		}
 	}
@@ -252,10 +255,10 @@ func (h *Handler) parseTenantTransactions(ctx context.Context, transactions []in
 					newLineItem.Description = lineItem["Description"].(string)
 				}
 
-				if lineItem["TotalAmount"] != nil {
-					newLineItem.TotalAmount = lineItem["TotalAmount"].(float64)
+				if lineItem["Quantity"] != nil || lineItem["UnitAmount"] != nil {
+					newLineItem.TotalAmount = lineItem["Quantity"].(float64) * lineItem["UnitAmount"].(float64)
 				} else {
-					return nil, errs.BadRequest("Missing TotalAmount")
+					return nil, errs.BadRequest("Missing Quantity or UnitAmount")
 				}
 
 				newLineItems = append(newLineItems, newLineItem)
