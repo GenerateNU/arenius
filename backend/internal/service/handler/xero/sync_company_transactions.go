@@ -89,6 +89,11 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 		}
 		defer resp.Body.Close()
 
+		log.Println("response status code: ", resp.StatusCode)
+		log.Println("response status: ", resp.Status)
+		log.Println("response body: ", resp.Body)
+		log.Println("response: ", resp)
+
 		body, _ := io.ReadAll(resp.Body) // Read response body
 		if resp.StatusCode != http.StatusOK {
 			log.Printf("HTTP error: %d response body: %s", resp.StatusCode, string(body))

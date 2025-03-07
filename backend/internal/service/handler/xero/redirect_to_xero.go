@@ -101,6 +101,8 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	}
 	fmt.Println("Decoded connections:", connections)
 
+	var tID string
+
 	for _, connection := range connections {
 		if tenantID, ok := connection["tenantId"].(string); ok {
 			tenantName, ok := connection["tenantName"].(string)
@@ -108,6 +110,7 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 				fmt.Println("Tenant Name not found or is not a string")
 				continue
 			}
+			tID = tenantID
 			ctx.Cookie(&fiber.Cookie{
 				Name:     "tenantName",
 				Value:    tenantName,
@@ -135,16 +138,16 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		fmt.Println("User ID not in cookies")
 	}
 
-	tenantID := ctx.Cookies("tenantID")
+	//tenantID := ctx.Cookies("tenantID")
 	companyName := ctx.Cookies("tenantName")
 
 	// Get company ID
-	companyID, err := h.getCompanyID(ctx, tenantID, companyName)
+	companyID, err := h.getCompanyID(ctx, tID, companyName)
 	if err != nil {
 		fmt.Println("Company ID retrieval failed")
 	}
 
-	err = h.UserRepository.SetUserCredentials(ctx.Context(), userID, companyID, tok.RefreshToken, tenantID)
+	err = h.UserRepository.SetUserCredentials(ctx.Context(), userID, companyID, tok.RefreshToken, tID)
 	if err != nil {
 		fmt.Println("Failed to set credentials")
 	}
