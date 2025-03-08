@@ -3,8 +3,8 @@ package models
 import "time"
 
 type GetGrossSummaryRequest struct {
-	CompanyID     string `json:"company_id"`
-	MonthDuration int    `json:"month_duration"`
+	CompanyID     string `query:"company_id"`
+	MonthDuration int    `query:"month_duration"`
 }
 
 type GetGrossSummaryResponse struct {

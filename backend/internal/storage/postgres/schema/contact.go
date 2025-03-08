@@ -66,7 +66,7 @@ func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*
 	if err != nil {
 		return nil, fmt.Errorf("error querying database for summary: %w", err)
 	}
-	
+
 	return &models.ContactWithDetails{
 		Contact: contact,
 		Summary: summary,
@@ -75,6 +75,8 @@ func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*
 
 func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pagination, filterParams models.GetContactsRequest, companyId string) ([]models.Contact, error) {
 	filterQuery := ""
+	fmt.Println("TESTING")
+	fmt.Println(companyId)
 
 	if filterParams.SearchTerm != nil {
 		filterQuery += fmt.Sprintf(" AND (contact.name ILIKE '%%%s%%')", *filterParams.SearchTerm)

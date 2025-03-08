@@ -1,5 +1,6 @@
-// TODO: use client here?
-import { GrossEmissionsBarGraph } from "@/components/dashboard/GrossEmissionsBarGraph";
+"use client";
+
+import GrossSummary from "@/components/dashboard/GrossEmissionsBarGraph";
 import React from "react";
 
 const DashboardPage: React.FC = () => {
@@ -8,7 +9,7 @@ const DashboardPage: React.FC = () => {
       <br />
       <h1 className="text-3xl font-bold">Dashboard Page</h1>
       <br />
-      <GrossEmissionsBarGraph />
+      <GrossSummary />
     </div>
   );
 };

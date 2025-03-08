@@ -17,6 +17,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { GrossSummaryProvider, useGrossSummary } from "@/context/GrossSummaryContext"
+import { useEffect } from "react"
+import { useAuth } from "@/context/AuthContext"
 const chartData = [
   { co2: "January", scope1: 186, scope2: 80, scope3: 100 },
   { co2: "February", scope1: 305, scope2: 200, scope3: 10 },
@@ -41,13 +44,50 @@ const chartConfig = {
   }
 } satisfies ChartConfig
 
-export function GrossEmissionsBarGraph() {
+export default function GrossSummary() {
+  return (
+    <GrossSummaryProvider>
+      <GrossEmissionsBarGraph />
+    </GrossSummaryProvider>
+  );
+}
+
+function GrossEmissionsBarGraph() {
+  const { grossSummary, fetchData, req, setReq } = useGrossSummary();
+  const monthDuration = req.month_duration || 12; // TODO: switch description to use summary instead?
+  // const { companyId } = useAuth();
+  const companyId = "0a67f5d3-88b6-4e8f-aac0-5137b29917fd"
+  console.log("Company ID:", companyId);
+  // const hasFetched = useRef(false);
+  // TODO: add GrossSummaryContext here and a parser to make the new chart data.
+
+  // const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setReq({ ...req, month_duration: e.target.value });
+  // }; // TODO: make this an onchange for the dropdown?
+
+  // useEffect(() => {
+  //   if (companyId && req.company_id !== companyId && !hasFetched.current) {
+  //     console.log("Set company id:" + companyId);
+  //     setReq({ ...req, company_id: companyId });
+  //     hasFetched.current = true;
+  //   }
+  // }, [companyId, req, setReq]);
+
+  // useEffect(() => {
+  //   console.log("hello")
+  //   if (req.company_id && !hasFetched.current) {
+  //     fetchData();
+  //     hasFetched.current = true;
+  //   }
+  // }, [fetchData, req]);
+
+  // TODO: change the styling of the total_co2
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Gross Emissions</CardTitle>
-        <CardDescription>ENTER DATE HERE</CardDescription>
-        <CardDescription>ENTER <strong>TOTAL</strong> CO2 HERE</CardDescription>
+        <CardTitle>Gross Emissions, {companyId}</CardTitle>
+        <CardDescription>Total: {grossSummary.total_co2 || 0} tn</CardDescription>
+        <CardDescription>ENTER DATE HERE: {monthDuration} months</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
