@@ -17,7 +17,7 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 	const monthlyQuery = `
 		SELECT
 			COALESCE(SUM(co2), 0) AS total_co2,
-			COALESCE(scope, 1) as scope,
+			scope,
 			DATE_TRUNC('month', date) AS month_start
 		FROM
 			line_item
@@ -25,6 +25,8 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 			company_id = $1
 			AND
 			date >= DATE_TRUNC('month', CURRENT_DATE - ($2 - 1) * INTERVAL '1 month')
+			AND 
+			scope IS NOT NULL
 		GROUP BY
 			scope,
 			DATE_TRUNC('month', date)
@@ -86,7 +88,9 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 		WHERE
 			company_id = $1
 			AND
-			date >= DATE_TRUNC('month', CURRENT_DATE - ($2 - 1) * INTERVAL '1 month');
+			date >= DATE_TRUNC('month', CURRENT_DATE - ($2 - 1) * INTERVAL '1 month')
+			AND
+			scope IS NOT NULL;
 	`
 
 	rowsTotal, errTotal := r.db.Query(ctx, totalQuery, req.CompanyID, req.MonthDuration)
