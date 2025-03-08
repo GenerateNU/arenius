@@ -76,6 +76,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 	// Get tenant ID from cookies
 	tenantID := c.Cookies("tenantID")
 
+	fmt.Println("tenantID: ", tenantID)
 	// Build the URL with tenant ID as a query parameter
 	syncURL := fmt.Sprintf("http://localhost:8080/sync-transactions?tenantId=%s", url.QueryEscape(tenantID))
 

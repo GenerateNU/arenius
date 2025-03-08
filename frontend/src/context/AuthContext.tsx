@@ -27,9 +27,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
 
     if (authActionTriggered) {
+      console.log("GETTING COMPANY ID")
       const storedCompanyId = Cookies.get("companyID");
 
       if (storedCompanyId) {
+        console.log("SETTING COMPANY ID")
         setCompanyId(storedCompanyId);
       }
 

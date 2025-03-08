@@ -1,3 +1,4 @@
+import { useAuth } from "@/context/AuthContext";
 import {
   LineItem,
   CreateLineItemRequest,
@@ -35,13 +36,31 @@ function buildQueryParams(filters: LineItemFilters) {
 }
 
 export async function fetchLineItems(
-  filters: LineItemFilters
+  filters: LineItemFilters,
+  tenantId: string
 ): Promise<LineItem[]> {
+
+//   try {
+//     const response = apiClient.post("/sync-transactions", 
+//       {}, // Request body (empty in this case)
+//       {
+//         params: {
+//           tenantId: tenantId,
+//         }
+//       }
+//     );
+//     console.log("syncing");
+// } catch (error) {
+//     console.error("Error fetching dashboard items", error);
+//     return [];
+// }
 
   try {
     const response = await apiClient.get("/line-item", {
       params: buildQueryParams(filters),
     });
+    console.log("line items");
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching dashboard items", error);

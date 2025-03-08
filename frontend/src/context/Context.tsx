@@ -28,7 +28,7 @@ export const createDataContext = <T extends object, F extends object>() => {
   const DataProvider: React.FC<DataProviderProps<T, F>> = ({ children, fetchFunction }) => {
     const [data, setData] = useState<T[]>([]);
     const [filters, setFilters] = useState<F>({} as F);
-    const { companyId, isLoading } = useAuth(); // Using `companyId` and `isLoading`
+    const { companyId, tenantId, isLoading } = useAuth(); // Using `companyId` `tenantId` and `isLoading`
 
     const fetchData = useCallback(async () => {
       if (isLoading) {
@@ -37,20 +37,22 @@ export const createDataContext = <T extends object, F extends object>() => {
       }
 
       if (!companyId) {
-        console.log("Company ID is not available yet");
+        console.log("Company ID is not available yet bruh");
         return;  // Don't fetch if companyId is not available
       }
 
       try {
-        const result = await fetchFunction({ ...filters, company_id: companyId });
+        console.log("fetching");
+        const result = await fetchFunction({ ...filters, company_id: companyId, tenant_id: tenantId });
         setData(result);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    }, [filters, fetchFunction, companyId, isLoading]);  // Add `isLoading` to dependencies
+    }, [filters, fetchFunction, companyId, isLoading, tenantId]);  // Add `isLoading` to dependencies
 
     useEffect(() => {
       if (companyId) {
+        console.log("feching cid");
         fetchData();
       }
     }, [companyId, fetchData]); // Fetch data when companyId or filters change
