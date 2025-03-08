@@ -129,7 +129,7 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 		transactions = append(transactions, paginatedTransactions...)
 	}
 
-	//fmt.Println("transactions: ", transactions)
+	fmt.Println("transactions: ", transactions)
 	// Parse transactions and filter out duplicates
 	newLineItems, err := h.parseTenantTransactions(ctx.Context(), transactions, company)
 	if err != nil {
