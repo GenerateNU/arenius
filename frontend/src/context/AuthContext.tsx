@@ -68,9 +68,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const signup = async (item: SignupRequest): Promise<{ response?: AxiosResponse; error?: unknown }> => {
     setIsLoading(true); // Set loading to true when signup starts
+
+    const payload = {
+      email: item.email,
+      password: item.password,
+      first_name: item.firstName,  // Convert camelCase to snake_case
+      last_name: item.lastName,    // Convert camelCase to snake_case
+    };
   
     try {
-      const response = await apiClient.post("/auth/signup", item);
+      const response = await apiClient.post("/auth/signup", payload);
       
       // Trigger the effect by setting the state
       setAuthActionTriggered("signup");
