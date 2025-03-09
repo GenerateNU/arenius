@@ -67,14 +67,20 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		filterColumns = append(filterColumns, "li.total_amount <=")
 		filterArgs = append(filterArgs, *filterParams.MaxPrice)
 	}
+	if filterParams.ContactID != nil {
+		filterColumns = append(filterColumns, "li.contact_id=")
+		filterArgs = append(filterArgs, *filterParams.ContactID)
+	}
 
 	for i := 0; i < len(filterColumns); i++ {
 		filterQuery += fmt.Sprintf(" AND (%s$%d)", filterColumns[i], i+3)
 	}
 
 	query := `
-	SELECT li.id, li.xero_line_item_id, li.description, li.total_amount, li.company_id, li.contact_id, li.date, li.currency_code, li.emission_factor_id, ef.name as emission_factor_name, li.co2, li.co2_unit, li.scope
-	FROM line_item li LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id ` + filterQuery + `
+	SELECT li.id, li.xero_line_item_id, li.description, li.total_amount, li.company_id, li.contact_id, c.name as contact_name, li.date, li.currency_code, li.emission_factor_id, ef.name as emission_factor_name, li.co2, li.co2_unit, li.scope
+	FROM line_item li 
+	LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id
+	LEFT JOIN contact c on li.contact_id = c.id ` + filterQuery + `
 	ORDER BY li.date DESC
 	LIMIT $1 OFFSET $2
 	`

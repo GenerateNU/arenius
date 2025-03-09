@@ -40,8 +40,10 @@ GET `/line-item`
         Scope                *int       `query:"scope"`
         EmissionFactor       *string    `query:"emission_factor"`
         SearchTerm           *string    `query:"search_term"`
-        Page                 int        `query:"page"`
-     Limit                int        `query:"limit"`
+        MinPrice             *float64   `query:"min_price"`
+        MaxPrice             *float64   `query:"max_price"`
+        ContactID            *string    `query:"contact_id"`
+    Limit                int        `query:"limit"`
 
 ```
 
@@ -52,7 +54,7 @@ PATCH `/line-item`
 ```go
     - Body Parameters:
         - `emission-factor`: Name of the emissions factor
-        - `scope`: Scope, optional 
+        - `scope`: Scope, optional
         - `contact_id`: Contact ID, optional
     - Path Parameters:
         - `:id`: The ID of the line item
@@ -60,7 +62,7 @@ PATCH `/line-item`
         - URL: `http://127.0.0.1:8080/line-item/0651d33f-e9f5-4df4-a1b4-155c0e6cceff`
         - Parameters: {
             "emission_factor": "consumer_goods-type_footwear",
-            "scope": 2, 
+            "scope": 2,
             "contact_id": "33333333-3333-3333-3333-333333333333"
         }
 ```
@@ -94,8 +96,7 @@ GET `/line-item`
 
 ```
 
-Patch `/lint-item\batch`
-    - Allows you to update the scope and/or emissions factor on multiple line items
+Patch `/lint-item\batch` - Allows you to update the scope and/or emissions factor on multiple line items
 
 ```go
     - Body Parameters:
@@ -108,11 +109,9 @@ Patch `/lint-item\batch`
 
 ## Emissions Factors
 
-GET `/emissions-factor/:companyId`
-    - returns all emissions factors, structured as a list of categories, each with a name and its list of emission factors. The first category is the company's "favorites"
+GET `/emissions-factor/:companyId` - returns all emissions factors, structured as a list of categories, each with a name and its list of emission factors. The first category is the company's "favorites"
 
-PATCH `/emissions-factor/populate`
-    - populates emissions factors table
+PATCH `/emissions-factor/populate` - populates emissions factors table
 
 ```go
 
@@ -141,12 +140,12 @@ GET `/bank-transactions`
 
 - provides a list of transactions specific to an organization including line items, currently configured for demo data
 
- ``` go
+```go
 - Body Params:
- - Session Access Token (stored through /xero/auth)
- - Session Tenant ID (stored through /xero/auth)
+- Session Access Token (stored through /xero/auth)
+- Session Tenant ID (stored through /xero/auth)
 - Response:
- - list of dictionaries contianing transaction information
+- list of dictionaries contianing transaction information
 ```
 
 ## Xero Credentials
@@ -161,18 +160,17 @@ POST `credentials/create`
 - adds a newly generated access token, refresh token, and tenant id to be used for continuous authentication
 - BODY PARAMS:
   {
-      "company_id": {uuid},
-      "access_token": {uuid},
-      "refresh_token": {uuid},
-      "tenant_id": {uuid}
+  "company_id": {uuid},
+  "access_token": {uuid},
+  "refresh_token": {uuid},
+  "tenant_id": {uuid}
   }
 - Response:
 - new authentication credentials row in Xero Credentials table
 
 ## Summaries
 
-GET `/summary/gross`
-    - provides the breakdown of total emissions per month by scope, for the previous `month_duration` months, as well as a cumulative total emissions for all line items for all time.
+GET `/summary/gross` - provides the breakdown of total emissions per month by scope, for the previous `month_duration` months, as well as a cumulative total emissions for all line items for all time.
 
 ```go
     - Body Parameters:
@@ -182,8 +180,7 @@ GET `/summary/gross`
 
 ## Auth
 
-POST `/auth/login`
-    - login for user, returns access token and user info
+POST `/auth/login` - login for user, returns access token and user info
 
 ```go
     - Body Parameters:
@@ -191,8 +188,7 @@ POST `/auth/login`
         - `password`
 ```
 
-POST `/auth/signup`
-    - signup for user, returns access token and user info
+POST `/auth/signup` - signup for user, returns access token and user info
 
 ```go
     - Body Parameters:
@@ -204,14 +200,11 @@ POST `/auth/signup`
 
 ## Contacts
 
-GET `/contact/:contactId`
-    - get a contact with details object, which includes the contact as well as total emissions, total amount spent, and total transactions
+GET `/contact/:contactId` - get a contact with details object, which includes the contact as well as total emissions, total amount spent, and total transactions
 
-GET `/contact/company/:companyId`
-    - get all contact objects associated with a company
+GET `/contact/company/:companyId` - get all contact objects associated with a company
 
-POST `/contact`
-    - create a new contact manually
+POST `/contact` - create a new contact manually
 
 ```go
     - Body Parameters:
