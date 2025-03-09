@@ -1,6 +1,5 @@
 "use client";
 
-
 import { cn } from "@/lib/utils";
 import ContactsSelector from "./ContactsSelector";
 import { useEffect, useState } from "react";
@@ -19,7 +18,7 @@ export default function ContactFilter({
     if (contact) {
       setFilters({ ...filters, contact_id: contact.id });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contact]);
 
   return (
@@ -28,13 +27,9 @@ export default function ContactFilter({
         <ContactsSelector
           contact={contact}
           setContact={setContact}
-          variant='ghost'
+          variant="ghost"
         />
       </ContactsProvider>
     </div>
   );
 }
-
-const styles = {
-  chevronDown: "h-4 w-4 opacity-50",
-};
