@@ -39,22 +39,7 @@ export async function fetchLineItems(
   filters: LineItemFilters,
   tenantId: string
 ): Promise<LineItem[]> {
-
-//   try {
-//     const response = apiClient.post("/sync-transactions", 
-//       {}, // Request body (empty in this case)
-//       {
-//         params: {
-//           tenantId: tenantId,
-//         }
-//       }
-//     );
-//     console.log("syncing");
-// } catch (error) {
-//     console.error("Error fetching dashboard items", error);
-//     return [];
-// }
-
+  
   try {
     const response = await apiClient.get("/line-item", {
       params: buildQueryParams(filters),
