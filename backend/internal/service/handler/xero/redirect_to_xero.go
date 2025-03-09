@@ -126,7 +126,7 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 				Value:    tenantID,
 				Expires:  time.Now().Add(time.Hour * 24),
 				Secure:   true,
-				SameSite: "None",
+				SameSite: "Lax",
 			})
 		} else {
 			fmt.Println("Tenant ID not found or is not a string")
