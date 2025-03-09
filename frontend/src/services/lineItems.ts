@@ -38,7 +38,7 @@ function buildQueryParams(filters: LineItemFilters) {
 }
 
 export async function fetchLineItems(
-  filters: LineItemFilters
+  filters: LineItemFilters,
 ): Promise<LineItem[]> {
 
   try {

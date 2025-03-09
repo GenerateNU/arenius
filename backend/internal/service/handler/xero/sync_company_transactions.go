@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -21,6 +22,7 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	if company.RefreshToken != nil {
 		refreshToken = *company.RefreshToken
 	}
+	fmt.Println("refreshToken: ", refreshToken)
 
 	token := &oauth2.Token{
 		RefreshToken: refreshToken,
@@ -70,20 +72,38 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 			req.Header.Set("If-Modified-Since", company.LastTransactionImportTime.UTC().Format("2006-01-02T15:04:05"))
 		}
 
+		// resp, err := client.Do(req)
+		// if err != nil {
+		// 	return errs.BadRequest(fmt.Sprintf("error handling request: %s", err))
+		// }
+		// defer resp.Body.Close()
+
+		// if resp.StatusCode != http.StatusOK {
+		// 	return errs.BadRequest(fmt.Sprintf("response status unsuccessful: %s", err))
+		// }
+
 		resp, err := client.Do(req)
 		if err != nil {
-			return errs.BadRequest(fmt.Sprintf("error handling request: %s", err))
+			log.Printf("HTTP request failed: %v", err)
+			return err
 		}
 		defer resp.Body.Close()
 
+		log.Println("response status code: ", resp.StatusCode)
+		log.Println("response status: ", resp.Status)
+		log.Println("response body: ", resp.Body)
+		log.Println("response: ", resp)
+
+		body, _ := io.ReadAll(resp.Body) // Read response body
 		if resp.StatusCode != http.StatusOK {
-			return errs.BadRequest(fmt.Sprintf("response status unsuccessful: %s", err))
+			log.Printf("HTTP error: %d response body: %s", resp.StatusCode, string(body))
+			return fmt.Errorf("HTTP error: %d - %s", resp.StatusCode, string(body))
 		}
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return errs.BadRequest(fmt.Sprintf("unable to read response body: %s", err))
-		}
+		// body, err := io.ReadAll(resp.Body)
+		// if err != nil {
+		// 	return errs.BadRequest(fmt.Sprintf("unable to read response body: %s", err))
+		// }
 
 		var response map[string]interface{}
 		if err := json.Unmarshal(body, &response); err != nil {
@@ -113,6 +133,7 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	// Parse transactions and filter out duplicates
 	newLineItems, err := h.parseTenantTransactions(ctx.Context(), transactions, company)
 	if err != nil {
+		fmt.Println("Error parsing transactions:", err)
 		return err
 	}
 
@@ -120,12 +141,14 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	if len(newLineItems) > 0 {
 		_, err = h.lineItemRepository.AddImportedLineItems(ctx.Context(), newLineItems)
 		if err != nil {
+			fmt.Println("Error adding line items:", err)
 			return err
 		}
 
 		// Update last import time
 		_, err = h.companyRepository.UpdateCompanyLastTransactionImportTime(ctx.Context(), company.ID)
 		if err != nil {
+			fmt.Println("Error updating last import time:", err)
 			return err
 		}
 	}
@@ -252,10 +275,10 @@ func (h *Handler) parseTenantTransactions(ctx context.Context, transactions []in
 					newLineItem.Description = lineItem["Description"].(string)
 				}
 
-				if lineItem["TotalAmount"] != nil {
-					newLineItem.TotalAmount = lineItem["TotalAmount"].(float64)
+				if lineItem["Quantity"] != nil || lineItem["UnitAmount"] != nil {
+					newLineItem.TotalAmount = lineItem["Quantity"].(float64) * lineItem["UnitAmount"].(float64)
 				} else {
-					return nil, errs.BadRequest("Missing TotalAmount")
+					return nil, errs.BadRequest("Missing Quantity or UnitAmount")
 				}
 
 				newLineItems = append(newLineItems, newLineItem)

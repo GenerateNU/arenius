@@ -205,8 +205,8 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 	for index, importedLineItem := range req {
 		var inputNumbers []string
 
-		for i := 1; i <= 9; i += 1 {
-			inputNumbers = append(inputNumbers, fmt.Sprintf("$%d", (index*9)+i))
+		for i := 1; i <= 8; i += 1 {
+			inputNumbers = append(inputNumbers, fmt.Sprintf("$%d", (index*8)+i))
 		}
 
 		valuesStrings = append(valuesStrings, fmt.Sprintf("(%s)", strings.Join(inputNumbers, ",")))

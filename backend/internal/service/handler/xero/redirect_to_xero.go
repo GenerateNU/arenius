@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 
@@ -65,8 +66,8 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		SameSite: "Lax",
 	})
 
-	url := os.Getenv("CONNECTIONS_URL")
-	req, err := http.NewRequest("GET", url, nil)
+	connectionsUrl := os.Getenv("CONNECTIONS_URL")
+	req, err := http.NewRequest("GET", connectionsUrl, nil)
 	if err != nil {
 		log.Fatalf("Error creating request: %v", err)
 	}
@@ -86,6 +87,8 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		log.Fatalf("Error reading response body: %v", err)
 	}
 
+	fmt.Println("Raw response body:", string(body))
+
 	if resp.StatusCode == http.StatusOK {
 		fmt.Println("Successfully fetched connections!")
 	} else {
@@ -97,6 +100,10 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	if err != nil {
 		log.Fatalf("Error parsing JSON: %v", err)
 	}
+	fmt.Println("Decoded connections:", connections)
+
+	var tID string
+	var companyName string
 
 	for _, connection := range connections {
 		if tenantID, ok := connection["tenantId"].(string); ok {
@@ -105,11 +112,12 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 				fmt.Println("Tenant Name not found or is not a string")
 				continue
 			}
+			tID = tenantID
+			companyName = tenantName
 			ctx.Cookie(&fiber.Cookie{
 				Name:     "tenantName",
 				Value:    tenantName,
 				Expires:  time.Now().Add(time.Hour * 24),
-				HTTPOnly: true,
 				Secure:   true,
 				SameSite: "Lax",
 			})
@@ -117,7 +125,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 				Name:     "tenantID",
 				Value:    tenantID,
 				Expires:  time.Now().Add(time.Hour * 24),
-				HTTPOnly: true,
 				Secure:   true,
 				SameSite: "Lax",
 			})
@@ -132,16 +139,13 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		fmt.Println("User ID not in cookies")
 	}
 
-	tenantID := ctx.Cookies("tenantID")
-	companyName := ctx.Cookies("tenantName")
-
 	// Get company ID
-	companyID, err := h.getCompanyID(ctx, tenantID, companyName)
+	companyID, err := h.getCompanyID(ctx, tID, companyName)
 	if err != nil {
 		fmt.Println("Company ID retrieval failed")
 	}
 
-	err = h.UserRepository.SetUserCredentials(ctx.Context(), userID, companyID, tok.RefreshToken, tenantID)
+	err = h.UserRepository.SetUserCredentials(ctx.Context(), userID, companyID, tok.RefreshToken, tID)
 	if err != nil {
 		fmt.Println("Failed to set credentials")
 	}
@@ -150,7 +154,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		Name:     "companyID",
 		Value:    companyID,
 		Expires:  time.Now().Add(time.Hour * 24),
-		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "Lax",
 	})
@@ -158,9 +161,22 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	// Set the HTTP client for subsequent requests.
 	h.oAuthHTTPClient = h.config.OAuth2Config.Client(ctx.Context(), tok)
 
+	syncURL := fmt.Sprintf("http://localhost:8080/sync-transactions?tenantId=%s", url.QueryEscape(tID))
+
+	// Make the HTTP request to sync transactions
+	resp, err = http.Post(syncURL, "application/json", nil)
+	if err != nil {
+		return fmt.Errorf("error making request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("error syncing transactions, status code: %d", resp.StatusCode)
+	}
+
+	// Redirect to the frontend with a query parameter indicating authentication is complete
 	frontendURL := os.Getenv("FRONTEND_BASE_URL")
-	// Redirect to the home page.
-	return ctx.Redirect(frontendURL+"/welcome", fiber.StatusTemporaryRedirect)
+	return ctx.Redirect(frontendURL+"/welcome?authComplete=true", fiber.StatusTemporaryRedirect)
 
 }
 
