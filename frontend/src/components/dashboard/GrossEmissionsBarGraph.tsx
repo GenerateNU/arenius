@@ -58,12 +58,19 @@ function GrossEmissionsBarGraph() {
   // }; // TODO: make this an onchange for the dropdown?
 
   // useEffect(() => {
+  //   console.log("Made it here!")
   //   if (companyId && req.company_id !== companyId) {
   //     console.log("Set company id:" + companyId);
   //     setReq({ ...req, company_id: companyId });
-  //     hasFetched.current = true;
+  //   } else{
+  //     setReq({ ...req, company_id: "0a67f5d3-88b6-4e8f-aac0-5137b29917fd", month_duration: 6 });
   //   }
-  // }, [companyId, req, setReq]);
+  // }, []);
+
+  // useEffect(() => {
+  //   console.log("Also made it here")
+  //   fetchData();
+  // }, [req])
 
   // TODO: change the styling of the total_co2
   return (
