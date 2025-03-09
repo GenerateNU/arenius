@@ -1,6 +1,6 @@
 "use client"
 
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis } from "recharts"
 
 import {
   Card,
@@ -20,14 +20,7 @@ import {
 import { GrossSummaryProvider, useGrossSummary } from "@/context/GrossSummaryContext"
 import { useEffect } from "react"
 import { useAuth } from "@/context/AuthContext"
-const chartData = [
-  { co2: "January", scope1: 186, scope2: 80, scope3: 100 },
-  { co2: "February", scope1: 305, scope2: 200, scope3: 10 },
-  { co2: "March", scope1: 237, scope2: 120, scope3: 10 },
-  { co2: "April", scope1: 73, scope2: 190, scope3: 10 },
-  { co2: "May", scope1: 209, scope2: 130, scope3: 10 },
-  { co2: "June", scope1: 214, scope2: 140, scope3: 200 },
-]
+import { MonthSummary } from "@/types"
 
 const chartConfig = {
   scope1: {
@@ -53,11 +46,10 @@ export default function GrossSummary() {
 }
 
 function GrossEmissionsBarGraph() {
-  const { grossSummary, fetchData, req, setReq } = useGrossSummary();
-  const monthDuration = req.month_duration || 12; // TODO: switch description to use summary instead?
-  // const { companyId } = useAuth();
-  const companyId = "0a67f5d3-88b6-4e8f-aac0-5137b29917fd"
-  console.log("Company ID:", companyId);
+  const { grossSummary, req, setReq } = useGrossSummary();
+  // const { companyId } = useAuth(); // TODO: add fetch data to this
+
+  // TODO: fix styling of total emissions
   // const hasFetched = useRef(false);
   // TODO: add GrossSummaryContext here and a parser to make the new chart data.
 
@@ -66,41 +58,44 @@ function GrossEmissionsBarGraph() {
   // }; // TODO: make this an onchange for the dropdown?
 
   // useEffect(() => {
-  //   if (companyId && req.company_id !== companyId && !hasFetched.current) {
+  //   if (companyId && req.company_id !== companyId) {
   //     console.log("Set company id:" + companyId);
   //     setReq({ ...req, company_id: companyId });
   //     hasFetched.current = true;
   //   }
   // }, [companyId, req, setReq]);
 
-  // useEffect(() => {
-  //   console.log("hello")
-  //   if (req.company_id && !hasFetched.current) {
-  //     fetchData();
-  //     hasFetched.current = true;
-  //   }
-  // }, [fetchData, req]);
-
   // TODO: change the styling of the total_co2
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Gross Emissions, {companyId}</CardTitle>
-        <CardDescription>Total: {grossSummary.total_co2 || 0} tn</CardDescription>
-        <CardDescription>ENTER DATE HERE: {monthDuration} months</CardDescription>
+        <CardTitle style={{ fontSize: '1.5rem'}}>Gross Emissions</CardTitle>
+        <br />
+        <CardDescription style={{ fontSize: '2rem', fontWeight: 'bold' }}>{grossSummary.total_co2?.toLocaleString('en-US') || 0} tn</CardDescription>
+        <CardDescription>Total emissions (TON) 
+          for {new Date(grossSummary.start_date).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }) || ""} {new Date(grossSummary.start_date).getFullYear() || ""}
+           - {new Date(grossSummary.end_date).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }) || ""} {new Date(grossSummary.start_date).getFullYear() || ""}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart accessibilityLayer data={chartData}>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart accessibilityLayer data={
+              grossSummary.months?.map((month: MonthSummary) => ({ 
+                month: new Date(month.month_start).toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }), 
+                scope1: month.scopes.scope_one ?? 0, 
+                scope2: month.scopes.scope_two ?? 0, 
+                scope3: month.scopes.scope_three ?? 0
+              })) ?? []
+            }>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="co2"
-              tickLine={false}
+              dataKey="month"
+              tickLine={true}
               tickMargin={10}
               axisLine={false}
               tickFormatter={(value) => value.slice(0, 3)}
             />
-            <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+            <ChartTooltip content={<ChartTooltipContent hideLabel />} wrapperStyle={{ width: '12%' }}/>
             <ChartLegend content={<ChartLegendContent />} />
             <Bar
               dataKey="scope1"
@@ -121,6 +116,7 @@ function GrossEmissionsBarGraph() {
               radius={[4, 4, 0, 0]}
             />
           </BarChart>
+          </ResponsiveContainer>
         </ChartContainer>
       </CardContent>
     </Card>

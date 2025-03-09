@@ -3,8 +3,8 @@ import apiClient from "./apiClient";
 
 const DEFAULT_GROSS_SUMMARY: GrossSummary = {
     total_co2: 0,
-    start_date: undefined,
-    end_date: undefined,
+    start_date: new Date(),
+    end_date: new Date(),
     months: []
 };
 

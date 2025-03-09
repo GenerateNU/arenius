@@ -109,7 +109,7 @@ export type MonthSummary = {
 
 export type GrossSummary = {
   total_co2: number;
-  start_date: Date | undefined;
-  end_date: Date | undefined;
+  start_date: Date;
+  end_date: Date;
   months: MonthSummary[];
 }
