@@ -42,16 +42,10 @@ export const GrossSummaryProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       try {
-        setReq(prev => ({ ...prev, company_id: "0a67f5d3-88b6-4e8f-aac0-5137b29917fd", month_duration: 5})) // TODO: remove hardcode
+        setReq(prev => ({ ...prev, company_id: companyId}))
         // TODO: add a dropdown to change the month_duration somehow
-        const grossSummaryData = await fetchGrossEmissions({company_id: "0a67f5d3-88b6-4e8f-aac0-5137b29917fd", month_duration: 5} as GetGrossEmissionsRequest);
-        // TODO: fix this using the old state
-        setGrossSummary((prevState) => {
-          if (JSON.stringify(prevState) !== JSON.stringify(grossSummaryData)) {
-            return grossSummaryData;
-          }
-          return prevState; // No change if data is the same
-        });
+        const grossSummaryData = await fetchGrossEmissions(req);
+        setGrossSummary(grossSummaryData);
         console.log("Fetched data:", grossSummaryData); 
       } catch (error) {
         console.error("Error fetching data:", error);
