@@ -56,13 +56,11 @@ export const GrossSummaryProvider: React.FC<{ children: React.ReactNode }> = ({
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    }, []);
+    }, [companyId]);
   // }, [req, companyId, isLoading]);
   
     useEffect(() => {
-      if (companyId) {
-        fetchData();
-      }
+      fetchData();
     }, [fetchData]);
 
     // if (isLoading) {
