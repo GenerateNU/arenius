@@ -25,9 +25,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [authActionTriggered, setAuthActionTriggered] = useState<"login" | "signup" | null>(null);
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("authComplete") === "true") {
+      console.log("AUTH COMPLETE")
+      setAuthActionTriggered("signup");  // Trigger after Xero authentication is complete
+    }
+  }, []);
+  
+
+  useEffect(() => {
+    console.log("authActionTriggered changed:", authActionTriggered);
+  }, [authActionTriggered]);
+
+  useEffect(() => {
 
     if (authActionTriggered) {
       const storedCompanyId = Cookies.get("companyID");
+      console.log("COMPANY ID:", storedCompanyId)
 
       if (storedCompanyId) {
         setCompanyId(storedCompanyId);
@@ -46,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Reset the action after the effect runs to avoid it running continuously
       setAuthActionTriggered(null);
     }
-  }, [authActionTriggered]);
+  }, [authActionTriggered, isLoading]);
 
   const login = async (item: LoginRequest): Promise<{ response?: AxiosResponse; error?: unknown }> => {
     setIsLoading(true); // Set loading to true when login starts
@@ -56,6 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Trigger the effect by setting the state
       setAuthActionTriggered("login");
+      console.log(response);
   
       return { response };
     } catch (error) {
@@ -78,16 +93,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
     try {
       const response = await apiClient.post("/auth/signup", payload);
-      
-      // Trigger the effect by setting the state
+  
+      console.log("Signup successful, setting authActionTriggered...");
       setAuthActionTriggered("signup");
+      console.log("Auth action triggered state updated");
   
       return { response };
     } catch (error) {
       console.error("Signup error:", error);
       return { error };
     } finally {
-      setIsLoading(false); // Set loading to false when signup finishes
+      setIsLoading(false);
     }
   };  
 

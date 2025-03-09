@@ -118,7 +118,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 				Name:     "tenantName",
 				Value:    tenantName,
 				Expires:  time.Now().Add(time.Hour * 24),
-				HTTPOnly: true,
 				Secure:   true,
 				SameSite: "Lax",
 			})
@@ -126,9 +125,8 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 				Name:     "tenantID",
 				Value:    tenantID,
 				Expires:  time.Now().Add(time.Hour * 24),
-				HTTPOnly: true,
 				Secure:   true,
-				SameSite: "Lax",
+				SameSite: "None",
 			})
 		} else {
 			fmt.Println("Tenant ID not found or is not a string")
@@ -140,9 +138,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	if userID == "" {
 		fmt.Println("User ID not in cookies")
 	}
-
-	//tenantID := ctx.Cookies("tenantID")
-	//companyName := ctx.Cookies("tenantName")
 
 	// Get company ID
 	companyID, err := h.getCompanyID(ctx, tID, companyName)
@@ -159,7 +154,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		Name:     "companyID",
 		Value:    companyID,
 		Expires:  time.Now().Add(time.Hour * 24),
-		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "Lax",
 	})
@@ -180,9 +174,9 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		return fmt.Errorf("error syncing transactions, status code: %d", resp.StatusCode)
 	}
 
+	// Redirect to the frontend with a query parameter indicating authentication is complete
 	frontendURL := os.Getenv("FRONTEND_BASE_URL")
-	// Redirect to the home page.
-	return ctx.Redirect(frontendURL+"/welcome", fiber.StatusTemporaryRedirect)
+	return ctx.Redirect(frontendURL+"/welcome?authComplete=true", fiber.StatusTemporaryRedirect)
 
 }
 
