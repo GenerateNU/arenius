@@ -29,8 +29,10 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		Name:     "userID",
 		Value:    signInResponse.User.ID.String(),
 		Expires:  time.Now().Add(24 * time.Hour),
+		HTTPOnly: true,
 		Secure:   true,
-		SameSite: "Lax",
+		SameSite: "None",
+		Domain:   "arenius.onrender.com",
 	})
 
 	c.Cookie(&fiber.Cookie{
@@ -39,7 +41,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		Expires:  time.Now().Add(24 * time.Hour),
 		HTTPOnly: true,
 		Secure:   true,
-		SameSite: "Lax",
+		SameSite: "None",
 	})
 
 	// Retrieve and store additional credentials if needed
@@ -49,32 +51,40 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			fmt.Println("Error getting credentials:", err)
 			fmt.Println("Failed to get credentials")
 		}
+		fmt.Println("xeroCreds", xeroCreds)
+		fmt.Println("Setting Cookies")
 		c.Cookie(&fiber.Cookie{
 			Name:     "refreshToken",
 			Value:    xeroCreds.RefreshToken,
 			Expires:  time.Now().Add(7 * 24 * time.Hour),
 			HTTPOnly: true,
 			Secure:   true,
-			SameSite: "Lax",
+			SameSite: "None",
+			Domain:   "arenius.onrender.com",
 		})
 		c.Cookie(&fiber.Cookie{
 			Name:     "tenantID",
 			Value:    xeroCreds.TenantID.String(),
 			Expires:  time.Now().Add(24 * time.Hour),
+			HTTPOnly: true,
 			Secure:   true,
-			SameSite: "Lax",
+			SameSite: "None",
+			Domain:   "arenius.onrender.com",
 		})
 		c.Cookie(&fiber.Cookie{
 			Name:     "companyID",
 			Value:    xeroCreds.CompanyID.String(),
 			Expires:  time.Now().Add(24 * time.Hour),
+			HTTPOnly: true,
 			Secure:   true,
-			SameSite: "Lax",
+			SameSite: "None",
+			Domain:   "arenius.onrender.com",
 		})
 	}
 
 	// Get tenant ID from cookies
 	tenantID := c.Cookies("tenantID")
+	fmt.Println("tenantID cookie: ", tenantID)
 
 	// Build the URL with tenant ID as a query parameter
 	syncURL := fmt.Sprintf("http://localhost:8080/sync-transactions?tenantId=%s", url.QueryEscape(tenantID))

@@ -48,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const storedTenantId = Cookies.get("tenantID");
+      console.log("TENANT ID:", storedTenantId)
       if (storedTenantId) {
         setTenantId(storedTenantId);
       }
@@ -59,6 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Reset the action after the effect runs to avoid it running continuously
       setAuthActionTriggered(null);
+      console.log("Cookies:", Cookies.get())
     }
   }, [authActionTriggered, isLoading]);
 
@@ -71,6 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Trigger the effect by setting the state
       setAuthActionTriggered("login");
       console.log(response);
+      console.log("Cookies:", Cookies.get())
   
       return { response };
     } catch (error) {
