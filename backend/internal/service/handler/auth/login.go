@@ -55,21 +55,21 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			Expires:  time.Now().Add(7 * 24 * time.Hour),
 			HTTPOnly: true,
 			Secure:   true,
-			SameSite: "Lax",
+			SameSite: "None",
 		})
 		c.Cookie(&fiber.Cookie{
 			Name:     "tenantID",
 			Value:    xeroCreds.TenantID.String(),
 			Expires:  time.Now().Add(24 * time.Hour),
 			Secure:   true,
-			SameSite: "Lax",
+			SameSite: "None",
 		})
 		c.Cookie(&fiber.Cookie{
 			Name:     "companyID",
 			Value:    xeroCreds.CompanyID.String(),
 			Expires:  time.Now().Add(24 * time.Hour),
 			Secure:   true,
-			SameSite: "Lax",
+			SameSite: "None",
 		})
 	}
 
