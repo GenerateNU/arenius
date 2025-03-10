@@ -79,7 +79,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			Secure:   true,
 			SameSite: "None",
 			//Domain:   ".onrender.com",
-			Domain: "arenius-pr-126.onrender.com",
+			Domain: "https://arenius-pr-126.onrender.com",
 		})
 	}
 
