@@ -60,7 +60,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			HTTPOnly: true,
 			Secure:   true,
 			SameSite: "None",
-			Domain:   "https://arenius-pr-126.onrender.com",
+			Domain:   "arenius.onrender.com",
 		})
 		c.Cookie(&fiber.Cookie{
 			Name:     "tenantID",
@@ -69,7 +69,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			HTTPOnly: true,
 			Secure:   true,
 			SameSite: "None",
-			Domain:   "https://arenius-pr-126.onrender.com",
+			Domain:   "https://arenius.onrender.com",
 		})
 		c.Cookie(&fiber.Cookie{
 			Name:     "companyID",
@@ -79,7 +79,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			Secure:   true,
 			SameSite: "None",
 			//Domain:   ".onrender.com",
-			Domain: "https://arenius-pr-126.onrender.com",
+			Domain: "arenius-pr-126.onrender.com",
 		})
 	}
 
