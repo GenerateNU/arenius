@@ -60,6 +60,21 @@ export const columns: ColumnDef<LineItem>[] = [
   },
 
   {
+    accessorKey: "co2",
+    header: ({ column }) => {
+      return (
+        <ColumnHeader name="CO2" column={column} />
+      );
+    },
+    cell: ({ row }) => {
+      const co2 = parseFloat(row.getValue("co2"));
+      const formatted = `${co2} kg`
+
+      return <div className="font-medium">{formatted}</div>;
+    },
+  },
+
+  {
     accessorKey: "total_amount",
     header: ({ column }) => {
       return (
