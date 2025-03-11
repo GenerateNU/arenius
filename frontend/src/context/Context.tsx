@@ -19,36 +19,50 @@ interface DataContextValue<T extends object, F extends object> {
   fetchData: () => void;
   filters: F;
   setFilters: (filters: F) => void;
+  loading: boolean;
 }
 
-
 export const createDataContext = <T extends object, F extends object>() => {
-  const DataContext = createContext<DataContextValue<T, F> | undefined>(undefined);
+  const DataContext = createContext<DataContextValue<T, F> | undefined>(
+    undefined
+  );
 
-  const DataProvider: React.FC<DataProviderProps<T, F>> = ({ children, fetchFunction }) => {
+  const DataProvider: React.FC<DataProviderProps<T, F>> = ({
+    children,
+    fetchFunction,
+  }) => {
     const [data, setData] = useState<T[]>([]);
     const [filters, setFilters] = useState<F>({} as F);
+    const [loading, setLoading] = useState(false);
+
     const { companyId, tenantId, isLoading } = useAuth(); // Using `companyId` and `isLoading`
 
     const fetchData = useCallback(async () => {
+      setLoading(true);
       if (isLoading) {
         console.log("Authentication is still in progress. Please wait...");
-        return;  // Don't fetch data if the auth process is still ongoing
+        return; // Don't fetch data if the auth process is still ongoing
       }
 
       if (!companyId) {
         console.log("Company ID is not available yet");
-        return;  // Don't fetch if companyId is not available
+        return; // Don't fetch if companyId is not available
       }
 
       try {
         console.log("fetching");
-        const result = await fetchFunction({ ...filters, company_id: companyId, tenant_id: tenantId });
+        const result = await fetchFunction({
+          ...filters,
+          company_id: companyId,
+          tenant_id: tenantId,
+        });
         setData(result);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    }, [filters, fetchFunction, companyId, tenantId, isLoading]);  // Add `isLoading` to dependencies
+
+      setLoading(false);
+    }, [filters, fetchFunction, companyId, tenantId, isLoading]); // Add `isLoading` to dependencies
 
     useEffect(() => {
       if (companyId) {
@@ -57,11 +71,13 @@ export const createDataContext = <T extends object, F extends object>() => {
     }, [companyId, fetchData]); // Fetch data when companyId or filters change
 
     if (isLoading) {
-      return <div>Loading...</div>;  // Or any loading state you want
+      return <div>Loading...</div>; // Or any loading state you want
     }
 
     return (
-      <DataContext.Provider value={{ data, fetchData, filters, setFilters }}>
+      <DataContext.Provider
+        value={{ data, fetchData, filters, setFilters, loading }}
+      >
         {children}
       </DataContext.Provider>
     );

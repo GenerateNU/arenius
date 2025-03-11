@@ -1,12 +1,19 @@
 "use client";
 
+import { useState } from "react";
+import { LineItemsProvider, useLineItems } from "@/context/LineItemsContext";
+
 import LineItemTable from "@/components/transactions/LineItemTable";
 import LineItemTableFilters from "@/components/transactions/LineItemTableFilters";
-import { LineItemsProvider, useLineItems } from "@/context/LineItemsContext";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import ManualEntryModal from "@/components/transactions/ManualEntryModal";
+import {
+  reconciledColumns,
+  unreconciledColumns,
+} from "@/components/transactions/columns";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { fetchLineItems } from "@/services/lineItems";
+import { Search } from "lucide-react";
 
 export default function Transactions() {
   return (
@@ -16,8 +23,8 @@ export default function Transactions() {
   );
 }
 
-
 function TransactionsContent() {
+  const [reconciled, setReconciled] = useState(false);
   const { filters, setFilters } = useLineItems();
   const searchTerm = filters.searchTerm || "";
 
@@ -25,11 +32,13 @@ function TransactionsContent() {
     setFilters({ ...filters, searchTerm: e.target.value });
   };
 
+  const updateReconciled = (update: boolean) => {
+    setReconciled(update);
+    setFilters({ ...filters, reconciled: update });
+  };
+
   return (
     <div className={styles.container}>
-      {/* <hr className={styles.spacer} /> */}
-
-      {/* Title and Search Bar in One Line */}
       <div className="flex items-center justify-between mb-4">
         <p className={styles.formTitle}>Transactions</p>
         <div className="flex space-x-8">
@@ -46,8 +55,25 @@ function TransactionsContent() {
         </div>
       </div>
 
+      <div className={styles.reconciliationToggle}>
+        <Button
+          variant={reconciled ? "default" : "ghost"}
+          onClick={() => updateReconciled(true)}
+        >
+          Reconciled
+        </Button>
+        <Button
+          variant={reconciled ? "ghost" : "default"}
+          onClick={() => updateReconciled(false)}
+        >
+          Unreconciled
+        </Button>
+      </div>
+
       <LineItemTableFilters />
-      <LineItemTable />
+      <LineItemTable
+        columns={reconciled ? reconciledColumns : unreconciledColumns}
+      />
     </div>
   );
 }
@@ -61,4 +87,5 @@ const styles = {
     "absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500",
   input:
     "pl-10 py-2 rounded-full bg-gray-100 border-none focus:ring-0 w-full shadow-sm",
+  reconciliationToggle: "flex space-x-4",
 };

@@ -8,6 +8,7 @@ import {
   useReactTable,
   getSortedRowModel,
   Row,
+  ColumnDef,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -19,22 +20,28 @@ import {
 } from "@/components/ui/table";
 import { LineItem } from "@/types";
 import { useLineItems } from "@/context/LineItemsContext";
-import { columns } from "./columns";
 import LineItemTableActions from "./LineItemTableActions";
-import  { ModalDialog } from "./ModalDialog";
-import Image from "next/image"
+import { ModalDialog } from "./ModalDialog";
+import Image from "next/image";
+import { LoadingSpinner } from "../ui/loading";
 
-export default function LineItemTable() {
+export type LineItemTableProps = {
+  columns: ColumnDef<LineItem>[];
+};
+
+export default function LineItemTable({ columns }: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { data: items } = useLineItems();
+  const { data, loading } = useLineItems();
 
-  const [selectedRowData, setSelectedRowData] = useState<Row<LineItem> | null>(null);
+  const [selectedRowData, setSelectedRowData] = useState<Row<LineItem> | null>(
+    null
+  );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { fetchData } = useLineItems();
 
   const table = useReactTable({
-    data: items,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
@@ -51,9 +58,17 @@ export default function LineItemTable() {
   };
 
   const handleReconcileSuccess = () => {
-    fetchData(); 
-    setIsDialogOpen(false); 
+    fetchData();
+    setIsDialogOpen(false);
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -81,28 +96,28 @@ export default function LineItemTable() {
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
                 >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
                       )}
+                    </TableCell>
+                  ))}
+                  <TableCell>
+                    <Image
+                      src="/arrow.svg"
+                      alt="Reconcile"
+                      width={24}
+                      height={24}
+                      onClick={() => openReconcileDialog(row)}
+                      style={{ cursor: "pointer" }}
+                    />
                   </TableCell>
-                ))}
-                <TableCell>
-                  <Image
-                    src="/arrow.svg" 
-                    alt="Reconcile"
-                    width={24}  
-                    height={24}
-                    onClick={() => openReconcileDialog(row)}
-                    style={{ cursor: "pointer" }}  
-                  />
-                </TableCell>
-              </TableRow>
+                </TableRow>
               ))
             ) : (
               <TableRow>
@@ -132,4 +147,3 @@ export default function LineItemTable() {
     </>
   );
 }
-
