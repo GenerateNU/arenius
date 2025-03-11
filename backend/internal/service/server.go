@@ -69,11 +69,8 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	// Use CORS middleware to configure CORS and handle preflight/OPTIONS requests.
 	app.Use(cors.New(cors.Config{
-		////AllowOrigins: "http://localhost:3000,http://localhost:8080,https://arenius.onrender.com,https://arenius-pr-126.onrender.com,https://seal-app-lfnhy.ondigitalocean.app", // Allow any source domain to access API
-		AllowOriginsFunc: func(origin string) bool {
-			return origin == "https://arenius.onrender.com" || origin == "http://localhost:3000" || origin == "http://localhost:8080" || origin == "https://arenius-pr-126.onrender.com" || origin == "https://seal-app-lfnhy.ondigitalocean.app"
-		},
-		AllowMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS", // Using these methods.
+		AllowOrigins:     "http://localhost:3000,http://localhost:8080,https://arenius.onrender.com,https://arenius-pr-126.onrender.com,https://seal-app-lfnhy.ondigitalocean.app,https://.onrender.com", // Allow any source domain to access API
+		AllowMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS",                                                                                                                                            // Using these methods.
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true, // Allow cookies
 		ExposeHeaders:    "Content-Length, X-Request-ID",
