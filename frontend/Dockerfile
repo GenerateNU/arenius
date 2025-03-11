@@ -4,12 +4,12 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN pnpm install
+RUN npm install
 
-RUN pnpm build
+RUN npm build
 
 COPY . .
 
 EXPOSE 3000
 
-CMD ["pnpm", "start"]
+CMD ["npm", "start"]
