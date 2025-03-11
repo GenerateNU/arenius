@@ -8,6 +8,7 @@ export type LineItem = {
   emission_factor_name?: string;
   scope?: number;
   contact_name?: string;
+  co2?: number;
 };
 
 export interface LineItemFilters {

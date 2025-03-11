@@ -32,7 +32,6 @@ func (h *Handler) SignUp(c *fiber.Ctx) error {
 		Name:     "jwt",
 		Value:    response.AccessToken,
 		Expires:  expiration,
-		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "Lax",
 	})
@@ -41,7 +40,6 @@ func (h *Handler) SignUp(c *fiber.Ctx) error {
 		Name:     "userID",
 		Value:    response.User.ID.String(),
 		Expires:  expiration,
-		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "Lax",
 	})
