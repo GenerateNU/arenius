@@ -16,12 +16,12 @@ services:
       - app-network
     container_name: frontend
 
-
   backend:
     build:
       context: ./backend
     ports:
       - "8080:8080"
+      - "10000:10000"
     env_file:
       - ./backend/.env
     command: go run main.go
@@ -33,7 +33,6 @@ services:
     networks:
       - app-network
     container_name: backend
-
 
 networks:
   app-network:
