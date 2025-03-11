@@ -1,21 +1,26 @@
-"use client";
-
 import { DatePicker } from "@/components/dashboard/DatePicker";
 import GrossSummary from "@/components/dashboard/GrossEmissionsBarGraph";
-import { MonthDurationProvider } from "@/context/MonthDurationContext";
+import { DateRangeProvider } from "@/context/DateRangeContext";
 import React from "react";
 
 const DashboardContent: React.FC = () => {
   return (
     <div className="flex flex-col items-center">
-      <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
-      <DatePicker />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-7xl">
-        <div className="col-span-1 lg:grid-cols-3">
+      <br />
+      <br />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-7xl">
+        <div className="lg:col-span-3">
+          <h1 className="text-3xl font-bold mb-4">Carbon Management Dashboard</h1>
+        </div>
+        <div className="col-span-1">
+          <DatePicker />
+        </div>
+
+        <div className="lg:col-span-3">
           <GrossSummary />
         </div>
         <div className="col-span-1">
-          <p className="text-lg">Other graph</p>
+          <p>Other graph</p>
         </div>
       </div>
     </div>
@@ -24,8 +29,8 @@ const DashboardContent: React.FC = () => {
 
 export default function DashboardPage() {
   return (
-    <MonthDurationProvider>
+    <DateRangeProvider>
       <DashboardContent />
-    </MonthDurationProvider>
+    </DateRangeProvider>
   );
 }

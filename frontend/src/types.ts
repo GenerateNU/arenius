@@ -94,7 +94,8 @@ export type CreateContactRequest = {
 
 export type GetGrossEmissionsRequest = {
   company_id: string;
-  month_duration: number;
+  start_date: Date;
+  end_date: Date;
 }
 
 export type ScopeSummary = {
