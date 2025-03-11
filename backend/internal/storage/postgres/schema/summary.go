@@ -24,7 +24,7 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 		WHERE
 			company_id = $1
 			AND
-			date >= DATE_TRUNC('month', CURRENT_DATE - ($2 - 1) * INTERVAL '1 month')
+			date BETWEEN $2 AND $3
 			AND 
 			scope IS NOT NULL
 		GROUP BY
@@ -35,7 +35,7 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 			scope;
 	`
 
-	rowsMonthly, errMonthly := r.db.Query(ctx, monthlyQuery, req.CompanyID, req.MonthDuration)
+	rowsMonthly, errMonthly := r.db.Query(ctx, monthlyQuery, req.CompanyID, req.StartDate.UTC(), req.EndDate.UTC())
 	if errMonthly != nil {
 		return nil, errMonthly
 	}
@@ -80,30 +80,26 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 
 	const totalQuery = `
 		SELECT
-			COALESCE(SUM(co2), 0) AS total_co2,
-			DATE_TRUNC('month', CURRENT_DATE - ($2 - 1) * INTERVAL '1 month') AS start_date,
-			CURRENT_DATE AS end_date
+			COALESCE(SUM(co2), 0) AS total_co2
 		FROM
 			line_item
 		WHERE
 			company_id = $1
 			AND
-			date >= DATE_TRUNC('month', CURRENT_DATE - ($2 - 1) * INTERVAL '1 month')
+			date BETWEEN $2 AND $3
 			AND
 			scope IS NOT NULL;
 	`
 
-	rowsTotal, errTotal := r.db.Query(ctx, totalQuery, req.CompanyID, req.MonthDuration)
+	rowsTotal, errTotal := r.db.Query(ctx, totalQuery, req.CompanyID, req.StartDate.UTC(), req.EndDate.UTC())
 	if errTotal != nil {
 		return nil, errTotal
 	}
 	defer rowsTotal.Close()
 
 	var co2Total float64
-	var startDate time.Time
-	var endDate time.Time
 	if rowsTotal.Next() {
-		if err := rowsTotal.Scan(&co2Total, &startDate, &endDate); err != nil {
+		if err := rowsTotal.Scan(&co2Total); err != nil {
 			return nil, err
 		}
 	} else {
@@ -116,8 +112,8 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 
 	return &models.GetGrossSummaryResponse{
 		TotalCO2:  co2Total,
-		StartDate: startDate,
-		EndDate:   endDate,
+		StartDate: req.StartDate,
+		EndDate:   req.EndDate,
 		Months:    monthSummaries,
 	}, nil
 }

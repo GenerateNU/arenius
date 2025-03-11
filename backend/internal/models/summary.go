@@ -3,8 +3,9 @@ package models
 import "time"
 
 type GetGrossSummaryRequest struct {
-	CompanyID     string `query:"company_id"`
-	MonthDuration int    `query:"month_duration"`
+	CompanyID string    `query:"company_id"`
+	StartDate time.Time `query:"start_date"`
+	EndDate   time.Time `query:"end_date"`
 }
 
 type GetGrossSummaryResponse struct {
