@@ -48,7 +48,7 @@ export const columns: ColumnDef<LineItem>[] = [
   {
     accessorKey: "emission_factor_name",
     header: ({ column }) => {
-      return <ColumnHeader name="Emissions factor" column={column} />;
+      return <ColumnHeader name="Emissions Factor" column={column} />;
     },
   },
 
