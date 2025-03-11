@@ -66,6 +66,7 @@ export default function ContactForm() {
     }
 
     try {
+      console.log(values);
       const response = await createContact({
         ...values,
         company_id: "",
