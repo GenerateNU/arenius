@@ -17,9 +17,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { GrossSummaryProvider, useGrossSummary } from "@/context/GrossSummaryContext"
-import { useEffect } from "react"
-import { useAuth } from "@/context/AuthContext"
+import useGrossSummary from "@/hooks/useGrossSummary"
 import { MonthSummary } from "@/types"
 
 const chartConfig = {
@@ -37,40 +35,12 @@ const chartConfig = {
   }
 } satisfies ChartConfig
 
-export default function GrossSummary() {
-  return (
-    <GrossSummaryProvider>
-      <GrossEmissionsBarGraph />
-    </GrossSummaryProvider>
-  );
-}
-
-function GrossEmissionsBarGraph() {
-  const { grossSummary, req, setReq } = useGrossSummary();
-  // const { companyId } = useAuth(); // TODO: add fetch data to this
-
-  // TODO: fix styling of total emissions
-  // const hasFetched = useRef(false);
-  // TODO: add GrossSummaryContext here and a parser to make the new chart data.
+export default function GrossEmissionsBarGraph() {
+  const { grossSummary } = useGrossSummary();
 
   // const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   setReq({ ...req, month_duration: e.target.value });
   // }; // TODO: make this an onchange for the dropdown?
-
-  // useEffect(() => {
-  //   console.log("Made it here!")
-  //   if (companyId && req.company_id !== companyId) {
-  //     console.log("Set company id:" + companyId);
-  //     setReq({ ...req, company_id: companyId });
-  //   } else{
-  //     setReq({ ...req, company_id: "0a67f5d3-88b6-4e8f-aac0-5137b29917fd", month_duration: 6 });
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   console.log("Also made it here")
-  //   fetchData();
-  // }, [req])
 
   // TODO: change the styling of the total_co2
   return (
@@ -78,8 +48,8 @@ function GrossEmissionsBarGraph() {
       <CardHeader>
         <CardTitle style={{ fontSize: '1.5rem'}}>Gross Emissions</CardTitle>
         <br />
-        <CardDescription style={{ fontSize: '2rem', fontWeight: 'bold' }}>{grossSummary.total_co2?.toLocaleString('en-US') || 0} tn</CardDescription>
-        <CardDescription>Total emissions (TON) 
+        <CardDescription style={{ fontSize: '2rem', fontWeight: 'bold' }}>{grossSummary.total_co2?.toLocaleString('en-US') || 0} kg</CardDescription>
+        <CardDescription>Total emissions (kg) 
           for {new Date(grossSummary.start_date).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }) || ""} {new Date(grossSummary.start_date).getFullYear() || ""}
            - {new Date(grossSummary.end_date).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }) || ""} {new Date(grossSummary.start_date).getFullYear() || ""}</CardDescription>
       </CardHeader>
@@ -89,9 +59,9 @@ function GrossEmissionsBarGraph() {
           <BarChart accessibilityLayer data={
               grossSummary.months?.map((month: MonthSummary) => ({ 
                 month: new Date(month.month_start).toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }), 
-                scope1: month.scopes.scope_one ?? 0, 
-                scope2: month.scopes.scope_two ?? 0, 
-                scope3: month.scopes.scope_three ?? 0
+                scope1: month.scopes.scope_one, 
+                scope2: month.scopes.scope_two, 
+                scope3: month.scopes.scope_three
               })) ?? []
             }>
             <CartesianGrid vertical={false} />
