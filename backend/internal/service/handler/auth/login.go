@@ -73,6 +73,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			Expires:  time.Now().Add(24 * time.Hour),
 			Secure:   true,
 			SameSite: "None",
+			Path:     "/",
 		})
 	}
 
