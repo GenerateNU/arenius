@@ -37,12 +37,7 @@ const chartConfig = {
 
 export default function GrossEmissionsBarGraph() {
   const { grossSummary } = useGrossSummary();
-
-  // const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setReq({ ...req, month_duration: e.target.value });
-  // }; // TODO: make this an onchange for the dropdown?
-
-  // TODO: change the styling of the total_co2
+  
   return (
     <Card>
       <CardHeader>

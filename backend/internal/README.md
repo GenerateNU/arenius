@@ -170,12 +170,15 @@ POST `credentials/create`
 
 ## Summaries
 
-GET `/summary/gross` - provides the breakdown of total emissions per month by scope, for the previous `month_duration` months, as well as a cumulative total emissions for all line items for all time.
+GET `/summary/gross` - provides the breakdown of total emissions per month by scope, for the given date range, as well as a cumulative total emissions for all line items for the range.
 
 ```go
-    - Body Parameters:
-        - `month_duration`: Number of months to summarize
-        - `company_id`: Company whose line items are being summarized
+    - Query Parameters:
+        - `company_id`: Company ID
+        - `start_date`: Start of the date range
+        - `end_date`: End of the date range
+    - Example:
+        - URL: `http://localhost:8080/summary/gross?company_id=86afab0a-443f-4d9b-89d9-1f19a7ea6a14&start_date=2024-11-01T00:00:00Z&end_date=2025-03-11T00:00:00Z`
 ```
 
 ## Auth
