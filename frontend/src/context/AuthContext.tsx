@@ -61,6 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Reset the action after the effect runs to avoid it running continuously
       setAuthActionTriggered(null);
       console.log("Cookies:", Cookies.get())
+      console.log(document.cookie);
     }
   }, [authActionTriggered, isLoading]);
 
