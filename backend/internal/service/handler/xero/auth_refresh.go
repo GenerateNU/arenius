@@ -36,7 +36,6 @@ func (h *Handler) RefreshAccessToken(ctx *fiber.Ctx) error {
 		Name:     "accessToken",
 		Value:    newToken.AccessToken,
 		Expires:  time.Now().Add(time.Hour * 1),
-		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "Lax",
 	})
@@ -46,7 +45,6 @@ func (h *Handler) RefreshAccessToken(ctx *fiber.Ctx) error {
 		Name:     "expiry",
 		Value:    newToken.Expiry.Format(time.RFC3339),
 		Expires:  time.Now().Add(time.Hour * 1),
-		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "Lax",
 	})
@@ -55,7 +53,6 @@ func (h *Handler) RefreshAccessToken(ctx *fiber.Ctx) error {
 		Name:     "refreshToken",
 		Value:    newToken.RefreshToken,
 		Expires:  time.Now().Add(time.Hour * 24 * 30),
-		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "Lax",
 	})

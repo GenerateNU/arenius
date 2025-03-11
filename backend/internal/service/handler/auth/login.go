@@ -29,18 +29,16 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		Name:     "userID",
 		Value:    signInResponse.User.ID.String(),
 		Expires:  time.Now().Add(24 * time.Hour),
-		HTTPOnly: true,
 		Secure:   true,
-		SameSite: "None",
+		SameSite: "Lax",
 	})
 
 	c.Cookie(&fiber.Cookie{
 		Name:     "jwt",
 		Value:    signInResponse.AccessToken,
 		Expires:  time.Now().Add(24 * time.Hour),
-		HTTPOnly: true,
 		Secure:   true,
-		SameSite: "None",
+		SameSite: "Lax",
 	})
 
 	// Retrieve and store additional credentials if needed
@@ -56,24 +54,22 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			Name:     "refreshToken",
 			Value:    xeroCreds.RefreshToken,
 			Expires:  time.Now().Add(7 * 24 * time.Hour),
-			HTTPOnly: true,
 			Secure:   true,
-			SameSite: "None",
+			SameSite: "Lax",
 		})
 		c.Cookie(&fiber.Cookie{
 			Name:     "tenantID",
 			Value:    xeroCreds.TenantID.String(),
 			Expires:  time.Now().Add(24 * time.Hour),
 			Secure:   true,
-			SameSite: "None",
+			SameSite: "Lax",
 		})
 		c.Cookie(&fiber.Cookie{
 			Name:     "companyID",
 			Value:    xeroCreds.CompanyID.String(),
 			Expires:  time.Now().Add(24 * time.Hour),
 			Secure:   true,
-			SameSite: "None",
-			Path:     "/",
+			SameSite: "Lax",
 		})
 	}
 
