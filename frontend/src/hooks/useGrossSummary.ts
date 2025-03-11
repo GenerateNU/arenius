@@ -24,14 +24,14 @@ export default function useGrossSummary() {
       try {
         setReq(prev => ({ ...prev, company_id: companyId}))
         setDateRange(dateRange)
-        
-        var start_date = new Date()
+
+        let start_date = new Date()
         start_date.setMonth(start_date.getMonth() - 3);
         if (dateRange?.from) {
           start_date = dateRange?.from
         }
 
-        var end_date = new Date();
+        let end_date = new Date();
         if (dateRange?.to) {
           end_date = dateRange?.to
         }

@@ -57,7 +57,3 @@ export function DatePicker({ className }: React.HTMLAttributes<HTMLDivElement>) 
     </div>
   );
 }
-
-const styles = {
-  chevronDown: "h-4 w-4 opacity-50",
-};
