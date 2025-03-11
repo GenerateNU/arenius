@@ -5,7 +5,7 @@ import GrossSummary from "@/components/dashboard/GrossEmissionsBarGraph";
 import { MonthDurationProvider } from "@/context/MonthDurationContext";
 import React from "react";
 
-const DashboardPage: React.FC = () => {
+const DashboardContent: React.FC = () => {
   return (
     <div className="flex flex-col items-center">
       <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
@@ -22,10 +22,10 @@ const DashboardPage: React.FC = () => {
   );
 };
 
-export default function Transactions() {
+export default function DashboardPage() {
   return (
     <MonthDurationProvider>
-      <DashboardPage />
+      <DashboardContent />
     </MonthDurationProvider>
   );
 }

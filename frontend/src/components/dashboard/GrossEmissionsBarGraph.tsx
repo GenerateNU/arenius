@@ -62,6 +62,7 @@ export default function GrossEmissionsBarGraph() {
                 scope1: month.scopes.scope_one, 
                 scope2: month.scopes.scope_two, 
                 scope3: month.scopes.scope_three
+
               })) ?? []
             }>
             <CartesianGrid vertical={false} />
