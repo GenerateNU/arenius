@@ -42,7 +42,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		Name:     "accessToken",
 		Value:    tok.AccessToken,
 		Expires:  time.Now().Add(time.Hour * 1),
-		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "Lax",
 	})
@@ -52,7 +51,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		Name:     "expiry",
 		Value:    tok.Expiry.Format(time.RFC3339),
 		Expires:  time.Now().Add(time.Hour * 1),
-		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "Lax",
 	})
@@ -61,7 +59,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		Name:     "refreshToken",
 		Value:    tok.RefreshToken,
 		Expires:  time.Now().Add(time.Hour * 24 * 30),
-		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "Lax",
 	})
