@@ -20,6 +20,7 @@ type LineItem struct {
 type LineItemWithDetails struct {
 	LineItem
 	EmissionFactorName *string `json:"emission_factor_name,omitempty"`
+	ContactName        *string `json:"contact_name,omitempty"`
 }
 
 type ReconcileLineItemRequest struct {

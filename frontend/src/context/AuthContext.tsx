@@ -25,15 +25,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [authActionTriggered, setAuthActionTriggered] = useState<"login" | "signup" | null>(null);
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("authComplete") === "true") {
+      console.log("AUTH COMPLETE")
+      setAuthActionTriggered("signup");  // Trigger after Xero authentication is complete
+    }
+  }, []);
+  
+
+  useEffect(() => {
+    console.log("authActionTriggered changed:", authActionTriggered);
+  }, [authActionTriggered]);
+
+  useEffect(() => {
 
     if (authActionTriggered) {
       const storedCompanyId = Cookies.get("companyID");
+      console.log("COMPANY ID:", storedCompanyId)
 
       if (storedCompanyId) {
         setCompanyId(storedCompanyId);
       }
 
       const storedTenantId = Cookies.get("tenantID");
+      console.log("TENANT ID:", storedTenantId)
       if (storedTenantId) {
         setTenantId(storedTenantId);
       }
@@ -45,8 +60,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Reset the action after the effect runs to avoid it running continuously
       setAuthActionTriggered(null);
+      console.log("Cookies:", Cookies.get())
+      console.log(document.cookie);
     }
-  }, [authActionTriggered]);
+  }, [authActionTriggered, isLoading]);
 
   const login = async (item: LoginRequest): Promise<{ response?: AxiosResponse; error?: unknown }> => {
     setIsLoading(true); // Set loading to true when login starts
@@ -56,6 +73,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Trigger the effect by setting the state
       setAuthActionTriggered("login");
+      console.log(response);
+      console.log("Cookies:", Cookies.get())
   
       return { response };
     } catch (error) {
@@ -68,19 +87,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const signup = async (item: SignupRequest): Promise<{ response?: AxiosResponse; error?: unknown }> => {
     setIsLoading(true); // Set loading to true when signup starts
+
+    const payload = {
+      email: item.email,
+      password: item.password,
+      first_name: item.firstName,  // Convert camelCase to snake_case
+      last_name: item.lastName,    // Convert camelCase to snake_case
+    };
   
     try {
-      const response = await apiClient.post("/auth/signup", item);
-      
-      // Trigger the effect by setting the state
+      const response = await apiClient.post("/auth/signup", payload);
+  
+      console.log("Signup successful, setting authActionTriggered...");
       setAuthActionTriggered("signup");
+      console.log("Auth action triggered state updated");
   
       return { response };
     } catch (error) {
       console.error("Signup error:", error);
       return { error };
     } finally {
-      setIsLoading(false); // Set loading to false when signup finishes
+      setIsLoading(false);
     }
   };  
 

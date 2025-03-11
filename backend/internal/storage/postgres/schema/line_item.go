@@ -77,8 +77,10 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	}
 
 	query := `
-	SELECT li.id, li.xero_line_item_id, li.description, li.total_amount, li.company_id, li.contact_id, li.date, li.currency_code, li.emission_factor_id, ef.name as emission_factor_name, li.co2, li.co2_unit, li.scope
-	FROM line_item li LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id ` + filterQuery + `
+	SELECT li.id, li.xero_line_item_id, li.description, li.total_amount, li.company_id, li.contact_id, c.name as contact_name, li.date, li.currency_code, li.emission_factor_id, ef.name as emission_factor_name, li.co2, li.co2_unit, li.scope
+	FROM line_item li 
+	LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id
+	LEFT JOIN contact c on li.contact_id = c.id ` + filterQuery + `
 	ORDER BY li.date DESC
 	LIMIT $1 OFFSET $2
 	`
@@ -203,8 +205,8 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 	for index, importedLineItem := range req {
 		var inputNumbers []string
 
-		for i := 1; i <= 9; i += 1 {
-			inputNumbers = append(inputNumbers, fmt.Sprintf("$%d", (index*9)+i))
+		for i := 1; i <= 8; i += 1 {
+			inputNumbers = append(inputNumbers, fmt.Sprintf("$%d", (index*8)+i))
 		}
 
 		valuesStrings = append(valuesStrings, fmt.Sprintf("(%s)", strings.Join(inputNumbers, ",")))
