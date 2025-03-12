@@ -66,7 +66,7 @@ func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*
 	if err != nil {
 		return nil, fmt.Errorf("error querying database for summary: %w", err)
 	}
-	
+
 	return &models.ContactWithDetails{
 		Contact: contact,
 		Summary: summary,
@@ -253,6 +253,39 @@ func (r *ContactRepository) GetOrCreateXeroContact(ctx context.Context, xeroCont
 	}
 
 	return contactID, nil
+}
+
+func (r *ContactRepository) GetContactEmissions(ctx context.Context, contactId string) (string, float64, error) {
+	const query = `
+		SELECT name, COALESCE(SUM(co2), 0) AS total_emissions
+		FROM line_item
+		WHERE contact_id = $1
+		GROUP BY contact_id, name;
+	`
+
+	rows, err := r.db.Query(ctx, query, contactId)
+	if err != nil {
+		return "", 0, err
+	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		return "", 0, fmt.Errorf("no emissions found for contact_id: %s", contactId)
+	}
+
+	values, err := rows.Values()
+	if err != nil {
+		return "", 0, err
+	}
+
+	name, _ := values[0].(string)
+	totalEmissions, _ := values[1].(float64)
+
+	if err := rows.Err(); err != nil {
+		return "", 0, err
+	}
+
+	return name, totalEmissions, nil
 }
 
 func NewContactRepository(db *pgxpool.Pool) *ContactRepository {

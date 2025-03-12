@@ -1,18 +1,22 @@
-// app/contacts/page.tsx
+// pages/contacts.tsx or pages/dashboard.tsx
+
 "use client";
 
 import React from "react";
+import useContactsTree from "@/hooks/useContactsTree";
 import dynamic from "next/dynamic";
 
 const ApexChart = dynamic(() => import("@/components/dashboard/treemap"), {
-  ssr: false, // Ensures it only renders on the client
+  ssr: false, // Disable server-side rendering for this component
 });
 
 const ContactsPage: React.FC = () => {
+  const data = useContactsTree(); // Get data from the custom hook
+
   return (
     <div className="flex justify-center items-center w-screen h-screen">
       <h1 className="text-3xl font-bold">Dashboard Page</h1>
-      <ApexChart />
+      <ApexChart data={data} />
     </div>
   );
 };
