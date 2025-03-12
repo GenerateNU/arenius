@@ -6,7 +6,6 @@ import { useCallback, useEffect, useState } from "react";
 
 export default function useGrossSummary() {
     const [grossSummary, setGrossSummary] = useState<GrossSummary>({} as GrossSummary);
-    const [req, setReq] = useState<GetGrossEmissionsRequest>({} as GetGrossEmissionsRequest);
     const { companyId, isLoading } = useAuth();
     const { dateRange, setDateRange } = useDateRange();
 
@@ -22,27 +21,22 @@ export default function useGrossSummary() {
       }
 
       try {
-        setReq(prev => ({ ...prev, company_id: companyId}))
-        setDateRange(dateRange)
-
-        let start_date = new Date()
-        start_date.setMonth(start_date.getMonth() - 3);
+        let req = { company_id: companyId } as GetGrossEmissionsRequest
         if (dateRange?.from) {
-          start_date = dateRange?.from
+          req = {...req, start_date: dateRange?.from}
         }
 
-        let end_date = new Date();
         if (dateRange?.to) {
-          end_date = dateRange?.to
+          req = {...req, end_date: dateRange?.to}
         }
 
-        const grossSummaryData = await fetchGrossEmissions({...req, company_id: companyId, start_date: start_date, end_date: end_date});
+        const grossSummaryData = await fetchGrossEmissions(req);
         setGrossSummary(grossSummaryData);
         console.log("Fetched data:", grossSummaryData); 
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    }, [companyId, dateRange, isLoading, setReq, setDateRange]);
+    }, [companyId, dateRange, isLoading, setDateRange]);
   
     useEffect(() => {
       fetchData();

@@ -172,6 +172,7 @@ POST `credentials/create`
 
 GET `/summary/gross` - provides the breakdown of total emissions per month by scope, for the given date range, as well as a cumulative total emissions for all line items for the range.
 
+If either start date or end date are missing, then the date range will default to 3 months ago - today
 ```go
     - Query Parameters:
         - `company_id`: Company ID

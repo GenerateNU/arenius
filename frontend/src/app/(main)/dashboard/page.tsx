@@ -5,9 +5,7 @@ import React from "react";
 
 const DashboardContent: React.FC = () => {
   return (
-    <div className="flex flex-col items-center">
-      <br />
-      <br />
+    <div className="flex flex-col items-center pt-14">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-7xl">
         <div className="lg:col-span-3">
           <h1 className="text-3xl font-bold mb-4">Carbon Management Dashboard</h1>

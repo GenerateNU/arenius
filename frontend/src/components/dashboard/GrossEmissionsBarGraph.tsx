@@ -37,6 +37,17 @@ const chartConfig = {
 
 export default function GrossEmissionsBarGraph() {
   const { grossSummary } = useGrossSummary();
+  const formattedStartMonth = new Date(grossSummary.start_date).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }) || ""
+  const formattedStartYear = new Date(grossSummary.start_date).getFullYear() || ""
+  const formattedEndMonth = new Date(grossSummary.end_date).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }) || ""
+  const formattedEndYear = new Date(grossSummary.end_date).getFullYear() || ""
+
+  const chartData = grossSummary.months?.map((month: MonthSummary) => ({ 
+    month: new Date(month.month_start).toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }), 
+    scope1: month.scopes.scope_one, 
+    scope2: month.scopes.scope_two, 
+    scope3: month.scopes.scope_three
+  })) ?? []
   
   return (
     <Card>
@@ -45,21 +56,12 @@ export default function GrossEmissionsBarGraph() {
         <br />
         <CardDescription style={{ fontSize: '2rem', fontWeight: 'bold' }}>{grossSummary.total_co2?.toLocaleString('en-US') || 0} kg</CardDescription>
         <CardDescription>Total emissions (kg) 
-          for {new Date(grossSummary.start_date).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }) || ""} {new Date(grossSummary.start_date).getFullYear() || ""}
-           - {new Date(grossSummary.end_date).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }) || ""} {new Date(grossSummary.start_date).getFullYear() || ""}</CardDescription>
+          for {formattedStartMonth} {formattedStartYear} - {formattedEndMonth} {formattedEndYear}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart accessibilityLayer data={
-              grossSummary.months?.map((month: MonthSummary) => ({ 
-                month: new Date(month.month_start).toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }), 
-                scope1: month.scopes.scope_one, 
-                scope2: month.scopes.scope_two, 
-                scope3: month.scopes.scope_three
-
-              })) ?? []
-            }>
+          <BarChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"
