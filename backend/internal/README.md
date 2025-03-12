@@ -234,46 +234,17 @@ Example:
 
 ## Xero Bank Transactions
 
-ZACH ZACH ZACH
-GET `/bank-transactions`
-Provides a list of transactions specific to an organization including line items, currently configured for demo data
-
 POST `/sync-transactions/:tenantId`
-Syncs transactions for a given Xero tenant if a tenant ID is given, otherwise syncs transactions for all the tenants. 
+Syncs transactions for a given Xero tenant if a tenant ID is given, otherwise syncs transactions for all the tenants.
+
 ```go
 Requires:
 - Session Access Token (stored through /xero/auth)
 - Session Tenant ID (stored through /xero/auth)
 Query Parameters:
-- `tenantId` )string, optional)     
+- `tenantId` )string, optional)
 Response:
 - List of dictionaries containing transaction information
 Example:
 - URL: `http://127.0.0.1::8080/sync-transactions?tenantId=59ab8a8d-9003-47e8-ad64-6a843d1e1168`
 ```
-
-## Xero Credentials
-
-ZACH ZACH ZACH: THESE ARE NOT EVEN IN SERVER.GO? DO THEY EXIST?
-
-GET `credentials/get`
-Retrieves the latest access token, refresh token, and tenant id from Xero authentication
-- response: json object of tokens
-
-POST `credentials/create`
-
-- adds a newly generated access token, refresh token, and tenant id to be used for continuous authentication
-- BODY PARAMS:
-  {
-  "company_id": {uuid},
-  "access_token": {uuid},
-  "refresh_token": {uuid},
-  "tenant_id": {uuid}
-  }
-- Response:
-- new authentication credentials row in Xero Credentials table
-
-ZACH ZACH ZACH: the following does not have documentation at all D:
-- callback (?)
-- auth/xero
-- secret 
