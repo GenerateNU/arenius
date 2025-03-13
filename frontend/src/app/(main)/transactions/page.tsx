@@ -1,5 +1,7 @@
 "use client";
 
+import { useCallback } from "react";
+import { debounce } from "lodash";
 import LineItemTable from "@/components/transactions/LineItemTable";
 import LineItemTableFilters from "@/components/transactions/LineItemTableFilters";
 import { LineItemsProvider, useLineItems } from "@/context/LineItemsContext";
@@ -16,20 +18,23 @@ export default function Transactions() {
   );
 }
 
-
 function TransactionsContent() {
   const { filters, setFilters } = useLineItems();
   const searchTerm = filters.searchTerm || "";
 
+  const debouncedSetFilters = useCallback(
+    debounce((value) => {
+      setFilters({ ...filters, searchTerm: value });
+    }, 300),
+    [setFilters]
+  );
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters({ ...filters, searchTerm: e.target.value });
+    debouncedSetFilters(e.target.value);
   };
 
   return (
     <div className={styles.container}>
-      {/* <hr className={styles.spacer} /> */}
-
-      {/* Title and Search Bar in One Line */}
       <div className="flex items-center justify-between mb-4">
         <p className={styles.formTitle}>Transactions</p>
         <div className="flex space-x-8">
@@ -37,7 +42,7 @@ function TransactionsContent() {
             <Search className={styles.searchIcon} />
             <Input
               placeholder="Search your transactions..."
-              value={searchTerm}
+              defaultValue={searchTerm}
               onChange={handleSearch}
               className={styles.input}
             />
@@ -45,7 +50,6 @@ function TransactionsContent() {
           <ManualEntryModal />
         </div>
       </div>
-
       <LineItemTableFilters />
       <LineItemTable />
     </div>
