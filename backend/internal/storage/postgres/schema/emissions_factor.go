@@ -157,6 +157,7 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 	}
 
 	for rows.Next() {
+		
 		var emissionsFactor models.EmissionsFactor
 		var rn int // this is unused 
 		err := rows.Scan(

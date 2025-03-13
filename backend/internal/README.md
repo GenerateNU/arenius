@@ -2,216 +2,249 @@
 
 ## Health Check
 
-- GET `/health`
-  - Returns 200 OK if the server is running.
+GET `/health`
+Returns 200 OK if the server is running.
 
-## Transactions
+## Auth
 
-POST `/transaction`
+POST `/auth/login`
+Login for user, returns access token and user information.
 
 ```go
-    - Body Parameters:
-
-            CompanyID         string    `json:"company_id"`
-            BankTransactionID string    `json:"bank_transaction_id"`
-            ContactID         int       `json:"contact_id"`
-            SubTotal          float64   `json:"sub_total"`
-            TotalTax          float64   `json:"total_tax"`
-            Total             float64   `json:"total"`
-            CurrencyCode      string    `json:"currency_code"`
-            CreatedAt         time.Time `json:"created_at"`
-            ImportedAt        time.Time `json:"imported_at"`
-
-    - Query Parameters:
+Body Parameters:
+- `email` (string)
+- `password` (string)
+Example:
+- URL: `http://127.0.0.1:8080/auth/login`
+- Body: {
+"email": "croft.z@husky.neu.edu",
+"password": "huskyaccount",
+}
 ```
 
-## Carbon
+POST `/auth/signup`
+Sign up for user, returns access token and user info.
+
+```go
+Body Parameters:
+- `email` (string)
+- `password` (string)
+- `first_name` (string, optional)
+- `last_name` (string, optional)
+Example:
+- URL: `http://127.0.0.1:8080/auth/signup`
+- Body: {
+    "email": "croft.z@husky.neu.edu",
+    "password": "someboguspassword",
+    "first_name": "zachie",
+    "last_name": "croft",
+}
+```
 
 ## Line Item
 
 GET `/line-item`
-
-```go
-    - Query Parameters:
-        CompanyID            *string    `query:"company_id"`
-        ReconciliationStatus *bool      `query:"reconciliation_status"`
-        BeforeDate           *time.Time `query:"before_date"`
-        AfterDate            *time.Time `query:"after_date"`
-        Scope                *int       `query:"scope"`
-        EmissionFactor       *string    `query:"emission_factor"`
-        SearchTerm           *string    `query:"search_term"`
-        MinPrice             *float64   `query:"min_price"`
-        MaxPrice             *float64   `query:"max_price"`
-        ContactID            *string    `query:"contact_id"`
-    Limit                int        `query:"limit"`
-
-```
-
+Gets all line items, filtered by a variety of query parameters.
 SearchTerm looks for matching line item descriptions, case insensitive.
 
+```go
+Query Parameters:
+- `company_id` (string, optional)
+- `reconciliation_status` (bool, optional)
+- `before_date` (time.Time, optional)
+- `after_date` (time.Time, optional)
+- `scope` (int, optional)
+- `emission_factor` (string, optional)
+- `search_term` (string, optional)
+- `min_price` (float64, optional)
+- `max_price` (float64, optional)
+- `contact_id` (string, optional)
+- `limit` (int)
+- `page` (int)
+Example:
+- URL: `http://127.0.0.1:8080/line-item?scope=2&limit=50&page=2`
+```
+
 PATCH `/line-item`
+Reconciles the line item with an emissions factor, scope and optionally a contact ID.
 
 ```go
-    - Body Parameters:
-        - `emission-factor`: Name of the emissions factor
-        - `scope`: Scope, optional
-        - `contact_id`: Contact ID, optional
-    - Path Parameters:
-        - `:id`: The ID of the line item
-    - Example:
-        - URL: `http://127.0.0.1:8080/line-item/0651d33f-e9f5-4df4-a1b4-155c0e6cceff`
-        - Parameters: {
-            "emission_factor": "consumer_goods-type_footwear",
-            "scope": 2,
-            "contact_id": "33333333-3333-3333-3333-333333333333"
-        }
+Path Parameters:
+- `id` (string)
+Body Parameters:
+- `emission-factor` (string)
+- `scope`: (string)
+- `contact_id` (string, optional)
+Example:
+- URL: `http://127.0.0.1:8080/line-item/0651d33f-e9f5-4df4-a1b4-155c0e6cceff`
+- Parameters: {
+    "emission_factor": "consumer_goods-type_footwear",
+    "scope": 2,
+    "contact_id": "4e689492-7920-4149-94e8-240b12f25c2e"
+}
 ```
 
 Post `/line-item`
+Creates a line item.
 
 ```go
-    - Body Parameters (*type) indicates an optional field
-        Description    string   `json:"description"`               // the description for a line item, non-empty
-        TotalAmount    float64  `json:"total_amount"`              // the price, >= 0
-        CompanyID      string   `json:"company_id"`                // the id of the associated company, uuid
-        ContactID      string   `json:"contact_id"`                // the id of the associated contact, uuid
-        EmissionFactor *string  `json:"emission_factor,omitempty"` // the emission factor as known by climatiq
-        Amount         *float64 `json:"amount,omitempty"`          // the amount of the emission factor, >= 0
-        Unit           *string  `json:"unit,omitempty"`            // the unit of the emission factor
-        CO2            *float64 `json:"co2,omitempty"`             // the amount of CO2, >= 0
-        Scope          *int     `json:"scope,omitempty"`           // the scope of the line-item
-        CO2Unit        *string  `json:"co2_unit,omitempty"`        // the unit of CO2
+Body Parameters:
+- `description` (string): The description for a line item, non-empty
+- `total_amount` (float64): The price, >= 0
+- `company_id` (string): The ID of the associated company, UUID
+- `contact_id` (string): The ID of the associated contact, UUID
+- `emission_factor` (string, optional): The emission factor as known by Climatiq
+- `amount` (float64, optional): The amount of the emission factor, >= 0
+- `unit` (string, optional): The unit of the emission factor
+- `co2` (float64, optional): The amount of CO2, >= 0
+- `scope` (int, optional): The scope of the line item
+- `co2_unit` (string, optional): The unit of CO2
+Example:
+- URL: `http://127.0.0.1:8080/line-item`
+- Parameters: {
+    "description": "Consumer Goods - Footwear",
+    "total_amount": 120.50,
+    "company_id": "1339d26e-8e6b-43e6-aa56-470b3985f3b1",
+    "contact_id": "4e689492-7920-4149-94e8-240b12f25c2e",
+    "emission_factor": "consumer_goods-type_footwear",
+    "scope": 2,
+    "co2_unit": "kg"
+}
 ```
 
-GET `/line-item`
+Patch `/line-item/batch`
+Updates the scope and/or emissions factor on multiple line items
 
 ```go
-    - Body Parameters:
-        CompanyID            *string    `json:"company_id"`
-        Date                 *time.Time `json:"date"`
-        ReconciliationStatus *bool      `json:"reconciliation_status"`
-    - Query Parameters:
-        Page  int `query:"page"`
-     Limit int `query:"limit"`
-
-```
-
-Patch `/lint-item\batch` - Allows you to update the scope and/or emissions factor on multiple line items
-
-```go
-    - Body Parameters:
-        LineItems           []uuid.UUID     `json:"line_item_ids"`
-        Scope               *int            `json:"scope"`
-        EmissionFactorId    *string         `json:"emissions_factor_id"`
-```
-
-## Climatiq
-
-## Emissions Factors
-
-GET `/emissions-factor/:companyId` - returns all emissions factors, structured as a list of categories, each with a name and its list of emission factors. The first category is the company's "favorites"
-
-PATCH `/emissions-factor/populate` - populates emissions factors table
-
-```go
-
-EmissionsFactor:
- Id            string `json:"id"`
- ActivityId    string `json:"activity_id"`
- Name          string `json:"name"`
- Description   string `json:"description"`
- Unit          string `json:"unit"`
- UnitType      string `json:"unit_type"`
- Year          int    `json:"year"`
- Region        string `json:"region"`
- Category      string `json:"category"`
- Source        string `json:"source"`
- SourceDataset string `json:"source_dataset"`
-
-Category:
- Name             string            `json:"name"`
- EmissionsFactors []EmissionsFactor `json:"emissions_factors"`
-
-```
-
-## Xero Bank Transactions
-
-GET `/bank-transactions`
-
-- provides a list of transactions specific to an organization including line items, currently configured for demo data
-
-```go
-- Body Params:
-- Session Access Token (stored through /xero/auth)
-- Session Tenant ID (stored through /xero/auth)
-- Response:
-- list of dictionaries contianing transaction information
-```
-
-## Xero Credentials
-
-GET `credentials/get`
-
-- retrieves the latest access token, refresh token, and tenant id from Xero authentication
-- response: json object of tokens
-
-POST `credentials/create`
-
-- adds a newly generated access token, refresh token, and tenant id to be used for continuous authentication
-- BODY PARAMS:
-  {
-  "company_id": {uuid},
-  "access_token": {uuid},
-  "refresh_token": {uuid},
-  "tenant_id": {uuid}
-  }
-- Response:
-- new authentication credentials row in Xero Credentials table
-
-## Summaries
-
-GET `/summary/gross` - provides the breakdown of total emissions per month by scope, for the previous `month_duration` months, as well as a cumulative total emissions for all line items for all time.
-
-```go
-    - Body Parameters:
-        - `month_duration`: Number of months to summarize
-        - `company_id`: Company whose line items are being summarized
-```
-
-## Auth
-
-POST `/auth/login` - login for user, returns access token and user info
-
-```go
-    - Body Parameters:
-        - `email`
-        - `password`
-```
-
-POST `/auth/signup` - signup for user, returns access token and user info
-
-```go
-    - Body Parameters:
-        - `email`
-        - `password`
-        - `first_name` (optional)
-        - `last_name` (optional)
+Body Parameters:
+- `line_item_ids` ([]uuid.UUID)
+- `scope` (int, optional)
+- `emissions_factor_id` (string, optional)
+Example:
+- URL: `http://127.0.0.1:8080/line-item/batch`
+- Parameters: {
+    "line_item_ids": ["0651d33f-e9f5-4df4-a1b4-155c0e6cceff",        "2c67a94e-e665-46a9-86a0-907fb768b01d"],
+    "scope": 2,
+    "emissions_factor_id": "consumer_goods-type_footwear"
+}
 ```
 
 ## Contacts
 
-GET `/contact/:contactId` - get a contact with details object, which includes the contact as well as total emissions, total amount spent, and total transactions
-
-GET `/contact/company/:companyId` - get all contact objects associated with a company
-
-POST `/contact` - create a new contact manually
+GET `/contact/:contactId`
+Get a contact with details object, which includes the contact as well as total emissions, total amount spent, and total transactions.
 
 ```go
-    - Body Parameters:
-        - `name`
-        - `email`
-        - `phone`
-        - `city`
-        - `state`
-        - `company_id`
+Path Parameters:
+- `contactId`: (string)
+Example:
+- URL: `http://127.0.0.1:8080/contact/4e689492-7920-4149-94e8-240b12f25c2e`
+```
+
+GET `/contact/company/:companyId`
+Get all contact objects associated with a company
+
+```go
+Path Parameters:
+- `companyId`: (string)
+Example:
+- URL: `http://127.0.0.1:8080/contact/company/1339d26e-8e6b-43e6-aa56-470b3985f3b1`
+```
+
+POST `/contact`
+Create a new contact manually
+
+```go
+Body Parameters:
+- `name` (string)
+- `email` (string)
+- `phone` (string)
+- `city` (string)
+- `state` (string)
+- `xero_contact_id` (string, optional)
+- `company_id` (string)
+Example:
+- URL: `http://127.0.0.1:8080/contact`
+- Parameters: {
+    "name": "Zachie Croft",
+    "email": "croft.z@husky.neu.edu",
+    "phone": "123-456-7890",
+    "city": "Boston",
+    "state": "MA",
+    "company_id": "1339d26e-8e6b-43e6-aa56-470b3985f3b1"
+}
+```
+
+## Emissions Factors
+
+GET `/emissions-factor/:companyId`
+Returns all emissions factors, structured as a list of categories, each with a name and its list of emission factors. The first category is the company's "favorites"
+
+```go
+Query Parameters:
+- `company_id` (string)
+Example:
+- URL: `http://127.0.0.1:8080/emissions-factor/1339d26e-8e6b-43e6-aa56-470b3985f3b1`
+```
+
+PATCH `/emissions-factor/populate`
+Populates emissions factors table
+
+## Climatiq
+
+GET `/climatiq`
+
+## Summaries
+
+GET `/summary/gross`
+Provides the breakdown of total emissions per month by scope, for the previous `month_duration` months, as well as a cumulative total emissions for all line items for all time.
+
+```go
+Body Parameters:
+- `month_duration` (int) : Number of months to summarize
+- `company_id` (string) : Company whose line items are being summarized
+Example:
+- URL: `http://127.0.0.1:8080/summary/gross`
+- Parameters: {
+    "month_duration": 6,
+    "company_id": "1339d26e-8e6b-43e6-aa56-470b3985f3b1"
+}
+```
+
+## Carbon
+
+POST `carbon-offset/create`
+Creates a new carbon offset record.
+
+```go
+Body Parameters:
+- `carbon_amount_kg` (float64)
+- `company_id` (uuid.UUID)
+- `source` (string)
+- `purchase_date` (time.Time)
+Example:
+- URL: `http://127.0.0.1:8080/carbon-offset/create`
+- Parameters: {
+    "carbon_amount_kg": 500,
+    "company_id": "0a67f5d3-88b6-4e8f-aac0-5137b29917fd",
+    "source": "https://example-offset-provider.com",
+    "purchase_date": "2024-02-08T00:00:00Z"
+}
+```
+
+## Xero Bank Transactions
+
+POST `/sync-transactions/:tenantId`
+Syncs transactions for a given Xero tenant if a tenant ID is given, otherwise syncs transactions for all the tenants.
+
+```go
+Requires:
+- Session Access Token (stored through /xero/auth)
+- Session Tenant ID (stored through /xero/auth)
+Query Parameters:
+- `tenantId` )string, optional)
+Response:
+- List of dictionaries containing transaction information
+Example:
+- URL: `http://127.0.0.1::8080/sync-transactions?tenantId=59ab8a8d-9003-47e8-ad64-6a843d1e1168`
 ```

@@ -89,7 +89,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	rows, err := r.db.Query(ctx, query, queryArgs...)
 	if err != nil {
 		return nil, err
-	}
+	} 
 	defer rows.Close()
 
 	lineItems, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.LineItemWithDetails])
@@ -97,7 +97,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		return nil, err
 	}
 
-	return lineItems, nil
+	return lineItems, nil 
 }
 
 func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, scope int, emissionsFactorId string, contactID *string) (*models.LineItem, error) {
