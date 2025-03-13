@@ -20,7 +20,9 @@ export default {
           DEFAULT: "var(--secondary)",
           foreground: "var(--secondary-foreground)",
         },
+        // TODO: standardize to match design's finalized palette
         moss: "var(--moss)",
+        grayBackground: "var(--gray-bg)",
         card: {
           DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",
