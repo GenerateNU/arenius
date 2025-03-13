@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -22,11 +23,14 @@ func (r *CompanyRepository) GetCompanyByXeroTenantID(ctx context.Context, xeroTe
 		WHERE xero_tenant_id=$1
 		LIMIT 1
 	`
-	var company models.Company
+	companyRows, err := r.db.Query(ctx, query, xeroTenantID)
+	if err != nil {
+		return nil, err
+	}
+	defer companyRows.Close()
 
-	err := r.db.QueryRow(ctx, query, xeroTenantID).Scan(
-		&company.ID, &company.Name, &company.XeroTenantID, &company.LastTransactionImportTime, &company.LastContactImportTime,
-	)
+	company, err := pgx.CollectOneRow(companyRows, pgx.RowToStructByName[models.Company])
+
 	if err != nil {
 		return nil, errs.BadRequest(fmt.Sprintf("Error finding company with Xero Tenant ID: %s, %s", xeroTenantID, err))
 	}
@@ -40,11 +44,14 @@ func (r *CompanyRepository) UpdateCompanyLastTransactionImportTime(ctx context.C
 		WHERE id=$2
 		RETURNING id, name, xero_tenant_id, last_transaction_import_time;
 	`
-	var company models.Company
+	companyRows, err := r.db.Query(ctx, query, time.Now().UTC(), id)
+	if err != nil {
+		return nil, err
+	}
+	defer companyRows.Close()
 
-	err := r.db.QueryRow(ctx, query, time.Now().UTC(), id).Scan(
-		&company.ID, &company.Name, &company.XeroTenantID, &company.LastTransactionImportTime,
-	)
+	company, err := pgx.CollectOneRow(companyRows, pgx.RowToStructByName[models.Company])
+
 	if err != nil {
 		return nil, errs.BadRequest(fmt.Sprintf("Unable to update company last_transaction_import_time: %s", err))
 	}
@@ -58,11 +65,14 @@ func (r *CompanyRepository) UpdateCompanyLastContactImportTime(ctx context.Conte
 		WHERE id=$2
 		RETURNING id, name, xero_tenant_id, last_contact_import_time;
 	`
-	var company models.Company
+	companyRows, err := r.db.Query(ctx, query, time.Now().UTC(), id)
+	if err != nil {
+		return nil, err
+	}
+	defer companyRows.Close()
 
-	err := r.db.QueryRow(ctx, query, time.Now().UTC(), id).Scan(
-		&company.ID, &company.Name, &company.XeroTenantID, &company.LastContactImportTime,
-	)
+	company, err := pgx.CollectOneRow(companyRows, pgx.RowToStructByName[models.Company])
+
 	if err != nil {
 		return nil, errs.BadRequest(fmt.Sprintf("Unable to update company last_contact_import_time: %s", err))
 	}
@@ -108,11 +118,15 @@ func (r *CompanyRepository) GetTenantByTenantID(ctx context.Context, xeroTenantI
 		WHERE xero_tenant_id=$1
 		LIMIT 1
 	`
-	var tenant models.Tenant
 
-	err := r.db.QueryRow(ctx, query, xeroTenantID).Scan(
-		&tenant.ID, &tenant.Name, &tenant.XeroTenantID, &tenant.LastTransactionImportTime, &tenant.LastContactImportTime, &tenant.RefreshToken, &tenant.UserID,
-	)
+	tenantRows, err := r.db.Query(ctx, query, xeroTenantID)
+	if err != nil {
+		return nil, err
+	}
+	defer tenantRows.Close()
+
+	tenant, err := pgx.CollectOneRow(tenantRows, pgx.RowToStructByName[models.Tenant])
+
 	if err != nil {
 		return nil, errs.BadRequest(fmt.Sprintf("Error finding company with Xero Tenant ID: %s, %s", xeroTenantID, err))
 	}
@@ -130,19 +144,9 @@ func (r *CompanyRepository) GetAllTenants(ctx context.Context) ([]models.Tenant,
 	}
 	defer rows.Close()
 
-	var tenants []models.Tenant
-	for rows.Next() {
-		var tenant models.Tenant
-		if err := rows.Scan(
-			&tenant.ID, &tenant.Name, &tenant.XeroTenantID, &tenant.LastTransactionImportTime, &tenant.LastContactImportTime, &tenant.RefreshToken, &tenant.UserID,
-		); err != nil {
-			return nil, err
-		}
-		tenants = append(tenants, tenant)
-	}
-
-	if rowsErr := rows.Err(); rowsErr != nil {
-		return nil, fmt.Errorf("error iterating over contact rows: %w", rowsErr)
+	tenants, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.Tenant])
+	if err != nil {
+		return nil, fmt.Errorf("error collecting tenants: %w", err)
 	}
 
 	return tenants, nil

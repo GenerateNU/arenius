@@ -5,8 +5,9 @@ import (
 )
 
 type GetGrossSummaryRequest struct {
-	CompanyID     string `json:"company_id"`
-	MonthDuration int    `json:"month_duration"`
+	CompanyID string    `query:"company_id"`
+	StartDate time.Time `query:"start_date"`
+	EndDate   time.Time `query:"end_date"`
 }
 
 type GetGrossSummaryResponse struct {

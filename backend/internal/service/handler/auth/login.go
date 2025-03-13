@@ -37,7 +37,6 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		Name:     "jwt",
 		Value:    signInResponse.AccessToken,
 		Expires:  time.Now().Add(24 * time.Hour),
-		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "Lax",
 	})
@@ -49,11 +48,12 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			fmt.Println("Error getting credentials:", err)
 			fmt.Println("Failed to get credentials")
 		}
+		fmt.Println("xeroCreds", xeroCreds)
+		fmt.Println("Setting Cookies")
 		c.Cookie(&fiber.Cookie{
 			Name:     "refreshToken",
 			Value:    xeroCreds.RefreshToken,
 			Expires:  time.Now().Add(7 * 24 * time.Hour),
-			HTTPOnly: true,
 			Secure:   true,
 			SameSite: "Lax",
 		})
@@ -75,9 +75,10 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 
 	// Get tenant ID from cookies
 	tenantID := c.Cookies("tenantID")
+	fmt.Println("tenantID cookie: ", tenantID)
 
 	// Build the URL with tenant ID as a query parameter
-	syncURL := fmt.Sprintf("http://localhost:8080/sync-transactions?tenantID=%s", url.QueryEscape(tenantID))
+	syncURL := fmt.Sprintf("http://localhost:8080/sync-transactions?tenantId=%s", url.QueryEscape(tenantID))
 
 	// Make the HTTP request to sync transactions
 	resp, err := http.Post(syncURL, "application/json", nil)

@@ -7,6 +7,8 @@ export type LineItem = {
   currency_code: string;
   emission_factor_name?: string;
   scope?: number;
+  contact_name?: string;
+  co2?: number;
 };
 
 export interface LineItemFilters {
@@ -16,6 +18,7 @@ export interface LineItemFilters {
   maxPrice?: number;
   searchTerm?: string;
   company_id?: string;
+  contact_id?: string;
 }
 
 export type CreateLineItemRequest = {
@@ -88,3 +91,27 @@ export type CreateContactRequest = {
   state: string;
   company_id: string;
 };
+
+export type GetGrossEmissionsRequest = {
+  company_id: string;
+  start_date: Date;
+  end_date: Date;
+}
+
+export type ScopeSummary = {
+  scope_one: number;
+  scope_two: number;
+  scope_three: number;
+}
+
+export type MonthSummary = {
+  month_start: Date;
+  scopes: ScopeSummary;
+}
+
+export type GrossSummary = {
+  total_co2: number;
+  start_date: Date;
+  end_date: Date;
+  months: MonthSummary[];
+}

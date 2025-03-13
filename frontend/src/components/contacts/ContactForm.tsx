@@ -13,13 +13,6 @@ import {
   FormMessage,
   Form,
 } from "../ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
@@ -33,12 +26,9 @@ const formSchema = z.object({
   phone: z.string().min(2).max(50),
   city: z.string().min(2).max(50),
   state: z.string().min(2).max(50),
-  scope: z.string().min(2).max(50),
   client_overview: z.string(),
   notes: z.string().optional(),
 });
-
-const SCOPES = ["Scope 1", "Scope 2", "Scope 3"];
 
 export default function ContactForm() {
   const router = useRouter();
@@ -51,7 +41,6 @@ export default function ContactForm() {
       phone: "",
       city: "",
       state: "",
-      scope: "Scope 1",
       client_overview: "",
       notes: "",
     },
@@ -113,31 +102,6 @@ export default function ContactForm() {
                   <FormLabel className="text-green-600">Client Name</FormLabel>
                   <FormControl>
                     <Input placeholder="John Smith" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="scope"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-green-600">Scope</FormLabel>
-                  <FormControl>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Scope 1" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {SCOPES.map((scope) => (
-                          <SelectItem key={scope} value={scope}>
-                            {scope}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -1,6 +1,9 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { LineItem } from "@/types";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { reconcile } from "@/services/lineItems";
+import { Contact, EmissionsFactor, LineItem, ReconcileRequest } from "@/types";
+import { Row } from "@tanstack/react-table";
+import React, { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -9,10 +12,9 @@ import {
   SelectValue,
 } from "../ui/select";
 import EmissionsFactorSelector from "./CategorySelector";
-import React, { useState } from "react";
-import { EmissionsFactor, ReconcileRequest } from "@/types";
-import { reconcile } from "@/services/lineItems";
-import { Row } from "@tanstack/react-table";
+import { ContactsProvider } from "@/context/ContactsContext";
+import { fetchContacts } from "@/services/contacts";
+import ContactsSelector from "./ContactsSelector";
 
 interface ModalDialogProps {
   selectedRowData: Row<LineItem>;
@@ -30,6 +32,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
 
   const [scope, setScope] = useState("");
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
+  const [contact, setContact] = useState<Contact>();
 
   const date = new Date(selectedRowData.getValue("date"));
   const formattedDate = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
@@ -44,7 +47,8 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
     const request: ReconcileRequest = {
       lineItemId: selectedRowData.original.id,
       ...(scope && { scope: Number(scope) }), 
-      ...(emissionsFactor?.activity_id && { emissionsFactorId: emissionsFactor.activity_id }), 
+      ...(emissionsFactor?.activity_id && { emissionsFactorId: emissionsFactor.activity_id }),
+      ...(contact?.id && { contactId: contact.id}) 
     };
   
     await reconcile(request);
@@ -93,8 +97,14 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
             </div>
 
             <div className="space-y-2">
-              <p className="text-md font-small text-gray-500">User group</p>
-              <p className="text-md font-small text-black-500">Contact name</p>
+              <p className="text-md font-small text-gray-500">Contact Name</p>
+                <ContactsProvider fetchFunction={fetchContacts}>
+                  <ContactsSelector
+                    contact={contact}
+                    setContact={setContact}
+                    variant='outline'
+                  />
+                </ContactsProvider>
             </div>
 
             <div className="mt-4">

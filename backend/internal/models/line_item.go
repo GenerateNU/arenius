@@ -20,6 +20,7 @@ type LineItem struct {
 type LineItemWithDetails struct {
 	LineItem
 	EmissionFactorName *string `json:"emission_factor_name,omitempty"`
+	ContactName        *string `json:"contact_name,omitempty"`
 }
 
 type ReconcileLineItemRequest struct {
@@ -57,6 +58,7 @@ type GetLineItemsRequest struct {
 	SearchTerm           *string    `query:"search_term"`
 	MinPrice             *float64   `query:"min_price"`
 	MaxPrice             *float64   `query:"max_price"`
+	ContactID            *string    `query:"contact_id"`
 }
 
 type AddImportedLineItemRequest struct {

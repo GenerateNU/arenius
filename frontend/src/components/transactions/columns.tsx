@@ -1,9 +1,9 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnHeader } from "@/components/ui/columnHeader";
 import { LineItem } from "@/types";
+import { ColumnDef } from "@tanstack/react-table";
 
 export const columns: ColumnDef<LineItem>[] = [
   {
@@ -48,18 +48,29 @@ export const columns: ColumnDef<LineItem>[] = [
   {
     accessorKey: "emission_factor_name",
     header: ({ column }) => {
-      return <ColumnHeader name="Emissions factor" column={column} />;
+      return <ColumnHeader name="Emissions Factor" column={column} />;
     },
   },
 
   {
-    accessorKey: "contact",
+    accessorKey: "contact_name",
     header: ({ column }) => {
       return <ColumnHeader name="Contact" column={column} />;
     },
-    cell: ({}) => {
-      // TODO: un-hard-code after contacts table is created
-      return <div className="font-medium">Contact name</div>;
+  },
+
+  {
+    accessorKey: "co2",
+    header: ({ column }) => {
+      return (
+        <ColumnHeader name="CO2" column={column} />
+      );
+    },
+    cell: ({ row }) => {
+      const co2 = parseFloat(row.getValue("co2"));
+      const formatted = !Number.isNaN(co2) ? `${co2} kg` : "";
+
+      return <div className="font-medium">{formatted}</div>;
     },
   },
 
