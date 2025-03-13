@@ -27,11 +27,12 @@ import { LoadingSpinner } from "../ui/loading";
 
 export type LineItemTableProps = {
   columns: ColumnDef<LineItem>[];
+  data: LineItem[];
 };
 
-export default function LineItemTable({ columns }: LineItemTableProps) {
+export default function LineItemTable({ columns, data }: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { data, loading, fetchData } = useLineItems();
+  const { loading, fetchData } = useLineItems();
 
   // object and boolean to handle clicking a row's action button
   const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
@@ -76,14 +77,20 @@ export default function LineItemTable({ columns }: LineItemTableProps) {
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="rounded-md  bg-white">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      style={{
+                        minWidth: header.column.columnDef.size,
+                        maxWidth: header.column.columnDef.size,
+                      }}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -102,9 +109,16 @@ export default function LineItemTable({ columns }: LineItemTableProps) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="border-none"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      style={{
+                        minWidth: cell.column.columnDef.size,
+                        maxWidth: cell.column.columnDef.size,
+                      }}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

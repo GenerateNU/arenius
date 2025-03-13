@@ -25,6 +25,7 @@ const selectColumn: ColumnDef<LineItem> = {
       aria-label="Select row"
     />
   ),
+  size: 25,
 };
 const dateColumn: ColumnDef<LineItem> = {
   accessorKey: "date",
@@ -36,13 +37,15 @@ const dateColumn: ColumnDef<LineItem> = {
     const formattedDate = date.getMonth() + 1 + "/" + date.getDate();
     return <div className="font-medium">{formattedDate}</div>;
   },
+  size: 75,
 };
 
 const descriptionColumn: ColumnDef<LineItem> = {
   accessorKey: "description",
   header: ({ column }) => {
-    return <ColumnHeader name="Name" column={column} />;
+    return <ColumnHeader name="Description" column={column} />;
   },
+  size: 200,
 };
 
 const emissionFactorColumn: ColumnDef<LineItem> = {
@@ -50,12 +53,15 @@ const emissionFactorColumn: ColumnDef<LineItem> = {
   header: ({ column }) => {
     return <ColumnHeader name="Emissions Factor" column={column} />;
   },
+  size: 200,
 };
+
 const contactColumn: ColumnDef<LineItem> = {
   accessorKey: "contact_name",
   header: ({ column }) => {
     return <ColumnHeader name="Contact" column={column} />;
   },
+  size: 150,
 };
 const co2Column: ColumnDef<LineItem> = {
   accessorKey: "co2",
@@ -68,6 +74,7 @@ const co2Column: ColumnDef<LineItem> = {
 
     return <div className="font-medium">{formatted}</div>;
   },
+  size: 75,
 };
 const amountColumn: ColumnDef<LineItem> = {
   accessorKey: "total_amount",
@@ -85,6 +92,7 @@ const amountColumn: ColumnDef<LineItem> = {
 
     return <div className="text-right font-medium pr-4">{formatted}</div>;
   },
+  size: 80,
 };
 
 export const unreconciledColumns: ColumnDef<LineItem>[] = [
