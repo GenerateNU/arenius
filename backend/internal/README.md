@@ -112,7 +112,7 @@ Example:
 }
 ```
 
-Patch `/lint-item/batch`
+Patch `/line-item/batch`
 Updates the scope and/or emissions factor on multiple line items
 
 ```go
