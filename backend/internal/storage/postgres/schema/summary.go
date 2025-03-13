@@ -3,8 +3,8 @@ package schema
 import (
 	"arenius/internal/models"
 	"context"
-	"time"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -32,7 +32,7 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 			month_start,
 			scope;
 	`
-	
+
 	rowsMonthly, errMonthly := r.db.Query(ctx, monthlyQuery, req.CompanyID, req.MonthDuration)
 	if errMonthly != nil {
 		return nil, errMonthly
@@ -45,11 +45,11 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 		var co2 float64
 		var scope int
 		var monthStart time.Time
-	
+
 		if err := rowsMonthly.Scan(&co2, &scope, &monthStart); err != nil {
 			return nil, err
 		}
-	
+
 		var currentSummary *models.MonthSummary
 		if len(monthSummaries) > 0 && monthSummaries[len(monthSummaries)-1].MonthStart == monthStart {
 			currentSummary = &monthSummaries[len(monthSummaries)-1]
@@ -61,7 +61,7 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 			monthSummaries = append(monthSummaries, newSummary)
 			currentSummary = &monthSummaries[len(monthSummaries)-1]
 		}
-	
+
 		switch scope {
 		case 1:
 			currentSummary.Scopes.ScopeOne = co2
@@ -111,11 +111,53 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 	}
 
 	return &models.GetGrossSummaryResponse{
-		TotalCO2: co2Total,
+		TotalCO2:  co2Total,
 		StartDate: startDate,
-		EndDate: endDate,
-		Months: monthSummaries,
+		EndDate:   endDate,
+		Months:    monthSummaries,
 	}, nil
+}
+
+func (r *SummaryRepository) GetNetSummary(ctx context.Context, companyID, startDate, endDate string) ([]models.NetSummary, error) {
+	const monthlyQuery = `
+		SELECT
+			SUM(co2) AS total_co2,
+			scope AS scope      
+		FROM
+			line_item
+		WHERE
+			company_id = $1
+			AND date >= $2
+			AND date <= $3
+			AND scope IS NOT NULL
+			AND co2 IS NOT NULL
+		GROUP BY
+			scope
+		ORDER BY
+			scope;`
+
+	var summaries []models.NetSummary
+
+	rows, err := r.db.Query(ctx, monthlyQuery, companyID, startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var summary models.NetSummary
+
+		if err := rows.Scan(&summary.TotalCO2, &summary.ScopeVal); err != nil {
+			return nil, err
+		}
+		summaries = append(summaries, summary)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return summaries, nil
 }
 
 func NewSummaryRepository(db *pgxpool.Pool) *SummaryRepository {
