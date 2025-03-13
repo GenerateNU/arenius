@@ -1,6 +1,6 @@
 "use client"
-import React, { useState, useEffect } from "react";
-import { Pie, PieChart, Tooltip } from "recharts";
+import React from "react";
+import { Tooltip } from "recharts";
 
 function ToolTip() {
     return (
