@@ -19,6 +19,7 @@ export interface LineItemFilters {
   searchTerm?: string;
   company_id?: string;
   contact_id?: string;
+  reconciled?: boolean;
 }
 
 export type CreateLineItemRequest = {
@@ -50,7 +51,7 @@ export type ReconcileRequest = {
   scope?: number;
   emissionsFactorId?: string;
   contactId?: string;
-}
+};
 
 export type EmissionsFactor = {
   name: string;
@@ -60,7 +61,7 @@ export type EmissionsFactor = {
 export type Price = {
   minPrice: number;
   maxPrice: number;
-}
+};
 
 export type EmissionsFactorCategory = {
   name: string;

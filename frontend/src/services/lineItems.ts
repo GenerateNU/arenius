@@ -7,40 +7,35 @@ import {
 } from "../types";
 import apiClient from "./apiClient";
 
-function buildQueryParams(filters: LineItemFilters) {
-  const params: Record<string, string | Date | undefined> = {};
+function buildQueryParams(filters: LineItemFilters): URLSearchParams {
+  const params = new URLSearchParams();
 
   if (filters?.dates) {
-    params.after_date = filters.dates.from;
-    params.before_date = filters.dates.to;
+    if (filters.dates.from)
+      params.append("after_date", filters.dates.from.toISOString());
+    if (filters.dates.to)
+      params.append("before_date", filters.dates.to.toISOString());
   }
 
-  if (filters?.emissionFactor) {
-    params.emission_factor = filters.emissionFactor;
-  }
-  if (filters?.minPrice) {
-    params.min_price = filters.minPrice?.toString();
-  }
-  if (filters?.maxPrice) {
-    params.max_price = filters.maxPrice?.toString();
-  }
-  if (filters?.searchTerm) {
-    params.search_term = filters.searchTerm;
-  }
-  if (filters?.company_id) {
-    params.company_id = filters.company_id;
-  }
-  if (filters?.contact_id) {
-    params.contact_id = filters.contact_id;
-  }
+  if (filters?.emissionFactor)
+    params.append("emission_factor", filters.emissionFactor);
+  if (filters?.minPrice)
+    params.append("min_price", filters.minPrice.toString());
+  if (filters?.maxPrice)
+    params.append("max_price", filters.maxPrice.toString());
+  if (filters?.reconciled != null)
+    params.append("reconciliation_status", filters.reconciled.toString());
+
+  if (filters?.searchTerm) params.append("search_term", filters.searchTerm);
+  if (filters?.company_id) params.append("company_id", filters.company_id);
+  if (filters?.contact_id) params.append("contact_id", filters.contact_id);
 
   return params;
 }
 
 export async function fetchLineItems(
-  filters: LineItemFilters,
+  filters: LineItemFilters
 ): Promise<LineItem[]> {
-
   try {
     const response = await apiClient.get("/line-item", {
       params: buildQueryParams(filters),
@@ -56,7 +51,6 @@ export async function createLineItem(
   item: CreateLineItemRequest,
   companyId: string
 ): Promise<void> {
-  
   const new_item = {
     description: item.description,
     total_amount: item.total_amount,

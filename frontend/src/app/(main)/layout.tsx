@@ -20,7 +20,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="relative overflow-x-hidden flex-1">
-      <div className="flex absolute top-0 left-0 w-full p-4 space-x-8">
+      <div className="flex absolute top-0 left-0 w-full p-4 space-x-8 bg-white">
         <div>
           <Image
             src={onboardingLogo}
@@ -68,7 +68,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </Link>
         </div>
       </div>
-      <div className="pt-10 px-20">{children}</div>
+      <div className="pt-10 px-20 bg-grayBackground h-full">{children}</div>
     </div>
   );
 };
