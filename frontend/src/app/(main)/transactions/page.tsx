@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
-import { debounce } from "lodash";
+import { useEffect } from "react";
 import LineItemTable from "@/components/transactions/LineItemTable";
 import LineItemTableFilters from "@/components/transactions/LineItemTableFilters";
 import { LineItemsProvider, useLineItems } from "@/context/LineItemsContext";
@@ -9,6 +8,7 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ManualEntryModal from "@/components/transactions/ManualEntryModal";
 import { fetchLineItems } from "@/services/lineItems";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 
 export default function Transactions() {
   return (
@@ -20,18 +20,11 @@ export default function Transactions() {
 
 function TransactionsContent() {
   const { filters, setFilters } = useLineItems();
-  const searchTerm = filters.searchTerm || "";
+  const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(filters.searchTerm || "");
 
-  const debouncedSetFilters = useCallback(
-    debounce((value) => {
-      setFilters({ ...filters, searchTerm: value });
-    }, 300),
-    [setFilters]
-  );
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    debouncedSetFilters(e.target.value);
-  };
+  useEffect(() => {
+    setFilters({ ...filters, searchTerm: debouncedTerm });
+  }, [filters, debouncedTerm, setFilters]);
 
   return (
     <div className={styles.container}>
@@ -42,8 +35,8 @@ function TransactionsContent() {
             <Search className={styles.searchIcon} />
             <Input
               placeholder="Search your transactions..."
-              defaultValue={searchTerm}
-              onChange={handleSearch}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className={styles.input}
             />
           </div>
