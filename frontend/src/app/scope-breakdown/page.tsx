@@ -38,7 +38,7 @@ const fetchNetSummary = async (
   return response.json();
 };
 
-export function ScopeBreakdown() {
+export default function ScopeBreakdown() {
   const [data, setData] = useState<NetSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
  
@@ -106,5 +106,3 @@ export function ScopeBreakdown() {
     </div>
   );
 }
-
-export default ScopeBreakdown;
