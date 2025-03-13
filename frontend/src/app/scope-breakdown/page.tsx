@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  ChartConfig,
   ChartContainer,
 } from "@/components/ui/chart";
 import ScopePieChart from "@/components/scope-breakdown/piechart";
