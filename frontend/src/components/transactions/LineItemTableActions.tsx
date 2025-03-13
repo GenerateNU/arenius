@@ -43,7 +43,7 @@ export function LineItemTableActions<LineItem>({
   }
 
   return (
-    <div className="flex w-full space-x-2 px-2 py-2">
+    <div className="flex w-full space-x-2 px-2 py-2 mt-4">
       <Select onValueChange={(value) => setScope(value)}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Select scope" />

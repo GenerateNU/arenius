@@ -31,14 +31,13 @@ export type LineItemTableProps = {
 
 export default function LineItemTable({ columns }: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { data, loading } = useLineItems();
+  const { data, loading, fetchData } = useLineItems();
 
-  const [selectedRowData, setSelectedRowData] = useState<Row<LineItem> | null>(
+  // object and boolean to handle clicking a row's action button
+  const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
     null
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const { fetchData } = useLineItems();
 
   const table = useReactTable({
     data,
@@ -52,8 +51,13 @@ export default function LineItemTable({ columns }: LineItemTableProps) {
     },
   });
 
-  const openReconcileDialog = (row: Row<LineItem>) => {
-    setSelectedRowData(row);
+  // boolean determining if any row is selected
+  const rowIsSelected = table
+    .getRowModel()
+    .rows.some((row) => row.getIsSelected());
+
+  const openEditDialog = (row: Row<LineItem>) => {
+    setClickedRowData(row);
     setIsDialogOpen(true);
   };
 
@@ -113,7 +117,7 @@ export default function LineItemTable({ columns }: LineItemTableProps) {
                       alt="Reconcile"
                       width={24}
                       height={24}
-                      onClick={() => openReconcileDialog(row)}
+                      onClick={() => openEditDialog(row)}
                       style={{ cursor: "pointer" }}
                     />
                   </TableCell>
@@ -133,17 +137,16 @@ export default function LineItemTable({ columns }: LineItemTableProps) {
         </Table>
       </div>
 
-      {selectedRowData && (
+      {clickedRowData && (
         <ModalDialog
-          selectedRowData={selectedRowData}
+          selectedRowData={clickedRowData}
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
           onReconcileSuccess={handleReconcileSuccess}
         />
       )}
 
-      <br />
-      <LineItemTableActions table={table} />
+      {rowIsSelected && <LineItemTableActions table={table} />}
     </>
   );
 }
