@@ -20,10 +20,12 @@ func (c *UserRepository) GetCredentialsByUserID(ctx context.Context, userID stri
                    WHERE user_id = $1`
 
 	// Query the database using the user_id
-	row := c.db.QueryRow(ctx, query, userID)
-
-	var credentials models.XeroCredentials
-	err := row.Scan(&credentials.CompanyID, &credentials.RefreshToken, &credentials.TenantID)
+	row, err := c.db.Query(ctx, query, userID)
+	if err != nil {
+		return models.XeroCredentials{}, err
+	}
+	defer row.Close()
+	credentials, err := pgx.CollectOneRow(row, pgx.RowToStructByName[models.XeroCredentials])
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			return models.XeroCredentials{}, errors.New("no credentials found for the given user")
