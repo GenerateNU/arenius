@@ -196,19 +196,17 @@ GET `/climatiq`
 
 ## Summaries
 
-GET `/summary/gross`
-Provides the breakdown of total emissions per month by scope, for the previous `month_duration` months, as well as a cumulative total emissions for all line items for all time.
+GET `/summary/gross` - provides the breakdown of total emissions per month by scope, for the given date range, as well as a cumulative total emissions for all line items for the range.
 
+If either start date or end date are missing, then the date range will default to 3 months ago - today
 ```go
-Body Parameters:
-- `month_duration` (int) : Number of months to summarize
-- `company_id` (string) : Company whose line items are being summarized
-Example:
-- URL: `http://127.0.0.1:8080/summary/gross`
-- Parameters: {
-    "month_duration": 6,
-    "company_id": "1339d26e-8e6b-43e6-aa56-470b3985f3b1"
-}
+
+- Query Parameters:
+        - `company_id`: Company ID
+        - `start_date`: Start of the date range
+        - `end_date`: End of the date range
+    - Example:
+        - URL: `http://localhost:8080/summary/gross?company_id=86afab0a-443f-4d9b-89d9-1f19a7ea6a14&start_date=2024-11-01T00:00:00Z&end_date=2025-03-11T00:00:00Z`
 ```
 
 ## Carbon
