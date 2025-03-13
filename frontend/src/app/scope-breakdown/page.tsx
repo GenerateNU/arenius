@@ -8,9 +8,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  ChartContainer,
+  ChartContainer, ChartConfig
 } from "@/components/ui/chart";
-import ScopePieChart from "@/components/scope-breakdown/piechart";
+import ScopeChart from "@/components/scope-breakdown/piechart"
 
 type NetSummary = {
   total_co2: number;
@@ -37,6 +37,7 @@ const fetchNetSummary = async (
 
   return response.json();
 };
+
 
 export default function ScopeBreakdown() {
   const [data, setData] = useState<NetSummary[] | null>(null);
@@ -69,6 +70,20 @@ export default function ScopeBreakdown() {
         : "#156641",
   }));
 
+  const chartConfig = {
+    visitors: {
+      label: "CO2 Emissions",
+    },
+    ...chartData.reduce((acc, item, index) => {
+      acc[`Scope${index}`] = {
+        label: item.name,
+        color: item.fill,
+      };
+      return acc;
+    }, {} as ChartConfig),
+  };
+
+
   return (
     <div className="flex flex-col items-center justify-center h-screen w-full">
       <Card className="flex flex-col items-center justify-center w-full max-w-screen-lg">
@@ -79,8 +94,9 @@ export default function ScopeBreakdown() {
         <CardContent className="flex justify-center items-center w-full p-6 space-x-6">
           <ChartContainer
             className="flex justify-center items-center w-[300px] h-[300px] max-w-full"
+            config={chartConfig}
           >
-          <ScopePieChart/>
+          <ScopeChart chartData={chartData}/>
           </ChartContainer>
           <div className="flex flex-col justify-center space-y-4">
             {chartData.map((item, index) => (

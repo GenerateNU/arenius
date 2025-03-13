@@ -1,8 +1,8 @@
 import React from "react";
-import { Pie, PieChart} from "recharts";
+import { PieChart, Pie} from "recharts";
 import ToolTip from "./tooltip";
 
-const ScopePieChart: React.FC<{ chartData: { name: string, value: number }[] }> = ({ chartData }) => {
+const ScopeChart: React.FC<{ chartData: { name: string, value: number }[] }> = ({ chartData }) => {
   return (
     <PieChart width={600} height={600}>
       <Pie
@@ -22,4 +22,4 @@ const ScopePieChart: React.FC<{ chartData: { name: string, value: number }[] }> 
   );
 };
 
-export default ScopePieChart;
+export default ScopeChart;
