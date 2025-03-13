@@ -1,12 +1,11 @@
-"use client"
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Pie, PieChart, Tooltip } from "recharts";
 import ToolTip from "./tooltip";
 
-const ScopePieChart({chartData}) {
-    return (
+const ScopePieChart: React.FC<{ chartData: { name: string, value: number }[] }> = ({ chartData }) => {
+  return (
     <PieChart width={600} height={600}>
-        <Pie
+      <Pie
         data={chartData}
         dataKey="value"
         nameKey="name"
@@ -17,9 +16,10 @@ const ScopePieChart({chartData}) {
         strokeWidth={2}
         cornerRadius={5}
         labelLine={false}
-        />
-        <ToolTip />
-    </PieChart>)
-}
+      />
+      <ToolTip />
+    </PieChart>
+  );
+};
 
-export default ScopePieChart
+export default ScopePieChart;
