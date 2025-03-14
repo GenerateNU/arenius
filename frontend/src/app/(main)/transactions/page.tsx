@@ -20,11 +20,11 @@ export default function Transactions() {
 
 function TransactionsContent() {
   const { filters, setFilters } = useLineItems();
-  const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(filters.searchTerm || "");
+  const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(filters.searchTerm);
 
   useEffect(() => {
     setFilters({ ...filters, searchTerm: debouncedTerm });
-  }, [filters, debouncedTerm, setFilters]);
+  }, [debouncedTerm]);
 
   return (
     <div className={styles.container}>
