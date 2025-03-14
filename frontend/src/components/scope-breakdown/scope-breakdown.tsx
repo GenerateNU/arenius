@@ -11,6 +11,9 @@ import {
   ChartContainer, ChartConfig
 } from "@/components/ui/chart";
 import ScopeChart from "@/components/scope-breakdown/piechart"
+import apiClient from "@/services/apiClient";
+import { useDateRange } from "@/context/DateRangeContext";
+import { start } from "repl";
 
 type NetSummary = {
   total_co2: number;
@@ -22,42 +25,37 @@ const fetchNetSummary = async (
   startDate: string,
   endDate: string
 ): Promise<NetSummary[]> => {
-  const url = `http://localhost:8080/summary/net?company_id=${companyId}&start_date=${startDate}&end_date=${endDate}`;
-
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch net summary");
+  try {
+    const response = await apiClient.get(`/summary/net?company_id=${companyId}&start_date=${startDate}&end_date=${endDate}`)
+    return response.data;
   }
-
-  return response.json();
+  catch (error) {
+    console.error("Error fetching emissions", error);
+    return []
+  }
 };
 
 
-export default function ScopeBreakdown() {
+const ScopeBreakdown = () => {
   const [data, setData] = useState<NetSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
- 
+  const { dateRange } = useDateRange();
+  const startDate = dateRange?.from ? dateRange.from.toISOString() : "2024-08-01T00:00:00Z";
+  const endDate = dateRange?.to ? dateRange.to.toISOString() : "2025-03-10T00:00:00Z";
+  const companyId = "1e100087-8182-4ed4-9da7-ae5417a43486";
+    
   useEffect(() => {
-    const companyId = "1e100087-8182-4ed4-9da7-ae5417a43486";
-    const startDate = "2024-08-01T00:00:00Z";
-    const endDate = "2025-03-10T00:00:00Z";
-
     fetchNetSummary(companyId, startDate, endDate)
       .then(setData)
       .catch((err) => setError(err.message));
-  }, []);
+  }, [startDate, endDate]);
 
   if (error) return <div>Error: {error}</div>;
   if (!data) return <div>Loading...</div>;
 
   const totalEmissions = data.reduce((acc, cur) => acc + cur.total_co2, 0);
 
+  console.log(dateRange)
   const chartData = data.map((item) => ({
     name: `Scope ${item.scopes} Emissions`,
     value: item.total_co2,
@@ -85,14 +83,14 @@ export default function ScopeBreakdown() {
 
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen w-full">
+    <div className="flex flex-col items-center justify-center">
       <Card className="flex flex-col items-center justify-center w-full max-w-screen-lg">
         <CardHeader className="items-center pb-0 text-2xl">
           <CardTitle>Scope Breakdown</CardTitle>
           <CardDescription>August 2024 - March 2025</CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center items-center w-full p-6 space-x-6">
-          <ChartContainer
+        <ChartContainer
             className="flex justify-center items-center w-[300px] h-[300px] max-w-full"
             config={chartConfig}
           >
@@ -105,12 +103,12 @@ export default function ScopeBreakdown() {
                 className="flex items-center space-x-4"
               >
                 <div
-                  className={`p-2 font-normal"}`}
+                  className="p-2 font-normal"
                 >
                   {`${item.percentage}%`}
                 </div>
                 <div
-                  className={`bg-[#F6F6F6] rounded-lg p-2 font-normal"}`}
+                  className="bg-[#F6F6F6] rounded-lg p-2 font-normal"
                 >
                   {`${item.name} - ${item.value.toLocaleString()} kg CO2`}
                 </div>
@@ -122,3 +120,5 @@ export default function ScopeBreakdown() {
     </div>
   );
 }
+
+export default ScopeBreakdown; 
