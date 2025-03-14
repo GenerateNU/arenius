@@ -9,7 +9,7 @@ export default function useGrossSummary() {
     {} as GrossSummary
   );
   const { companyId, isLoading } = useAuth();
-  const { dateRange, setDateRange } = useDateRange();
+  const { dateRange } = useDateRange();
 
   const fetchData = useCallback(async () => {
     if (isLoading) {
