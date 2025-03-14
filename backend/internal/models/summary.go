@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type GetGrossSummaryRequest struct {
 	CompanyID string    `query:"company_id"`
@@ -24,4 +26,15 @@ type ScopeSummary struct {
 	ScopeOne   float64 `json:"scope_one"`
 	ScopeTwo   float64 `json:"scope_two"`
 	ScopeThree float64 `json:"scope_three"`
+}
+
+type NetSummary struct {
+	TotalCO2 float64 `json:"total_co2"`
+	ScopeVal int     `json:"scopes"`
+}
+
+type GetNetSummaryRequest struct {
+	CompanyID string    `json:"company_id"`
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
 }
