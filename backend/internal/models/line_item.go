@@ -23,6 +23,11 @@ type LineItemWithDetails struct {
 	ContactName        *string `json:"contact_name,omitempty"`
 }
 
+type GetLineItemsResponse struct {
+	Count     int                   `json:"total"`
+	LineItems []LineItemWithDetails `json:"line_items"`
+}
+
 type ReconcileLineItemRequest struct {
 	ID              string  `json:"id"`
 	EmissionsFactor string  `json:"emission_factor,omitempty"`

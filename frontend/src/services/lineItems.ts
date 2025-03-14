@@ -1,6 +1,6 @@
 import {
   CreateLineItemRequest,
-  LineItem,
+  GetLineItemResponse,
   LineItemFilters,
   ReconcileBatchRequest,
   ReconcileRequest,
@@ -39,16 +39,17 @@ function buildQueryParams(filters: LineItemFilters) {
 
 export async function fetchLineItems(
   filters: LineItemFilters,
-): Promise<LineItem[]> {
+): Promise<GetLineItemResponse> {
 
   try {
+    console.log("made it here")
     const response = await apiClient.get("/line-item", {
       params: buildQueryParams(filters),
     });
     return response.data;
   } catch (error) {
     console.error("Error fetching dashboard items", error);
-    return [];
+    return {} as GetLineItemResponse;
   }
 }
 

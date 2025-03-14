@@ -8,6 +8,7 @@ import {
   useReactTable,
   getSortedRowModel,
   Row,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -23,27 +24,29 @@ import { columns } from "./columns";
 import LineItemTableActions from "./LineItemTableActions";
 import  { ModalDialog } from "./ModalDialog";
 import Image from "next/image"
+import { DataTablePagination } from "../ui/DataTablePagination";
 
 export default function LineItemTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { data: items } = useLineItems();
+  const { data: items, fetchData, pagination, setPagination } = useLineItems();
 
   const [selectedRowData, setSelectedRowData] = useState<Row<LineItem> | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { fetchData } = useLineItems();
-
   const table = useReactTable({
-    data: items,
+    data: items.lineItems,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     getRowId: (row: LineItem) => row.id,
     state: {
       sorting,
     },
   });
+
+  console.log(items)
 
   const openReconcileDialog = (row: Row<LineItem>) => {
     setSelectedRowData(row);
@@ -56,7 +59,7 @@ export default function LineItemTable() {
   };
 
   return (
-    <>
+    <div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -117,6 +120,7 @@ export default function LineItemTable() {
           </TableBody>
         </Table>
       </div>
+      <DataTablePagination table={table} pagination={pagination} setPagination={setPagination} total_count={items.count} />
 
       {selectedRowData && (
         <ModalDialog
@@ -129,7 +133,7 @@ export default function LineItemTable() {
 
       <br />
       <LineItemTableActions table={table} />
-    </>
+    </div>
   );
 }
 

@@ -12,7 +12,7 @@ import (
 
 // Interfaces for repository layer.
 type LineItemRepository interface {
-	GetLineItems(ctx context.Context, pagination utils.Pagination, filterParams models.GetLineItemsRequest) ([]models.LineItemWithDetails, error)
+	GetLineItems(ctx context.Context, pagination utils.Pagination, filterParams models.GetLineItemsRequest) (*models.GetLineItemsResponse, error)
 	ReconcileLineItem(ctx context.Context, lineItemId string, scope int, emissionsFactorId string, contactID *string) (*models.LineItem, error)
 	AddLineItemEmissions(ctx context.Context, req models.LineItemEmissionsRequest) (*models.LineItem, error)
 	CreateLineItem(ctx context.Context, req models.CreateLineItemRequest) (*models.LineItem, error)

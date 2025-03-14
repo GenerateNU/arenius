@@ -11,6 +11,11 @@ export type LineItem = {
   co2?: number;
 };
 
+export type GetLineItemResponse = {
+  count: number;
+  lineItems: LineItem[]
+}
+
 export interface LineItemFilters {
   dates?: DateRange;
   emissionFactor?: string;
@@ -19,6 +24,8 @@ export interface LineItemFilters {
   searchTerm?: string;
   company_id?: string;
   contact_id?: string;
+  page?: number;
+  limit?: number;
 }
 
 export type CreateLineItemRequest = {
@@ -114,4 +121,9 @@ export type GrossSummary = {
   start_date: Date;
   end_date: Date;
   months: MonthSummary[];
+}
+
+export type Pagination = {
+  page: number;
+  limit: number;
 }
