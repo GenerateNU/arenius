@@ -38,7 +38,7 @@ export default function useGrossSummary() {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  }, [companyId, dateRange, isLoading, setDateRange]);
+  }, [companyId, dateRange, isLoading]);
 
   useEffect(() => {
     fetchData();
