@@ -31,7 +31,7 @@ export const createDataContext = <T extends object, F extends object>() => {
   const DataProvider: React.FC<DataProviderProps<T, F>> = ({ children, fetchFunction }) => {
     const [data, setData] = useState<T>({} as T);
     const [filters, setFilters] = useState<F>({} as F);
-    const [pagination, setPagination] = useState<Pagination>({} as Pagination)
+    const [pagination, setPagination] = useState<Pagination>({page: 1, limit: 10} as Pagination)
     const { companyId, tenantId, isLoading } = useAuth(); // Using `companyId` and `isLoading`
 
     const fetchData = useCallback(async () => {

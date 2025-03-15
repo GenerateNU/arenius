@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { LineItem } from "@/types";
+import { GetLineItemResponse, LineItem } from "@/types";
 import { useLineItems } from "@/context/LineItemsContext";
 import { columns } from "./columns";
 import LineItemTableActions from "./LineItemTableActions";
@@ -28,7 +28,15 @@ import { DataTablePagination } from "../ui/DataTablePagination";
 
 export default function LineItemTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { data: items, fetchData, pagination, setPagination } = useLineItems();
+  const { fetchData, pagination, setPagination } = useLineItems();
+  const items = {
+    count: 12,
+    lineItems: [
+      {} as LineItem,{} as LineItem,{} as LineItem,{} as LineItem,{} as LineItem,{} as LineItem,
+      {} as LineItem,{} as LineItem,{} as LineItem,{} as LineItem,{} as LineItem,{} as LineItem
+    ]
+  } as GetLineItemResponse
+  
 
   const [selectedRowData, setSelectedRowData] = useState<Row<LineItem> | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -46,7 +54,7 @@ export default function LineItemTable() {
     },
   });
 
-  console.log(items)
+  console.log(pagination)
 
   const openReconcileDialog = (row: Row<LineItem>) => {
     setSelectedRowData(row);

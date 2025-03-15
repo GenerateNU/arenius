@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 export default function useGrossSummary() {
     const [grossSummary, setGrossSummary] = useState<GrossSummary>({} as GrossSummary);
     const { companyId, isLoading } = useAuth();
-    const { dateRange, setDateRange } = useDateRange();
+    const { dateRange } = useDateRange();
 
     const fetchData = useCallback(async () => {
       if (isLoading) {
@@ -36,7 +36,7 @@ export default function useGrossSummary() {
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    }, [companyId, dateRange, isLoading, setDateRange]);
+    }, [companyId, dateRange, isLoading]);
   
     useEffect(() => {
       fetchData();

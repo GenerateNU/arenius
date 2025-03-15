@@ -68,7 +68,10 @@ export function DataTablePagination<TData>({
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
-            onClick={() => table.previousPage()}
+            onClick={() => {
+                setPagination({...pagination, page: pagination.page - 1})
+                table.previousPage()
+            }}
             disabled={!table.getCanPreviousPage()}
           >
             <span className="sr-only">Go to previous page</span>
@@ -77,7 +80,11 @@ export function DataTablePagination<TData>({
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
-            onClick={() => table.nextPage()}
+            onClick={() => {
+                console.log("Made it here!!")
+                setPagination({...pagination, page: pagination.page + 1})
+                table.nextPage()
+            }}
             disabled={!table.getCanNextPage()}
           >
             <span className="sr-only">Go to next page</span>
