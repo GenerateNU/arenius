@@ -17,9 +17,7 @@ const useContactsTree = () => {
       try {
         let response;
         try {
-          response = await apiClient.get("/contact/emissions", {
-            params: contactId,
-          });
+          response = await apiClient.get(`/contact/emissions/${contactId}`);
         } catch (error) {
           console.error("Error fetching dashboard items", error);
           return [];

@@ -91,3 +91,8 @@ export type CreateContactRequest = {
   state: string;
   company_id: string;
 };
+
+export type ContactTreeEmissions = {
+  contact_name: string;
+  carbon: number;
+}

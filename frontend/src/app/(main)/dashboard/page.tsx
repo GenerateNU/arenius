@@ -10,7 +10,7 @@ const ApexChart = dynamic(() => import("@/components/dashboard/treemap"), {
   ssr: false, // Disable server-side rendering for this component
 });
 
-const ContactsPage: React.FC = () => {
+const DashboardPage: React.FC = () => {
   const data = useContactsTree(); // Get data from the custom hook
 
   return (
@@ -21,4 +21,4 @@ const ContactsPage: React.FC = () => {
   );
 };
 
-export default ContactsPage;
+export default DashboardPage;
