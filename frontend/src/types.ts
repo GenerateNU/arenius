@@ -96,3 +96,27 @@ export type ContactTreeEmissions = {
   contact_name: string;
   carbon: number;
 }
+
+export type GetGrossEmissionsRequest = {
+  company_id: string;
+  start_date: Date;
+  end_date: Date;
+}
+
+export type ScopeSummary = {
+  scope_one: number;
+  scope_two: number;
+  scope_three: number;
+}
+
+export type MonthSummary = {
+  month_start: Date;
+  scopes: ScopeSummary;
+}
+
+export type GrossSummary = {
+  total_co2: number;
+  start_date: Date;
+  end_date: Date;
+  months: MonthSummary[];
+}

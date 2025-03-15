@@ -126,21 +126,19 @@ func (r *ContactRepository) CreateContact(ctx context.Context, req models.Create
 		INSERT INTO contact
 		(` + strings.Join(columns, ", ") + `)
 		VALUES (` + strings.Join(numInputs, ", ") + `)
-		RETURNING id, name, email, phone, city, state, company_id;
+		RETURNING id, name, email, phone, city, state, xero_contact_id, company_id;
 	`
-	var contact models.Contact
-	err := r.db.QueryRow(ctx, query, queryArgs...).Scan(
-		&contact.ID,
-		&contact.Name,
-		&contact.Email,
-		&contact.Phone,
-		&contact.City,
-		&contact.State,
-		&contact.CompanyID,
-	)
+
+	rows, err := r.db.Query(ctx, query, queryArgs...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	contact, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.Contact])
 
 	if err != nil {
-		return nil, fmt.Errorf("error querying database: %w", err)
+		return nil, fmt.Errorf("error querying database for contact: %w", err)
 	}
 
 	return &contact, nil

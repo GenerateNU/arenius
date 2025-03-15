@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { ContactsProvider, useContacts } from "@/context/ContactsContext";
 import { fetchContacts } from "@/services/contacts";
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 
 export default function Contacts() {
   return (
@@ -19,19 +19,11 @@ export default function Contacts() {
 
 function ContactsContent() {
   const { filters, setFilters } = useContacts();
-  const searchTerm = filters.search_term || "";
-  const { companyId } = useAuth(); // Get companyId from AuthContext
+  const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(filters.search_term);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters({ ...filters, search_term: e.target.value });
-  };
-
-  // Include companyId in filters when fetching contacts
   useEffect(() => {
-    if (companyId && filters.company_id !== companyId) {
-      setFilters({ ...filters, company_id: companyId });
-    }
-  }, [companyId, filters, setFilters]);
+    setFilters({ ...filters, search_term: debouncedTerm });
+  }, [debouncedTerm]);
 
   return (
     <div className={styles.container}>
@@ -43,7 +35,7 @@ function ContactsContent() {
             <Input
               placeholder="Search your contacts..."
               value={searchTerm}
-              onChange={handleSearch}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className={styles.input}
             />
           </div>

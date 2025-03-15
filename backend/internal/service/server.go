@@ -134,8 +134,6 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	app.Use(xeroAuthHandler.XeroAuthMiddleware)
 	app.Get("/callback", xeroAuthHandler.Callback)
 
-	app.Get("/bank-transactions", xeroAuthHandler.GetBankTransactions)
-
 	app.Post("/sync-transactions", xeroAuthHandler.SyncTransactions)
 
 	app.Get("/secret", supabase_auth.Middleware(&config.Supabase), func(c *fiber.Ctx) error {

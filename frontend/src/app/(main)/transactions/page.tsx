@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import LineItemTable from "@/components/transactions/LineItemTable";
 import LineItemTableFilters from "@/components/transactions/LineItemTableFilters";
 import { LineItemsProvider, useLineItems } from "@/context/LineItemsContext";
@@ -7,6 +8,7 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ManualEntryModal from "@/components/transactions/ManualEntryModal";
 import { fetchLineItems } from "@/services/lineItems";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 
 export default function Transactions() {
   return (
@@ -16,20 +18,16 @@ export default function Transactions() {
   );
 }
 
-
 function TransactionsContent() {
   const { filters, setFilters } = useLineItems();
-  const searchTerm = filters.searchTerm || "";
+  const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(filters.searchTerm);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters({ ...filters, searchTerm: e.target.value });
-  };
+  useEffect(() => {
+    setFilters({ ...filters, searchTerm: debouncedTerm });
+  }, [debouncedTerm]);
 
   return (
     <div className={styles.container}>
-      {/* <hr className={styles.spacer} /> */}
-
-      {/* Title and Search Bar in One Line */}
       <div className="flex items-center justify-between mb-4">
         <p className={styles.formTitle}>Transactions</p>
         <div className="flex space-x-8">
@@ -38,14 +36,13 @@ function TransactionsContent() {
             <Input
               placeholder="Search your transactions..."
               value={searchTerm}
-              onChange={handleSearch}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className={styles.input}
             />
           </div>
           <ManualEntryModal />
         </div>
       </div>
-
       <LineItemTableFilters />
       <LineItemTable />
     </div>
