@@ -100,7 +100,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		return nil, err
 	}
 
-	count_query := `
+	total_query := `
 	SELECT count(*)
 	FROM line_item li
 	LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id
@@ -108,14 +108,14 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	AND $1 AND $2
 	` // The $1 and $2 are because filterQuery starts at $3, just make them dummy values here
 
-	var count int
+	var total int
 	countArgs := append([]interface{}{"TRUE", "TRUE"}, filterArgs...)
-	err = r.db.QueryRow(ctx, count_query, countArgs...).Scan(&count)
+	err = r.db.QueryRow(ctx, total_query, countArgs...).Scan(&total)
 	if err != nil {
 		return nil, err
 	}
 
-	return &models.GetLineItemsResponse{Count: count, LineItems: lineItems}, nil
+	return &models.GetLineItemsResponse{Total: total, Count: pagination.Limit, LineItems: lineItems}, nil
 }
 
 func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, scope int, emissionsFactorId string, contactID *string) (*models.LineItem, error) {

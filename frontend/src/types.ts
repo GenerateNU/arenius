@@ -13,6 +13,7 @@ export type LineItem = {
 
 export type GetLineItemResponse = {
   count: number;
+  total: number;
   lineItems: LineItem[]
 }
 

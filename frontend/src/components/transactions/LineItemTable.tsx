@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { GetLineItemResponse, LineItem } from "@/types";
+import { LineItem } from "@/types";
 import { useLineItems } from "@/context/LineItemsContext";
 import { columns } from "./columns";
 import LineItemTableActions from "./LineItemTableActions";
@@ -28,21 +28,14 @@ import { DataTablePagination } from "../ui/DataTablePagination";
 
 export default function LineItemTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { fetchData, pagination, setPagination } = useLineItems();
-  const items = {
-    count: 12,
-    lineItems: [
-      {} as LineItem,{} as LineItem,{} as LineItem,{} as LineItem,{} as LineItem,{} as LineItem,
-      {} as LineItem,{} as LineItem,{} as LineItem,{} as LineItem,{} as LineItem,{} as LineItem
-    ]
-  } as GetLineItemResponse
+  const { data: items, fetchData, pagination, setPagination } = useLineItems();
   
 
   const [selectedRowData, setSelectedRowData] = useState<Row<LineItem> | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const table = useReactTable({
-    data: items.lineItems,
+    data: items.lineItems || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
@@ -54,7 +47,7 @@ export default function LineItemTable() {
     },
   });
 
-  console.log(pagination)
+  console.log(items.lineItems)
 
   const openReconcileDialog = (row: Row<LineItem>) => {
     setSelectedRowData(row);
@@ -128,7 +121,7 @@ export default function LineItemTable() {
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} pagination={pagination} setPagination={setPagination} total_count={items.count} />
+      <DataTablePagination table={table} pagination={pagination} setPagination={setPagination} total_count={items.total} />
 
       {selectedRowData && (
         <ModalDialog

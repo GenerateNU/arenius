@@ -58,7 +58,7 @@ export const createDataContext = <T extends object, F extends object>() => {
       if (companyId) {
         fetchData();
       }
-    }, [companyId, fetchData]); // Fetch data when companyId or filters change
+    }, [companyId, fetchData, pagination]); // Fetch data when companyId or filters change
 
     if (isLoading) {
       return <div>Loading...</div>;  // Or any loading state you want

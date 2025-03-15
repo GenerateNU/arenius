@@ -24,7 +24,8 @@ type LineItemWithDetails struct {
 }
 
 type GetLineItemsResponse struct {
-	Count     int                   `json:"total"`
+	Total     int                   `json:"total"`
+	Count     int                   `json:"count"`
 	LineItems []LineItemWithDetails `json:"line_items"`
 }
 
