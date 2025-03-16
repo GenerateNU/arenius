@@ -24,7 +24,7 @@ export function DataTablePagination<TData>({
   total_count
 }: DataTablePaginationProps<TData>) {
     useEffect(() => {
-        setPagination({...pagination, page: table.getState().pagination.pageIndex});
+        setPagination({...pagination, page: table.getState().pagination.pageIndex + 1});
     }, [table.getState().pagination.pageIndex]);
 
     useEffect(() => {
@@ -38,7 +38,11 @@ export function DataTablePagination<TData>({
                     <p className="text-sm font-medium">Rows per page</p>
                     <Select
                         value={`${pagination.limit}`}
-                        onValueChange={(value) => table.setPageSize(Number(value))}
+                        onValueChange={(value) => {
+                            if (table.getState().pagination.pageSize !== Number(value)){
+                                table.setPageSize(Number(value))
+                            }
+                        }}
                     >
                         <SelectTrigger className="h-8 w-[70px]">
                         <SelectValue placeholder={pagination.limit} />
@@ -61,7 +65,7 @@ export function DataTablePagination<TData>({
                         variant="outline"
                         className="hidden h-8 w-8 p-0 lg:flex"
                         onClick={() => table.setPageIndex(0)}
-                        disabled={!table.getCanPreviousPage()}
+                        disabled={!canGetPreviousPage(pagination)}
                     >
                         <span className="sr-only">Go to first page</span>
                         <ChevronsLeft />
@@ -70,7 +74,7 @@ export function DataTablePagination<TData>({
                         variant="outline"
                         className="h-8 w-8 p-0"
                         onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
+                        disabled={!canGetPreviousPage(pagination)}
                     >
                         <span className="sr-only">Go to previous page</span>
                         <ChevronLeft />
@@ -79,7 +83,7 @@ export function DataTablePagination<TData>({
                         variant="outline"
                         className="h-8 w-8 p-0"
                         onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
+                        disabled={!canGetNextPage(pagination, total_count)}
                     >
                         <span className="sr-only">Go to next page</span>
                         <ChevronRight />
@@ -87,8 +91,8 @@ export function DataTablePagination<TData>({
                     <Button
                         variant="outline"
                         className="hidden h-8 w-8 p-0 lg:flex"
-                        onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                        disabled={!table.getCanNextPage()}
+                        onClick={() => table.setPageIndex(getNumberPages(pagination, total_count) - 1)}
+                        disabled={!canGetNextPage(pagination, total_count)}
                     >
                         <span className="sr-only">Go to last page</span>
                         <ChevronsRight />
@@ -99,9 +103,15 @@ export function DataTablePagination<TData>({
     )
 }
 
-function getNumberPages(pagination: Pagination, total_count: number) : number{
+function getNumberPages(pagination: Pagination, total_count: number): number {
     if (pagination.limit <= 0) return 0;
     return Math.ceil(total_count / pagination.limit);
 }
 
-// TODO: add functions for canGetNextPage and canGetPreviousPage
+function canGetNextPage(pagination: Pagination, total_count: number): boolean {
+    return pagination.limit * pagination.page < total_count;
+}
+
+function canGetPreviousPage(pagination: Pagination): boolean {
+    return pagination.page > 1;
+}

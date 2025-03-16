@@ -115,7 +115,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		return nil, err
 	}
 
-	return &models.GetLineItemsResponse{Total: total, Count: pagination.Limit, LineItems: lineItems}, nil
+	return &models.GetLineItemsResponse{Total: total, Count: len(lineItems), LineItems: lineItems}, nil
 }
 
 func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, scope int, emissionsFactorId string, contactID *string) (*models.LineItem, error) {
