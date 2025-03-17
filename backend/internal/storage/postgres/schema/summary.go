@@ -118,6 +118,48 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 	}, nil
 }
 
+func (r *SummaryRepository) GetNetSummary(ctx context.Context, companyID, startDate, endDate string) ([]models.NetSummary, error) {
+	const monthlyQuery = `
+		SELECT
+			SUM(co2) AS total_co2,
+			scope AS scope      
+		FROM
+			line_item
+		WHERE
+			company_id = $1
+			AND date >= $2
+			AND date <= $3
+			AND scope IS NOT NULL
+			AND co2 IS NOT NULL
+		GROUP BY
+			scope
+		ORDER BY
+			scope;`
+
+	var summaries []models.NetSummary
+
+	rows, err := r.db.Query(ctx, monthlyQuery, companyID, startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var summary models.NetSummary
+
+		if err := rows.Scan(&summary.TotalCO2, &summary.ScopeVal); err != nil {
+			return nil, err
+		}
+		summaries = append(summaries, summary)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return summaries, nil
+}
+
 func NewSummaryRepository(db *pgxpool.Pool) *SummaryRepository {
 	return &SummaryRepository{
 		db,
