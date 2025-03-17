@@ -7,10 +7,7 @@ import React from "react";
 
 import ContactEmissionsTreeMap from "@/components/dashboard/ContactEmissionsTreeMap";
 
-
-
 const DashboardContent: React.FC = () => {
-
   return (
     <div className="flex flex-col items-center pt-14">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-7xl">
@@ -24,7 +21,8 @@ const DashboardContent: React.FC = () => {
         <div className="lg:col-span-3">
           <GrossSummary />
         </div>
-        <div className="col-span-1">
+
+        <div className="sm:col-span-4 mt-6">
           <ContactEmissionsTreeMap />
         </div>
       </div>

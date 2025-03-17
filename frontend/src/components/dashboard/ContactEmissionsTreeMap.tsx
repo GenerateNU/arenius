@@ -1,7 +1,5 @@
 "use client"
 
-import { ResponsiveContainer } from "recharts"
-
 import {
   Card,
   CardContent,
@@ -16,6 +14,7 @@ import {
 import useContactsTree from "@/hooks/useContactsTree"
 import { useDateRange } from "@/context/DateRangeContext"
 import dynamic from "next/dynamic"
+import { ResponsiveContainer } from "recharts"
 
 const TreeMap = dynamic(() => import("@/components/dashboard/treemap"), {
   ssr: false, // Disable server-side rendering for this component
@@ -47,16 +46,16 @@ export default function ContactEmissionsTreeMap() {
 
   
   return (
-    <Card>
+    <Card > 
       <CardHeader>
         <CardTitle style={{ fontSize: '1.5rem'}}>Contact Emissions</CardTitle>
         <br />
         <CardDescription>Contact emissions (kg) 
           for {formattedStartMonth} {formattedStartYear} - {formattedEndMonth} {formattedEndYear}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig}>
-        <ResponsiveContainer width="100%" height={500}>
+      <CardContent style={{ height: "100%", padding: "1rem" }}>
+        <ChartContainer config={chartConfig} style={{ height: "100%" }}>
+          <ResponsiveContainer width="100%" height="100%">
             <TreeMap data={treeMapData} />
           </ResponsiveContainer>
         </ChartContainer>

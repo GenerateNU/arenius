@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 
 interface ApexChartProps {
@@ -6,12 +6,34 @@ interface ApexChartProps {
 }
 
 const TreeMap: React.FC<ApexChartProps> = ({ data }) => {
-  const [state, setState] = React.useState({
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const [chartSize, setChartSize] = useState({ width: 400, height: 400 });
+
+  useEffect(() => {
+    const updateSize = () => {
+      if (chartContainerRef.current) {
+        setChartSize({
+          width: chartContainerRef.current.clientWidth,
+          height: chartContainerRef.current.clientHeight,
+        });
+      }
+    };
+
+    updateSize(); // Initial size update
+
+    const resizeObserver = new ResizeObserver(updateSize);
+    if (chartContainerRef.current) {
+      resizeObserver.observe(chartContainerRef.current);
+    }
+
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  const [state, setState] = useState({
     series: [{ data: [] as { x: string; y: number }[] }],
     options: {
       legend: { show: false },
       chart: {
-        height: 300,
         type: "treemap" as const,
       },
       colors: ["#A1F4A4", "#05C569", "#156641"],
@@ -19,36 +41,28 @@ const TreeMap: React.FC<ApexChartProps> = ({ data }) => {
         treemap: {
           distributed: true,
           enableShades: false,
+          useFillColorAsStroke: false,
+          padding: 20, // Adjust spacing between squares
         },
       },
+      dataLabels: {
+        enabled: true,
+        style: {
+          fontSize: '12px',
+        },
+        formatter: function (text: string, op: { value: string }) {
+          return [text, op.value + "%"];
+        },
+        offsetY: -4,
+      },
       yaxis: {
-        min: 0, // Set minimum for y-axis so even small or zero values show up
+        min: 0,
         showForNullSeries: true,
       },
     },
   });
 
-  // Dynamically adjust the chart size
-  const [chartSize, setChartSize] = React.useState({ width: 600, height: 350 });
-
-  // Handle resizing
-  const updateChartSize = () => {
-    const containerWidth = window.innerWidth * 0.9;  // Adjust this percentage as per your layout
-    const containerHeight = window.innerHeight * 0.4;  // Adjust this as needed
-    setChartSize({ width: containerWidth, height: containerHeight });
-  };
-
-  React.useEffect(() => {
-    updateChartSize();
-    window.addEventListener("resize", updateChartSize);
-
-    return () => {
-      window.removeEventListener("resize", updateChartSize);
-    };
-  }, []);
-
-  // Update state when `data` prop changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (data?.length) {
       setState((prevState) => ({
         ...prevState,
@@ -58,16 +72,14 @@ const TreeMap: React.FC<ApexChartProps> = ({ data }) => {
   }, [data]);
 
   return (
-    <div style={{ width: "100%", height: "100%" }}>
-      <div id="chart">
-        <ReactApexChart 
-          options={state.options} 
-          series={state.series} 
-          type="treemap" 
-          width={chartSize.width} 
-          height={chartSize.height} 
-        />
-      </div>
+    <div ref={chartContainerRef} style={{ width: "100%", height: "100%", minHeight: "300px" }}>
+      <ReactApexChart 
+        options={state.options} 
+        series={state.series} 
+        type="treemap" 
+        width={chartSize.width} 
+        height={chartSize.height} 
+      />
     </div>
   );
 };

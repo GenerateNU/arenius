@@ -41,7 +41,7 @@ export default function useContactsTree() {
         // Convert to percentage and format for treemap
         const formattedData = contactEmissionsData.map(contact => ({
           x: contact.contact_name,
-          y: totalCarbon > 0 ? (contact.carbon / totalCarbon) * 100 : 0,
+          y: totalCarbon > 0 ? Math.round((contact.carbon / totalCarbon) * 100) : 0,
         }));
 
         setTreeMapData(formattedData);
