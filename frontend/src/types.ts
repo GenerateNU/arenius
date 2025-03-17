@@ -14,7 +14,7 @@ export type LineItem = {
 export type GetLineItemResponse = {
   count: number;
   total: number;
-  lineItems: LineItem[]
+  line_items: LineItem[]
 }
 
 export interface LineItemFilters {

@@ -29,13 +29,12 @@ import { DataTablePagination } from "../ui/DataTablePagination";
 export default function LineItemTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const { data: items, fetchData, pagination, setPagination } = useLineItems();
-  
 
   const [selectedRowData, setSelectedRowData] = useState<Row<LineItem> | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const table = useReactTable({
-    data: items.lineItems || [],
+    data: items.line_items || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
@@ -47,7 +46,7 @@ export default function LineItemTable() {
     },
   });
 
-  console.log(items.lineItems)
+  console.log(pagination)
 
   const openReconcileDialog = (row: Row<LineItem>) => {
     setSelectedRowData(row);
