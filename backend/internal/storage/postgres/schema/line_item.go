@@ -25,8 +25,7 @@ type LineItemRepository struct {
 func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.Pagination, filterParams models.GetLineItemsRequest) (*models.GetLineItemsResponse, error) {
 	filterQuery := "WHERE 1=1"
 
-	fmt.Println(pagination.Limit)
-	fmt.Println(pagination.Page)
+	fmt.Println(*filterParams.CompanyID)
 
 	if filterParams.ReconciliationStatus != nil {
 		if *filterParams.ReconciliationStatus {

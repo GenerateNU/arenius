@@ -18,7 +18,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [companyId, setCompanyId] = useState<string | null>("9a622355-0016-4074-b40d-85d692a4be2b");
+  const [companyId, setCompanyId] = useState<string | null>(null);
   const [tenantId, setTenantId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);  // Track loading state
