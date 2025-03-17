@@ -111,7 +111,6 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Get("/company/:companyId", contactHandler.GetContacts)
 		r.Get("/:contactId", contactHandler.GetContact)
 		r.Post("", contactHandler.PostContact)
-		r.Get("/emissions/:contactId", contactHandler.GetContactEmissions)
 	})
 
 	emissionsFactorHandler := emissionsFactor.NewHandler(repo.EmissionsFactor)
@@ -129,6 +128,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	summaryHandler := summary.NewHandler(repo.Summary)
 	app.Route("/summary", func(r fiber.Router) {
 		r.Get("/gross", summaryHandler.GetGrossSummary)
+		r.Get("/contact/emissions", summaryHandler.GetContactEmissions)
 	})
 
 	app.Use(xeroAuthHandler.XeroAuthMiddleware)

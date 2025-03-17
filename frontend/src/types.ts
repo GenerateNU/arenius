@@ -92,9 +92,16 @@ export type CreateContactRequest = {
   company_id: string;
 };
 
-export type ContactTreeEmissions = {
+export type ContactEmissions = {
+  contact_id: string;
   contact_name: string;
   carbon: number;
+}
+
+export type ContactTreeEmissions = {
+  contact_emissions: ContactEmissions;
+  start_date: Date;
+  end_date: Date;
 }
 
 export type GetGrossEmissionsRequest = {
@@ -119,4 +126,11 @@ export type GrossSummary = {
   start_date: Date;
   end_date: Date;
   months: MonthSummary[];
+}
+
+export type GetContactEmissionsRequest = {
+  company_id: string;
+  contact_id: string;
+  start_date: Date;
+  end_date: Date;
 }

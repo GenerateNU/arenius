@@ -1,38 +1,59 @@
-// hooks/useContactsTree.ts
+import { useAuth } from "@/context/AuthContext";
+import { useDateRange } from "@/context/DateRangeContext";
+import { GetContactEmissionsRequest, ContactEmissions } from "@/types";
+import { useCallback, useEffect, useState } from "react";
+import { fetchContactEmissions } from "@/services/contactEmissions";
 
-import { useState, useEffect } from "react";
-import apiClient from "@/services/apiClient";
-import { useContacts } from "@/context/ContactsContext";
+export default function useContactsTree() {
+    const [treeMapData, setTreeMapData] = useState<{ x: string; y: number }[]>([]);
+    const { companyId, isLoading } = useAuth();
+    const { dateRange } = useDateRange();
 
-const useContactsTree = () => {
-  const { data: contacts } = useContacts(); // Retrieve contacts from context
-  const [data, setData] = useState<{ x: string; y: number }[]>([]);
-
-  const contactId = contacts?.[0]?.id || null; // Get first contact ID or handle dynamically
-
-  useEffect(() => {
-    if (!contactId) return;
-
-    const fetchEmissions = async () => {
-      try {
-        let response;
-        try {
-          response = await apiClient.get(`/contact/emissions/${contactId}`);
-        } catch (error) {
-          console.error("Error fetching dashboard items", error);
-          return [];
-        }
-        const result = await response.data.json();
-        setData([{ x: result.contact, y: result.carbon }]); // Transform response
-      } catch (error) {
-        console.error("Error fetching emissions:", error);
+    const fetchData = useCallback(async () => {
+      if (isLoading) {
+        console.log("Authentication is still in progress. Please wait...");
+        return;
       }
-    };
 
-    fetchEmissions();
-  }, [contactId]);
+      if (!companyId) {
+        console.log("Company ID is not available yet");
+        return;
+      }
 
-  return data;
-};
+      try {
+        let req = { company_id: companyId } as GetContactEmissionsRequest;
+        if (dateRange?.from) {
+          req = { ...req, start_date: dateRange.from };
+        }
+        if (dateRange?.to) {
+          req = { ...req, end_date: dateRange.to };
+        }
 
-export default useContactsTree;
+        const contactEmissionsData: ContactEmissions[] = await fetchContactEmissions(req);
+        console.log("Fetched Contact data:", contactEmissionsData); 
+        console.log("API Response Data:", contactEmissionsData);
+
+
+        // Compute total emissions
+        const totalCarbon = contactEmissionsData.reduce((sum, contact) => sum + contact.carbon, 0);
+        console.log("Total Carbon:", totalCarbon);
+
+        // Convert to percentage and format for treemap
+        const formattedData = contactEmissionsData.map(contact => ({
+          x: contact.contact_name,
+          y: totalCarbon > 0 ? (contact.carbon / totalCarbon) * 100 : 0,
+        }));
+
+        setTreeMapData(formattedData);
+        console.log("Formatted Treemap Data:", formattedData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }, [companyId, dateRange, isLoading]);
+
+    useEffect(() => {
+      fetchData();
+    }, [fetchData]);
+
+    return { treeMapData };
+}

@@ -5,15 +5,11 @@ import GrossSummary from "@/components/dashboard/GrossEmissionsBarGraph";
 import { DateRangeProvider } from "@/context/DateRangeContext";
 import React from "react";
 
-import useContactsTree from "@/hooks/useContactsTree";
-import dynamic from "next/dynamic";
+import ContactEmissionsTreeMap from "@/components/dashboard/ContactEmissionsTreeMap";
 
-const ApexChart = dynamic(() => import("@/components/dashboard/treemap"), {
-  ssr: false, // Disable server-side rendering for this component
-});
+
 
 const DashboardContent: React.FC = () => {
-  const data = useContactsTree();
 
   return (
     <div className="flex flex-col items-center pt-14">
@@ -29,7 +25,7 @@ const DashboardContent: React.FC = () => {
           <GrossSummary />
         </div>
         <div className="col-span-1">
-          <ApexChart data={data} />
+          <ContactEmissionsTreeMap />
         </div>
       </div>
     </div>

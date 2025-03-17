@@ -5,18 +5,14 @@ interface ApexChartProps {
   data: { x: string; y: number }[];
 }
 
-const ApexChart: React.FC<ApexChartProps> = ({ data }) => {
+const TreeMap: React.FC<ApexChartProps> = ({ data }) => {
   const [state, setState] = React.useState({
     series: [{ data: [] as { x: string; y: number }[] }],
     options: {
       legend: { show: false },
       chart: {
-        height: 350,
+        height: 300,
         type: "treemap" as const,
-      },
-      title: {
-        text: "Carbon by Contact",
-        align: "center" as const,
       },
       colors: ["#A1F4A4", "#05C569", "#156641"],
       plotOptions: {
@@ -25,8 +21,31 @@ const ApexChart: React.FC<ApexChartProps> = ({ data }) => {
           enableShades: false,
         },
       },
+      yaxis: {
+        min: 0, // Set minimum for y-axis so even small or zero values show up
+        showForNullSeries: true,
+      },
     },
   });
+
+  // Dynamically adjust the chart size
+  const [chartSize, setChartSize] = React.useState({ width: 600, height: 350 });
+
+  // Handle resizing
+  const updateChartSize = () => {
+    const containerWidth = window.innerWidth * 0.9;  // Adjust this percentage as per your layout
+    const containerHeight = window.innerHeight * 0.4;  // Adjust this as needed
+    setChartSize({ width: containerWidth, height: containerHeight });
+  };
+
+  React.useEffect(() => {
+    updateChartSize();
+    window.addEventListener("resize", updateChartSize);
+
+    return () => {
+      window.removeEventListener("resize", updateChartSize);
+    };
+  }, []);
 
   // Update state when `data` prop changes
   React.useEffect(() => {
@@ -39,12 +58,18 @@ const ApexChart: React.FC<ApexChartProps> = ({ data }) => {
   }, [data]);
 
   return (
-    <div>
+    <div style={{ width: "100%", height: "100%" }}>
       <div id="chart">
-        <ReactApexChart options={state.options} series={state.series} type="treemap" height={350} />
+        <ReactApexChart 
+          options={state.options} 
+          series={state.series} 
+          type="treemap" 
+          width={chartSize.width} 
+          height={chartSize.height} 
+        />
       </div>
     </div>
   );
 };
 
-export default ApexChart;
+export default TreeMap;

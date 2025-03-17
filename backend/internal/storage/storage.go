@@ -28,6 +28,7 @@ type EmissionsFactorRepository interface {
 
 type SummaryRepository interface {
 	GetGrossSummary(ctx context.Context, req models.GetGrossSummaryRequest) (*models.GetGrossSummaryResponse, error)
+	GetContactEmissions(ctx context.Context, req models.GetContactEmissionsSummaryRequest) (*models.GetContactEmissionsSummaryResponse, error)
 }
 
 type UserRepository interface {
@@ -52,7 +53,6 @@ type ContactRepository interface {
 	CreateContact(ctx context.Context, req models.CreateContactRequest) (*models.Contact, error)
 	AddImportedContacts(ctx context.Context, req []models.AddImportedContactRequest) ([]models.Contact, error)
 	GetOrCreateXeroContact(ctx context.Context, xeroContactID, name, email, phone, city, state string, companyID string) (string, error)
-	GetContactEmissions(ctx context.Context, contactId string) (contactName string, carbon float64, err error)
 }
 
 type OffsetRepository interface {

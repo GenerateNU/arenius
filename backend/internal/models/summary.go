@@ -25,3 +25,21 @@ type ScopeSummary struct {
 	ScopeTwo   float64 `json:"scope_two"`
 	ScopeThree float64 `json:"scope_three"`
 }
+
+type GetContactEmissionsSummaryRequest struct {
+	CompanyID string    `query:"company_id"`
+	StartDate time.Time `query:"start_date"`
+	EndDate   time.Time `query:"end_date"`
+}
+
+type GetContactEmissionsSummaryResponse struct {
+	ContactEmissions []ContactEmissionsSummary `json:"contact_emissions"`
+	StartDate        time.Time                 `json:"start_date"`
+	EndDate          time.Time                 `json:"end_date"`
+}
+
+type ContactEmissionsSummary struct {
+	ContactID   string  `json:"contact_id"`
+	ContactName string  `json:"contact_name"`
+	Carbon      float64 `json:"carbon"`
+}
