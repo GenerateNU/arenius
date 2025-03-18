@@ -1,12 +1,12 @@
 import { EmissionsFactorCategories } from "../types";
 import apiClient from "./apiClient";
 
-export async function fetchEmissionsFactors(): Promise<
+export async function fetchEmissionsFactors(companyId: string | null): Promise<
   EmissionsFactorCategories
 > {
   try {
     const response = await apiClient.get("/emissions-factor", {
-      params: {"companyId": "9a622355-0016-4074-b40d-85d692a4be2b"}
+      params: { companyId: companyId }
     });
     return response.data;
   } catch (error) {

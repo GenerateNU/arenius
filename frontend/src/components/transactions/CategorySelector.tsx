@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronDown, ChevronRight, Search } from "lucide-react";
 import { fetchEmissionsFactors } from "@/services/emissionsFactors";
 import { EmissionsFactorCategory, EmissionsFactor } from "@/types";
+import { useAuth } from "@/context/AuthContext";
 
 interface CategorySelectorProps {
   emissionsFactor?: EmissionsFactor;
@@ -46,24 +47,30 @@ export default function CategorySelector({
   setEmissionsFactor,
   variant = "outline",
 }: CategorySelectorProps) {
+  const { companyId } = useAuth();
+
   const [activeTab, setActiveTab] = useState<string>("All");
+
   const [categorySearchTerm, setCategorySearchTerm] = useState<string>("");
   const [emissionsFactorSearchTerm, setEmissionsFactorSearchTerm] = useState<string>("");
+
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  
+  const [selectedCategory, setSelectedCategory] = useState<EmissionsFactorCategory | undefined>(undefined);
+
   const [categories, setCategories] = useState<EmissionsFactorCategory[]>([]);
-  const [category, setCategory] = useState<EmissionsFactorCategory | undefined>(undefined);
   const [favorites, setFavorites] = useState<EmissionsFactorCategory | undefined>(undefined);
   const [history, setHistory] = useState<EmissionsFactorCategory | undefined>(undefined);
 
   useEffect(() => {
     async function fetchCategories() {
-      const response = await fetchEmissionsFactors();
+      const response = await fetchEmissionsFactors(companyId);
       setCategories(response.all);
       setFavorites(response.favorites);
       setHistory(response.history)
     }
     fetchCategories();
-  }, []);
+  }, [companyId]);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -83,14 +90,14 @@ export default function CategorySelector({
           <Search className={styles.searchIcon} />
           <Input
             placeholder="Search..."
-            value={category === undefined ? categorySearchTerm : emissionsFactorSearchTerm}
-            onChange={(e) => category === undefined ? setCategorySearchTerm(e.target.value) : setEmissionsFactorSearchTerm(e.target.value)}
+            value={selectedCategory === undefined ? categorySearchTerm : emissionsFactorSearchTerm}
+            onChange={(e) => selectedCategory === undefined ? setCategorySearchTerm(e.target.value) : setEmissionsFactorSearchTerm(e.target.value)}
             className={styles.input}
             autoFocus
           />
         </div>
 
-        {(category === undefined || category.name == "Favorites" || category.name == "History") && (
+        {(selectedCategory === undefined || selectedCategory.name == "Favorites" || selectedCategory.name == "History") && (
           <div className="relative px-2 mt-2 flex border-b">
             {["All", "Favorites", "History"].map((tab) => (
               <Button
@@ -100,9 +107,9 @@ export default function CategorySelector({
                 onClick={() => {
                   setActiveTab(tab)
                   switch (tab) {
-                    case "All": setCategory(undefined); break;
-                    case "Favorites": setCategory(favorites); break;
-                    case "History": setCategory(history); break;
+                    case "All": setSelectedCategory(undefined); break;
+                    case "Favorites": setSelectedCategory(favorites); break;
+                    case "History": setSelectedCategory(history); break;
                   }
                 }}
               >
@@ -112,20 +119,20 @@ export default function CategorySelector({
           </div>
         )}
 
-        {category === undefined ? (
+        {selectedCategory === undefined ? (
           <>
             <CategoryList
               categories={categories}
               searchTerm={categorySearchTerm}
-              setCategory={setCategory}
+              setCategory={setSelectedCategory}
             />
           </>
         ) : (
           <EmissionsFactorList
-            category={category}
+            category={selectedCategory}
             searchTerm={emissionsFactorSearchTerm}
             setIsOpen={setIsOpen}
-            setCategory={setCategory}
+            setCategory={setSelectedCategory}
             setEmissionsFactor={setEmissionsFactor}
             setActiveTab={setActiveTab}
           />
