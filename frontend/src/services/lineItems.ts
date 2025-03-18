@@ -8,7 +8,7 @@ import {
 import apiClient from "./apiClient";
 
 function buildQueryParams(filters: LineItemFilters) {
-  const params: Record<string, string | Date | undefined | number> = {};
+  const params: Record<string, string | Date | number | undefined> = {};
 
   if (filters?.dates) {
     params.after_date = filters.dates.from;
@@ -48,7 +48,6 @@ export async function fetchLineItems(
 ): Promise<GetLineItemResponse> {
 
   try {
-    console.log("made it here")
     const response = await apiClient.get("/line-item", {
       params: buildQueryParams(filters),
     });

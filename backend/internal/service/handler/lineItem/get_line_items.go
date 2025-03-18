@@ -15,6 +15,8 @@ func (h *Handler) GetLineItems(c *fiber.Ctx) error {
 		return errs.BadRequest(fmt.Sprint("invalid pagination query parameters: ", err))
 	}
 
+	fmt.Print("PAGINATION: ", pagination.Page, pagination.Limit);
+
 	if errors := pagination.Validate(); len(errors) > 0 {
 		return errs.BadRequest(fmt.Sprint("invalid pagination values: ", errors))
 	}
