@@ -35,7 +35,7 @@ export default function LineItemTable() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const table = useReactTable({
-    data: items.lineItems || [],
+    data: items.line_items || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
@@ -47,7 +47,7 @@ export default function LineItemTable() {
     },
   });
 
-  console.log(items.lineItems)
+  console.log(items.line_items)
 
   const openReconcileDialog = (row: Row<LineItem>) => {
     setSelectedRowData(row);
