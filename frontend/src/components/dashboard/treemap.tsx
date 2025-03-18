@@ -1,7 +1,8 @@
-"use client"
-
 import React, { useEffect, useRef, useState } from "react";
-import ReactApexChart from "react-apexcharts";
+import dynamic from "next/dynamic";
+
+const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
+
 
 interface ApexChartProps {
   data: { x: string; y: number }[];
@@ -86,6 +87,8 @@ const TreeMap: React.FC<ApexChartProps> = ({ data }) => {
       }));
     }
   }, [data]);
+
+  if (typeof window === "undefined") return null;
 
   return (
     <div ref={chartContainerRef} style={{ width: "100%", height: "100%", minHeight: "300px" }}>
