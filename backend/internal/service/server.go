@@ -129,9 +129,11 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	app.Route("/summary", func(r fiber.Router) {
 		r.Get("/gross", summaryHandler.GetGrossSummary)
 		r.Get("/contact/emissions", summaryHandler.GetContactEmissions)
+		r.Get("/net", summaryHandler.GetNetSummary)
 	})
 
 	app.Use(xeroAuthHandler.XeroAuthMiddleware)
+
 	app.Get("/callback", xeroAuthHandler.Callback)
 
 	app.Post("/sync-transactions", xeroAuthHandler.SyncTransactions)

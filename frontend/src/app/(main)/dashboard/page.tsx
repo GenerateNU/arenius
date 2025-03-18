@@ -4,6 +4,7 @@ import { DatePicker } from "@/components/dashboard/DatePicker";
 import GrossSummary from "@/components/dashboard/GrossEmissionsBarGraph";
 import { DateRangeProvider } from "@/context/DateRangeContext";
 import React from "react";
+import ScopeBreakdown from "@/components/scope-breakdown/scope-breakdown";
 
 import ContactEmissionsTreeMap from "@/components/dashboard/ContactEmissionsTreeMap";
 
@@ -17,13 +18,18 @@ const DashboardContent: React.FC = () => {
         <div className="col-span-1">
           <DatePicker />
         </div>
-
         <div className="lg:col-span-3">
           <GrossSummary />
         </div>
 
         <div className="sm:col-span-4 mt-6">
           <ContactEmissionsTreeMap />
+        </div>
+        <div className="col-span-1 ">
+          <p>Other graph</p>
+        </div>
+        <div className="lg:col-span-3">
+        <ScopeBreakdown/>
         </div>
       </div>
     </div>
