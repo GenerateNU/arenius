@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -103,7 +104,7 @@ func (r *EmissionsFactorRepository) AddEmissionsFactors(ctx context.Context, emi
 	return emissionFactors, nil
 }
 
-func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, companyId string) ([]models.Category, error) {
+func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, companyId string) (*models.Categories, error) {
 
 	const query = `
 		WITH latest_emission AS (
@@ -124,6 +125,10 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 	defer rows.Close()
 
 	categoryMap := make(map[string][]models.EmissionsFactor)
+
+	favoriteEmissionsFactors := make([]models.EmissionsFactor, 0, 10)
+
+	historyEmissionsFactors := make([]models.EmissionsFactor, 0, 10)
 
 	categories := make([]models.Category, 0, len(categoryMap) + 1)
 
@@ -150,10 +155,10 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 			return nil, fmt.Errorf("error iterating over favorite emission factor rows: %w", favoriteRowsErr)
 		}
 
-		categories = append(categories, models.Category{
-			Name: "Favorites",
-			EmissionsFactors: favorites,
-		})
+		favoriteEmissionsFactors = favorites
+
+		fmt.Println("Favorites");
+		fmt.Println(favoriteEmissionsFactors)
 	}
 
 	for rows.Next() {
@@ -191,8 +196,17 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 		})
 	}
 
-	return categories, nil
+	sort.Slice(categories, func(i, j int) bool {
+		return categories[i].Name < categories[j].Name
+	})
 
+	categoriesSummary := models.Categories{
+		All: categories,
+		Favorites: models.Category{ Name: "Favorites", EmissionsFactors: favoriteEmissionsFactors },
+		History: models.Category{ Name: "History", EmissionsFactors: historyEmissionsFactors },
+	}
+
+	return &categoriesSummary, nil
 }
 
 

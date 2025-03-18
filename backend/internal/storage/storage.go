@@ -23,7 +23,7 @@ type LineItemRepository interface {
 
 type EmissionsFactorRepository interface {
 	AddEmissionsFactors(ctx context.Context, emissionFactor []models.EmissionsFactor) ([]models.EmissionsFactor, error)
-	GetEmissionFactors(ctx context.Context, companyId string) ([]models.Category, error)
+	GetEmissionFactors(ctx context.Context, companyId string) (*models.Categories, error)
 }
 
 type SummaryRepository interface {
