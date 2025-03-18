@@ -65,8 +65,6 @@ export default function CategorySelector({
     fetchCategories();
   }, []);
 
-  useEffect(() => { console.log(`Category: ${category?.name}, Tab: ${activeTab}`) }, [category, activeTab])
-
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
