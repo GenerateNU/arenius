@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronDown, ChevronRight, Search } from "lucide-react";
 import { fetchEmissionsFactors } from "@/services/emissionsFactors";
-import { EmissionsFactorCategory, EmissionsFactor } from "@/types";
+import { EmissionsFactorCategories, EmissionsFactorCategory, EmissionsFactor } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 
 interface CategorySelectorProps {
@@ -55,19 +55,15 @@ export default function CategorySelector({
   const [emissionsFactorSearchTerm, setEmissionsFactorSearchTerm] = useState<string>("");
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  
+
   const [selectedCategory, setSelectedCategory] = useState<EmissionsFactorCategory | undefined>(undefined);
 
-  const [categories, setCategories] = useState<EmissionsFactorCategory[]>([]);
-  const [favorites, setFavorites] = useState<EmissionsFactorCategory | undefined>(undefined);
-  const [history, setHistory] = useState<EmissionsFactorCategory | undefined>(undefined);
+  const [categories, setCategories] = useState<EmissionsFactorCategories | undefined>(undefined);
 
   useEffect(() => {
     async function fetchCategories() {
       const response = await fetchEmissionsFactors(companyId);
-      setCategories(response.all);
-      setFavorites(response.favorites);
-      setHistory(response.history)
+      setCategories(response);
     }
     fetchCategories();
   }, [companyId]);
@@ -108,8 +104,8 @@ export default function CategorySelector({
                   setActiveTab(tab)
                   switch (tab) {
                     case "All": setSelectedCategory(undefined); break;
-                    case "Favorites": setSelectedCategory(favorites); break;
-                    case "History": setSelectedCategory(history); break;
+                    case "Favorites": setSelectedCategory(categories?.favorites); break;
+                    case "History": setSelectedCategory(categories?.history); break;
                   }
                 }}
               >
@@ -122,7 +118,7 @@ export default function CategorySelector({
         {selectedCategory === undefined ? (
           <>
             <CategoryList
-              categories={categories}
+              categories={categories?.all || []}
               searchTerm={categorySearchTerm}
               setCategory={setSelectedCategory}
             />
