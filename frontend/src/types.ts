@@ -89,7 +89,15 @@ export type Contact = {
 export type GetContactsRequest = {
   company_id: string;
   search_term: string;
+  pageSize?: number;
+  pageIndex?: number;
 };
+
+export type GetContactsResponse = {
+  total: number;
+  count: number;
+  contacts: Contact[];
+}
 
 export type CreateContactRequest = {
   name: string;

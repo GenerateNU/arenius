@@ -32,7 +32,7 @@ export const createDataContext = <T extends object, F extends object>() => {
     const [data, setData] = useState<T>({} as T);
     const [filters, setFilters] = useState<F>({} as F);
     const [pagination, setPagination] = useState<PaginationState>({
-      pageIndex: 1,
+      pageIndex: 0,
       pageSize: 10,
     });
     const { companyId, tenantId, isLoading } = useAuth(); // Using `companyId` and `isLoading`
