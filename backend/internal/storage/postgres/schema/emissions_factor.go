@@ -156,9 +156,6 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 		}
 
 		favoriteEmissionsFactors = favorites
-
-		fmt.Println("Favorites");
-		fmt.Println(favoriteEmissionsFactors)
 	}
 
 	for rows.Next() {
