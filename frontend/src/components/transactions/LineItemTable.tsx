@@ -8,7 +8,6 @@ import {
   useReactTable,
   getSortedRowModel,
   Row,
-  getPaginationRowModel,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -39,14 +38,15 @@ export default function LineItemTable() {
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: true,
+    rowCount: items.total,
+    onPaginationChange: setPagination,
     getRowId: (row: LineItem) => row.id,
     state: {
       sorting,
+      pagination,
     },
   });
-
-  console.log(pagination)
 
   const openReconcileDialog = (row: Row<LineItem>) => {
     setSelectedRowData(row);
@@ -120,7 +120,11 @@ export default function LineItemTable() {
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} pagination={pagination} setPagination={setPagination} total_count={items.total} />
+      <DataTablePagination
+        table={table}
+        pagination={pagination}
+        total_count={items.total}
+      />
 
       {selectedRowData && (
         <ModalDialog

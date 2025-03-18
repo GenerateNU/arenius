@@ -8,7 +8,7 @@ import React, {
   useCallback,
 } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Pagination } from "@/types";
+import { PaginationState } from "@tanstack/react-table";
 
 interface DataProviderProps<T extends object, F extends object> {
   children: React.ReactNode;
@@ -20,8 +20,8 @@ interface DataContextValue<T extends object, F extends object> {
   fetchData: () => void;
   filters: F;
   setFilters: (filters: F) => void;
-  pagination: Pagination
-  setPagination: (pag: Pagination) => void;
+  pagination: PaginationState;
+  setPagination: React.Dispatch<React.SetStateAction<PaginationState>>;
 }
 
 
@@ -31,7 +31,10 @@ export const createDataContext = <T extends object, F extends object>() => {
   const DataProvider: React.FC<DataProviderProps<T, F>> = ({ children, fetchFunction }) => {
     const [data, setData] = useState<T>({} as T);
     const [filters, setFilters] = useState<F>({} as F);
-    const [pagination, setPagination] = useState<Pagination>({page: 1, limit: 10} as Pagination)
+    const [pagination, setPagination] = useState<PaginationState>({
+      pageIndex: 1,
+      pageSize: 10,
+    });
     const { companyId, tenantId, isLoading } = useAuth(); // Using `companyId` and `isLoading`
 
     const fetchData = useCallback(async () => {

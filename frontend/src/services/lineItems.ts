@@ -33,11 +33,11 @@ function buildQueryParams(filters: LineItemFilters) {
   if (filters?.contact_id) {
     params.contact_id = filters.contact_id;
   }
-  if (filters?.page) {
-    params.page = filters.page
+  if (filters?.pageIndex) {
+    params.page = filters.pageIndex + 1;
   }
-  if (filters?.limit) {
-    params.limit = filters.limit
+  if (filters?.pageSize) {
+    params.limit = filters.pageSize;
   }
 
   return params;

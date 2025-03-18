@@ -25,8 +25,8 @@ export interface LineItemFilters {
   searchTerm?: string;
   company_id?: string;
   contact_id?: string;
-  page?: number;
-  limit?: number;
+  pageSize?: number;
+  pageIndex?: number;
 }
 
 export type CreateLineItemRequest = {
