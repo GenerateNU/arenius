@@ -104,14 +104,19 @@ func (r *EmissionsFactorRepository) AddEmissionsFactors(ctx context.Context, emi
 	return emissionFactors, nil
 }
 
-func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, companyId string) (*models.Categories, error) {
+func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, companyId string, searchTerm string) (*models.Categories, error) {
+	searchQuery := ""
+	
+	if searchTerm != "" {
+		searchQuery += fmt.Sprintf(" AND (emission_factor.name ILIKE '%%%s%%' OR emission_factor.category ILIKE '%%%s%%')", searchTerm, searchTerm)
+	}
 
-	const query = `
+	query := `
 		WITH latest_emission AS (
 		SELECT *,
 			ROW_NUMBER() OVER (PARTITION BY activity_id ORDER BY year DESC) AS rn
 		FROM emission_factor
-		WHERE region = 'US' AND unit_type = 'Money'
+		WHERE region = 'US' AND unit_type = 'Money'` + searchQuery + `
 		)
 		SELECT *
 		FROM latest_emission
@@ -133,10 +138,10 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 	categories := make([]models.Category, 0, len(categoryMap) + 1)
 
 	if companyId != "" {
-		const favoriteQuery = `
+		favoriteQuery := `
 			SELECT id, activity_id, name, description, unit, unit_type, year, region, category, source, source_dataset
 			FROM emission_factor JOIN company_favorite ON emission_factor.id = company_favorite.emissions_factor_id
-			WHERE company_favorite.company_id = $1
+			WHERE company_favorite.company_id = $1` + searchQuery + `
 			ORDER BY emission_factor.name;
 		`
 
