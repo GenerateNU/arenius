@@ -9,6 +9,7 @@ interface ApexChartProps {
 }
 
 const TreeMap: React.FC<ApexChartProps> = ({ data }) => {
+
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [chartSize, setChartSize] = useState({ width: 400, height: 400 });
 
@@ -86,6 +87,8 @@ const TreeMap: React.FC<ApexChartProps> = ({ data }) => {
       }));
     }
   }, [data]);
+
+  if (typeof window === "undefined") return null;
 
   return (
     <div ref={chartContainerRef} style={{ width: "100%", height: "100%", minHeight: "300px" }}>
