@@ -2,14 +2,6 @@ import { ContactEmissions, GetContactEmissionsRequest } from "@/types";
 import apiClient from "./apiClient";
 import axios from "axios";
 
-// const DEFAULT: ContactEmissions[] = [
-//   {
-//     contact_id: "",
-//     contact_name: "",
-//     carbon: 0,
-//   }
-// ];
-
 export async function fetchContactEmissions(
     req: GetContactEmissionsRequest,
   ): Promise<ContactEmissions[]> {
@@ -17,8 +9,6 @@ export async function fetchContactEmissions(
       const response = await apiClient.get(`/summary/contact/emissions`, {
         params: req,
       });
-      console.log("Contact Emissions Response:", response.data);
-      console.log("Contact Emissions Response:", response.data.contact_emissions);
       return response.data.contact_emissions;
     } catch (error) {
       console.error("Axios Request Failed:", error);
@@ -26,6 +16,6 @@ export async function fetchContactEmissions(
         console.error("Response Data:", error.response.data);
         console.error("Response Status:", error.response.status);
       }
-      throw error; // Re-throw for handling
+      throw error;
     }
 }

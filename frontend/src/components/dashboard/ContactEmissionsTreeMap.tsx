@@ -13,12 +13,9 @@ import {
 } from "@/components/ui/chart"
 import useContactsTree from "@/hooks/useContactsTree"
 import { useDateRange } from "@/context/DateRangeContext"
-import dynamic from "next/dynamic"
 import { ResponsiveContainer } from "recharts"
+import TreeMap from "@/components/dashboard/treemap"
 
-const TreeMap = dynamic(() => import("@/components/dashboard/treemap"), {
-  ssr: false, // Disable server-side rendering for this component
-});
 
 
 const chartConfig = {

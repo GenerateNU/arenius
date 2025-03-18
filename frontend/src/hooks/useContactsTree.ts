@@ -30,13 +30,9 @@ export default function useContactsTree() {
         }
 
         const contactEmissionsData: ContactEmissions[] = await fetchContactEmissions(req);
-        console.log("Fetched Contact data:", contactEmissionsData); 
-        console.log("API Response Data:", contactEmissionsData);
-
 
         // Compute total emissions
         const totalCarbon = contactEmissionsData.reduce((sum, contact) => sum + contact.carbon, 0);
-        console.log("Total Carbon:", totalCarbon);
 
         // Convert to percentage and format for treemap
         const formattedData = contactEmissionsData.map(contact => ({
@@ -45,7 +41,6 @@ export default function useContactsTree() {
         }));
 
         setTreeMapData(formattedData);
-        console.log("Formatted Treemap Data:", formattedData);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
