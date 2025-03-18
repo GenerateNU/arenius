@@ -171,7 +171,7 @@ function EmissionsFactorList({ category, searchTerm, setIsOpen, setCategory, set
       </Button>}
       {filteredEmissionsFactors.length > 0 ? (
         filteredEmissionsFactors.map((emissionsFactor) => (
-          <Button key={emissionsFactor.name} variant="ghost" className={styles.dropdownButton} onClick={() => { setEmissionsFactor(emissionsFactor); setIsOpen(false); setActiveTab("All"); }}>
+          <Button key={emissionsFactor.name} variant="ghost" className={styles.dropdownButton} onClick={() => { setEmissionsFactor(emissionsFactor); setIsOpen(false); }}>
             {emissionsFactor.name}
           </Button>
         ))
