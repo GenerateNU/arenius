@@ -50,11 +50,10 @@ export default function ContactEmissionsTreeMap() {
       <CardHeader>
         <CardTitle style={{ fontSize: '1.5rem'}}>Contact Emissions</CardTitle>
         <br />
-        <CardDescription>Contact emissions (kg) 
-          for {formattedStartMonth} {formattedStartYear} - {formattedEndMonth} {formattedEndYear}</CardDescription>
+        <CardDescription>{formattedStartMonth} {formattedStartYear} - {formattedEndMonth} {formattedEndYear}</CardDescription>
       </CardHeader>
-      <CardContent style={{ height: "100%", padding: "1rem" }}>
-        <ChartContainer config={chartConfig} style={{ height: "100%" }}>
+      <CardContent style={{ height: "100%", padding: "1rem", paddingTop: "0" }}>
+        <ChartContainer config={chartConfig} style={{ height: "100%", paddingTop: "0" }}>
           <ResponsiveContainer width="100%" height="100%">
             <TreeMap data={treeMapData} />
           </ResponsiveContainer>

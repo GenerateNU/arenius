@@ -28,14 +28,4 @@ export async function fetchContactEmissions(
       }
       throw error; // Re-throw for handling
     }
-    // try {
-    //   const response = await apiClient.get(`/summary/contact/emissions`, {
-    //     params: req,
-    //   });
-    //   console.log("Contact Emissions Response:", response.data);
-    //   return response.data;
-    // } catch (error) {
-    //   console.error("Error fetching gross emissions", error);
-    //   return DEFAULT;
-    // }
 }

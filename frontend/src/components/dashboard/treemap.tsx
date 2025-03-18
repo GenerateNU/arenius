@@ -35,6 +35,9 @@ const TreeMap: React.FC<ApexChartProps> = ({ data }) => {
       legend: { show: false },
       chart: {
         type: "treemap" as const,
+        toolbar: {
+          show: false,
+        },
       },
       colors: ["#A1F4A4", "#05C569", "#156641"],
       plotOptions: {
@@ -42,18 +45,28 @@ const TreeMap: React.FC<ApexChartProps> = ({ data }) => {
           distributed: true,
           enableShades: false,
           useFillColorAsStroke: false,
-          padding: 20, // Adjust spacing between squares
+          padding: 100,
         },
       },
       dataLabels: {
         enabled: true,
         style: {
           fontSize: '12px',
+          fontWeight: 'bold',
         },
+        align: "left", // Aligns text to the left
+        verticalAlign: "bottom",
         formatter: function (text: string, op: { value: string }) {
-          return [text, op.value + "%"];
+          return [op.value + "%", text];
         },
-        offsetY: -4,
+      },
+      tooltip: {
+        enabled: true,
+        y: {
+          formatter: function (value: number) {
+            return `${value}%`; // Append the percent sign
+          },
+        },
       },
       yaxis: {
         min: 0,
@@ -79,6 +92,7 @@ const TreeMap: React.FC<ApexChartProps> = ({ data }) => {
         type="treemap" 
         width={chartSize.width} 
         height={chartSize.height} 
+        padding={{ top: 0, right: 0, bottom: 0, left: 0 }}
       />
     </div>
   );
