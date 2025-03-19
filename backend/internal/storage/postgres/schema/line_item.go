@@ -22,7 +22,7 @@ type LineItemRepository struct {
 	db *pgxpool.Pool
 }
 
-func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.Pagination, filterParams models.GetLineItemsRequest) ([]models.LineItemWithDetails, error) {
+func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.Pagination, filterParams models.GetLineItemsRequest) (*models.GetLineItemsResponse, error) {
 	filterQuery := "WHERE 1=1"
 
 	if filterParams.ReconciliationStatus != nil {
@@ -89,7 +89,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	rows, err := r.db.Query(ctx, query, queryArgs...)
 	if err != nil {
 		return nil, err
-	} 
+	}
 	defer rows.Close()
 
 	lineItems, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.LineItemWithDetails])
@@ -97,7 +97,22 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		return nil, err
 	}
 
-	return lineItems, nil 
+	total_query := `
+	SELECT count(*)
+	FROM line_item li
+	LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id
+	LEFT JOIN contact c on li.contact_id = c.id ` + filterQuery + `
+	AND $1 AND $2
+	` // The $1 and $2 are because filterQuery starts at $3, just make them dummy values here
+
+	var total int
+	countArgs := append([]interface{}{"TRUE", "TRUE"}, filterArgs...)
+	err = r.db.QueryRow(ctx, total_query, countArgs...).Scan(&total)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.GetLineItemsResponse{Total: total, Count: len(lineItems), LineItems: lineItems}, nil
 }
 
 func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, scope int, emissionsFactorId string, contactID *string) (*models.LineItem, error) {
