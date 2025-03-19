@@ -104,6 +104,7 @@ function getNumberPages(
   total_count: number
 ): number {
   if (pagination.pageSize <= 0) return 0;
+  if (total_count == 0) return 1;
   return Math.ceil(total_count / pagination.pageSize);
 }
 
