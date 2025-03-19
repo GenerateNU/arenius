@@ -37,6 +37,7 @@ export default function ContactTable() {
     getRowId: (row: Contact) => row.id,
     state: {
       sorting,
+      pagination,
     },
   });
 
