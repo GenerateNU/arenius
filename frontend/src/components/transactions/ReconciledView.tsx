@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { LineItem } from "@/types";
+import { GetLineItemResponse, LineItem } from "@/types";
 import { reconciledColumns } from "./columns";
 import { HelpCircle, ArrowRight } from "lucide-react";
 import LineItemTable from "./LineItemTable";
 
 export type ReconciledViewProps = {
-  data: LineItem[];
+  data: GetLineItemResponse;
 };
 
 const ReconciledView = ({ data }: ReconciledViewProps) => {
@@ -39,11 +39,11 @@ const ScopeTablePreview = ({
   scope,
   handleClick,
 }: {
-  data: LineItem[];
+  data: GetLineItemResponse;
   scope?: number;
   handleClick?: () => void;
 }) => {
-  const filteredData = data.filter((item) => item.scope === scope);
+  const filteredData = data.line_items.filter((item) => item.scope === scope);
   filteredData.slice(5);
 
   return (
@@ -63,7 +63,11 @@ const ScopeTablePreview = ({
           </div>
         </div>
       )}
-      <LineItemTable columns={reconciledColumns} data={filteredData} />
+      <LineItemTable
+        columns={reconciledColumns}
+        data={filteredData}
+        total={filteredData.length}
+      />
     </div>
   );
 };
@@ -73,11 +77,11 @@ const ScopeReconciledView = ({
   scope,
   handleClick,
 }: {
-  data: LineItem[];
+  data: GetLineItemResponse;
   scope?: number;
   handleClick: () => void;
 }) => {
-  const filteredData = data.filter((item) => item.scope === scope);
+  const filteredData = data.line_items.filter((item) => item.scope === scope);
 
   return (
     <div className="mt-4 mb-8">
@@ -87,7 +91,12 @@ const ScopeReconciledView = ({
           See all scopes
         </p>
       </div>
-      <LineItemTable columns={reconciledColumns} data={filteredData} />
+      <LineItemTable
+        columns={reconciledColumns}
+        data={filteredData}
+        total={filteredData.length}
+        paginated={true}
+      />
     </div>
   );
 };

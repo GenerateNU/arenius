@@ -68,11 +68,9 @@ function TransactionsContent() {
           Unreconciled
         </Button>
       </div>
-      {reconciled ? (
-        <ReconciledView data={reconciledData} />
-      ) : (
-        <UnreconciledView data={unreconciledData} />
-      )}
+      {reconciled
+        ? reconciledData && <ReconciledView data={reconciledData} />
+        : unreconciledData && <UnreconciledView data={unreconciledData} />}
     </div>
   );
 }

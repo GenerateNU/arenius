@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -9,6 +9,7 @@ import {
   getSortedRowModel,
   Row,
   ColumnDef,
+  PaginationState,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -27,29 +28,37 @@ import { DataTablePagination } from "../ui/DataTablePagination";
 
 export type LineItemTableProps = {
   columns: ColumnDef<LineItem>[];
-  data: [];
-  total?: number;
+  data: LineItem[];
+  total: number;
+  paginated?: boolean;
 };
 
 export default function LineItemTable({
   columns,
   data,
-  total = 50,
+  total,
+  paginated = false,
 }: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const {
-    reconciledData,
-    unreconciledData,
-    fetchData,
-    pagination,
-    setPagination,
-  } = useLineItems();
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const { fetchData, filters, setFilters } = useLineItems();
 
   // object and boolean to handle clicking a row's action button
   const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
     null
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    setFilters({
+      ...filters,
+      pageIndex: pagination.pageIndex,
+      pageSize: pagination.pageSize,
+    });
+  }, [pagination, setFilters]);
 
   const table = useReactTable({
     data: data || [],
@@ -81,14 +90,6 @@ export default function LineItemTable({
     fetchData();
     setIsDialogOpen(false);
   };
-
-  // if (loading) {
-  //   return (
-  //     <div className="flex justify-center">
-  //       <LoadingSpinner />
-  //     </div>
-  //   );
-  // }
 
   return (
     <>
@@ -165,11 +166,13 @@ export default function LineItemTable({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination
-        table={table}
-        pagination={pagination}
-        total_count={total}
-      />
+      {paginated && (
+        <DataTablePagination
+          table={table}
+          pagination={pagination}
+          total_count={total}
+        />
+      )}
 
       {clickedRowData && (
         <ModalDialog

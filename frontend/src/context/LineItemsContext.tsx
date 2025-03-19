@@ -1,6 +1,6 @@
 "use client";
 
-import { GetLineItemResponse, LineItem, LineItemFilters } from "@/types";
+import { GetLineItemResponse, LineItemFilters } from "@/types";
 import { fetchLineItems } from "@/services/lineItems";
 import {
   useState,
@@ -15,16 +15,9 @@ import { createDataContext, DataContextValue } from "./Context";
 
 interface LineItemsContextValue
   extends DataContextValue<GetLineItemResponse, LineItemFilters> {
-  reconciledData: LineItem[];
-  unreconciledData: LineItem[];
+  reconciledData: GetLineItemResponse;
+  unreconciledData: GetLineItemResponse;
 }
-
-// interface LineItemsContextValue {
-//   reconciledData: LineItem[];
-//   unreconciledData: LineItem[];
-//   filters: LineItemFilters;
-//   setFilters: (filters: LineItemFilters) => void;
-// }
 
 // Create a new context for line items
 const LineItemsContext = createContext<LineItemsContextValue | undefined>(
@@ -54,8 +47,9 @@ const LineItemsProviderInner: React.FC<{
 }> = ({ children, useData }) => {
   const { companyId, isLoading } = useAuth();
   const { filters, setFilters, pagination, setPagination } = useData();
-  const [reconciledData, setReconciledData] = useState<LineItem[]>([]);
-  const [unreconciledData, setUnreconciledData] = useState<LineItem[]>([]);
+  const [reconciledData, setReconciledData] = useState<GetLineItemResponse>();
+  const [unreconciledData, setUnreconciledData] =
+    useState<GetLineItemResponse>();
 
   const fetchAllLineItems = useCallback(async () => {
     if (!companyId || isLoading) {
@@ -64,6 +58,7 @@ const LineItemsProviderInner: React.FC<{
 
     const commonFilters = {
       ...filters,
+      ...pagination,
       company_id: companyId,
     };
 
@@ -71,14 +66,14 @@ const LineItemsProviderInner: React.FC<{
       ...commonFilters,
       reconciled: true,
     });
-    setReconciledData(reconciled.line_items);
+    setReconciledData(reconciled);
 
     const unreconciled = await fetchLineItems({
       ...commonFilters,
       reconciled: false,
     });
-    setUnreconciledData(unreconciled.line_items);
-  }, [filters, companyId, isLoading]);
+    setUnreconciledData(unreconciled);
+  }, [filters, companyId, isLoading, pagination]);
 
   useEffect(() => {
     fetchAllLineItems();
