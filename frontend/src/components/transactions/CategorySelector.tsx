@@ -126,7 +126,7 @@ export default function CategorySelector({
           />
         ) : (
           <EmissionsFactorList
-            emissionsFactors={(activeTab === "Favorites" ? categories?.favorites.emissions_factors : categories?.history.emissions_factors)|| []}
+            emissionsFactors={(activeTab === "Favorites" ? categories?.favorites.emissions_factors : categories?.history.emissions_factors) || []}
             setEmissionsFactor={setEmissionsFactor}
             setIsOpen={setIsOpen}
           />
