@@ -209,6 +209,19 @@ If either start date or end date are missing, then the date range will default t
         - URL: `http://localhost:8080/summary/gross?company_id=86afab0a-443f-4d9b-89d9-1f19a7ea6a14&start_date=2024-11-01T00:00:00Z&end_date=2025-03-11T00:00:00Z`
 ```
 
+GET `/summary/contact/emissions` - provides the total emissions for each contact assigned to the given companies line items within the given date range.
+
+If either start date or end date are missing, then the date range will default to 3 months ago - today
+```go
+
+- Query Parameters:
+        - `company_id`: Company ID
+        - `start_date`: Start of the date range
+        - `end_date`: End of the date range
+    - Example:
+        - URL: `http://localhost:8080/summary/contact/emissions?company_id=86afab0a-443f-4d9b-89d9-1f19a7ea6a14&start_date=2024-11-01T00:00:00Z&end_date=2025-03-11T00:00:00Z`
+```
+
 ## Carbon
 
 POST `carbon-offset/create`
