@@ -11,6 +11,12 @@ export type LineItem = {
   co2?: number;
 };
 
+export type GetLineItemResponse = {
+  count: number;
+  total: number;
+  line_items: LineItem[]
+}
+
 export interface LineItemFilters {
   dates?: DateRange;
   emissionFactor?: string;
@@ -19,6 +25,8 @@ export interface LineItemFilters {
   searchTerm?: string;
   company_id?: string;
   contact_id?: string;
+  pageSize?: number;
+  pageIndex?: number;
 }
 
 export type CreateLineItemRequest = {
@@ -81,7 +89,15 @@ export type Contact = {
 export type GetContactsRequest = {
   company_id: string;
   search_term: string;
+  pageSize?: number;
+  pageIndex?: number;
 };
+
+export type GetContactsResponse = {
+  total: number;
+  count: number;
+  contacts: Contact[];
+}
 
 export type CreateContactRequest = {
   name: string;

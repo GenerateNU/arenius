@@ -23,25 +23,28 @@ import { columns } from "./columns";
 import LineItemTableActions from "./LineItemTableActions";
 import  { ModalDialog } from "./ModalDialog";
 import Image from "next/image"
+import { DataTablePagination } from "../ui/DataTablePagination";
 
 export default function LineItemTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { data: items } = useLineItems();
+  const { data: items, fetchData, pagination, setPagination } = useLineItems();
 
   const [selectedRowData, setSelectedRowData] = useState<Row<LineItem> | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { fetchData } = useLineItems();
-
   const table = useReactTable({
-    data: items,
+    data: items.line_items || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    manualPagination: true,
+    rowCount: items.total,
+    onPaginationChange: setPagination,
     getRowId: (row: LineItem) => row.id,
     state: {
       sorting,
+      pagination,
     },
   });
 
@@ -56,7 +59,7 @@ export default function LineItemTable() {
   };
 
   return (
-    <>
+    <div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -117,6 +120,11 @@ export default function LineItemTable() {
           </TableBody>
         </Table>
       </div>
+      <DataTablePagination
+        table={table}
+        pagination={pagination}
+        total_count={items.total}
+      />
 
       {selectedRowData && (
         <ModalDialog
@@ -129,7 +137,7 @@ export default function LineItemTable() {
 
       <br />
       <LineItemTableActions table={table} />
-    </>
+    </div>
   );
 }
 

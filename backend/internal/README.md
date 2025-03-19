@@ -47,6 +47,10 @@ GET `/line-item`
 Gets all line items, filtered by a variety of query parameters.
 SearchTerm looks for matching line item descriptions, case insensitive.
 
+Pagination defaults to page 1, limit 10.
+
+Also returns `total` and `count`, where total is the total number of line items that fit those query parameters, ignoring pagination, and count is the number of line items returned in this request.
+
 ```go
 Query Parameters:
 - `company_id` (string, optional)
@@ -59,8 +63,8 @@ Query Parameters:
 - `min_price` (float64, optional)
 - `max_price` (float64, optional)
 - `contact_id` (string, optional)
-- `limit` (int)
-- `page` (int)
+- `limit` (int, optional)
+- `page` (int, optional)
 Example:
 - URL: `http://127.0.0.1:8080/line-item?scope=2&limit=50&page=2`
 ```
@@ -142,13 +146,21 @@ Example:
 ```
 
 GET `/contact/company/:companyId`
-Get all contact objects associated with a company
+Get all contact objects associated with a company with pagination. Default pagination options are page 1 and limit 10.
+
+SearchTerm looks for matching contact names, case insensitive.
+
+Also returns `total` and `count`, where total is the total number of contacts that fit those query parameters, ignoring pagination, and count is the number of contacts returned in this request.
 
 ```go
 Path Parameters:
 - `companyId`: (string)
+Query Parameters:
+- `page`: (int, optional)
+- `limit`: (int, optional)
+- `search_term`: (string, optional)
 Example:
-- URL: `http://127.0.0.1:8080/contact/company/1339d26e-8e6b-43e6-aa56-470b3985f3b1`
+- URL: `http://127.0.0.1:8080/contact/company/1339d26e-8e6b-43e6-aa56-470b3985f3b1?page=2&search_term=abc`
 ```
 
 POST `/contact`
