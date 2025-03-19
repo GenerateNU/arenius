@@ -8,18 +8,20 @@ import React, {
   useCallback,
 } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { PaginationState } from "@tanstack/react-table";
 
 interface DataProviderProps<T extends object, F extends object> {
   children: React.ReactNode;
-  fetchFunction: (filters: F) => Promise<T[]>;
+  fetchFunction: (filters: F) => Promise<T>;
 }
 
 interface DataContextValue<T extends object, F extends object> {
-  data: T[];
+  data: T;
   fetchData: () => void;
   filters: F;
   setFilters: (filters: F) => void;
-  loading: boolean;
+  pagination: PaginationState;
+  setPagination: React.Dispatch<React.SetStateAction<PaginationState>>;
 }
 
 export const createDataContext = <T extends object, F extends object>() => {
@@ -31,14 +33,15 @@ export const createDataContext = <T extends object, F extends object>() => {
     children,
     fetchFunction,
   }) => {
-    const [data, setData] = useState<T[]>([]);
+    const [data, setData] = useState<T>({} as T);
     const [filters, setFilters] = useState<F>({} as F);
-    const [loading, setLoading] = useState(false);
-
+    const [pagination, setPagination] = useState<PaginationState>({
+      pageIndex: 0,
+      pageSize: 10,
+    });
     const { companyId, tenantId, isLoading } = useAuth(); // Using `companyId` and `isLoading`
 
     const fetchData = useCallback(async () => {
-      setLoading(true);
       if (isLoading) {
         console.log("Authentication is still in progress. Please wait...");
         return; // Don't fetch data if the auth process is still ongoing
@@ -53,6 +56,7 @@ export const createDataContext = <T extends object, F extends object>() => {
         console.log("fetching");
         const result = await fetchFunction({
           ...filters,
+          ...pagination,
           company_id: companyId,
           tenant_id: tenantId,
         });
@@ -60,15 +64,13 @@ export const createDataContext = <T extends object, F extends object>() => {
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-
-      setLoading(false);
-    }, [filters, fetchFunction, companyId, tenantId, isLoading]); // Add `isLoading` to dependencies
+    }, [filters, fetchFunction, companyId, tenantId, isLoading, pagination]); // Add `isLoading` to dependencies
 
     useEffect(() => {
       if (companyId) {
         fetchData();
       }
-    }, [companyId, fetchData]); // Fetch data when companyId or filters change
+    }, [companyId, fetchData, pagination]); // Fetch data when companyId or filters change
 
     if (isLoading) {
       return <div>Loading...</div>; // Or any loading state you want
@@ -76,7 +78,14 @@ export const createDataContext = <T extends object, F extends object>() => {
 
     return (
       <DataContext.Provider
-        value={{ data, fetchData, filters, setFilters, loading }}
+        value={{
+          data,
+          fetchData,
+          filters,
+          setFilters,
+          pagination,
+          setPagination,
+        }}
       >
         {children}
       </DataContext.Provider>

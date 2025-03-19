@@ -25,6 +25,12 @@ type GetContactsRequest struct {
 	SearchTerm *string `query:"search_term"`
 }
 
+type GetContactsResponse struct {
+	Total    int       `json:"total"`
+	Count    int       `json:"count"`
+	Contacts []Contact `json:"contacts"`
+}
+
 type CreateContactRequest struct {
 	Name          string  `json:"name"`
 	Email         string  `json:"email"`

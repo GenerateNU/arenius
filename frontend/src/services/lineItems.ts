@@ -1,41 +1,54 @@
 import {
   CreateLineItemRequest,
-  LineItem,
+  GetLineItemResponse,
   LineItemFilters,
   ReconcileBatchRequest,
   ReconcileRequest,
 } from "../types";
 import apiClient from "./apiClient";
 
-function buildQueryParams(filters: LineItemFilters): URLSearchParams {
-  const params = new URLSearchParams();
+function buildQueryParams(filters: LineItemFilters) {
+  const params: Record<string, string | Date | number | undefined> = {};
 
   if (filters?.dates) {
-    if (filters.dates.from)
-      params.append("after_date", filters.dates.from.toISOString());
-    if (filters.dates.to)
-      params.append("before_date", filters.dates.to.toISOString());
+    params.after_date = filters.dates.from;
+    params.before_date = filters.dates.to;
   }
 
-  if (filters?.emissionFactor)
-    params.append("emission_factor", filters.emissionFactor);
-  if (filters?.minPrice)
-    params.append("min_price", filters.minPrice.toString());
-  if (filters?.maxPrice)
-    params.append("max_price", filters.maxPrice.toString());
-  if (filters?.reconciled != null)
-    params.append("reconciliation_status", filters.reconciled.toString());
-
-  if (filters?.searchTerm) params.append("search_term", filters.searchTerm);
-  if (filters?.company_id) params.append("company_id", filters.company_id);
-  if (filters?.contact_id) params.append("contact_id", filters.contact_id);
+  if (filters?.emissionFactor) {
+    params.emission_factor = filters.emissionFactor;
+  }
+  if (filters?.minPrice) {
+    params.min_price = filters.minPrice?.toString();
+  }
+  if (filters?.maxPrice) {
+    params.max_price = filters.maxPrice?.toString();
+  }
+  if (filters?.reconciled) {
+    params.reconciled = filters.reconciled.toString();
+  }
+  if (filters?.searchTerm) {
+    params.search_term = filters.searchTerm;
+  }
+  if (filters?.company_id) {
+    params.company_id = filters.company_id;
+  }
+  if (filters?.contact_id) {
+    params.contact_id = filters.contact_id;
+  }
+  if (filters?.pageIndex) {
+    params.page = filters.pageIndex + 1;
+  }
+  if (filters?.pageSize) {
+    params.limit = filters.pageSize;
+  }
 
   return params;
 }
 
 export async function fetchLineItems(
   filters: LineItemFilters
-): Promise<LineItem[]> {
+): Promise<GetLineItemResponse> {
   try {
     const response = await apiClient.get("/line-item", {
       params: buildQueryParams(filters),
@@ -43,7 +56,7 @@ export async function fetchLineItems(
     return response.data;
   } catch (error) {
     console.error("Error fetching dashboard items", error);
-    return [];
+    return {} as GetLineItemResponse;
   }
 }
 

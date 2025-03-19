@@ -24,6 +24,7 @@ import LineItemTableActions from "./LineItemTableActions";
 import { ModalDialog } from "./ModalDialog";
 import Image from "next/image";
 import { LoadingSpinner } from "../ui/loading";
+import { DataTablePagination } from "../ui/DataTablePagination";
 
 export type LineItemTableProps = {
   columns: ColumnDef<LineItem>[];
@@ -32,7 +33,7 @@ export type LineItemTableProps = {
 
 export default function LineItemTable({ columns, data }: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { loading, fetchData } = useLineItems();
+  const { data: items, fetchData, pagination, setPagination } = useLineItems();
 
   // object and boolean to handle clicking a row's action button
   const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
@@ -41,14 +42,18 @@ export default function LineItemTable({ columns, data }: LineItemTableProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const table = useReactTable({
-    data,
+    data: items.line_items || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    manualPagination: true,
+    rowCount: items.total,
+    onPaginationChange: setPagination,
     getRowId: (row: LineItem) => row.id,
     state: {
       sorting,
+      pagination,
     },
   });
 
@@ -67,13 +72,13 @@ export default function LineItemTable({ columns, data }: LineItemTableProps) {
     setIsDialogOpen(false);
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center">
-        <LoadingSpinner />
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex justify-center">
+  //       <LoadingSpinner />
+  //     </div>
+  //   );
+  // }
 
   return (
     <>
@@ -150,6 +155,11 @@ export default function LineItemTable({ columns, data }: LineItemTableProps) {
           </TableBody>
         </Table>
       </div>
+      <DataTablePagination
+        table={table}
+        pagination={pagination}
+        total_count={items.total}
+      />
 
       {clickedRowData && (
         <ModalDialog

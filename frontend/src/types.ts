@@ -11,6 +11,12 @@ export type LineItem = {
   co2?: number;
 };
 
+export type GetLineItemResponse = {
+  count: number;
+  total: number;
+  line_items: LineItem[];
+};
+
 export interface LineItemFilters {
   dates?: DateRange;
   emissionFactor?: string;
@@ -20,6 +26,8 @@ export interface LineItemFilters {
   company_id?: string;
   contact_id?: string;
   reconciled?: boolean;
+  pageSize?: number;
+  pageIndex?: number;
 }
 
 export type CreateLineItemRequest = {
@@ -82,6 +90,14 @@ export type Contact = {
 export type GetContactsRequest = {
   company_id: string;
   search_term: string;
+  pageSize?: number;
+  pageIndex?: number;
+};
+
+export type GetContactsResponse = {
+  total: number;
+  count: number;
+  contacts: Contact[];
 };
 
 export type CreateContactRequest = {
@@ -93,26 +109,45 @@ export type CreateContactRequest = {
   company_id: string;
 };
 
+export type ContactEmissions = {
+  contact_id: string;
+  contact_name: string;
+  carbon: number;
+};
+
+export type ContactTreeEmissions = {
+  contact_emissions: ContactEmissions;
+  start_date: Date;
+  end_date: Date;
+};
+
 export type GetGrossEmissionsRequest = {
   company_id: string;
   start_date: Date;
   end_date: Date;
-}
+};
 
 export type ScopeSummary = {
   scope_one: number;
   scope_two: number;
   scope_three: number;
-}
+};
 
 export type MonthSummary = {
   month_start: Date;
   scopes: ScopeSummary;
-}
+};
 
 export type GrossSummary = {
   total_co2: number;
   start_date: Date;
   end_date: Date;
   months: MonthSummary[];
-}
+};
+
+export type GetContactEmissionsRequest = {
+  company_id: string;
+  contact_id: string;
+  start_date: Date;
+  end_date: Date;
+};

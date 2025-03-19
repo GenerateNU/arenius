@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { LineItemsProvider, useLineItems } from "@/context/LineItemsContext";
 import ManualEntryModal from "@/components/transactions/ManualEntryModal";
@@ -8,6 +8,8 @@ import UnreconciledView from "@/components/transactions/UnreconciledView";
 import ReconciledView from "@/components/transactions/ReconciledView";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { fetchLineItems } from "@/services/lineItems";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 
 export default function Transactions() {
   return (
@@ -21,11 +23,13 @@ function TransactionsContent() {
   const [reconciled, setReconciled] = useState(false);
   const { reconciledData, unreconciledData, filters, setFilters } =
     useLineItems();
-  const searchTerm = filters.searchTerm || "";
+  const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(
+    filters.searchTerm
+  );
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters({ ...filters, searchTerm: e.target.value });
-  };
+  useEffect(() => {
+    setFilters({ ...filters, searchTerm: debouncedTerm });
+  }, [debouncedTerm]);
 
   const updateReconciled = (update: boolean) => {
     setReconciled(update);
