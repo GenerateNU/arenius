@@ -166,7 +166,7 @@ function CategoryItem({ category, setEmissionsFactor, setIsOpen, expandedInitial
 
 function EmissionsFactorList({ emissionsFactors, setEmissionsFactor, setIsOpen }: EmissionsFactorListProps) {
   return (
-    <div className={styles.categoryList}>
+    <div>
       {emissionsFactors.length > 0 ? (
         emissionsFactors.map((emissionsFactor) => (
           <EmissionsFactorItem key={emissionsFactor.name} emissionsFactor={emissionsFactor} setEmissionsFactor={setEmissionsFactor} setIsOpen={setIsOpen} />
