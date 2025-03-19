@@ -8,7 +8,6 @@ import UnreconciledView from "@/components/transactions/UnreconciledView";
 import ReconciledView from "@/components/transactions/ReconciledView";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { fetchLineItems } from "@/services/lineItems";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 
 export default function Transactions() {
@@ -38,7 +37,21 @@ function TransactionsContent() {
 
   return (
     <div className={styles.container}>
-      <Header searchTerm={searchTerm} handleSearch={handleSearch} />
+      <div className={styles.header}>
+        <p className={styles.formTitle}>Transactions</p>
+        <div className={styles.searchContainer}>
+          <div className={styles.searchWrapper}>
+            <Search className={styles.searchIcon} />
+            <Input
+              placeholder="Search your transactions..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.input}
+            />
+          </div>
+          <ManualEntryModal />
+        </div>
+      </div>
       <div className={styles.reconciliationToggle}>
         <Button
           variant={reconciled ? "default" : "ghost"}
@@ -60,32 +73,6 @@ function TransactionsContent() {
       ) : (
         <UnreconciledView data={unreconciledData} />
       )}
-    </div>
-  );
-}
-
-function Header({
-  searchTerm,
-  handleSearch,
-}: {
-  searchTerm: string;
-  handleSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}) {
-  return (
-    <div className={styles.header}>
-      <p className={styles.formTitle}>Transactions</p>
-      <div className={styles.searchContainer}>
-        <div className={styles.searchWrapper}>
-          <Search className={styles.searchIcon} />
-          <Input
-            placeholder="Search your transactions..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className={styles.input}
-          />
-        </div>
-        <ManualEntryModal />
-      </div>
     </div>
   );
 }

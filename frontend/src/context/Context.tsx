@@ -15,7 +15,7 @@ interface DataProviderProps<T extends object, F extends object> {
   fetchFunction: (filters: F) => Promise<T>;
 }
 
-interface DataContextValue<T extends object, F extends object> {
+export interface DataContextValue<T extends object, F extends object> {
   data: T;
   fetchData: () => void;
   filters: F;

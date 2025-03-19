@@ -23,17 +23,27 @@ import { useLineItems } from "@/context/LineItemsContext";
 import LineItemTableActions from "./LineItemTableActions";
 import { ModalDialog } from "./ModalDialog";
 import Image from "next/image";
-import { LoadingSpinner } from "../ui/loading";
 import { DataTablePagination } from "../ui/DataTablePagination";
 
 export type LineItemTableProps = {
   columns: ColumnDef<LineItem>[];
-  data: LineItem[];
+  data: [];
+  total?: number;
 };
 
-export default function LineItemTable({ columns, data }: LineItemTableProps) {
+export default function LineItemTable({
+  columns,
+  data,
+  total = 50,
+}: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { data: items, fetchData, pagination, setPagination } = useLineItems();
+  const {
+    reconciledData,
+    unreconciledData,
+    fetchData,
+    pagination,
+    setPagination,
+  } = useLineItems();
 
   // object and boolean to handle clicking a row's action button
   const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
@@ -42,13 +52,13 @@ export default function LineItemTable({ columns, data }: LineItemTableProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const table = useReactTable({
-    data: items.line_items || [],
+    data: data || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
-    rowCount: items.total,
+    rowCount: total,
     onPaginationChange: setPagination,
     getRowId: (row: LineItem) => row.id,
     state: {
@@ -158,7 +168,7 @@ export default function LineItemTable({ columns, data }: LineItemTableProps) {
       <DataTablePagination
         table={table}
         pagination={pagination}
-        total_count={items.total}
+        total_count={total}
       />
 
       {clickedRowData && (
