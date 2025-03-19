@@ -131,8 +131,3 @@ export type GrossSummary = {
   end_date: Date;
   months: MonthSummary[];
 }
-
-export type Pagination = {
-  page: number;
-  limit: number;
-}
