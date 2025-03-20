@@ -13,6 +13,7 @@ import { EmissionsProvider } from "@/context/EmissionsContext";
 
 
 export default function Transactions() {
+
   return (
     <EmissionsProvider>
       <LineItemsProvider fetchFunction={fetchLineItems}>
@@ -43,7 +44,6 @@ function TransactionsContent() {
       fetchLineItems(filters);
     }
   }, [filters]);
-  
 
   return (
     <div className={styles.container}>
