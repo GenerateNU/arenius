@@ -75,6 +75,12 @@ export type EmissionsFactorCategory = {
   emissions_factors: EmissionsFactor[];
 };
 
+export type EmissionsFactorCategories = {
+  all: EmissionsFactorCategory[];
+  favorites: EmissionsFactorCategory;
+  history: EmissionsFactorCategory;
+};
+
 export type Contact = {
   id: string;
   name: string;
