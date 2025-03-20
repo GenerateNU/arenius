@@ -22,7 +22,7 @@ export default function Transactions() {
 }
 
 function TransactionsContent() {
-  const [reconciled, setReconciled] = useState(false);
+  const [reconciled, setReconciled] = useState(true);
   const { filters, setFilters } = useLineItems();
   const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(
     filters.searchTerm

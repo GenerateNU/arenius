@@ -43,7 +43,7 @@ const ScopeTablePreview = ({
   handleClick?: () => void;
 }) => {
   const filteredData = data.line_items
-    .filter((item) => item.scope === scope)
+    ?.filter((item) => item.scope === scope)
     .slice(0, 5);
 
   return (
@@ -66,7 +66,7 @@ const ScopeTablePreview = ({
       <LineItemTable
         columns={reconciledColumns}
         data={filteredData}
-        rowCount={filteredData.length}
+        rowCount={filteredData?.length}
         paginated={false}
       />
     </div>
@@ -82,7 +82,7 @@ const ScopeReconciledView = ({
   scope?: number;
   handleClick: () => void;
 }) => {
-  const filteredData = data.line_items.filter((item) => item.scope === scope);
+  const filteredData = data.line_items?.filter((item) => item.scope === scope);
 
   return (
     <div className="mt-4 mb-8">
