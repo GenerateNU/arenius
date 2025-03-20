@@ -24,6 +24,9 @@ function buildQueryParams(filters: LineItemFilters) {
   if (filters?.maxPrice) {
     params.max_price = filters.maxPrice?.toString();
   }
+  if (filters?.reconciled != undefined) {
+    params.reconciliation_status = filters.reconciled.toString();
+  }
   if (filters?.searchTerm) {
     params.search_term = filters.searchTerm;
   }
@@ -44,9 +47,8 @@ function buildQueryParams(filters: LineItemFilters) {
 }
 
 export async function fetchLineItems(
-  filters: LineItemFilters,
+  filters: LineItemFilters
 ): Promise<GetLineItemResponse> {
-
   try {
     const response = await apiClient.get("/line-item", {
       params: buildQueryParams(filters),
@@ -62,7 +64,6 @@ export async function createLineItem(
   item: CreateLineItemRequest,
   companyId: string
 ): Promise<void> {
-  
   const new_item = {
     description: item.description,
     total_amount: item.total_amount,
