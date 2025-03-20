@@ -5,6 +5,7 @@ export async function fetchEmissionsFactors(): Promise<
   EmissionsFactorCategory[]
 > {
   try {
+    console.log("Fetching emissions factors...");
     const response = await apiClient.get("/emissions-factor");
     return response.data;
   } catch (error) {

@@ -14,9 +14,11 @@ import { EmissionsProvider } from "@/context/EmissionsContext";
 
 export default function Transactions() {
   return (
-    <LineItemsProvider fetchFunction={fetchLineItems}>
-      <TransactionsContent />
-    </LineItemsProvider>
+    <EmissionsProvider>
+      <LineItemsProvider fetchFunction={fetchLineItems}>
+        <TransactionsContent />
+      </LineItemsProvider>
+    </EmissionsProvider>
   );
 }
 
@@ -24,26 +26,26 @@ function TransactionsContent() {
   const { filters, setFilters } = useLineItems();
   const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(filters.searchTerm ?? "");
 
-  //const fetchItems = useCallback(() => fetchLineItems(filters), [filters]);
-
   useEffect(() => {
     console.log("Effect triggered with debouncedTerm:", debouncedTerm);
     console.log("Previous searchTerm:", filters.searchTerm);
     console.log(filters);
     
     if (filters.searchTerm !== debouncedTerm) {
-      setFilters({ ...filters, searchTerm: debouncedTerm }); // ✅ Correct way
-    }
-  }, [debouncedTerm]);
-
-  useEffect(() => {
-    if (filters.searchTerm !== debouncedTerm) {
       setFilters({ ...filters, searchTerm: debouncedTerm });
     }
   }, [debouncedTerm]);
+  
+  // Only fetch line items when search term actually changes
+  useEffect(() => {
+    if (filters.searchTerm || filters.minPrice || filters.maxPrice || filters.emissionFactor || filters.company_id || filters.contact_id, filters.dates) {
+      // Fetch line items based on searchTerm or other filters
+      fetchLineItems(filters);
+    }
+  }, [filters]);
+  
 
   return (
-    <EmissionsProvider>
     <div className={styles.container}>
       <div className="flex items-center justify-between mb-4">
         <p className={styles.formTitle}>Transactions</p>
@@ -63,7 +65,6 @@ function TransactionsContent() {
       <LineItemTableFilters />
       <LineItemTable />
     </div>
-    </EmissionsProvider>
   );
 }
 

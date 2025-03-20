@@ -18,7 +18,7 @@ interface DataContextValue<T extends object, F extends object> {
   data: T[];
   fetchData: () => void;
   filters: F;
-  setFilters: (filters: F) => void;
+  setFilters: (update: F | ((prevFilters: F) => F)) => void;
 }
 
 
@@ -52,10 +52,10 @@ export const createDataContext = <T extends object, F extends object>() => {
     }, [filters, fetchFunction, companyId, tenantId, isLoading]);
 
     useEffect(() => {
-      if (!isLoading && companyId) {
+      if (!isLoading && companyId && Object.keys(filters).length > 0) {
         fetchData();
       }
-    }, [companyId, fetchData, isLoading]);
+    }, [companyId, fetchData, filters, isLoading]);
 
     if (isLoading) {
       return <div>Loading...</div>;  // Or any loading state you want
