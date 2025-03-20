@@ -46,7 +46,7 @@ const LineItemsProviderInner: React.FC<{
   useData: any;
 }> = ({ children, useData }) => {
   const { companyId, isLoading } = useAuth();
-  const { filters, setFilters, pagination, setPagination } = useData();
+  const { filters, setFilters } = useData();
   const [reconciledData, setReconciledData] = useState<GetLineItemResponse>();
   const [unreconciledData, setUnreconciledData] =
     useState<GetLineItemResponse>();
@@ -58,7 +58,6 @@ const LineItemsProviderInner: React.FC<{
 
     const commonFilters = {
       ...filters,
-      ...pagination,
       company_id: companyId,
     };
 
@@ -73,7 +72,7 @@ const LineItemsProviderInner: React.FC<{
       reconciled: false,
     });
     setUnreconciledData(unreconciled);
-  }, [filters, companyId, isLoading, pagination]);
+  }, [filters, companyId, isLoading]);
 
   useEffect(() => {
     fetchAllLineItems();
@@ -87,8 +86,6 @@ const LineItemsProviderInner: React.FC<{
         setFilters,
         reconciledData,
         unreconciledData,
-        pagination,
-        setPagination,
       }}
     >
       {children}
