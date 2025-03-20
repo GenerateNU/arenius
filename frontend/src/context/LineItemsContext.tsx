@@ -1,7 +1,102 @@
 "use client";
 
 import { GetLineItemResponse, LineItemFilters } from "@/types";
-import { createDataContext } from "./Context";
+import { fetchLineItems } from "@/services/lineItems";
+import {
+  useState,
+  useCallback,
+  useEffect,
+  createContext,
+  useContext,
+  ReactNode,
+} from "react";
+import { useAuth } from "./AuthContext";
+import { createDataContext, DataContextValue } from "./Context";
 
-export const { DataProvider: LineItemsProvider, useData: useLineItems } =
-  createDataContext<GetLineItemResponse, LineItemFilters>();
+interface LineItemsContextValue
+  extends DataContextValue<GetLineItemResponse, LineItemFilters> {
+  reconciledData: GetLineItemResponse;
+  unreconciledData: GetLineItemResponse;
+}
+
+// Create a new context for line items
+const LineItemsContext = createContext<LineItemsContextValue | undefined>(
+  undefined
+);
+
+export const LineItemsProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const { DataProvider: BaseDataProvider, useData } = createDataContext<
+    GetLineItemResponse,
+    LineItemFilters
+  >();
+
+  return (
+    <BaseDataProvider fetchFunction={fetchLineItems}>
+      <LineItemsProviderInner useData={useData}>
+        {children}
+      </LineItemsProviderInner>
+    </BaseDataProvider>
+  );
+};
+
+const LineItemsProviderInner: React.FC<{
+  children: ReactNode;
+  useData: any;
+}> = ({ children, useData }) => {
+  const { companyId, isLoading } = useAuth();
+  const { filters, setFilters } = useData();
+  const [reconciledData, setReconciledData] = useState<GetLineItemResponse>();
+  const [unreconciledData, setUnreconciledData] =
+    useState<GetLineItemResponse>();
+
+  const fetchAllLineItems = useCallback(async () => {
+    if (!companyId || isLoading) {
+      return;
+    }
+
+    const commonFilters = {
+      ...filters,
+      company_id: companyId,
+    };
+
+    const reconciled = await fetchLineItems({
+      ...commonFilters,
+      reconciled: true,
+    });
+    setReconciledData(reconciled);
+
+    const unreconciled = await fetchLineItems({
+      ...commonFilters,
+      reconciled: false,
+    });
+    setUnreconciledData(unreconciled);
+  }, [filters, companyId, isLoading]);
+
+  useEffect(() => {
+    fetchAllLineItems();
+  }, [fetchAllLineItems]);
+
+  return (
+    <LineItemsContext.Provider
+      value={{
+        ...useData(),
+        filters,
+        setFilters,
+        reconciledData,
+        unreconciledData,
+      }}
+    >
+      {children}
+    </LineItemsContext.Provider>
+  );
+};
+
+export const useLineItems = () => {
+  const context = useContext(LineItemsContext);
+  if (!context) {
+    throw new Error("useLineItems must be used within a DataProvider");
+  }
+  return context;
+};

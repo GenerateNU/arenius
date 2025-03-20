@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   flexRender,
   getCoreRowModel,
   SortingState,
   useReactTable,
   getSortedRowModel,
+  PaginationState,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -23,16 +24,28 @@ import { DataTablePagination } from "../ui/DataTablePagination";
 
 export default function ContactTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { data: contacts, pagination, setPagination } = useContacts();
+  const { data, filters, setFilters } = useContacts();
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  useEffect(() => {
+    setFilters({
+      ...filters,
+      pageIndex: pagination.pageIndex,
+      pageSize: pagination.pageSize,
+    });
+  }, [pagination, setFilters]);
 
   const table = useReactTable({
-    data: contacts.contacts || [],
+    data: data.contacts || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
-    rowCount: contacts.total,
+    rowCount: data.total,
     onPaginationChange: setPagination,
     getRowId: (row: Contact) => row.id,
     state: {
@@ -96,7 +109,7 @@ export default function ContactTable() {
       <DataTablePagination
         table={table}
         pagination={pagination}
-        total_count={contacts.total}
+        total_count={data.total}
       />
       <br />
     </>

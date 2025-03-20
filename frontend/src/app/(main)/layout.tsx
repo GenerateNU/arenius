@@ -68,7 +68,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </Link>
         </div>
       </div>
-      <div className="pt-10 px-20 bg-grayBackground h-full">{children}</div>{" "}
+      <div className="pt-10 px-20 bg-grayBackground h-full">{children}</div>
     </div>
   );
 };
