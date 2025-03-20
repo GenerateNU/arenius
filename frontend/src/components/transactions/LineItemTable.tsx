@@ -41,7 +41,8 @@ export default function LineItemTable({
   const [sorting, setSorting] = useState<SortingState>([]);
   const { fetchData, pagination, setPagination } = useLineItems();
 
-  const [selectedRowData, setSelectedRowData] = useState<Row<LineItem> | null>(
+  // object and boolean to handle clicking a row's action button
+  const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
     null
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -62,12 +63,13 @@ export default function LineItemTable({
     },
   });
 
+  // boolean determining if any row is selected
   const rowIsSelected = table
     .getRowModel()
     .rows.some((row) => row.getIsSelected());
 
   const openEditDialog = (row: Row<LineItem>) => {
-    setSelectedRowData(row);
+    setClickedRowData(row);
     setIsDialogOpen(true);
   };
 
@@ -151,7 +153,6 @@ export default function LineItemTable({
           </TableBody>
         </Table>
       </div>
-
       {paginated && (
         <DataTablePagination
           table={table}
@@ -160,16 +161,15 @@ export default function LineItemTable({
         />
       )}
 
-      {selectedRowData && (
+      {clickedRowData && (
         <ModalDialog
-          selectedRowData={selectedRowData}
+          selectedRowData={clickedRowData}
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
           onReconcileSuccess={handleReconcileSuccess}
         />
       )}
 
-      <br />
       {rowIsSelected && <LineItemTableActions table={table} />}
     </>
   );

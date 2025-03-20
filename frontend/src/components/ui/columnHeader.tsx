@@ -1,7 +1,7 @@
 import React from "react";
 import { Column } from "@tanstack/react-table";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "./button";
-import Image from "next/image";
 
 type ColumnHeaderProps<T extends object> = {
   column: Column<T>;
@@ -9,11 +9,11 @@ type ColumnHeaderProps<T extends object> = {
   className?: string;
 };
 
-function SortIcon() {
-  return <Image src={"sort.svg"} width={20} height={20} alt="Sort column" />;
-}
-
-const ColumnHeader = <T extends object>({ column, name, className }: ColumnHeaderProps<T>) => {
+const ColumnHeader = <T extends object>({
+  column,
+  name,
+  className,
+}: ColumnHeaderProps<T>) => {
   return (
     <div className={className}>
       <Button
@@ -22,10 +22,9 @@ const ColumnHeader = <T extends object>({ column, name, className }: ColumnHeade
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         {name}
-        <SortIcon />
+        {column.getIsSorted() == "asc" ? <ChevronUp /> : <ChevronDown />}
       </Button>
     </div>
   );
 };
-
 export { ColumnHeader };

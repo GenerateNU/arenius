@@ -1,7 +1,7 @@
 import { LineItem } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ColumnHeader } from "../ui/columnHeader";
-import { Checkbox } from "@radix-ui/react-checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const selectColumn: ColumnDef<LineItem> = {
   id: "select",
@@ -18,7 +18,6 @@ const selectColumn: ColumnDef<LineItem> = {
   ),
   cell: ({ row }) => (
     <Checkbox
-      className="border border-purple-700"
       checked={row.getIsSelected()}
       onCheckedChange={(value) => row.toggleSelected(!!value)}
       aria-label="Select row"

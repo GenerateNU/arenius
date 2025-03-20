@@ -42,8 +42,9 @@ const ScopeTablePreview = ({
   scope?: number;
   handleClick?: () => void;
 }) => {
-  const filteredData = data.line_items.filter((item) => item.scope === scope);
-  filteredData.slice(5);
+  const filteredData = data.line_items
+    .filter((item) => item.scope === scope)
+    .slice(0, 5);
 
   return (
     <div className="mt-4 mb-8">
