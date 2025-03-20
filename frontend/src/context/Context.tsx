@@ -44,17 +44,18 @@ export const createDataContext = <T extends object, F extends object>() => {
       try {
         console.log("fetching");
         const result = await fetchFunction({ ...filters, company_id: companyId, tenant_id: tenantId });
+        console.log(result);
         setData(result);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    }, [filters, fetchFunction, companyId, tenantId, isLoading]);  // Add `isLoading` to dependencies
+    }, [filters, fetchFunction, companyId, tenantId, isLoading]);
 
     useEffect(() => {
-      if (companyId) {
+      if (!isLoading && companyId) {
         fetchData();
       }
-    }, [companyId, fetchData]); // Fetch data when companyId or filters change
+    }, [companyId, fetchData, isLoading]);
 
     if (isLoading) {
       return <div>Loading...</div>;  // Or any loading state you want

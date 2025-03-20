@@ -18,11 +18,9 @@ import (
 
 func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant) error {
 	refreshToken := ""
-	fmt.Println("company: ", company.RefreshToken)
 	if company.RefreshToken != nil {
 		refreshToken = *company.RefreshToken
 	}
-	fmt.Println("refreshToken: ", refreshToken)
 
 	token := &oauth2.Token{
 		RefreshToken: refreshToken,
@@ -42,8 +40,6 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	if e != nil {
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to update user credentials")
 	}
-
-	fmt.Println("accessToken: ", accessToken)
 
 	if accessToken == "" || *tenantId == "" || url == "" {
 		return fmt.Errorf("missing required environment variables")
@@ -72,16 +68,6 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 			req.Header.Set("If-Modified-Since", company.LastTransactionImportTime.UTC().Format("2006-01-02T15:04:05"))
 		}
 
-		// resp, err := client.Do(req)
-		// if err != nil {
-		// 	return errs.BadRequest(fmt.Sprintf("error handling request: %s", err))
-		// }
-		// defer resp.Body.Close()
-
-		// if resp.StatusCode != http.StatusOK {
-		// 	return errs.BadRequest(fmt.Sprintf("response status unsuccessful: %s", err))
-		// }
-
 		resp, err := client.Do(req)
 		if err != nil {
 			log.Printf("HTTP request failed: %v", err)
@@ -89,21 +75,11 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 		}
 		defer resp.Body.Close()
 
-		log.Println("response status code: ", resp.StatusCode)
-		log.Println("response status: ", resp.Status)
-		log.Println("response body: ", resp.Body)
-		log.Println("response: ", resp)
-
 		body, _ := io.ReadAll(resp.Body) // Read response body
 		if resp.StatusCode != http.StatusOK {
 			log.Printf("HTTP error: %d response body: %s", resp.StatusCode, string(body))
 			return fmt.Errorf("HTTP error: %d - %s", resp.StatusCode, string(body))
 		}
-
-		// body, err := io.ReadAll(resp.Body)
-		// if err != nil {
-		// 	return errs.BadRequest(fmt.Sprintf("unable to read response body: %s", err))
-		// }
 
 		var response map[string]interface{}
 		if err := json.Unmarshal(body, &response); err != nil {
@@ -129,7 +105,6 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 		transactions = append(transactions, paginatedTransactions...)
 	}
 
-	fmt.Println("transactions: ", transactions)
 	// Parse transactions and filter out duplicates
 	newLineItems, err := h.parseTenantTransactions(ctx.Context(), transactions, company)
 	if err != nil {
@@ -173,7 +148,6 @@ func (h *Handler) parseTenantTransactions(ctx context.Context, transactions []in
 			if !ok {
 				return nil, errs.BadRequest("Invalid Contact format")
 			}
-			fmt.Println(contactMap)
 			if contactMap["ContactID"] != nil {
 				xeroContactID := contactMap["ContactID"].(string)
 

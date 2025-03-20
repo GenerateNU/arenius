@@ -42,6 +42,7 @@ export async function fetchLineItems(
 ): Promise<LineItem[]> {
 
   try {
+    console.log("fetching line items")
     const response = await apiClient.get("/line-item", {
       params: buildQueryParams(filters),
     });

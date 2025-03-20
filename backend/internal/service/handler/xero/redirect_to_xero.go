@@ -25,7 +25,6 @@ func (h *Handler) RedirectToAuthorisationEndpoint(ctx *fiber.Ctx) error {
 
 func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	h.oAuthAuthorisationCode = ctx.Query("code")
-	fmt.Println("Callback")
 
 	// Exchange the authorization code for an access token with the Xero auth server.
 	tok, err := h.config.OAuth2Config.Exchange(
@@ -84,8 +83,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		log.Fatalf("Error reading response body: %v", err)
 	}
 
-	fmt.Println("Raw response body:", string(body))
-
 	if resp.StatusCode == http.StatusOK {
 		fmt.Println("Successfully fetched connections!")
 	} else {
@@ -97,7 +94,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 	if err != nil {
 		log.Fatalf("Error parsing JSON: %v", err)
 	}
-	fmt.Println("Decoded connections:", connections)
 
 	var tID string
 	var companyName string

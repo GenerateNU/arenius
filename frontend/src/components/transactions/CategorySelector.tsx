@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Popover,
   PopoverContent,
@@ -14,8 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight, Search } from "lucide-react";
-import { fetchEmissionsFactors } from "@/services/emissionsFactors";
 import { EmissionsFactorCategory, EmissionsFactor } from "@/types";
+import { useEmissions } from "@/context/EmissionsContext";
 
 interface CategorySelectorProps {
   emissionsFactor?: EmissionsFactor;
@@ -44,15 +44,7 @@ export default function CategorySelector({
 }: CategorySelectorProps) {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [categories, setCategories] = useState<EmissionsFactorCategory[]>([]);
-
-  useEffect(() => {
-    async function fetchCategories() {
-      const response = await fetchEmissionsFactors();
-      setCategories(response.sort((a, b) => a.name.localeCompare(b.name)));
-    }
-    fetchCategories();
-  }, []);
+  const categories = useEmissions();
 
   // Filter categories based on search term
   const filteredCategories = categories.filter(

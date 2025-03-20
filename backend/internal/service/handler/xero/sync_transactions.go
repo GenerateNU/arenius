@@ -40,7 +40,6 @@ func (h *Handler) SyncTransactions(ctx *fiber.Ctx) error {
 	for _, company := range companies {
 		fmt.Println("Syncing transactions for company:", company.ID)
 		err := h.syncCompanyTransactions(ctx, company)
-		log.Println("err", err)
 		if err != nil {
 			log.Printf("Error syncing transactions for company %s: %v\n", company.ID, err)
 		} else {

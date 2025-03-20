@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import ManualEntryModal from "@/components/transactions/ManualEntryModal";
 import { fetchLineItems } from "@/services/lineItems";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
+import { EmissionsProvider } from "@/context/EmissionsContext";
+
 
 export default function Transactions() {
   return (
@@ -20,13 +22,28 @@ export default function Transactions() {
 
 function TransactionsContent() {
   const { filters, setFilters } = useLineItems();
-  const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(filters.searchTerm);
+  const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(filters.searchTerm ?? "");
+
+  //const fetchItems = useCallback(() => fetchLineItems(filters), [filters]);
 
   useEffect(() => {
-    setFilters({ ...filters, searchTerm: debouncedTerm });
+    console.log("Effect triggered with debouncedTerm:", debouncedTerm);
+    console.log("Previous searchTerm:", filters.searchTerm);
+    console.log(filters);
+    
+    if (filters.searchTerm !== debouncedTerm) {
+      setFilters({ ...filters, searchTerm: debouncedTerm }); // ✅ Correct way
+    }
+  }, [debouncedTerm]);
+
+  useEffect(() => {
+    if (filters.searchTerm !== debouncedTerm) {
+      setFilters({ ...filters, searchTerm: debouncedTerm });
+    }
   }, [debouncedTerm]);
 
   return (
+    <EmissionsProvider>
     <div className={styles.container}>
       <div className="flex items-center justify-between mb-4">
         <p className={styles.formTitle}>Transactions</p>
@@ -46,6 +63,7 @@ function TransactionsContent() {
       <LineItemTableFilters />
       <LineItemTable />
     </div>
+    </EmissionsProvider>
   );
 }
 

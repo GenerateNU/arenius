@@ -9,7 +9,6 @@ import (
 )
 
 func (h *Handler) SignUp(c *fiber.Ctx) error {
-	fmt.Println("HERE")
 
 	var creds Credentials
 	if err := c.BodyParser(&creds); err != nil {

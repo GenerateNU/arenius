@@ -27,28 +27,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("authComplete") === "true") {
-      console.log("AUTH COMPLETE")
       setAuthActionTriggered("signup");  // Trigger after Xero authentication is complete
     }
   }, []);
   
 
   useEffect(() => {
-    console.log("authActionTriggered changed:", authActionTriggered);
   }, [authActionTriggered]);
 
   useEffect(() => {
 
     if (authActionTriggered) {
       const storedCompanyId = Cookies.get("companyID");
-      console.log("COMPANY ID:", storedCompanyId)
 
       if (storedCompanyId) {
         setCompanyId(storedCompanyId);
       }
 
       const storedTenantId = Cookies.get("tenantID");
-      console.log("TENANT ID:", storedTenantId)
       if (storedTenantId) {
         setTenantId(storedTenantId);
       }
@@ -60,8 +56,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Reset the action after the effect runs to avoid it running continuously
       setAuthActionTriggered(null);
-      console.log("Cookies:", Cookies.get())
-      console.log(document.cookie);
     }
   }, [authActionTriggered, isLoading]);
 
@@ -73,8 +67,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Trigger the effect by setting the state
       setAuthActionTriggered("login");
-      console.log(response);
-      console.log("Cookies:", Cookies.get())
   
       return { response };
     } catch (error) {
@@ -98,9 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await apiClient.post("/auth/signup", payload);
   
-      console.log("Signup successful, setting authActionTriggered...");
       setAuthActionTriggered("signup");
-      console.log("Auth action triggered state updated");
   
       return { response };
     } catch (error) {
