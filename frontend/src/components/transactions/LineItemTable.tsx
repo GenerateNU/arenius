@@ -77,8 +77,8 @@ export default function LineItemTable({
   };
 
   return (
-    <div>
-      <div className="rounded-md border">
+    <>
+      <div className="rounded-md  bg-white">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -171,6 +171,6 @@ export default function LineItemTable({
 
       <br />
       {rowIsSelected && <LineItemTableActions table={table} />}
-    </div>
+    </>
   );
 }
