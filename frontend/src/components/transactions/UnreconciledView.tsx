@@ -6,7 +6,7 @@ import { useLineItems } from "@/context/LineItemsContext";
 
 const UnreconciledView = () => {
   const { data } = useLineItems();
-  console.log("cols: ", unreconciledColumns);
+
   return (
     <div>
       <LineItemTableFilters />
