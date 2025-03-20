@@ -1,17 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import LineItemTable from "@/components/transactions/LineItemTable";
-import LineItemTableFilters from "@/components/transactions/LineItemTableFilters";
-import { LineItemsProvider, useLineItems } from "@/context/LineItemsContext";
 import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import ManualEntryModal from "@/components/transactions/ManualEntryModal";
-import { fetchLineItems } from "@/services/lineItems";
+import { LineItemsProvider, useLineItems } from "@/context/LineItemsContext";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
-import { Button } from "@/components/ui/button";
+import { fetchLineItems } from "@/services/lineItems";
+import ManualEntryModal from "@/components/transactions/ManualEntryModal";
 import ReconciledView from "@/components/transactions/ReconciledView";
 import UnreconciledView from "@/components/transactions/UnreconciledView";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function Transactions() {
   return (
