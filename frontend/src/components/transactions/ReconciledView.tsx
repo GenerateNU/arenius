@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { GetLineItemResponse, LineItem } from "@/types";
+import { GetLineItemResponse } from "@/types";
 import { reconciledColumns } from "./columns";
 import { HelpCircle, ArrowRight } from "lucide-react";
 import LineItemTable from "./LineItemTable";

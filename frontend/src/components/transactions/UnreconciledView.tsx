@@ -1,4 +1,4 @@
-import { GetLineItemResponse, LineItem } from "@/types";
+import { GetLineItemResponse } from "@/types";
 import React from "react";
 import LineItemTable from "./LineItemTable";
 import LineItemTableFilters from "./LineItemTableFilters";

@@ -8,7 +8,6 @@ import React, {
   useCallback,
 } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { PaginationState } from "@tanstack/react-table";
 
 interface DataProviderProps<T extends object, F extends object> {
   children: React.ReactNode;

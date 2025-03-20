@@ -43,13 +43,16 @@ export const LineItemsProvider: React.FC<{ children: ReactNode }> = ({
 
 const LineItemsProviderInner: React.FC<{
   children: ReactNode;
-  useData: any;
+  useData: () => DataContextValue<GetLineItemResponse, LineItemFilters>;
 }> = ({ children, useData }) => {
   const { companyId, isLoading } = useAuth();
   const { filters, setFilters } = useData();
-  const [reconciledData, setReconciledData] = useState<GetLineItemResponse>();
-  const [unreconciledData, setUnreconciledData] =
-    useState<GetLineItemResponse>();
+  const [reconciledData, setReconciledData] = useState<GetLineItemResponse>(
+    {} as GetLineItemResponse
+  );
+  const [unreconciledData, setUnreconciledData] = useState<GetLineItemResponse>(
+    {} as GetLineItemResponse
+  );
 
   const fetchAllLineItems = useCallback(async () => {
     if (!companyId || isLoading) {
