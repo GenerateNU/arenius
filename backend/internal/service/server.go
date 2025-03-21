@@ -13,6 +13,7 @@ import (
 	"arenius/internal/service/handler/lineItem"
 	"arenius/internal/service/handler/summary"
 	"arenius/internal/service/handler/xero"
+	"arenius/internal/service/handler/user"
 	"arenius/internal/storage"
 	"arenius/internal/storage/postgres"
 
@@ -117,6 +118,12 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	app.Route("/emissions-factor", func(r fiber.Router) {
 		r.Get("/", emissionsFactorHandler.GetEmissionFactors)
 		r.Patch("/populate", emissionsFactorHandler.PopulateEmissions)
+	})
+
+	userHandler := user.NewHandler(repo.User)
+	app.Route("/user", func(r fiber.Router) {
+		r.Get("/:id", userHandler.GetUserProfile)
+		r.Patch("/:id", userHandler.UpdateUserProfile)
 	})
 
 	// Example route that uses the climatiq client
