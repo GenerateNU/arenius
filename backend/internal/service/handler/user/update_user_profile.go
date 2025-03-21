@@ -6,23 +6,21 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
 func (h *Handler) UpdateUserProfile(c *fiber.Ctx) error {
-	
-	userId := c.Params("id")
 
-	var req models.ReconcileLineItemRequest
+	var req models.User
 	if err := c.BodyParser(&req); err != nil {
 		return errs.BadRequest("Invalid request payload: " + err.Error())
 	}
 
-	err = h.ReconcileAndEstimate(c, []uuid.UUID{id}, &req.Scope, &req.EmissionsFactor, req.ContactID)
+	user, err := h.UserRepository.UpdateUserProfile(c.Context(), req)
+
 	if err != nil {
-		fmt.Println("Error reconciling and estimating:", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to reconcile line item"})
+		fmt.Println("Error updating user", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update user."})
 	}
 
-	return c.JSON(fiber.Map{"message": "Line item updated and estimated successfully"})
+	return c.Status(fiber.StatusOK).JSON(user)
 }

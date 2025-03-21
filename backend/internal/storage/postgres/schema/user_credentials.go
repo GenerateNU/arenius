@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -100,6 +101,103 @@ func (c *UserRepository) GetUserbyRefreshToken(ctx context.Context, refreshToken
 
 	// Return the credentials found for the user
 	return user.ID, *user.CompanyID, *user.TenantID, nil
+}
+
+func (c *UserRepository) GetUserProfile(ctx context.Context, userId string) (*models.User, error) {
+
+	const query = `
+		SELECT *
+		FROM user_creds
+		WHERE user_creds.user_id = $1
+		LIMIT 1
+	`
+
+	rows, err := c.db.Query(ctx, query, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	user, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.User])
+
+	if err != nil {
+		return nil, fmt.Errorf("error querying database for contact: %w", err)
+	}
+
+	return &user, nil
+
+}
+
+func (r *UserRepository) UpdateUserProfile(ctx context.Context, user models.User) (*models.User, error) {
+
+	query := `UPDATE user_creds SET`
+	updates := []string{}
+	args := []interface{}{}
+	argCount := 1
+
+	if user.FirstName != nil {
+		updates = append(updates, fmt.Sprintf("first_name = $%d", argCount))
+		args = append(args, *user.FirstName)
+		argCount++
+	}
+	if user.LastName != nil {
+		updates = append(updates, fmt.Sprintf("last_name = $%d", argCount))
+		args = append(args, *user.LastName)
+		argCount++
+	}
+	if user.CompanyID != nil {
+		updates = append(updates, fmt.Sprintf("company_id = $%d", argCount))
+		args = append(args, *user.CompanyID)
+		argCount++
+	}
+	if user.RefreshToken != nil {
+		updates = append(updates, fmt.Sprintf("refresh_token = $%d", argCount))
+		args = append(args, *user.RefreshToken)
+		argCount++
+	}
+	if user.TenantID != nil {
+		updates = append(updates, fmt.Sprintf("tenant_id = $%d", argCount))
+		args = append(args, *user.TenantID)
+		argCount++
+	}
+	if user.City != nil {
+		updates = append(updates, fmt.Sprintf("city = $%d", argCount))
+		args = append(args, *user.City)
+		argCount++
+	}
+	if user.State != nil {
+		updates = append(updates, fmt.Sprintf("state = $%d", argCount))
+		args = append(args, *user.State)
+		argCount++
+	}
+	if user.PhotoUrl != nil {
+		updates = append(updates, fmt.Sprintf("photo_url = $%d", argCount))
+		args = append(args, *user.PhotoUrl)
+		argCount++
+	}
+
+	if len(updates) == 0 {
+		return nil, fmt.Errorf("no fields to update")
+	}
+
+	query += " " + strings.Join(updates, ", ")
+	query += fmt.Sprintf(" WHERE id = $%d", argCount)
+	args = append(args, user.ID)
+
+	query += " RETURNING id, first_name, last_name, company_id, refresh_token, tenant_id, city, state, photo_url"
+
+	rows, err := r.db.Query(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	updatedUser, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.User])
+	if err != nil {
+		return nil, fmt.Errorf("error querying database: %w", err)
+	}
+
+	return &updatedUser, nil
 }
 
 func NewUserRepository(db *pgxpool.Pool) *UserRepository {
