@@ -73,7 +73,7 @@ func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*
 	}, nil
 }
 
-func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pagination, filterParams models.GetContactsRequest, companyId string) ([]models.Contact, error) {
+func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pagination, filterParams models.GetContactsRequest, companyId string) (*models.GetContactsResponse, error) {
 	filterQuery := ""
 
 	if filterParams.SearchTerm != nil {
@@ -107,7 +107,18 @@ func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pa
 		return nil, fmt.Errorf("error collecting contacts: %w", err)
 	}
 
-	return contacts, nil
+	total_query := `
+		SELECT count(*)
+		FROM contact
+		WHERE contact.company_id = $1` + filterQuery
+
+	var total int
+	err = r.db.QueryRow(ctx, total_query, companyId).Scan(&total)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.GetContactsResponse{Total: total, Count: len(contacts), Contacts: contacts}, nil
 }
 
 func (r *ContactRepository) CreateContact(ctx context.Context, req models.CreateContactRequest) (*models.Contact, error) {

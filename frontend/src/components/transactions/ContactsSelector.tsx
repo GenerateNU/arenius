@@ -31,7 +31,7 @@ export default function ContactSelector({
     variant = "outline",
   }: ContactSelectorProps) {
   
-    const { data: contacts } = useContacts();
+    const { data: contactResponse } = useContacts();
   
     return (
       <DropdownMenu>
@@ -42,8 +42,8 @@ export default function ContactSelector({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-80">
-          {contacts && contacts.length > 0 ? (
-            contacts.map((c) => (
+          {contactResponse?.contacts && contactResponse?.contacts.length > 0 ? (
+            contactResponse.contacts.map((c) => (
               <DropdownMenuItem
                 key={c.id}
                 onClick={() => setContact(c)} 

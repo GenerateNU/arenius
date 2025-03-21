@@ -21,6 +21,7 @@ export default {
           foreground: "var(--secondary-foreground)",
         },
         moss: "var(--moss)",
+        grayBackground: "var(--gray-bg)",
         card: {
           DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",

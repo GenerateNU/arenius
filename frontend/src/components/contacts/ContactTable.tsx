@@ -19,20 +19,25 @@ import {
 import { Contact } from "@/types";
 import { useContacts } from "@/context/ContactsContext";
 import { columns } from "./columns";
+import { DataTablePagination } from "../ui/DataTablePagination";
 
 export default function ContactTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { data: contacts } = useContacts();
+  const { data: contacts, pagination, setPagination } = useContacts();
 
   const table = useReactTable({
-    data: contacts,
+    data: contacts.contacts || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    manualPagination: true,
+    rowCount: contacts.total,
+    onPaginationChange: setPagination,
     getRowId: (row: Contact) => row.id,
     state: {
       sorting,
+      pagination,
     },
   });
 
@@ -88,6 +93,11 @@ export default function ContactTable() {
           </TableBody>
         </Table>
       </div>
+      <DataTablePagination
+        table={table}
+        pagination={pagination}
+        total_count={contacts.total}
+      />
       <br />
     </>
   );
