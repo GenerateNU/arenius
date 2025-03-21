@@ -106,13 +106,13 @@ func (c *UserRepository) GetUserbyRefreshToken(ctx context.Context, refreshToken
 func (c *UserRepository) GetUserProfile(ctx context.Context, userId string) (*models.User, error) {
 
 	const query = `
-		SELECT *
+		SELECT user_id, first_name, last_name, company_id, refresh_token, tenant_id, city, state, photo_url
 		FROM user_creds
-		WHERE user_creds.user_id = $1
+		WHERE user_id = $1
 		LIMIT 1
 	`
 
-	// NOTE: This requires me to change the user model from json `id` to `user_id`, and I was not sure if that would break things
+	// TODO: Change code to the following after models.User is updated to reflect the database column names (id->user_id)
 	// rows, err := c.db.Query(ctx, query, userId)
 	// if err != nil {
 	// 	return nil, err
@@ -186,7 +186,7 @@ func (r *UserRepository) UpdateUserProfile(ctx context.Context, userId string, r
 
 	query += " RETURNING user_id, first_name, last_name, company_id, refresh_token, tenant_id, city, state, photo_url"
 
-	// NOTE: This requires me to change the user model from json `id` to `user_id`, and I was not sure if that would break things
+	// TODO: Change code to the following after models.User is updated to reflect the database column names (id->user_id)
 	// rows, err := c.db.Query(ctx, query, userId)
 	// if err != nil {
 	// 	return nil, err
