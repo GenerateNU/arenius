@@ -12,8 +12,8 @@ import (
 	"arenius/internal/service/handler/emissionsFactor"
 	"arenius/internal/service/handler/lineItem"
 	"arenius/internal/service/handler/summary"
-	"arenius/internal/service/handler/xero"
 	"arenius/internal/service/handler/user"
+	"arenius/internal/service/handler/xero"
 	"arenius/internal/storage"
 	"arenius/internal/storage/postgres"
 

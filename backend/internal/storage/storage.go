@@ -38,7 +38,7 @@ type UserRepository interface {
 	SetUserCredentials(ctx context.Context, userID string, companyID string, refreshToken string, tenantID string) error
 	GetUserbyRefreshToken(ctx context.Context, refreshToken string) (userId, companyId, tenantId string, e error)
 	GetUserProfile(ctx context.Context, userID string) (*models.User, error)
-	UpdateUserProfile(ctx context.Context, user models.User) (*models.User, error)
+	UpdateUserProfile(ctx context.Context, userID string, req models.UpdateUserProfileRequest) (*models.User, error)
 }
 
 type CompanyRepository interface {

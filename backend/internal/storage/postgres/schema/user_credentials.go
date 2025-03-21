@@ -112,67 +112,67 @@ func (c *UserRepository) GetUserProfile(ctx context.Context, userId string) (*mo
 		LIMIT 1
 	`
 
-	rows, err := c.db.Query(ctx, query, userId)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+	// NOTE: This requires me to change the user model from json `id` to `user_id`, and I was not sure if that would break things
+	// rows, err := c.db.Query(ctx, query, userId)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// defer rows.Close()
+	// user, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.User])
 
-	user, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.User])
+	row := c.db.QueryRow(ctx, query, userId)
+
+	var user models.User
+	err := row.Scan(
+		&user.ID,
+		&user.FirstName,
+		&user.LastName,
+		&user.CompanyID,
+		&user.RefreshToken,
+		&user.TenantID,
+		&user.City,
+		&user.State,
+		&user.PhotoUrl,
+	)
 
 	if err != nil {
-		return nil, fmt.Errorf("error querying database for contact: %w", err)
+		return nil, fmt.Errorf("error querying database for user: %w", err)
 	}
 
 	return &user, nil
 
 }
 
-func (r *UserRepository) UpdateUserProfile(ctx context.Context, user models.User) (*models.User, error) {
+func (r *UserRepository) UpdateUserProfile(ctx context.Context, userId string, req models.UpdateUserProfileRequest) (*models.User, error) {
 
 	query := `UPDATE user_creds SET`
 	updates := []string{}
 	args := []interface{}{}
 	argCount := 1
 
-	if user.FirstName != nil {
+	if req.FirstName != nil {
 		updates = append(updates, fmt.Sprintf("first_name = $%d", argCount))
-		args = append(args, *user.FirstName)
+		args = append(args, *req.FirstName)
 		argCount++
 	}
-	if user.LastName != nil {
+	if req.LastName != nil {
 		updates = append(updates, fmt.Sprintf("last_name = $%d", argCount))
-		args = append(args, *user.LastName)
+		args = append(args, *req.LastName)
 		argCount++
 	}
-	if user.CompanyID != nil {
-		updates = append(updates, fmt.Sprintf("company_id = $%d", argCount))
-		args = append(args, *user.CompanyID)
-		argCount++
-	}
-	if user.RefreshToken != nil {
-		updates = append(updates, fmt.Sprintf("refresh_token = $%d", argCount))
-		args = append(args, *user.RefreshToken)
-		argCount++
-	}
-	if user.TenantID != nil {
-		updates = append(updates, fmt.Sprintf("tenant_id = $%d", argCount))
-		args = append(args, *user.TenantID)
-		argCount++
-	}
-	if user.City != nil {
+	if req.City != nil {
 		updates = append(updates, fmt.Sprintf("city = $%d", argCount))
-		args = append(args, *user.City)
+		args = append(args, *req.City)
 		argCount++
 	}
-	if user.State != nil {
+	if req.State != nil {
 		updates = append(updates, fmt.Sprintf("state = $%d", argCount))
-		args = append(args, *user.State)
+		args = append(args, *req.State)
 		argCount++
 	}
-	if user.PhotoUrl != nil {
+	if req.PhotoUrl != nil {
 		updates = append(updates, fmt.Sprintf("photo_url = $%d", argCount))
-		args = append(args, *user.PhotoUrl)
+		args = append(args, *req.PhotoUrl)
 		argCount++
 	}
 
@@ -181,23 +181,40 @@ func (r *UserRepository) UpdateUserProfile(ctx context.Context, user models.User
 	}
 
 	query += " " + strings.Join(updates, ", ")
-	query += fmt.Sprintf(" WHERE id = $%d", argCount)
-	args = append(args, user.ID)
+	query += fmt.Sprintf(" WHERE user_id = $%d", argCount)
+	args = append(args, userId)
 
-	query += " RETURNING id, first_name, last_name, company_id, refresh_token, tenant_id, city, state, photo_url"
+	query += " RETURNING user_id, first_name, last_name, company_id, refresh_token, tenant_id, city, state, photo_url"
 
-	rows, err := r.db.Query(ctx, query, args...)
+	// NOTE: This requires me to change the user model from json `id` to `user_id`, and I was not sure if that would break things
+	// rows, err := c.db.Query(ctx, query, userId)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// defer rows.Close()
+	// user, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.User])
+
+	row := r.db.QueryRow(ctx, query, args...)
+
+	var user models.User
+	err := row.Scan(
+		&user.ID,
+		&user.FirstName,
+		&user.LastName,
+		&user.CompanyID,
+		&user.RefreshToken,
+		&user.TenantID,
+		&user.City,
+		&user.State,
+		&user.PhotoUrl,
+	)
+
 	if err != nil {
-		return nil, fmt.Errorf("error executing query: %w", err)
-	}
-	defer rows.Close()
-
-	updatedUser, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.User])
-	if err != nil {
-		return nil, fmt.Errorf("error querying database: %w", err)
+		return nil, fmt.Errorf("error querying database for user: %w", err)
 	}
 
-	return &updatedUser, nil
+	return &user, nil
+
 }
 
 func NewUserRepository(db *pgxpool.Pool) *UserRepository {

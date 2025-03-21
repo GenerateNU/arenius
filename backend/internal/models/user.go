@@ -1,7 +1,7 @@
 package models
 
 type User struct {
-	ID           string  `json:"id"`
+	ID           string  `json:"user"`
 	FirstName    *string `json:"first_name,omitempty"`
 	LastName     *string `json:"last_name,omitempty"`
 	CompanyID    *string `json:"company_id,omitempty"`
@@ -10,4 +10,12 @@ type User struct {
 	City         *string `json:"city,omitempty"`
 	State        *string `json:"state,omitempty"`
 	PhotoUrl     *string `json:"photo_url,omitempty"`
+}
+
+type UpdateUserProfileRequest struct {
+	FirstName *string `json:"first_name,omitempty"`
+	LastName  *string `json:"last_name,omitempty"`
+	City      *string `json:"city,omitempty"`
+	State     *string `json:"state,omitempty"`
+	PhotoUrl  *string `json:"photo_url,omitempty"`
 }
