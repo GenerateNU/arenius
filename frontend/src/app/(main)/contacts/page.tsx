@@ -23,7 +23,7 @@ function ContactsContent() {
 
   useEffect(() => {
     setFilters({ ...filters, search_term: debouncedTerm });
-  }, [debouncedTerm]);
+  }, [debouncedTerm, filters, setFilters]);
 
   return (
     <div className={styles.container}>
