@@ -1,6 +1,6 @@
 import {
   CreateLineItemRequest,
-  LineItem,
+  GetLineItemResponse,
   LineItemFilters,
   ReconcileBatchRequest,
   ReconcileRequest,
@@ -8,7 +8,7 @@ import {
 import apiClient from "./apiClient";
 
 function buildQueryParams(filters: LineItemFilters) {
-  const params: Record<string, string | Date | undefined> = {};
+  const params: Record<string, string | Date | number | undefined> = {};
 
   if (filters?.dates) {
     params.after_date = filters.dates.from;
@@ -24,6 +24,9 @@ function buildQueryParams(filters: LineItemFilters) {
   if (filters?.maxPrice) {
     params.max_price = filters.maxPrice?.toString();
   }
+  if (filters?.reconciled != undefined) {
+    params.reconciliation_status = filters.reconciled.toString();
+  }
   if (filters?.searchTerm) {
     params.search_term = filters.searchTerm;
   }
@@ -33,14 +36,19 @@ function buildQueryParams(filters: LineItemFilters) {
   if (filters?.contact_id) {
     params.contact_id = filters.contact_id;
   }
+  if (filters?.pageIndex) {
+    params.page = filters.pageIndex + 1;
+  }
+  if (filters?.pageSize) {
+    params.limit = filters.pageSize;
+  }
 
   return params;
 }
 
 export async function fetchLineItems(
-  filters: LineItemFilters,
-): Promise<LineItem[]> {
-
+  filters: LineItemFilters
+): Promise<GetLineItemResponse> {
   try {
     const response = await apiClient.get("/line-item", {
       params: buildQueryParams(filters),
@@ -48,7 +56,7 @@ export async function fetchLineItems(
     return response.data;
   } catch (error) {
     console.error("Error fetching dashboard items", error);
-    return [];
+    return {} as GetLineItemResponse;
   }
 }
 
@@ -56,7 +64,6 @@ export async function createLineItem(
   item: CreateLineItemRequest,
   companyId: string
 ): Promise<void> {
-  
   const new_item = {
     description: item.description,
     total_amount: item.total_amount,

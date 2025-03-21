@@ -66,14 +66,14 @@ func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*
 	if err != nil {
 		return nil, fmt.Errorf("error querying database for summary: %w", err)
 	}
-	
+
 	return &models.ContactWithDetails{
 		Contact: contact,
 		Summary: summary,
 	}, nil
 }
 
-func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pagination, filterParams models.GetContactsRequest, companyId string) ([]models.Contact, error) {
+func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pagination, filterParams models.GetContactsRequest, companyId string) (*models.GetContactsResponse, error) {
 	filterQuery := ""
 
 	if filterParams.SearchTerm != nil {
@@ -107,7 +107,18 @@ func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pa
 		return nil, fmt.Errorf("error collecting contacts: %w", err)
 	}
 
-	return contacts, nil
+	total_query := `
+		SELECT count(*)
+		FROM contact
+		WHERE contact.company_id = $1` + filterQuery
+
+	var total int
+	err = r.db.QueryRow(ctx, total_query, companyId).Scan(&total)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.GetContactsResponse{Total: total, Count: len(contacts), Contacts: contacts}, nil
 }
 
 func (r *ContactRepository) CreateContact(ctx context.Context, req models.CreateContactRequest) (*models.Contact, error) {
@@ -126,21 +137,19 @@ func (r *ContactRepository) CreateContact(ctx context.Context, req models.Create
 		INSERT INTO contact
 		(` + strings.Join(columns, ", ") + `)
 		VALUES (` + strings.Join(numInputs, ", ") + `)
-		RETURNING id, name, email, phone, city, state, company_id;
+		RETURNING id, name, email, phone, city, state, xero_contact_id, company_id;
 	`
-	var contact models.Contact
-	err := r.db.QueryRow(ctx, query, queryArgs...).Scan(
-		&contact.ID,
-		&contact.Name,
-		&contact.Email,
-		&contact.Phone,
-		&contact.City,
-		&contact.State,
-		&contact.CompanyID,
-	)
+
+	rows, err := r.db.Query(ctx, query, queryArgs...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	contact, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.Contact])
 
 	if err != nil {
-		return nil, fmt.Errorf("error querying database: %w", err)
+		return nil, fmt.Errorf("error querying database for contact: %w", err)
 	}
 
 	return &contact, nil

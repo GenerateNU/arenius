@@ -3,8 +3,8 @@ package schema
 import (
 	"arenius/internal/models"
 	"context"
-	"time"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -16,7 +16,7 @@ type SummaryRepository struct {
 func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetGrossSummaryRequest) (*models.GetGrossSummaryResponse, error) {
 	const monthlyQuery = `
 		SELECT
-			SUM(co2) AS total_co2,
+			COALESCE(SUM(co2), 0) AS total_co2,
 			scope,
 			DATE_TRUNC('month', date) AS month_start
 		FROM
@@ -24,7 +24,9 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 		WHERE
 			company_id = $1
 			AND
-			date >= DATE_TRUNC('month', CURRENT_DATE - ($2 - 1) * INTERVAL '1 month')
+			date BETWEEN $2 AND $3
+			AND 
+			scope IS NOT NULL
 		GROUP BY
 			scope,
 			DATE_TRUNC('month', date)
@@ -32,8 +34,8 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 			month_start,
 			scope;
 	`
-	
-	rowsMonthly, errMonthly := r.db.Query(ctx, monthlyQuery, req.CompanyID, req.MonthDuration)
+
+	rowsMonthly, errMonthly := r.db.Query(ctx, monthlyQuery, req.CompanyID, req.StartDate.UTC(), req.EndDate.UTC())
 	if errMonthly != nil {
 		return nil, errMonthly
 	}
@@ -45,11 +47,11 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 		var co2 float64
 		var scope int
 		var monthStart time.Time
-	
+
 		if err := rowsMonthly.Scan(&co2, &scope, &monthStart); err != nil {
 			return nil, err
 		}
-	
+
 		var currentSummary *models.MonthSummary
 		if len(monthSummaries) > 0 && monthSummaries[len(monthSummaries)-1].MonthStart == monthStart {
 			currentSummary = &monthSummaries[len(monthSummaries)-1]
@@ -61,14 +63,14 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 			monthSummaries = append(monthSummaries, newSummary)
 			currentSummary = &monthSummaries[len(monthSummaries)-1]
 		}
-	
+
 		switch scope {
 		case 1:
-			currentSummary.Scopes.ScopeOne = co2
+			currentSummary.Scopes.ScopeOne += co2
 		case 2:
-			currentSummary.Scopes.ScopeTwo = co2
+			currentSummary.Scopes.ScopeTwo += co2
 		case 3:
-			currentSummary.Scopes.ScopeThree = co2
+			currentSummary.Scopes.ScopeThree += co2
 		}
 	}
 
@@ -78,28 +80,26 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 
 	const totalQuery = `
 		SELECT
-			SUM(co2) AS total_co2,
-			DATE_TRUNC('month', CURRENT_DATE - ($2 - 1) * INTERVAL '1 month') AS start_date,
-			CURRENT_DATE AS end_date
+			COALESCE(SUM(co2), 0) AS total_co2
 		FROM
 			line_item
 		WHERE
 			company_id = $1
 			AND
-			date >= DATE_TRUNC('month', CURRENT_DATE - ($2 - 1) * INTERVAL '1 month');
+			date BETWEEN $2 AND $3
+			AND
+			scope IS NOT NULL;
 	`
 
-	rowsTotal, errTotal := r.db.Query(ctx, totalQuery, req.CompanyID, req.MonthDuration)
+	rowsTotal, errTotal := r.db.Query(ctx, totalQuery, req.CompanyID, req.StartDate.UTC(), req.EndDate.UTC())
 	if errTotal != nil {
 		return nil, errTotal
 	}
 	defer rowsTotal.Close()
 
 	var co2Total float64
-	var startDate time.Time
-	var endDate time.Time
 	if rowsTotal.Next() {
-		if err := rowsTotal.Scan(&co2Total, &startDate, &endDate); err != nil {
+		if err := rowsTotal.Scan(&co2Total); err != nil {
 			return nil, err
 		}
 	} else {
@@ -111,10 +111,104 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 	}
 
 	return &models.GetGrossSummaryResponse{
-		TotalCO2: co2Total,
-		StartDate: startDate,
-		EndDate: endDate,
-		Months: monthSummaries,
+		TotalCO2:  co2Total,
+		StartDate: req.StartDate,
+		EndDate:   req.EndDate,
+		Months:    monthSummaries,
+	}, nil
+}
+
+func (r *SummaryRepository) GetNetSummary(ctx context.Context, companyID, startDate, endDate string) ([]models.NetSummary, error) {
+	const monthlyQuery = `
+		SELECT
+			SUM(co2) AS total_co2,
+			scope AS scope      
+		FROM
+			line_item
+		WHERE
+			company_id = $1
+			AND date >= $2
+			AND date <= $3
+			AND scope IS NOT NULL
+			AND co2 IS NOT NULL
+		GROUP BY
+			scope
+		ORDER BY
+			scope;`
+
+	var summaries []models.NetSummary
+
+	rows, err := r.db.Query(ctx, monthlyQuery, companyID, startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var summary models.NetSummary
+
+		if err := rows.Scan(&summary.TotalCO2, &summary.ScopeVal); err != nil {
+			return nil, err
+		}
+		summaries = append(summaries, summary)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return summaries, nil
+}
+
+func (r *SummaryRepository) GetContactEmissions(ctx context.Context, req models.GetContactEmissionsSummaryRequest) (*models.GetContactEmissionsSummaryResponse, error) {
+	const query = `
+		SELECT l.contact_id, name, COALESCE(SUM(co2), 0) AS total_emissions
+		FROM line_item l jOIN contact c ON l.contact_id = c.id
+		WHERE l.company_id = $1 AND date BETWEEN $2 AND $3
+		GROUP BY l.contact_id, name;
+	`
+
+	rows, err := r.db.Query(ctx, query, req.CompanyID, req.StartDate.UTC(), req.EndDate.UTC())
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var contacts []models.ContactEmissionsSummary
+
+	for rows.Next() {
+		values, err := rows.Values()
+		if err != nil {
+			return nil, err
+		}
+
+		id := fmt.Sprintf("%v", values[0])
+		name, _ := values[1].(string)
+		totalEmissions, _ := values[2].(float64)
+
+		contacts = append(contacts, models.ContactEmissionsSummary{
+			ContactID:   id,
+			ContactName: name,
+			Carbon:      totalEmissions,
+		})
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	if len(contacts) == 0 {
+		return nil, fmt.Errorf("no emissions found for company_id: %s", req.CompanyID)
+	}
+	fmt.Println("Contact emissions:", contacts)
+	if contacts == nil {
+		contacts = []models.ContactEmissionsSummary{} // Ensure it's an empty array
+	}
+
+	return &models.GetContactEmissionsSummaryResponse{
+		ContactEmissions: contacts,
+		StartDate:        req.StartDate,
+		EndDate:          req.EndDate,
 	}, nil
 }
 

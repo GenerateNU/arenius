@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -103,14 +104,19 @@ func (r *EmissionsFactorRepository) AddEmissionsFactors(ctx context.Context, emi
 	return emissionFactors, nil
 }
 
-func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, companyId string) ([]models.Category, error) {
+func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, companyId string, searchTerm string) (*models.Categories, error) {
+	searchQuery := ""
+	
+	if searchTerm != "" {
+		searchQuery += fmt.Sprintf(" AND (emission_factor.name ILIKE '%%%s%%' OR emission_factor.category ILIKE '%%%s%%')", searchTerm, searchTerm)
+	}
 
-	const query = `
+	query := `
 		WITH latest_emission AS (
 		SELECT *,
 			ROW_NUMBER() OVER (PARTITION BY activity_id ORDER BY year DESC) AS rn
 		FROM emission_factor
-		WHERE region = 'US' AND unit_type = 'Money'
+		WHERE region = 'US' AND unit_type = 'Money'` + searchQuery + `
 		)
 		SELECT *
 		FROM latest_emission
@@ -125,13 +131,17 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 
 	categoryMap := make(map[string][]models.EmissionsFactor)
 
+	favoriteEmissionsFactors := make([]models.EmissionsFactor, 0, 10)
+
+	historyEmissionsFactors := make([]models.EmissionsFactor, 0, 10)
+
 	categories := make([]models.Category, 0, len(categoryMap) + 1)
 
 	if companyId != "" {
-		const favoriteQuery = `
+		favoriteQuery := `
 			SELECT id, activity_id, name, description, unit, unit_type, year, region, category, source, source_dataset
 			FROM emission_factor JOIN company_favorite ON emission_factor.id = company_favorite.emissions_factor_id
-			WHERE company_favorite.company_id = $1
+			WHERE company_favorite.company_id = $1` + searchQuery + `
 			ORDER BY emission_factor.name;
 		`
 
@@ -150,13 +160,11 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 			return nil, fmt.Errorf("error iterating over favorite emission factor rows: %w", favoriteRowsErr)
 		}
 
-		categories = append(categories, models.Category{
-			Name: "Favorites",
-			EmissionsFactors: favorites,
-		})
+		favoriteEmissionsFactors = favorites
 	}
 
 	for rows.Next() {
+		
 		var emissionsFactor models.EmissionsFactor
 		var rn int // this is unused 
 		err := rows.Scan(
@@ -190,8 +198,17 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 		})
 	}
 
-	return categories, nil
+	sort.Slice(categories, func(i, j int) bool {
+		return categories[i].Name < categories[j].Name
+	})
 
+	categoriesSummary := models.Categories{
+		All: categories,
+		Favorites: models.Category{ Name: "Favorites", EmissionsFactors: favoriteEmissionsFactors },
+		History: models.Category{ Name: "History", EmissionsFactors: historyEmissionsFactors },
+	}
+
+	return &categoriesSummary, nil
 }
 
 
