@@ -8,6 +8,7 @@ import { fetchContacts } from "@/services/contacts";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
+import ExportContactsButton from "@/components/contacts/ExportContacts";
 
 export default function Contacts() {
   return (
@@ -30,6 +31,9 @@ function ContactsContent() {
       <div className="flex items-center justify-between mb-4">
         <p className={styles.formTitle}>Contacts</p>
         <div className="flex space-x-8">
+          <div>
+            <ExportContactsButton />
+          </div>
           <div className="relative w-80">
             <Search className={styles.searchIcon} />
             <Input
