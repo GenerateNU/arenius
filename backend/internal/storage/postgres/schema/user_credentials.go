@@ -127,7 +127,7 @@ func (c *UserRepository) GetUserProfile(ctx context.Context, userId string) (*mo
 
 }
 
-func (r *UserRepository) UpdateUserProfile(ctx context.Context, userId string, req models.UpdateUserProfileRequest) (*models.User, error) {
+func (c *UserRepository) UpdateUserProfile(ctx context.Context, userId string, req models.UpdateUserProfileRequest) (*models.User, error) {
 
 	query := `UPDATE user_creds SET`
 	updates := []string{}
@@ -170,7 +170,7 @@ func (r *UserRepository) UpdateUserProfile(ctx context.Context, userId string, r
 
 	query += " RETURNING id, first_name, last_name, company_id, refresh_token, tenant_id, city, state, photo_url"
 
-	rows, err := c.db.Query(ctx, query, userId)
+	rows, err := c.db.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
