@@ -1,0 +1,4 @@
+ALTER TABLE user_creds
+ADD COLUMN city VARCHAR(100),
+ADD COLUMN state VARCHAR(100),
+ADD COLUMN photo_url TEXT;
