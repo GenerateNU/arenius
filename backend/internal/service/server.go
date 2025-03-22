@@ -83,22 +83,32 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		return c.Next()
 	})
 
-	app.Get("/health", func(c *fiber.Ctx) error {
-		return c.SendStatus(http.StatusOK)
-	})
-
+	// can
 	xeroAuthHandler := xero.NewHandler(repo.LineItem, repo.Company, repo.Contact, repo.User)
 	app.Route("/auth", func(r fiber.Router) {
 		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
 	})
 
+	// cannot
+	app.Get("/callback", xeroAuthHandler.Callback)
+
 	SupabaseAuthHandler := auth.NewHandler(config.Supabase, repo.User)
 
+	// can
 	app.Route("/auth", func(router fiber.Router) {
 		router.Post("/signup", SupabaseAuthHandler.SignUp)
 		router.Post("/login", SupabaseAuthHandler.Login)
 	})
 
+	// Apply Middleware to Protected Routes
+	app.Use(supabase_auth.Middleware(&config.Supabase))
+
+	// cannot
+	app.Get("/health", func(c *fiber.Ctx) error {
+		return c.SendStatus(http.StatusOK)
+	})
+
+	// cannot
 	lineItemHandler := lineItem.NewHandler(repo.LineItem)
 	app.Route("/line-item", func(r fiber.Router) {
 		r.Get("/", lineItemHandler.GetLineItems)
@@ -107,6 +117,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Post("/", lineItemHandler.PostLineItem)
 	})
 
+	// cannot
 	contactHandler := contact.NewHandler(repo.Contact)
 	app.Route("/contact", func(r fiber.Router) {
 		r.Get("/company/:companyId", contactHandler.GetContacts)
@@ -114,6 +125,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Post("", contactHandler.PostContact)
 	})
 
+	// cannot
 	emissionsFactorHandler := emissionsFactor.NewHandler(repo.EmissionsFactor)
 	app.Route("/emissions-factor", func(r fiber.Router) {
 		r.Get("/", emissionsFactorHandler.GetEmissionFactors)
@@ -126,12 +138,14 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Patch("/:id", userHandler.UpdateUserProfile)
 	})
 
+	// cannot
 	// Example route that uses the climatiq client
 	carbonHandler := carbon.NewHandler()
 	app.Route("/climatiq", func(r fiber.Router) {
 		r.Get("/", carbonHandler.SearchEmissionFactors)
 	})
 
+	// cannot
 	summaryHandler := summary.NewHandler(repo.Summary)
 	app.Route("/summary", func(r fiber.Router) {
 		r.Get("/gross", summaryHandler.GetGrossSummary)
@@ -141,24 +155,22 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	app.Use(xeroAuthHandler.XeroAuthMiddleware)
 
-	app.Get("/callback", xeroAuthHandler.Callback)
-
+	// cannot
 	app.Post("/sync-transactions", xeroAuthHandler.SyncTransactions)
 
+	// cannot
 	app.Get("/secret", supabase_auth.Middleware(&config.Supabase), func(c *fiber.Ctx) error {
 		return c.SendStatus(http.StatusOK)
 	})
 
 	offsetHandler := carbonOffset.NewHandler(repo.Offset)
 
+	// cannot
 	app.Route("/carbon-offset", func(router fiber.Router) {
 		router.Post("/create", func(c *fiber.Ctx) error {
 			return offsetHandler.PostCarbonOffset(c)
 		})
 	})
-
-	// Apply Middleware to Protected Routes
-	app.Use(supabase_auth.Middleware(&config.Supabase))
 
 	// // Apply Middleware to Protected Routes
 	// app.Use(supabase_auth.Middleware(&config.Supabase))
