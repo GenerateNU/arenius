@@ -89,7 +89,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	rows, err := r.db.Query(ctx, query, queryArgs...)
 	if err != nil {
 		return nil, err
-	}
+	} 
 	defer rows.Close()
 
 	lineItems, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.LineItemWithDetails])
