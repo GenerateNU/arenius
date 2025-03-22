@@ -17,7 +17,7 @@ type UserRepository struct {
 func (c *UserRepository) GetCredentialsByUserID(ctx context.Context, userID string) (models.XeroCredentials, error) {
 	const query = `SELECT company_id, refresh_token, tenant_id 
                    FROM public.user_creds 
-                   WHERE user_id = $1`
+                   WHERE id = $1`
 
 	// Query the database using the user_id
 	row, err := c.db.Query(ctx, query, userID)
@@ -38,7 +38,7 @@ func (c *UserRepository) GetCredentialsByUserID(ctx context.Context, userID stri
 }
 
 func (r *UserRepository) AddUser(ctx context.Context, userID string, firstName *string, lastName *string) (*models.User, error) {
-	const query = `Insert into public.user_creds (user_id, first_name, last_name) Values ($1, $2, $3)RETURNING user_id, first_name, last_name;
+	const query = `Insert into public.user_creds (id, first_name, last_name) Values ($1, $2, $3)RETURNING id, first_name, last_name;
 	`
 	var user models.User
 	err := r.db.QueryRow(ctx, query, userID, firstName, lastName).Scan(
@@ -57,15 +57,15 @@ func (r *UserRepository) SetUserCredentials(ctx context.Context, userID string, 
 	// Define your query
 	const query = `
 		INSERT INTO public.user_creds (
-			user_id, company_id, refresh_token, tenant_id
+			id, company_id, refresh_token, tenant_id
 		)
 		VALUES ($1, $2, $3, $4)
-		ON CONFLICT (user_id)
+		ON CONFLICT (id)
 		DO UPDATE SET
 			company_id = EXCLUDED.company_id,
 			refresh_token = EXCLUDED.refresh_token,
 			tenant_id = EXCLUDED.tenant_id
-			RETURNING user_id;
+			RETURNING id;
 	`
 
 	var userCredentialsID string
@@ -82,7 +82,7 @@ func (r *UserRepository) SetUserCredentials(ctx context.Context, userID string, 
 }
 
 func (c *UserRepository) GetUserbyRefreshToken(ctx context.Context, refreshToken string) (userId, companyId, tenantId string, e error) {
-	const query = `SELECT user_id, company_id, tenant_id 
+	const query = `SELECT id, company_id, tenant_id 
                    FROM public.user_creds 
                    WHERE refresh_token = $1`
 
