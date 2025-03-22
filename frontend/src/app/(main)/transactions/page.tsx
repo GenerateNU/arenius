@@ -28,7 +28,7 @@ function TransactionsContent() {
 
   useEffect(() => {
     setFilters({ ...filters, searchTerm: debouncedTerm });
-  }, [debouncedTerm]);
+  }, [debouncedTerm, setFilters]);
 
   const updateReconciled = (update: boolean) => {
     setReconciled(update);
