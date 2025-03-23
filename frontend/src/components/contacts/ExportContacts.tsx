@@ -1,7 +1,7 @@
 import { mkConfig, generateCsv, download } from 'export-to-csv';
 import { GetContactsRequest } from '@/types';
 import { useContacts } from '@/context/ContactsContext';
-import { Button } from '../ui/button';
+import Image from "next/image";
 
 export default function ExportContactsButton() {
   const { data: contacts, fetchData, filters, setFilters } = useContacts();
@@ -46,6 +46,15 @@ export default function ExportContactsButton() {
   };
 
   return (
-    <Button onClick={exportToCSV}>Export</Button>
+    <button className="w-40 h-10 bg-moss text-white text-sm font-semibold rounded-md flex items-center space-x-2 justify-center" onClick={exportToCSV}>
+        <Image
+            src="/download.svg"
+            alt=""
+            width={15}
+            height={15}
+            className= "mr-1"
+        />
+        <span>Export</span>
+    </button>
   );
 }
