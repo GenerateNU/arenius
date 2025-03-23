@@ -135,7 +135,7 @@ func (r *CompanyRepository) GetTenantByTenantID(ctx context.Context, xeroTenantI
 
 func (r *CompanyRepository) GetAllTenants(ctx context.Context) ([]models.Tenant, error) {
 	query := `
-		SELECT DISTINCT ON (tenant_id) id, name, xero_tenant_id, last_transaction_import_time, last_contact_import_time, refresh_token, user_id
+		SELECT DISTINCT ON (tenant_id) company.id, name, xero_tenant_id, last_transaction_import_time, last_contact_import_time, refresh_token, user_creds.id as user_id
 		FROM company JOIN user_creds ON company.xero_tenant_id = user_creds.tenant_id
 	`
 	rows, err := r.db.Query(ctx, query)

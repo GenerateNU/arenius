@@ -10,26 +10,55 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/oauth2"
 )
 
-func (h *Handler) GetContacts(ctx *fiber.Ctx) error {
+func (h *Handler) GetContacts(ctx *fiber.Ctx, company models.Tenant) error {
+	refreshToken := ""
+	if company.RefreshToken != nil {
+		refreshToken = *company.RefreshToken
+	}
 
-	accessToken := ctx.Cookies("accessToken", "")
+	fmt.Println("Refreshing access token for company:", company.ID)
+	fmt.Println("Refresh token:", refreshToken)
 
-	tenantId := ctx.Cookies("tenantID", "")
+	token := &oauth2.Token{
+		RefreshToken: refreshToken,
+	}
+	tenantId := company.XeroTenantID
+
+	tokenSource := h.config.OAuth2Config.TokenSource(ctx.Context(), token)
+	newToken, err := tokenSource.Token()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to refresh access token")
+	}
+
+	accessToken := newToken.AccessToken
+	e := h.UserRepository.SetUserCredentials(ctx.Context(), *company.UserID, company.ID, newToken.RefreshToken, *company.XeroTenantID)
+	if e != nil {
+		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to update user credentials")
+	}
+
+	fmt.Println("Access token:", accessToken)
 
 	url := os.Getenv("CONTACTS_URL")
 
-	if accessToken == "" || tenantId == "" || url == "" {
-		fmt.Printf("Examine env values: accessToken=%s, tenantId=%s, url=%s\n", accessToken, tenantId, url)
+	if accessToken == "" || (tenantId != nil && *tenantId == "") || url == "" {
+		fmt.Printf("Examine env values: accessToken=%s, tenantId=%s, url=%s\n", accessToken, func() string {
+			if tenantId != nil {
+				return *tenantId
+			}
+			return "nil"
+		}(), url)
 		return fmt.Errorf("missing required environment variables")
 	}
 
 	// get the current company using the Xero tenant ID
-	company, err := h.companyRepository.GetCompanyByXeroTenantID(ctx.Context(), tenantId)
-	if err != nil {
-		return err
-	}
+	// company, err := h.companyRepository.GetCompanyByXeroTenantID(ctx.Context(), tenantId)
+	// if err != nil {
+	// 	return err
+	// }
 
 	var contacts []interface{}
 	remainingContacts := true
@@ -49,7 +78,8 @@ func (h *Handler) GetContacts(ctx *fiber.Ctx) error {
 
 		req.Header.Set("Authorization", "Bearer "+accessToken)
 		req.Header.Set("Accept", "application/json")
-		req.Header.Set("Xero-tenant-id", tenantId)
+		req.Header.Set("Xero-tenant-id", *company.XeroTenantID)
+		fmt.Println(req.Body)
 
 		// filter the contact results to only those after the last import time for this company
 		if company.LastContactImportTime != nil {
@@ -61,13 +91,17 @@ func (h *Handler) GetContacts(ctx *fiber.Ctx) error {
 		}
 		defer resp.Body.Close()
 
-		if resp.StatusCode != http.StatusOK {
-			return errs.BadRequest(fmt.Sprint("response status unsuccessful: ", err))
-		}
+		fmt.Println("Response status:", resp.StatusCode)
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return errs.BadRequest(fmt.Sprint("unable to read response body: ", err))
+		}
+
+		fmt.Println("Response body:", string(body))
+
+		if resp.StatusCode != http.StatusOK {
+			return errs.BadRequest(fmt.Sprint("response status unsuccessful: ", err))
 		}
 
 		var response map[string]interface{}
@@ -95,7 +129,7 @@ func (h *Handler) GetContacts(ctx *fiber.Ctx) error {
 	}
 
 	// parse the new line items from the fetched transactions
-	newContacts, err := parseContacts(contacts, *company)
+	newContacts, err := parseContacts(contacts, company)
 	if err != nil {
 		return err
 	}
@@ -115,7 +149,7 @@ func (h *Handler) GetContacts(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(contacts)
 }
 
-func parseContacts(contacts []interface{}, company models.Company) ([]models.AddImportedContactRequest, error) {
+func parseContacts(contacts []interface{}, company models.Tenant) ([]models.AddImportedContactRequest, error) {
 	var newContacts []models.AddImportedContactRequest
 
 	for _, contact := range contacts {
@@ -196,6 +230,7 @@ func parseContacts(contacts []interface{}, company models.Company) ([]models.Add
 
 		newContacts = append(newContacts, newContact)
 	}
+	fmt.Println("New contacts:", newContacts)
 
 	return newContacts, nil
 }

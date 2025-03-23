@@ -38,8 +38,15 @@ func (h *Handler) SyncTransactions(ctx *fiber.Ctx) error {
 
 	// Loop through the companies and sync transactions
 	for _, company := range companies {
+		fmt.Println("Syncing contacts for company:", company.ID)
+		err := h.GetContacts(ctx, company)
+		if err != nil {
+			log.Printf("Error syncing contacts for company %s: %v\n", company.ID, err.Error())
+		} else {
+			log.Printf("Successfully synced contacts for company %s\n", company.ID)
+		}
 		fmt.Println("Syncing transactions for company:", company.ID)
-		err := h.syncCompanyTransactions(ctx, company)
+		err = h.syncCompanyTransactions(ctx, company)
 		if err != nil {
 			log.Printf("Error syncing transactions for company %s: %v\n", company.ID, err)
 		} else {
