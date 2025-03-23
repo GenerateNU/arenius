@@ -21,11 +21,13 @@ export default function Contacts() {
 
 function ContactsContent() {
   const { filters, setFilters } = useContacts();
-  const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(filters.search_term);
+  const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(
+    filters.search_term
+  );
 
   useEffect(() => {
     setFilters({ ...filters, search_term: debouncedTerm });
-  }, [debouncedTerm]);
+  }, [debouncedTerm, setFilters]);
 
   // TODO: styling:
   // - move search over next to contacts
@@ -63,7 +65,7 @@ function ContactsContent() {
       </div>
       <ContactTable />
     </div>
-  )
+  );
 }
 
 const styles = {

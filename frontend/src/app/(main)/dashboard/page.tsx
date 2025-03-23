@@ -1,5 +1,4 @@
-"use client";
-
+"use client"
 import { DatePicker } from "@/components/dashboard/DatePicker";
 import GrossSummary from "@/components/dashboard/GrossEmissionsBarGraph";
 import { DateRangeProvider } from "@/context/DateRangeContext";

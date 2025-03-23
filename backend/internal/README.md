@@ -41,6 +41,39 @@ Example:
 }
 ```
 
+## User
+
+GET `/user`
+Gets a user by the User ID
+
+```go
+Path Parameters:
+- `id` (string)
+Example:
+- URL: `http://127.0.0.1:8080/user/00d3c5cc-e7f5-4dde-97de-1f132acc4399`
+```
+
+PATCH `/user`
+Updates a user's profile  
+
+```go
+Path Parameters:
+- `id` (string)
+Body Parameters:
+- `first_name` (string, optional)
+- `last_name` (string, optional)
+- `city` (string, optional)
+- `state` (string, optional)
+- `photo_url` (string, optional)
+Example:
+- URL: `http://127.0.0.1:8080/user/00f45794-33cb-4ef6-96b6-3f2d994d54b2`
+- Parameters: {
+    "first_name": "Eddie",
+    "city": "Neward",
+    "state": "New Jersey poop emoji"
+}
+```
+
 ## Line Item
 
 GET `/line-item`
