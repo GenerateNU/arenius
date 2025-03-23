@@ -29,11 +29,6 @@ function ContactsContent() {
     setFilters({ ...filters, search_term: debouncedTerm });
   }, [debouncedTerm, setFilters]);
 
-  // TODO: styling:
-  // - move search over next to contacts
-  // - Add contacts then Export
-  // - icons next to edit?
-
   return (
     <div className={styles.container}>
       <div className="flex items-center mb-4">
