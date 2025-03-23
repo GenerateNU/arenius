@@ -8,6 +8,7 @@ import {
   useReactTable,
   getSortedRowModel,
   Row,
+  ColumnDef,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -19,52 +20,80 @@ import {
 } from "@/components/ui/table";
 import { LineItem } from "@/types";
 import { useLineItems } from "@/context/LineItemsContext";
-import { columns } from "./columns";
 import LineItemTableActions from "./LineItemTableActions";
-import  { ModalDialog } from "./ModalDialog";
-import Image from "next/image"
+import { ModalDialog } from "./ModalDialog";
+import Image from "next/image";
+import { DataTablePagination } from "../ui/DataTablePagination";
 
-export default function LineItemTable() {
+export type LineItemTableProps = {
+  columns: ColumnDef<LineItem>[];
+  data: LineItem[];
+  rowCount: number;
+  paginated?: boolean;
+};
+
+export default function LineItemTable({
+  columns,
+  data,
+  rowCount,
+  paginated = true,
+}: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { data: items } = useLineItems();
+  const { fetchData, pagination, setPagination } = useLineItems();
 
-  const [selectedRowData, setSelectedRowData] = useState<Row<LineItem> | null>(null);
+  // object and boolean to handle clicking a row's action button
+  const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
+    null
+  );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { fetchData } = useLineItems();
-
   const table = useReactTable({
-    data: items,
+    data: data || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    manualPagination: true,
+    rowCount,
+    onPaginationChange: setPagination,
     getRowId: (row: LineItem) => row.id,
     state: {
       sorting,
+      pagination,
     },
   });
 
-  const openReconcileDialog = (row: Row<LineItem>) => {
-    setSelectedRowData(row);
+  // boolean determining if any row is selected
+  const rowIsSelected = table
+    .getRowModel()
+    .rows.some((row) => row.getIsSelected());
+
+  const openEditDialog = (row: Row<LineItem>) => {
+    setClickedRowData(row);
     setIsDialogOpen(true);
   };
 
   const handleReconcileSuccess = () => {
-    fetchData(); 
-    setIsDialogOpen(false); 
+    fetchData();
+    setIsDialogOpen(false);
   };
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="rounded-md  bg-white">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      style={{
+                        minWidth: header.column.columnDef.size,
+                        maxWidth: header.column.columnDef.size,
+                      }}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -81,28 +110,35 @@ export default function LineItemTable() {
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  className="border-none"
                 >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      style={{
+                        minWidth: cell.column.columnDef.size,
+                        maxWidth: cell.column.columnDef.size,
+                      }}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
                       )}
+                    </TableCell>
+                  ))}
+                  <TableCell>
+                    <Image
+                      src="/arrow.svg"
+                      alt="Reconcile"
+                      width={24}
+                      height={24}
+                      onClick={() => openEditDialog(row)}
+                      style={{ cursor: "pointer" }}
+                    />
                   </TableCell>
-                ))}
-                <TableCell>
-                  <Image
-                    src="/arrow.svg" 
-                    alt="Reconcile"
-                    width={24}  
-                    height={24}
-                    onClick={() => openReconcileDialog(row)}
-                    style={{ cursor: "pointer" }}  
-                  />
-                </TableCell>
-              </TableRow>
+                </TableRow>
               ))
             ) : (
               <TableRow>
@@ -117,19 +153,24 @@ export default function LineItemTable() {
           </TableBody>
         </Table>
       </div>
+      {paginated && (
+        <DataTablePagination
+          table={table}
+          pagination={pagination}
+          total_count={rowCount}
+        />
+      )}
 
-      {selectedRowData && (
+      {clickedRowData && (
         <ModalDialog
-          selectedRowData={selectedRowData}
+          selectedRowData={clickedRowData}
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
           onReconcileSuccess={handleReconcileSuccess}
         />
       )}
 
-      <br />
-      <LineItemTableActions table={table} />
+      {rowIsSelected && <LineItemTableActions table={table} />}
     </>
   );
 }
-
