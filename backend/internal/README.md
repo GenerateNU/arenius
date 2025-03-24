@@ -183,6 +183,8 @@ Get all contact objects associated with a company with pagination. Default pagin
 
 SearchTerm looks for matching contact names, case insensitive.
 
+Pagination is ignored if `unpaginated` is true (all contacts are returned)
+
 Also returns `total` and `count`, where total is the total number of contacts that fit those query parameters, ignoring pagination, and count is the number of contacts returned in this request.
 
 ```go
@@ -192,6 +194,7 @@ Query Parameters:
 - `page`: (int, optional)
 - `limit`: (int, optional)
 - `search_term`: (string, optional)
+- `unpaginated`: (bool, optional)
 Example:
 - URL: `http://127.0.0.1:8080/contact/company/1339d26e-8e6b-43e6-aa56-470b3985f3b1?page=2&search_term=abc`
 ```

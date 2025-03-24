@@ -91,6 +91,8 @@ export type Contact = {
   state: string;
   xero_contact_id?: string;
   company_id: string;
+  created_at: Date;
+  updated_at: Date;
 };
 
 export type GetContactsRequest = {
@@ -98,6 +100,7 @@ export type GetContactsRequest = {
   search_term: string;
   pageSize?: number;
   pageIndex?: number;
+  unpaginated?: boolean;
 };
 
 export type GetContactsResponse = {

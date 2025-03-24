@@ -80,7 +80,10 @@ func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pa
 		filterQuery += fmt.Sprintf(" AND (contact.name ILIKE '%%%s%%')", *filterParams.SearchTerm)
 	}
 
-	query := `
+	var contacts []models.Contact
+
+	if filterParams.Unpaginated != nil && *filterParams.Unpaginated {
+		query := `
 		SELECT
 			id,
 			name,
@@ -89,22 +92,51 @@ func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pa
 			city,
 			state,
 			xero_contact_id,
-			company_id
+			company_id,
+			created_at,
+			updated_at
+		FROM contact
+		WHERE contact.company_id = $1` + filterQuery
+
+		rows, err := r.db.Query(ctx, query, companyId)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+
+		contacts, err = pgx.CollectRows(rows, pgx.RowToStructByName[models.Contact])
+		if err != nil {
+			return nil, fmt.Errorf("error collecting contacts: %w", err)
+		}
+	} else {
+		query := `
+		SELECT
+			id,
+			name,
+			email,
+			phone,
+			city,
+			state,
+			xero_contact_id,
+			company_id,
+			created_at,
+			updated_at
 		FROM contact
 		WHERE contact.company_id = $1` + filterQuery + `
 		LIMIT $2 OFFSET $3
 	`
 
-	queryArgs := []interface{}{companyId, pagination.Limit, pagination.GetOffset()}
-	rows, err := r.db.Query(ctx, query, queryArgs...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+		queryArgs := []interface{}{companyId, pagination.Limit, pagination.GetOffset()}
+		rows, err := r.db.Query(ctx, query, queryArgs...)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
 
-	contacts, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.Contact])
-	if err != nil {
-		return nil, fmt.Errorf("error collecting contacts: %w", err)
+		contacts, err = pgx.CollectRows(rows, pgx.RowToStructByName[models.Contact])
+		if err != nil {
+			return nil, fmt.Errorf("error collecting contacts: %w", err)
+		}
 	}
 
 	total_query := `
@@ -113,7 +145,7 @@ func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pa
 		WHERE contact.company_id = $1` + filterQuery
 
 	var total int
-	err = r.db.QueryRow(ctx, total_query, companyId).Scan(&total)
+	err := r.db.QueryRow(ctx, total_query, companyId).Scan(&total)
 	if err != nil {
 		return nil, err
 	}

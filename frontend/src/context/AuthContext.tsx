@@ -1,73 +1,83 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import Cookies from "js-cookie";
-import { LoginRequest, SignupRequest } from "@/types";
-import apiClient from "../services/apiClient";
 import { AxiosResponse } from "axios";
+import Cookies from "js-cookie";
+import apiClient from "../services/apiClient";
+import { LoginRequest, SignupRequest } from "@/types";
 
 interface AuthContextType {
-  companyId: string | null;
-  tenantId: string | null;
-  userId: string | null;
-  isLoading: boolean;  // Add isLoading to the context
-  login: (item: LoginRequest) => Promise<{ response?: AxiosResponse, error?: unknown }>;
-  signup: (item: SignupRequest) => Promise<{ response?: AxiosResponse, error?: unknown }>;
+  companyId: string | undefined;
+  tenantId: string | undefined;
+  userId: string | undefined;
+  isLoading: boolean;
+  login: (
+    item: LoginRequest
+  ) => Promise<{ response?: AxiosResponse; error?: unknown }>;
+  signup: (
+    item: SignupRequest
+  ) => Promise<{ response?: AxiosResponse; error?: unknown }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [companyId, setCompanyId] = useState<string | null>(null);
-  const [tenantId, setTenantId] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);  // Track loading state
-  const [authActionTriggered, setAuthActionTriggered] = useState<"login" | "signup" | null>(null);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [companyId, setCompanyId] = useState<string>();
+  const [tenantId, setTenantId] = useState<string>();
+  const [userId, setUserId] = useState<string>();
+  const [isLoading, setIsLoading] = useState<boolean>(false); // Track loading state
+  const [authActionTriggered, setAuthActionTriggered] = useState<
+    "login" | "signup" | null
+  >(null);
+
+  function readCookies() {
+    const storedCompanyId = Cookies.get("companyID");
+    if (storedCompanyId) {
+      setCompanyId(storedCompanyId);
+    }
+
+    const storedTenantId = Cookies.get("tenantID");
+    if (storedTenantId) {
+      setTenantId(storedTenantId);
+    }
+
+    const storedUserId = Cookies.get("userID");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    }
+  }
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("authComplete") === "true") {
-      setAuthActionTriggered("signup");  // Trigger after Xero authentication is complete
+      setAuthActionTriggered("signup"); // Trigger after Xero authentication is complete
+    } else {
+      readCookies();
     }
   }, []);
-  
 
   useEffect(() => {
-  }, [authActionTriggered]);
-
-  useEffect(() => {
-
     if (authActionTriggered) {
-      const storedCompanyId = Cookies.get("companyID");
-
-      if (storedCompanyId) {
-        setCompanyId(storedCompanyId);
-      }
-
-      const storedTenantId = Cookies.get("tenantID");
-      if (storedTenantId) {
-        setTenantId(storedTenantId);
-      }
-
-      const storedUserId = Cookies.get("userID");
-      if (storedUserId) {
-        setUserId(storedUserId);
-      }
+      readCookies();
 
       // Reset the action after the effect runs to avoid it running continuously
       setAuthActionTriggered(null);
     }
   }, [authActionTriggered, isLoading]);
 
-  const login = async (item: LoginRequest): Promise<{ response?: AxiosResponse; error?: unknown }> => {
+  const login = async (
+    item: LoginRequest
+  ): Promise<{ response?: AxiosResponse; error?: unknown }> => {
     setIsLoading(true); // Set loading to true when login starts
-  
+
     try {
       const response = await apiClient.post("/auth/login", item);
-      
+
       // Trigger the effect by setting the state
       setAuthActionTriggered("login");
-  
+
       return { response };
     } catch (error) {
       console.error("Login error:", error);
@@ -76,22 +86,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(false); // Set loading to false when login finishes
     }
   };
-  
-  const signup = async (item: SignupRequest): Promise<{ response?: AxiosResponse; error?: unknown }> => {
+
+  const signup = async (
+    item: SignupRequest
+  ): Promise<{ response?: AxiosResponse; error?: unknown }> => {
     setIsLoading(true); // Set loading to true when signup starts
 
     const payload = {
       email: item.email,
       password: item.password,
-      first_name: item.firstName,  // Convert camelCase to snake_case
-      last_name: item.lastName,    // Convert camelCase to snake_case
+      first_name: item.firstName,
+      last_name: item.lastName,
     };
-  
+
     try {
       const response = await apiClient.post("/auth/signup", payload);
-  
       setAuthActionTriggered("signup");
-  
+
       return { response };
     } catch (error) {
       console.error("Signup error:", error);
@@ -99,10 +110,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setIsLoading(false);
     }
-  };  
+  };
 
   return (
-    <AuthContext.Provider value={{ companyId, tenantId, userId, isLoading, login, signup }}>
+    <AuthContext.Provider
+      value={{ companyId, tenantId, userId, isLoading, login, signup }}
+    >
       {children}
     </AuthContext.Provider>
   );
