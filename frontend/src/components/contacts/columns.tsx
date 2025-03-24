@@ -4,6 +4,12 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnHeader } from "@/components/ui/columnHeader";
 import { Contact } from "@/types";
+import Image from "next/image";
+
+// handler to copy the email to clipboard
+const handleCopyClick = (text: string) => {
+  navigator.clipboard.writeText(text)
+};
 
 export const columns: ColumnDef<Contact>[] = [
   {
@@ -45,6 +51,15 @@ export const columns: ColumnDef<Contact>[] = [
   },
 
   {
+    accessorKey: "phone",
+    header: ({ column }) => {
+      return (
+        <ColumnHeader name="Phone" column={column} />
+      );
+    },
+  },
+
+  {
     accessorKey: "city",
     header: ({ column }) => {
       return <ColumnHeader name="Location" column={column} />;
@@ -77,6 +92,38 @@ export const columns: ColumnDef<Contact>[] = [
       return (
         <ColumnHeader name="Email" column={column} />
       );
+    },
+    cell: ({ row }) => {
+      const email = String(row.getValue("email"))
+      return <div className="font-medium">
+        <span>{email}</span>
+        <button onClick={ () => handleCopyClick(email) } className='ml-1'>
+          <Image
+              src="/copy.svg"
+              alt=""
+              width={12}
+              height={12}
+          />
+        </button>
+      </div>;
+  },
+  },
+
+  {
+    accessorKey: "action",
+    header: ({ column }) => {
+      return <ColumnHeader name="Action" column={column} />;
+    },cell: ({}) => {
+        // TODO: add link to edit contacts modal
+        return <div className="font-medium flex items-center space-x-2">
+          <span>Edit</span>
+          <Image
+              src="/edit2.svg"
+              alt=""
+              width={12}
+              height={12}
+          />
+        </div>;
     },
   },
 ];

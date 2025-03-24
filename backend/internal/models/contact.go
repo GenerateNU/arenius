@@ -1,14 +1,18 @@
 package models
 
+import "time"
+
 type Contact struct {
-	ID            string  `json:"id"`
-	Name          string  `json:"name"`
-	Email         string  `json:"email"`
-	Phone         string  `json:"phone"`
-	City          string  `json:"city"`
-	State         string  `json:"state"`
-	XeroContactID *string `json:"xero_contact_id,omitempty"`
-	CompanyID     string  `json:"company_id"`
+	ID            string    `json:"id"`
+	Name          string    `json:"name"`
+	Email         string    `json:"email"`
+	Phone         string    `json:"phone"`
+	City          string    `json:"city"`
+	State         string    `json:"state"`
+	XeroContactID *string   `json:"xero_contact_id,omitempty"`
+	CompanyID     string    `json:"company_id"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 type AddImportedContactRequest struct {
@@ -22,7 +26,8 @@ type AddImportedContactRequest struct {
 }
 
 type GetContactsRequest struct {
-	SearchTerm *string `query:"search_term"`
+	SearchTerm  *string `query:"search_term"`
+	Unpaginated *bool   `query:"unpaginated"`
 }
 
 type GetContactsResponse struct {
