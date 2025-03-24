@@ -2,9 +2,10 @@ import { mkConfig, generateCsv, download } from 'export-to-csv';
 import { GetContactsRequest } from '@/types';
 import { useContacts } from '@/context/ContactsContext';
 import Image from "next/image";
+import { fetchContacts } from '@/services/contacts';
 
 export default function ExportContactsButton() {
-  const { data: contacts, fetchData, filters, setFilters } = useContacts();
+  const { filters } = useContacts();
 
   const csvConfig = mkConfig({
     useKeysAsHeaders: true,
@@ -12,21 +13,14 @@ export default function ExportContactsButton() {
 
   const exportToCSV = async () => {
     try {
-      setFilters({
+      // fetch all unpaginated filtered contacts
+      const contactResponse = await fetchContacts({
         ...filters,
         unpaginated: true
-      } as GetContactsRequest); // TODO: how to handle setting the filters without reloading the page?
-
-      await fetchData();
-
-      setFilters({
-        ...filters,
-        unpaginated: false
       } as GetContactsRequest);
 
-      const csvData = contacts.contacts.map(contact => ({
+      const csvData = contactResponse.contacts.map(contact => ({
         Name: contact.name,
-        Scope: 1, // TODO remove hardcode for these fields
         Title: "Industry/Title",
         Phone: contact.phone,
         Email: contact.email,
@@ -36,7 +30,7 @@ export default function ExportContactsButton() {
         UpdatedAt: new Date(contact.updated_at).toISOString()
       }));
 
-      const filename = 'contacts_export_' + new Date().toISOString().split('T')[0];
+      const filename = 'arenius_contacts_' + new Date().toISOString().split('T')[0];
       const csv = generateCsv(csvConfig)(csvData);
       download({...csvConfig, filename: filename})(csv);
       

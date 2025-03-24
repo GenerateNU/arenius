@@ -41,16 +41,6 @@ export const columns: ColumnDef<Contact>[] = [
   },
 
   {
-    accessorKey: "scope",
-    header: ({ column }) => {
-      return <ColumnHeader name="Scope" column={column} />;
-    },cell: ({}) => {
-        // TODO: un-hard code once scope is added to table?
-        return <div className="font-medium">Scope 1</div>;
-    },
-  },
-
-  {
     accessorKey: "industry",
     header: ({ column }) => {
       return <ColumnHeader name="Title" column={column} />;
