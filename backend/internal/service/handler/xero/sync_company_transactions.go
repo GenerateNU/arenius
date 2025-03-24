@@ -27,6 +27,7 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	}
 	tenantId := company.XeroTenantID
 	url := os.Getenv("TRANSACTIONS_URL")
+	fmt.Println("Syncing transactions for tenant id:", tenantId)
 
 	tokenSource := h.config.OAuth2Config.TokenSource(ctx.Context(), token)
 	newToken, err := tokenSource.Token()

@@ -113,7 +113,7 @@ func (r *CompanyRepository) GetOrCreateCompany(ctx context.Context, xeroTenantID
 
 func (r *CompanyRepository) GetTenantByTenantID(ctx context.Context, xeroTenantID string) (*models.Tenant, error) {
 	query := `
-		SELECT id, name, xero_tenant_id, last_transaction_import_time, last_contact_import_time, refresh_token, user_id
+		SELECT company.id, name, xero_tenant_id, last_transaction_import_time, last_contact_import_time, refresh_token, user_creds.id as user_id
 		FROM company JOIN user_creds ON company.xero_tenant_id = user_creds.tenant_id
 		WHERE xero_tenant_id=$1
 		LIMIT 1

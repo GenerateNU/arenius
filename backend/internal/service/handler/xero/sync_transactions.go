@@ -28,6 +28,7 @@ func (h *Handler) SyncTransactions(ctx *fiber.Ctx) error {
 		// Sync transactions for all companies
 		fmt.Println("Syncing transactions for all companies")
 		companies, err = h.companyRepository.GetAllTenants(ctx.Context())
+
 		if err != nil {
 			fmt.Println("Error retrieving companies:", err)
 			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -39,20 +40,25 @@ func (h *Handler) SyncTransactions(ctx *fiber.Ctx) error {
 	// Loop through the companies and sync transactions
 	for _, company := range companies {
 		fmt.Println("Syncing contacts for company:", company.ID)
-		err := h.GetContacts(ctx, company)
+
+		err := h.SyncContacts(ctx, company)
+
 		if err != nil {
 			log.Printf("Error syncing contacts for company %s: %v\n", company.ID, err.Error())
 		} else {
 			log.Printf("Successfully synced contacts for company %s\n", company.ID)
 		}
+
 		fmt.Println("Syncing transactions for company:", company.ID)
+
 		err = h.syncCompanyTransactions(ctx, company)
+
 		if err != nil {
 			log.Printf("Error syncing transactions for company %s: %v\n", company.ID, err)
 		} else {
 			log.Printf("Successfully synced transactions for company %s\n", company.ID)
 		}
-		fmt.Println(1)
+
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{

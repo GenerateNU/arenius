@@ -13,7 +13,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func (h *Handler) GetContacts(ctx *fiber.Ctx, company models.Tenant) error {
+func (h *Handler) SyncContacts(ctx *fiber.Ctx, company models.Tenant) error {
 	refreshToken := ""
 	if company.RefreshToken != nil {
 		refreshToken = *company.RefreshToken
@@ -26,6 +26,8 @@ func (h *Handler) GetContacts(ctx *fiber.Ctx, company models.Tenant) error {
 		RefreshToken: refreshToken,
 	}
 	tenantId := company.XeroTenantID
+
+	fmt.Println("Tenant ID:", tenantId)
 
 	tokenSource := h.config.OAuth2Config.TokenSource(ctx.Context(), token)
 	newToken, err := tokenSource.Token()
@@ -47,6 +49,7 @@ func (h *Handler) GetContacts(ctx *fiber.Ctx, company models.Tenant) error {
 	if accessToken == "" || (tenantId != nil && *tenantId == "") || url == "" {
 		fmt.Printf("Examine env values: accessToken=%s, tenantId=%s, url=%s\n", accessToken, func() string {
 			if tenantId != nil {
+				fmt.Println("Tenant ID is not nil")
 				return *tenantId
 			}
 			return "nil"
@@ -75,10 +78,12 @@ func (h *Handler) GetContacts(ctx *fiber.Ctx, company models.Tenant) error {
 		if err != nil {
 			return errs.BadRequest(fmt.Sprint("invalid request: ", err))
 		}
+		fmt.Println(paginatedUrl)
 
 		req.Header.Set("Authorization", "Bearer "+accessToken)
 		req.Header.Set("Accept", "application/json")
-		req.Header.Set("Xero-tenant-id", *company.XeroTenantID)
+		req.Header.Set("Xero-tenant-id", *tenantId)
+		fmt.Println(req.Header)
 		fmt.Println(req.Body)
 
 		// filter the contact results to only those after the last import time for this company
