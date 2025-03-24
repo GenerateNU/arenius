@@ -12,8 +12,12 @@ export function EmissionsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     console.log("Fetching emissions factors from context...");
     async function fetchCategories() {
-      const response = await fetchEmissionsFactors();
-      setCategories(response.sort((a, b) => a.name.localeCompare(b.name)));
+      const response = await fetchEmissionsFactors("", companyId);
+      if (Array.isArray(response)) {
+        setCategories(response.sort((a, b) => a.name.localeCompare(b.name)));
+      } else {
+        console.error("Expected response to be an array, but got:", response);
+      }
     }
     fetchCategories();
   }, [companyId]);

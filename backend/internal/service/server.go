@@ -70,8 +70,8 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 
 	// Use CORS middleware to configure CORS and handle preflight/OPTIONS requests.
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000,http://localhost:8080,https://sea-lion-app-y4r7v.ondigitalocean.app/", // Allow any source domain to access API
-		AllowMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS",                                                          // Using these methods.
+		AllowOrigins:     "http://localhost:3000,http://localhost:8080,https://sea-lion-app-y4r7v.ondigitalocean.app", // Allow any source domain to access API
+		AllowMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS",                                                         // Using these methods.
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true, // Allow cookies
 		ExposeHeaders:    "Content-Length, X-Request-ID",
