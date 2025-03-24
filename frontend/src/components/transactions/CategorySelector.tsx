@@ -71,7 +71,7 @@ export default function CategorySelector({
 
   useEffect(() => {
     async function fetchCategories() {
-      const response = await fetchEmissionsFactors(companyId, debouncedTerm);
+      const response = await fetchEmissionsFactors(debouncedTerm, companyId);
       setCategories(response);
     }
     fetchCategories();
