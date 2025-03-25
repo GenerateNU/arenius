@@ -59,7 +59,7 @@ type ContactRepository interface {
 }
 
 type OffsetRepository interface {
-	PostCarbonOffset(ctx context.Context, p models.CarbonOffset) (models.CarbonOffset, error)
+	CreateCarbonOffset(ctx context.Context, p models.CreateCarbonOffsetRequest) (*models.CarbonOffset, error)
 }
 
 type Repository struct {

@@ -13,3 +13,7 @@ type CarbonOffset struct {
 	Source         string    `json:"source"`
 	PurchaseDate   time.Time `json:"purchase_date"`
 }
+
+type CreateCarbonOffsetRequest struct {
+	CarbonOffset
+}

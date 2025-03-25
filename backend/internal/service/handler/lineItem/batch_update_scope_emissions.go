@@ -3,19 +3,13 @@ package lineItem
 import (
 	"arenius/internal/errs"
 	"log"
+	"arenius/internal/models"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
-type UpdateLineItemsRequest struct {
-	LineItemIDs       []uuid.UUID `json:"line_item_ids"`
-	Scope             *int        `json:"scope,omitempty"`
-	EmissionsFactorID *string     `json:"emissions_factor_id,omitempty"`
-}
-
 func (h *Handler) BatchUpdateLineItems(c *fiber.Ctx) error {
-	var req UpdateLineItemsRequest
+	var req models.UpdateLineItemsRequest
 	if err := c.BodyParser(&req); err != nil {
 		return errs.BadRequest("Invalid request payload: " + err.Error())
 	}
