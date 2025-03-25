@@ -48,8 +48,6 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			fmt.Println("Error getting credentials:", err)
 			fmt.Println("Failed to get credentials")
 		}
-		fmt.Println("xeroCreds", xeroCreds)
-		fmt.Println("Setting Cookies")
 		c.Cookie(&fiber.Cookie{
 			Name:     "refreshToken",
 			Value:    xeroCreds.RefreshToken,

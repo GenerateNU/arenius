@@ -12,7 +12,6 @@ export async function createContact(
     };
 
     const response = await apiClient.post("/contact", new_contact);
-    console.log("Contact created:", response.data);
     return response.data;
 
   } catch (error) {

@@ -7,28 +7,45 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/oauth2"
 )
 
-func (h *Handler) GetContacts(ctx *fiber.Ctx) error {
-
-	accessToken := ctx.Cookies("accessToken", "")
-
-	tenantId := ctx.Cookies("tenantID", "")
-
-	url := os.Getenv("CONTACTS_URL")
-
-	if accessToken == "" || tenantId == "" || url == "" {
-		fmt.Printf("Examine env values: accessToken=%s, tenantId=%s, url=%s\n", accessToken, tenantId, url)
-		return fmt.Errorf("missing required environment variables")
+func (h *Handler) SyncContacts(ctx *fiber.Ctx, company models.Tenant) error {
+	refreshToken := ""
+	if company.RefreshToken != nil {
+		refreshToken = *company.RefreshToken
 	}
 
-	// get the current company using the Xero tenant ID
-	company, err := h.companyRepository.GetCompanyByXeroTenantID(ctx.Context(), tenantId)
+	token := &oauth2.Token{
+		RefreshToken: refreshToken,
+	}
+	tenantId := company.XeroTenantID
+
+	tokenSource := h.config.OAuth2Config.TokenSource(ctx.Context(), token)
+	newToken, err := tokenSource.Token()
 	if err != nil {
-		return err
+		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to refresh access token")
+	}
+
+	accessToken := newToken.AccessToken
+	e := h.UserRepository.SetUserCredentials(ctx.Context(), *company.UserID, company.ID, newToken.RefreshToken, *company.XeroTenantID)
+	if e != nil {
+		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to update user credentials")
+	}
+
+	url := "https://api.xero.com/api.xro/2.0/Contacts"
+
+	if accessToken == "" || (tenantId != nil && *tenantId == "") || url == "" {
+		fmt.Printf("Examine env values: accessToken=%s, tenantId=%s, url=%s\n", accessToken, func() string {
+			if tenantId != nil {
+				fmt.Println("Tenant ID is not nil")
+				return *tenantId
+			}
+			return "nil"
+		}(), url)
+		return fmt.Errorf("missing required environment variables")
 	}
 
 	var contacts []interface{}
@@ -49,7 +66,7 @@ func (h *Handler) GetContacts(ctx *fiber.Ctx) error {
 
 		req.Header.Set("Authorization", "Bearer "+accessToken)
 		req.Header.Set("Accept", "application/json")
-		req.Header.Set("Xero-tenant-id", tenantId)
+		req.Header.Set("Xero-tenant-id", *tenantId)
 
 		// filter the contact results to only those after the last import time for this company
 		if company.LastContactImportTime != nil {
@@ -61,13 +78,13 @@ func (h *Handler) GetContacts(ctx *fiber.Ctx) error {
 		}
 		defer resp.Body.Close()
 
-		if resp.StatusCode != http.StatusOK {
-			return errs.BadRequest(fmt.Sprint("response status unsuccessful: ", err))
-		}
-
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return errs.BadRequest(fmt.Sprint("unable to read response body: ", err))
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			return errs.BadRequest(fmt.Sprint("response status unsuccessful: ", err))
 		}
 
 		var response map[string]interface{}
@@ -95,7 +112,7 @@ func (h *Handler) GetContacts(ctx *fiber.Ctx) error {
 	}
 
 	// parse the new line items from the fetched transactions
-	newContacts, err := parseContacts(contacts, *company)
+	newContacts, err := parseContacts(contacts, company)
 	if err != nil {
 		return err
 	}
@@ -115,7 +132,7 @@ func (h *Handler) GetContacts(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(contacts)
 }
 
-func parseContacts(contacts []interface{}, company models.Company) ([]models.AddImportedContactRequest, error) {
+func parseContacts(contacts []interface{}, company models.Tenant) ([]models.AddImportedContactRequest, error) {
 	var newContacts []models.AddImportedContactRequest
 
 	for _, contact := range contacts {
@@ -141,22 +158,25 @@ func parseContacts(contacts []interface{}, company models.Company) ([]models.Add
 		var email string
 		if contactMap["EmailAddress"] != nil {
 			email = contactMap["EmailAddress"].(string)
-		} else {
-			return nil, errs.BadRequest("Missing Email")
 		}
 
 		var phone string
 		if contactMap["Phones"] != nil {
-			phoneItems := contactMap["Phones"].([]map[string]interface{})
+			phoneItems, ok := contactMap["Phones"].([]interface{})
+			if !ok {
+				return nil, errs.BadRequest("Invalid Phones format")
+			}
 			for _, phoneItem := range phoneItems {
-				if phoneItem["PhoneType"] != "DEFAULT" {
+				phoneMap, ok := phoneItem.(map[string]interface{})
+				if !ok {
+					return nil, errs.BadRequest("Invalid Phone format")
+				}
+				if phoneMap["PhoneType"] != "DEFAULT" {
 					continue
 				}
 
-				if phoneItem["PhoneNumber"] != nil {
-					phone = phoneItem["PhoneNumber"].(string)
-				} else {
-					return nil, errs.BadRequest("Missing Phone")
+				if phoneMap["PhoneNumber"] != nil {
+					phone = phoneMap["PhoneNumber"].(string)
 				}
 			}
 		}
@@ -164,23 +184,25 @@ func parseContacts(contacts []interface{}, company models.Company) ([]models.Add
 		var city string
 		var state string
 		if contactMap["Addresses"] != nil {
-			addressItems := contactMap["Addresses"].([]map[string]interface{})
+			addressItems, ok := contactMap["Addresses"].([]interface{})
+			if !ok {
+				return nil, errs.BadRequest("Invalid Addresses format")
+			}
 			for _, addressItem := range addressItems {
-				if addressItem["AddressType"] != "STREET" {
+				addressMap, ok := addressItem.(map[string]interface{})
+				if !ok {
+					return nil, errs.BadRequest("Invalid Address format")
+				}
+				if addressMap["AddressType"] != "STREET" {
 					continue
 				}
 
-				if addressItem["City"] != nil {
-					city = addressItem["City"].(string)
-				} else {
-					return nil, errs.BadRequest("Missing City")
+				if addressMap["City"] != nil {
+					city = addressMap["City"].(string)
 				}
 
-				// Region?
-				if addressItem["Region"] != nil {
-					state = addressItem["Region"].(string)
-				} else {
-					return nil, errs.BadRequest("Missing State")
+				if addressMap["Region"] != nil {
+					state = addressMap["Region"].(string)
 				}
 			}
 		}

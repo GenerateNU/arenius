@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { LineItemsProvider, useLineItems } from "@/context/LineItemsContext";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
+import { EmissionsProvider } from "@/context/EmissionsContext";
+
 import { fetchLineItems } from "@/services/lineItems";
 import ManualEntryModal from "@/components/transactions/ManualEntryModal";
 import ReconciledView from "@/components/transactions/ReconciledView";
@@ -12,23 +14,34 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default function Transactions() {
+
   return (
-    <LineItemsProvider fetchFunction={fetchLineItems}>
-      <TransactionsContent />
-    </LineItemsProvider>
+    <EmissionsProvider>
+      <LineItemsProvider fetchFunction={fetchLineItems}>
+        <TransactionsContent />
+      </LineItemsProvider>
+    </EmissionsProvider>
   );
 }
 
 function TransactionsContent() {
   const [reconciled, setReconciled] = useState(true);
   const { filters, setFilters } = useLineItems();
-  const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(
-    filters.searchTerm
-  );
+  const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(filters.searchTerm ?? "");
 
   useEffect(() => {
-    setFilters({ ...filters, searchTerm: debouncedTerm });
-  }, [debouncedTerm, setFilters]);
+    if (filters.searchTerm !== debouncedTerm) {
+      setFilters({ ...filters, searchTerm: debouncedTerm });
+    }
+  }, [debouncedTerm]);
+  
+  // Only fetch line items when search term actually changes
+  useEffect(() => {
+    if (filters.searchTerm || filters.minPrice || filters.maxPrice || filters.emissionFactor || filters.company_id || filters.contact_id, filters.dates) {
+      // Fetch line items based on searchTerm or other filters
+      fetchLineItems(filters);
+    }
+  }, [filters]);
 
   const updateReconciled = (update: boolean) => {
     setReconciled(update);

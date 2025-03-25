@@ -42,7 +42,7 @@ func (r *CompanyRepository) UpdateCompanyLastTransactionImportTime(ctx context.C
 		UPDATE company
 		SET last_transaction_import_time=$1
 		WHERE id=$2
-		RETURNING id, name, xero_tenant_id, last_transaction_import_time;
+		RETURNING id, name, xero_tenant_id, last_transaction_import_time, last_contact_import_time;
 	`
 	companyRows, err := r.db.Query(ctx, query, time.Now().UTC(), id)
 	if err != nil {
@@ -63,7 +63,7 @@ func (r *CompanyRepository) UpdateCompanyLastContactImportTime(ctx context.Conte
 		UPDATE company
 		SET last_contact_import_time=$1
 		WHERE id=$2
-		RETURNING id, name, xero_tenant_id, last_contact_import_time;
+		RETURNING id, name, xero_tenant_id, last_transaction_import_time, last_contact_import_time;
 	`
 	companyRows, err := r.db.Query(ctx, query, time.Now().UTC(), id)
 	if err != nil {
@@ -80,7 +80,6 @@ func (r *CompanyRepository) UpdateCompanyLastContactImportTime(ctx context.Conte
 }
 
 func (r *CompanyRepository) GetOrCreateCompany(ctx context.Context, xeroTenantID string, companyName string) (string, error) {
-	fmt.Println("GetOrCreateCompany called with xeroTenantID:", xeroTenantID, "and companyName:", companyName)
 	// First, try to get the company ID for the provided xeroTenantID
 	var companyID string
 	query := `SELECT id FROM company WHERE xero_tenant_id = $1`

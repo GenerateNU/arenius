@@ -9,7 +9,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,17 +17,16 @@ import (
 
 func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant) error {
 	refreshToken := ""
-	fmt.Println("company: ", company.RefreshToken)
 	if company.RefreshToken != nil {
 		refreshToken = *company.RefreshToken
 	}
-	fmt.Println("refreshToken: ", refreshToken)
 
 	token := &oauth2.Token{
 		RefreshToken: refreshToken,
 	}
+
 	tenantId := company.XeroTenantID
-	url := os.Getenv("TRANSACTIONS_URL")
+	url := "https://api.xero.com/api.xro/2.0/BankTransactions"
 
 	tokenSource := h.config.OAuth2Config.TokenSource(ctx.Context(), token)
 	newToken, err := tokenSource.Token()
@@ -43,13 +41,11 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to update user credentials")
 	}
 
-	fmt.Println("accessToken: ", accessToken)
-
 	if accessToken == "" || *tenantId == "" || url == "" {
 		return fmt.Errorf("missing required environment variables")
 	}
 
-	var transactions []interface{}
+	var transactions []map[string]interface{}
 	remainingTransactions := true
 	pageNum := 1
 	pageSize := 100
@@ -72,16 +68,6 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 			req.Header.Set("If-Modified-Since", company.LastTransactionImportTime.UTC().Format("2006-01-02T15:04:05"))
 		}
 
-		// resp, err := client.Do(req)
-		// if err != nil {
-		// 	return errs.BadRequest(fmt.Sprintf("error handling request: %s", err))
-		// }
-		// defer resp.Body.Close()
-
-		// if resp.StatusCode != http.StatusOK {
-		// 	return errs.BadRequest(fmt.Sprintf("response status unsuccessful: %s", err))
-		// }
-
 		resp, err := client.Do(req)
 		if err != nil {
 			log.Printf("HTTP request failed: %v", err)
@@ -89,21 +75,11 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 		}
 		defer resp.Body.Close()
 
-		log.Println("response status code: ", resp.StatusCode)
-		log.Println("response status: ", resp.Status)
-		log.Println("response body: ", resp.Body)
-		log.Println("response: ", resp)
-
 		body, _ := io.ReadAll(resp.Body) // Read response body
 		if resp.StatusCode != http.StatusOK {
 			log.Printf("HTTP error: %d response body: %s", resp.StatusCode, string(body))
 			return fmt.Errorf("HTTP error: %d - %s", resp.StatusCode, string(body))
 		}
-
-		// body, err := io.ReadAll(resp.Body)
-		// if err != nil {
-		// 	return errs.BadRequest(fmt.Sprintf("unable to read response body: %s", err))
-		// }
 
 		var response map[string]interface{}
 		if err := json.Unmarshal(body, &response); err != nil {
@@ -113,6 +89,14 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 		paginatedTransactions, ok := response["BankTransactions"].([]interface{})
 		if !ok {
 			return errs.BadRequest("unable to store response")
+		}
+
+		for _, transaction := range paginatedTransactions {
+			txMap, ok := transaction.(map[string]interface{})
+			if !ok {
+				return errs.BadRequest("Invalid Transaction format")
+			}
+			transactions = append(transactions, txMap)
 		}
 
 		pagination, ok := response["pagination"].(map[string]interface{})
@@ -125,11 +109,8 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 			return errs.BadRequest(fmt.Sprintf("Invalid Item Count value: %s", pagination["itemCount"]))
 		}
 		remainingTransactions = int(itemCount) == 100
-
-		transactions = append(transactions, paginatedTransactions...)
 	}
 
-	fmt.Println("transactions: ", transactions)
 	// Parse transactions and filter out duplicates
 	newLineItems, err := h.parseTenantTransactions(ctx.Context(), transactions, company)
 	if err != nil {
@@ -156,15 +137,10 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	return nil
 }
 
-func (h *Handler) parseTenantTransactions(ctx context.Context, transactions []interface{}, company models.Tenant) ([]models.AddImportedLineItemRequest, error) {
+func (h *Handler) parseTenantTransactions(ctx context.Context, transactions []map[string]interface{}, company models.Tenant) ([]models.AddImportedLineItemRequest, error) {
 	var newLineItems []models.AddImportedLineItemRequest
 	// Build an AddImportedLineItemRequest object
-	for _, transaction := range transactions {
-		txMap, ok := transaction.(map[string]interface{})
-		if !ok {
-			return nil, errs.BadRequest("Invalid Transaction format")
-		}
-
+	for _, txMap := range transactions {
 		var contactID string
 		var e error
 		var contactName string
@@ -173,7 +149,6 @@ func (h *Handler) parseTenantTransactions(ctx context.Context, transactions []in
 			if !ok {
 				return nil, errs.BadRequest("Invalid Contact format")
 			}
-			fmt.Println(contactMap)
 			if contactMap["ContactID"] != nil {
 				xeroContactID := contactMap["ContactID"].(string)
 
