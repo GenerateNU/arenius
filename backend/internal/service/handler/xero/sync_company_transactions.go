@@ -9,7 +9,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -27,8 +26,7 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	}
 
 	tenantId := company.XeroTenantID
-	url := os.Getenv("TRANSACTIONS_URL")
-	fmt.Println("Syncing transactions for tenant id:", tenantId)
+	url := "https://api.xero.com/api.xro/2.0/BankTransactions"
 
 	tokenSource := h.config.OAuth2Config.TokenSource(ctx.Context(), token)
 	newToken, err := tokenSource.Token()
@@ -42,8 +40,6 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	if e != nil {
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to update user credentials")
 	}
-
-	fmt.Println(("Tenant ID on transactions: "), *tenantId)
 
 	if accessToken == "" || *tenantId == "" || url == "" {
 		return fmt.Errorf("missing required environment variables")

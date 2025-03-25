@@ -30,10 +30,6 @@ function TransactionsContent() {
   const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(filters.searchTerm ?? "");
 
   useEffect(() => {
-    console.log("Effect triggered with debouncedTerm:", debouncedTerm);
-    console.log("Previous searchTerm:", filters.searchTerm);
-    console.log(filters);
-    
     if (filters.searchTerm !== debouncedTerm) {
       setFilters({ ...filters, searchTerm: debouncedTerm });
     }

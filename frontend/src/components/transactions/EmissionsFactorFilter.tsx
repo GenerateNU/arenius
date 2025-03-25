@@ -17,12 +17,10 @@ export default function EmissionsFactorFilter({
   // Update filter whenever emissionsFactor changes
   useEffect(() => {
     if (emissionsFactor) {
-      console.log("Setting emissions factor:", emissionsFactor);
       setFilters((prevFilters) => ({
         ...prevFilters,
         emissionFactor: emissionsFactor.activity_id,
       }));
-      console.log("Filters:", filters);
     }
     if (companyId && filters.company_id !== companyId) {
       setFilters({ ...filters, company_id: companyId });

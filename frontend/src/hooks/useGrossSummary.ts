@@ -34,7 +34,6 @@ export default function useGrossSummary() {
 
       const grossSummaryData = await fetchGrossEmissions(req);
       setGrossSummary(grossSummaryData);
-      console.log("Fetched data:", grossSummaryData);
     } catch (error) {
       console.error("Error fetching data:", error);
     }

@@ -1,7 +1,6 @@
 package xero
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,10 +9,6 @@ import (
 
 func (h *Handler) XeroAuthMiddleware(ctx *fiber.Ctx) error {
 	accessToken := ctx.Cookies("accessToken", "")
-	fmt.Println(("HERER"))
-	// if accessToken == "" {
-	// 	return ctx.Status(fiber.StatusUnauthorized).SendString("No access token")
-	// }
 
 	expiryStr := ctx.Cookies("expiry", "")
 	var expiry time.Time
@@ -42,6 +37,6 @@ func (h *Handler) XeroAuthMiddleware(ctx *fiber.Ctx) error {
 			return ctx.Status(fiber.StatusUnauthorized).SendString("Failed to refresh token")
 		}
 	}
-	fmt.Println(("HERER2"))
+
 	return ctx.Next() // Continue to next handler
 }

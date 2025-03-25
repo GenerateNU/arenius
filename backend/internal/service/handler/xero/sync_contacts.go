@@ -18,20 +18,14 @@ func (h *Handler) SyncContacts(ctx *fiber.Ctx, company models.Tenant) error {
 		refreshToken = *company.RefreshToken
 	}
 
-	fmt.Println("Refreshing access token for company:", company.ID)
-	fmt.Println("Refresh token:", refreshToken)
-
 	token := &oauth2.Token{
 		RefreshToken: refreshToken,
 	}
 	tenantId := company.XeroTenantID
 
-	fmt.Println("Tenant ID:", *tenantId)
-
 	tokenSource := h.config.OAuth2Config.TokenSource(ctx.Context(), token)
 	newToken, err := tokenSource.Token()
 	if err != nil {
-		fmt.Println(err)
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to refresh access token")
 	}
 
@@ -40,8 +34,6 @@ func (h *Handler) SyncContacts(ctx *fiber.Ctx, company models.Tenant) error {
 	if e != nil {
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to update user credentials")
 	}
-
-	fmt.Println("Access token:", accessToken)
 
 	url := "https://api.xero.com/api.xro/2.0/Contacts"
 
@@ -71,13 +63,10 @@ func (h *Handler) SyncContacts(ctx *fiber.Ctx, company models.Tenant) error {
 		if err != nil {
 			return errs.BadRequest(fmt.Sprint("invalid request: ", err))
 		}
-		fmt.Println(paginatedUrl)
 
 		req.Header.Set("Authorization", "Bearer "+accessToken)
 		req.Header.Set("Accept", "application/json")
 		req.Header.Set("Xero-tenant-id", *tenantId)
-		fmt.Println(req.Header)
-		fmt.Println(req.Body)
 
 		// filter the contact results to only those after the last import time for this company
 		if company.LastContactImportTime != nil {
@@ -89,14 +78,10 @@ func (h *Handler) SyncContacts(ctx *fiber.Ctx, company models.Tenant) error {
 		}
 		defer resp.Body.Close()
 
-		fmt.Println("Response status:", resp.StatusCode)
-
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return errs.BadRequest(fmt.Sprint("unable to read response body: ", err))
 		}
-
-		fmt.Println("Response body:", string(body))
 
 		if resp.StatusCode != http.StatusOK {
 			return errs.BadRequest(fmt.Sprint("response status unsuccessful: ", err))
@@ -233,7 +218,6 @@ func parseContacts(contacts []interface{}, company models.Tenant) ([]models.AddI
 
 		newContacts = append(newContacts, newContact)
 	}
-	fmt.Println("New contacts:", newContacts)
 
 	return newContacts, nil
 }

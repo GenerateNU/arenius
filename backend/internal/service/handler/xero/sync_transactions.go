@@ -10,7 +10,6 @@ import (
 
 func (h *Handler) SyncTransactions(ctx *fiber.Ctx) error {
 	tenantId := ctx.Query("tenantId")
-	fmt.Println("Syncing transactions for tenantId:", tenantId)
 
 	var companies []models.Tenant
 	var err error
@@ -26,7 +25,6 @@ func (h *Handler) SyncTransactions(ctx *fiber.Ctx) error {
 		companies = []models.Tenant{*company} // Convert single company to slice
 	} else {
 		// Sync transactions for all companies
-		fmt.Println("Syncing transactions for all companies")
 		companies, err = h.companyRepository.GetAllTenants(ctx.Context())
 
 		if err != nil {
@@ -39,7 +37,6 @@ func (h *Handler) SyncTransactions(ctx *fiber.Ctx) error {
 
 	// Loop through the companies and sync transactions
 	for _, company := range companies {
-		fmt.Println("Syncing contacts for company:", company.ID)
 
 		err := h.SyncContacts(ctx, company)
 
@@ -48,8 +45,6 @@ func (h *Handler) SyncTransactions(ctx *fiber.Ctx) error {
 		} else {
 			log.Printf("Successfully synced contacts for company %s\n", company.ID)
 		}
-
-		fmt.Println("Syncing transactions for company:", company.ID)
 
 		err = h.syncCompanyTransactions(ctx, company)
 

@@ -80,7 +80,6 @@ func (r *CompanyRepository) UpdateCompanyLastContactImportTime(ctx context.Conte
 }
 
 func (r *CompanyRepository) GetOrCreateCompany(ctx context.Context, xeroTenantID string, companyName string) (string, error) {
-	fmt.Println("GetOrCreateCompany called with xeroTenantID:", xeroTenantID, "and companyName:", companyName)
 	// First, try to get the company ID for the provided xeroTenantID
 	var companyID string
 	query := `SELECT id FROM company WHERE xero_tenant_id = $1`

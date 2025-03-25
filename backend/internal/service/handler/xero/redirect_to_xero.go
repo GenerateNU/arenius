@@ -61,7 +61,6 @@ func (h *Handler) Callback(ctx *fiber.Ctx) error {
 		Secure:   true,
 		SameSite: "Lax",
 	})
-	fmt.Println(("HERER3"))
 
 	connectionsUrl := os.Getenv("CONNECTIONS_URL")
 	req, err := http.NewRequest("GET", connectionsUrl, nil)

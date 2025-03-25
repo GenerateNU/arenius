@@ -20,7 +20,6 @@ func (h *Handler) GetLineItems(c *fiber.Ctx) error {
 	}
 
 	var filterParams models.GetLineItemsRequest
-	fmt.Println("Get Line Items called with filterParams", filterParams)
 
 	if err := c.QueryParser(&filterParams); err != nil {
 		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))

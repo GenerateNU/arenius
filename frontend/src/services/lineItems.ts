@@ -50,7 +50,6 @@ export async function fetchLineItems(
   filters: LineItemFilters
 ): Promise<GetLineItemResponse> {
   try {
-    console.log("fetching line items with filters", filters);
     const response = await apiClient.get("/line-item", {
       params: buildQueryParams(filters),
     });
