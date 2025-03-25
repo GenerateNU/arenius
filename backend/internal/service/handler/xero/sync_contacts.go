@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/oauth2"
@@ -27,7 +26,7 @@ func (h *Handler) SyncContacts(ctx *fiber.Ctx, company models.Tenant) error {
 	}
 	tenantId := company.XeroTenantID
 
-	fmt.Println("Tenant ID:", tenantId)
+	fmt.Println("Tenant ID:", *tenantId)
 
 	tokenSource := h.config.OAuth2Config.TokenSource(ctx.Context(), token)
 	newToken, err := tokenSource.Token()
@@ -44,7 +43,7 @@ func (h *Handler) SyncContacts(ctx *fiber.Ctx, company models.Tenant) error {
 
 	fmt.Println("Access token:", accessToken)
 
-	url := os.Getenv("CONTACTS_URL")
+	url := "https://api.xero.com/api.xro/2.0/Contacts"
 
 	if accessToken == "" || (tenantId != nil && *tenantId == "") || url == "" {
 		fmt.Printf("Examine env values: accessToken=%s, tenantId=%s, url=%s\n", accessToken, func() string {
