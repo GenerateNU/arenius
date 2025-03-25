@@ -162,7 +162,6 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	})
 
 	offsetHandler := carbonOffset.NewHandler(repo.Offset)
-
 	// cannot
 	app.Route("/carbon-offset", func(router fiber.Router) {
 		router.Post("/create", func(c *fiber.Ctx) error {
