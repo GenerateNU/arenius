@@ -1,8 +1,8 @@
-import type { NextConfig } from "next";
+/** @type {import('next').NextConfig} */
 
-const nextConfig: NextConfig = {
-  // Uncomment the following line to disable strict mode and stop it from double calling useEffect and calls and renders
-  reactStrictMode: false,
+const nextConfig = {
+  reactStrictMode: false, // Disable strict mode to prevent double calls in useEffect
+  
 };
 
 export default nextConfig;

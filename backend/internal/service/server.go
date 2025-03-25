@@ -83,8 +83,11 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		return c.Next()
 	})
 
-	// can
+	// Define xeroAuthHandler before its usage
 	xeroAuthHandler := xero.NewHandler(repo.LineItem, repo.Company, repo.Contact, repo.User)
+
+	app.Post("/sync-transactions", xeroAuthHandler.XeroAuthMiddleware, xeroAuthHandler.SyncTransactions)
+
 	app.Route("/auth", func(r fiber.Router) {
 		r.Get("/xero", xeroAuthHandler.RedirectToAuthorisationEndpoint)
 	})
@@ -152,11 +155,6 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Get("/contact/emissions", summaryHandler.GetContactEmissions)
 		r.Get("/net", summaryHandler.GetNetSummary)
 	})
-
-	app.Use(xeroAuthHandler.XeroAuthMiddleware)
-
-	// cannot
-	app.Post("/sync-transactions", xeroAuthHandler.SyncTransactions)
 
 	// cannot
 	app.Get("/secret", supabase_auth.Middleware(&config.Supabase), func(c *fiber.Ctx) error {

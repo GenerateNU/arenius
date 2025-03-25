@@ -27,7 +27,7 @@ func (h *Handler) SyncContacts(ctx *fiber.Ctx, company models.Tenant) error {
 	}
 	tenantId := company.XeroTenantID
 
-	fmt.Println("Tenant ID:", tenantId)
+	fmt.Println("Tenant ID:", tenantId.String())
 
 	tokenSource := h.config.OAuth2Config.TokenSource(ctx.Context(), token)
 	newToken, err := tokenSource.Token()
