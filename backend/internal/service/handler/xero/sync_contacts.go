@@ -57,12 +57,6 @@ func (h *Handler) SyncContacts(ctx *fiber.Ctx, company models.Tenant) error {
 		return fmt.Errorf("missing required environment variables")
 	}
 
-	// get the current company using the Xero tenant ID
-	// company, err := h.companyRepository.GetCompanyByXeroTenantID(ctx.Context(), tenantId)
-	// if err != nil {
-	// 	return err
-	// }
-
 	var contacts []interface{}
 	remainingContacts := true
 	client := &http.Client{}
@@ -180,22 +174,25 @@ func parseContacts(contacts []interface{}, company models.Tenant) ([]models.AddI
 		var email string
 		if contactMap["EmailAddress"] != nil {
 			email = contactMap["EmailAddress"].(string)
-		} else {
-			return nil, errs.BadRequest("Missing Email")
 		}
 
 		var phone string
 		if contactMap["Phones"] != nil {
-			phoneItems := contactMap["Phones"].([]map[string]interface{})
+			phoneItems, ok := contactMap["Phones"].([]interface{})
+			if !ok {
+				return nil, errs.BadRequest("Invalid Phones format")
+			}
 			for _, phoneItem := range phoneItems {
-				if phoneItem["PhoneType"] != "DEFAULT" {
+				phoneMap, ok := phoneItem.(map[string]interface{})
+				if !ok {
+					return nil, errs.BadRequest("Invalid Phone format")
+				}
+				if phoneMap["PhoneType"] != "DEFAULT" {
 					continue
 				}
 
-				if phoneItem["PhoneNumber"] != nil {
-					phone = phoneItem["PhoneNumber"].(string)
-				} else {
-					return nil, errs.BadRequest("Missing Phone")
+				if phoneMap["PhoneNumber"] != nil {
+					phone = phoneMap["PhoneNumber"].(string)
 				}
 			}
 		}
@@ -203,23 +200,25 @@ func parseContacts(contacts []interface{}, company models.Tenant) ([]models.AddI
 		var city string
 		var state string
 		if contactMap["Addresses"] != nil {
-			addressItems := contactMap["Addresses"].([]map[string]interface{})
+			addressItems, ok := contactMap["Addresses"].([]interface{})
+			if !ok {
+				return nil, errs.BadRequest("Invalid Addresses format")
+			}
 			for _, addressItem := range addressItems {
-				if addressItem["AddressType"] != "STREET" {
+				addressMap, ok := addressItem.(map[string]interface{})
+				if !ok {
+					return nil, errs.BadRequest("Invalid Address format")
+				}
+				if addressMap["AddressType"] != "STREET" {
 					continue
 				}
 
-				if addressItem["City"] != nil {
-					city = addressItem["City"].(string)
-				} else {
-					return nil, errs.BadRequest("Missing City")
+				if addressMap["City"] != nil {
+					city = addressMap["City"].(string)
 				}
 
-				// Region?
-				if addressItem["Region"] != nil {
-					state = addressItem["Region"].(string)
-				} else {
-					return nil, errs.BadRequest("Missing State")
+				if addressMap["Region"] != nil {
+					state = addressMap["Region"].(string)
 				}
 			}
 		}

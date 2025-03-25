@@ -25,6 +25,7 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	token := &oauth2.Token{
 		RefreshToken: refreshToken,
 	}
+
 	tenantId := company.XeroTenantID
 	url := os.Getenv("TRANSACTIONS_URL")
 	fmt.Println("Syncing transactions for tenant id:", tenantId)
@@ -46,7 +47,7 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 		return fmt.Errorf("missing required environment variables")
 	}
 
-	var transactions []interface{}
+	var transactions []map[string]interface{}
 	remainingTransactions := true
 	pageNum := 1
 	pageSize := 100
@@ -92,6 +93,14 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 			return errs.BadRequest("unable to store response")
 		}
 
+		for _, transaction := range paginatedTransactions {
+			txMap, ok := transaction.(map[string]interface{})
+			if !ok {
+				return errs.BadRequest("Invalid Transaction format")
+			}
+			transactions = append(transactions, txMap)
+		}
+
 		pagination, ok := response["pagination"].(map[string]interface{})
 		if !ok {
 			return errs.BadRequest("Invalid pagination format")
@@ -102,8 +111,6 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 			return errs.BadRequest(fmt.Sprintf("Invalid Item Count value: %s", pagination["itemCount"]))
 		}
 		remainingTransactions = int(itemCount) == 100
-
-		transactions = append(transactions, paginatedTransactions...)
 	}
 
 	// Parse transactions and filter out duplicates
@@ -132,15 +139,10 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	return nil
 }
 
-func (h *Handler) parseTenantTransactions(ctx context.Context, transactions []interface{}, company models.Tenant) ([]models.AddImportedLineItemRequest, error) {
+func (h *Handler) parseTenantTransactions(ctx context.Context, transactions []map[string]interface{}, company models.Tenant) ([]models.AddImportedLineItemRequest, error) {
 	var newLineItems []models.AddImportedLineItemRequest
 	// Build an AddImportedLineItemRequest object
-	for _, transaction := range transactions {
-		txMap, ok := transaction.(map[string]interface{})
-		if !ok {
-			return nil, errs.BadRequest("Invalid Transaction format")
-		}
-
+	for _, txMap := range transactions {
 		var contactID string
 		var e error
 		var contactName string

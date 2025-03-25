@@ -169,7 +169,7 @@ func (r *ContactRepository) CreateContact(ctx context.Context, req models.Create
 		INSERT INTO contact
 		(` + strings.Join(columns, ", ") + `)
 		VALUES (` + strings.Join(numInputs, ", ") + `)
-		RETURNING id, name, email, phone, city, state, xero_contact_id, company_id;
+		RETURNING id, name, email, phone, city, state, xero_contact_id, company_id, created_at, updated_at;
 	`
 
 	rows, err := r.db.Query(ctx, query, queryArgs...)
@@ -194,8 +194,8 @@ func (r *ContactRepository) AddImportedContacts(ctx context.Context, req []model
 	for index, importedContact := range req {
 		var inputNumbers []string
 
-		for i := 1; i <= 9; i += 1 {
-			inputNumbers = append(inputNumbers, fmt.Sprintf("$%d", (index*9)+i))
+		for i := 1; i <= 8; i += 1 {
+			inputNumbers = append(inputNumbers, fmt.Sprintf("$%d", (index*8)+i))
 		}
 
 		valuesStrings = append(valuesStrings, fmt.Sprintf("(%s)", strings.Join(inputNumbers, ",")))
@@ -231,9 +231,9 @@ func (r *ContactRepository) AddImportedContacts(ctx context.Context, req []model
 			VALUES ` + strings.Join(valuesStrings, ",") + `
 			ON CONFLICT (xero_contact_id) DO UPDATE
 			SET name=EXCLUDED.name, email=EXCLUDED.email,
-				phone=EXCLUDED.phone, city=EXCLUDED.phone,
-				state=EXCLUDED.state, company_id=EXCLUDED.company_id,
-			RETURNING id, name, email, phone, city, state, xero_contact_id, company_id;
+				phone=EXCLUDED.phone, city=EXCLUDED.city,
+				state=EXCLUDED.state, company_id=EXCLUDED.company_id
+			RETURNING id, name, email, phone, city, state, xero_contact_id, company_id, created_at, updated_at;
 		`
 		rows, err := r.db.Query(ctx, query, queryArgs...)
 		if err != nil {
@@ -285,7 +285,7 @@ func (r *ContactRepository) GetOrCreateXeroContact(ctx context.Context, xeroCont
 	insertQuery := `
 		INSERT INTO contact (id, xero_contact_id, name, email, phone, city, state, company_id)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-		RETURNING id
+		RETURNING id;
 	`
 	newID := uuid.New()
 	err = r.db.QueryRow(ctx, insertQuery, newID, xeroContactID, name, email, phone, city, state, companyID).Scan(&contactID)
