@@ -42,6 +42,8 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to update user credentials")
 	}
 
+	fmt.Println(("Tenant ID on transactions: "), *tenantId)
+
 	if accessToken == "" || *tenantId == "" || url == "" {
 		return fmt.Errorf("missing required environment variables")
 	}
