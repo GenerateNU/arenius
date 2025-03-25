@@ -35,6 +35,7 @@ func NewHandler(lineItemRepository storage.LineItemRepository, companyRepository
 		"profile",
 		"email",
 		"accounting.transactions",
+		"accounting.contacts",
 		"accounting.settings",
 		"offline_access",
 	}

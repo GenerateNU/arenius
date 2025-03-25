@@ -14,6 +14,7 @@ func Middleware(cfg *config.Supabase) fiber.Handler {
 		token := c.Cookies("jwt", "")
 
 		if token == "" {
+			fmt.Println("JWT not found in middleware")
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Token not found"})
 		}
 

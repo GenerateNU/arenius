@@ -19,7 +19,7 @@ interface DataContextValue<T extends object, F extends object> {
   data: T;
   fetchData: () => void;
   filters: F;
-  setFilters: (filters: F) => void;
+  setFilters: (update: F | ((prevFilters: F) => F)) => void;
   pagination: PaginationState;
   setPagination: React.Dispatch<React.SetStateAction<PaginationState>>;
 }
@@ -58,10 +58,10 @@ export const createDataContext = <T extends object, F extends object>() => {
     }, [filters, fetchFunction, companyId, tenantId, isLoading, pagination]);  // Add `isLoading` to dependencies
 
     useEffect(() => {
-      if (companyId) {
+      if (!isLoading && companyId && Object.keys(filters).length > 0) {
         fetchData();
       }
-    }, [companyId, fetchData, pagination]); // Fetch data when companyId or filters change
+    }, [companyId, fetchData, filters, isLoading, pagination]); // Fetch data when companyId or filters change
 
     if (isLoading) {
       return <div>Loading...</div>;  // Or any loading state you want

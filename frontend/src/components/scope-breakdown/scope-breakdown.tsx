@@ -55,7 +55,6 @@ const ScopeBreakdown = () => {
 
   const totalEmissions = data.reduce((acc, cur) => acc + cur.total_co2, 0);
 
-  console.log(dateRange)
   const chartData = data.map((item) => ({
     name: `Scope ${item.scopes} Emissions`,
     value: item.total_co2,
