@@ -14,6 +14,10 @@ func (h *Handler) BatchCreateCarbonOffsets(c *fiber.Ctx) error {
 		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
 	}
 
+	if len(req.CarbonOffsets) == 0 {
+		return errs.BadRequest("no carbon offsets to insert")
+	}
+
 	createdItems, err := h.OffsetRepository.BatchCreateCarbonOffsets(c.Context(), req)
 	if err != nil {
 		return err

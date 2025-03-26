@@ -24,15 +24,15 @@ func (r *OffsetRepository) CreateCarbonOffset(ctx context.Context, req models.Cr
 		req.PurchaseDate,
 	}
 
-	var numInputs []string
+	var queryPlaceholders []string
 	for i := 1; i <= len(columns); i++ {
-		numInputs = append(numInputs, fmt.Sprintf("$%d", i))
+		queryPlaceholders = append(queryPlaceholders, fmt.Sprintf("$%d", i))
 	}
 
 	query := `
 		INSERT INTO carbon_offset
 		(` + strings.Join(columns, ", ") + `)
-		VALUES (` + strings.Join(numInputs, ", ") + `)
+		VALUES (` + strings.Join(queryPlaceholders, ", ") + `)
 		RETURNING id, carbon_amount_kg, company_id, source, purchase_date;
 	`
 
@@ -51,10 +51,6 @@ func (r *OffsetRepository) CreateCarbonOffset(ctx context.Context, req models.Cr
 }
 
 func (r *OffsetRepository) BatchCreateCarbonOffsets(ctx context.Context, req models.BatchCreateCarbonOffsetsRequest) ([]models.CarbonOffset, error) {
-	if len(req.CarbonOffsets) == 0 {
-		return nil, fmt.Errorf("no carbon offsets to insert")
-	}
-
 	columns := []string{"carbon_amount_kg", "company_id", "source", "purchase_date"}
 	var (
 		queryArgs []any
