@@ -26,7 +26,10 @@ function ContactsContent() {
   );
 
   useEffect(() => {
-    setFilters({ ...filters, search_term: debouncedTerm });
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      search_term: debouncedTerm,
+    }));
   }, [debouncedTerm, setFilters]);
 
   return (
@@ -35,12 +38,12 @@ function ContactsContent() {
         <p className={styles.formTitle}>Contacts</p>
         <div className="relative w-80 justify-start mb-4">
           <Search className={styles.searchIcon} />
-              <Input
-                placeholder="Search your contacts..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={styles.input}
-              />
+          <Input
+            placeholder="Search your contacts..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.input}
+          />
         </div>
         <div className="flex space-x-4 mb-4 ml-auto">
           <Link href="/contacts/new" className="mr-4">
@@ -50,7 +53,7 @@ function ContactsContent() {
                 alt=""
                 width={13}
                 height={13}
-                className= "mr-1"
+                className="mr-1"
               />
               <span>Add Contact</span>
             </button>

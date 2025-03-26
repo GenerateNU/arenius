@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default function Transactions() {
-
   return (
     <EmissionsProvider>
       <LineItemsProvider fetchFunction={fetchLineItems}>
@@ -27,17 +26,30 @@ export default function Transactions() {
 function TransactionsContent() {
   const [reconciled, setReconciled] = useState(true);
   const { filters, setFilters } = useLineItems();
-  const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(filters.searchTerm ?? "");
+  const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(
+    filters.searchTerm ?? ""
+  );
 
   useEffect(() => {
     if (filters.searchTerm !== debouncedTerm) {
-      setFilters({ ...filters, searchTerm: debouncedTerm });
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        searchTerm: debouncedTerm,
+      }));
     }
-  }, [debouncedTerm]);
-  
+  }, [debouncedTerm, setFilters]);
+
   // Only fetch line items when search term actually changes
   useEffect(() => {
-    if (filters.searchTerm || filters.minPrice || filters.maxPrice || filters.emissionFactor || filters.company_id || filters.contact_id, filters.dates) {
+    if (
+      (filters.searchTerm ||
+        filters.minPrice ||
+        filters.maxPrice ||
+        filters.emissionFactor ||
+        filters.company_id ||
+        filters.contact_id,
+      filters.dates)
+    ) {
       // Fetch line items based on searchTerm or other filters
       fetchLineItems(filters);
     }
