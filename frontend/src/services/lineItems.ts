@@ -102,7 +102,7 @@ export async function reconcileBatchOffset(
   try {
     await apiClient.post("/carbon-offset/batch", request);
   } catch (error) {
-    console.error("Error updating dashboard items", error);
+    console.error("Error reconciling carbon offsets", error);
   }
 }
 
