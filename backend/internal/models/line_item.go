@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"time"
+	"github.com/google/uuid"
+)
 
 type LineItem struct {
 	ID               string    `json:"id"`
@@ -40,6 +43,12 @@ type LineItemEmissionsRequest struct {
 	LineItemId string  `json:"line_item_id"`
 	CO2        float64 `json:"co2,omitempty"`
 	CO2Unit    string  `json:"co2_unit,omitempty"`
+}
+
+type UpdateLineItemsRequest struct {
+	LineItemIDs       []uuid.UUID `json:"line_item_ids"`
+	Scope             *int        `json:"scope,omitempty"`
+	EmissionsFactorID *string     `json:"emissions_factor_id,omitempty"`
 }
 
 type CreateLineItemRequest struct {

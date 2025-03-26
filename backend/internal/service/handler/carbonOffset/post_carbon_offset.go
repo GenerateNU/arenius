@@ -9,12 +9,12 @@ import (
 )
 
 func (h *Handler) PostCarbonOffset(c *fiber.Ctx) error {
-	var req models.CarbonOffset
+	var req models.CreateCarbonOffsetRequest
 	if err := c.BodyParser(&req); err != nil {
 		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
 	}
 
-	createdItem, err := h.OffsetRepository.PostCarbonOffset(c.Context(), req)
+	createdItem, err := h.OffsetRepository.CreateCarbonOffset(c.Context(), req)
 	if err != nil {
 		return err
 	}
