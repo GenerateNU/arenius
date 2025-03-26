@@ -291,6 +291,36 @@ Example:
 }
 ```
 
+POST `carbon-offset/batch`
+Creates multiple carbon offset records at once.
+
+```go
+Body Parameters:
+- `carbon_offsets` ([]CreateCarbonOffsetRequest)
+Example:
+- URL: `http://127.0.0.1:8080/carbon-offset/batch`
+- Parameters: [
+    {
+        "carbon_amount_kg": 500,
+        "company_id": "0a67f5d3-88b6-4e8f-aac0-5137b29917fd",
+        "source": "https://example-offset-provider.com",
+        "purchase_date": "2024-02-08T00:00:00Z"
+    },
+    {
+        "carbon_amount_kg": 500,
+        "company_id": "0a67f5d3-88b6-4e8f-aac0-5137b29917fd",
+        "source": "https://example-offset-provider.com",
+        "purchase_date": "2024-02-08T00:00:00Z"
+    },
+    {
+        "carbon_amount_kg": 500,
+        "company_id": "0a67f5d3-88b6-4e8f-aac0-5137b29917fd",
+        "source": "https://example-offset-provider.com",
+        "purchase_date": "2024-02-08T00:00:00Z"
+    }
+]
+```
+
 ## Xero Bank Transactions
 
 POST `/sync-transactions/:tenantId`
@@ -301,7 +331,7 @@ Requires:
 - Session Access Token (stored through /xero/auth)
 - Session Tenant ID (stored through /xero/auth)
 Query Parameters:
-- `tenantId` )string, optional)
+- `tenantId` (string, optional)
 Response:
 - List of dictionaries containing transaction information
 Example:
