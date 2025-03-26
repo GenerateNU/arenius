@@ -48,7 +48,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
       carbon_offsets: table.getSelectedRowModel().rows.map((row) => ({
         carbon_amount_kg: carbon,
         company_id: companyId ?? "",
-        source: row.original.id,
+        source: row.original.description,
         purchase_date: row.original.date,
       })),
     };
