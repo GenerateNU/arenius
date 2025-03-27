@@ -94,7 +94,6 @@ export default function ContactTable() {
         </Table>
       </div>
       <DataTablePagination
-        table={table}
         page={pagination.pageIndex}
         pageLimit={pagination.pageSize}
         total_count={data.total}

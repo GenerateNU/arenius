@@ -174,7 +174,6 @@ export default function LineItemTable({
       </div>
       {paginated && (
         <DataTablePagination
-          table={table}
           page={pageIndex[activePage]}
           pageLimit={pageSize[activePage]}
           total_count={tableData[activePage].total}

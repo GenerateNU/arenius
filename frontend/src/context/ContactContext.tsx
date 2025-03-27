@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { PaginationState } from "@tanstack/react-table";
-import { Contact, GetContactsRequest, GetContactsResponse } from "@/types"; // Assuming Contact type is defined in your types
+import { GetContactsRequest, GetContactsResponse } from "@/types"; // Assuming Contact type is defined in your types
 import { fetchContacts } from "@/services/contacts"; // Assuming this is your fetch function
 
 interface ContactContextValue {

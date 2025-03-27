@@ -1,4 +1,3 @@
-import { Table } from "@tanstack/react-table";
 import {
   ChevronLeft,
   ChevronRight,
@@ -6,7 +5,6 @@ import {
   ChevronsRight,
 } from "lucide-react";
 import { Button } from "./button";
-import { useTransactionsContext } from "@/context/TransactionContext";
 import {
   Select,
   SelectContent,
@@ -15,8 +13,7 @@ import {
   SelectValue,
 } from "./select";
 
-interface DataTablePaginationProps<TData> {
-  table: Table<TData>;
+interface DataTablePaginationProps {
   page: number;
   pageLimit: number;
   total_count: number;
@@ -24,14 +21,13 @@ interface DataTablePaginationProps<TData> {
   setPageLimit: (limit: number) => void;
 }
 
-export function DataTablePagination<TData>({
-  table,
+export function DataTablePagination({
   page,
   pageLimit,
   total_count,
   setPage,
   setPageLimit,
-}: DataTablePaginationProps<TData>) {
+}: DataTablePaginationProps) {
   return (
     <div className="flex items-center justify-end px-2 mt-4">
       <div className="flex items-center space-x-6 lg:space-x-8">
@@ -40,8 +36,8 @@ export function DataTablePagination<TData>({
           <Select
             value={`${pageLimit}`}
             onValueChange={(value) => {
-              table.setPageSize(Number(value)); // Update TanStack table state
-              setPage(1); // Reset to first page
+              setPageLimit(parseFloat(value));
+              setPage(1);
             }}
           >
             <SelectTrigger className="h-8 w-[70px]">

@@ -4,7 +4,6 @@ import ContactTable from "@/components/contacts/ContactTable";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ContactProvider, useContacts } from "@/context/ContactContext";
-import { fetchContacts } from "@/services/contacts";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";

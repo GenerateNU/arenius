@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import ContactsSelector from "./ContactsSelector";
 import { useEffect, useState } from "react";
 import { Contact } from "@/types";
-import { fetchContacts } from "@/services/contacts";
 import { useTransactionsContext } from "@/context/TransactionContext";
 import { ContactProvider } from "@/context/ContactContext";
 
