@@ -177,7 +177,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     }
   }, [
     companyId,
-    // activePage,
+    activePage,
     filters,
     currentPage,
     currentLimit,

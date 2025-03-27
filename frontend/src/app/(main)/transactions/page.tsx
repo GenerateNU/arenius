@@ -14,15 +14,12 @@ import ManualEntryModal from "@/components/transactions/ManualEntryModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { capitalizeFirstLetter } from "@/lib/utils";
-import { ContactProvider } from "@/context/ContactContext";
 
 export default function Transactions() {
   return (
-    <ContactProvider>
-      <TransactionProvider>
-        <TableContent />
-      </TransactionProvider>
-    </ContactProvider>
+    <TransactionProvider>
+      <TableContent />
+    </TransactionProvider>
   );
 }
 
@@ -42,6 +39,7 @@ function TableContent() {
     filters.searchTerm ?? ""
   );
 
+  // Update filters when the debounced search term changes
   useEffect(() => {
     if (filters.searchTerm !== debouncedTerm) {
       setFilters((prevFilters) => ({
@@ -53,77 +51,148 @@ function TableContent() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <p className={styles.formTitle}>Transactions</p>
-        <div className={styles.searchContainer}>
-          <div className={styles.searchWrapper}>
-            <Search className={styles.searchIcon} />
-            <Input
-              placeholder="Search your transactions..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.input}
-            />
-          </div>
-          <ManualEntryModal />
-        </div>
-      </div>
-
-      {/* Table Selection */}
-      <div className="flex justify-between">
-        <div className={styles.reconciliationToggle}>
-          {["reconciled", "unreconciled", "offsets"].map((page) => (
-            <Button
-              key={page}
-              variant={activePage === page ? "default" : "ghost"}
-              onClick={() =>
-                setActiveTable(
-                  page as "reconciled" | "unreconciled" | "offsets"
-                )
-              }
-              className={styles.button}
-            >
-              {capitalizeFirstLetter(page)}
-              {page === "unreconciled" && (
-                <span className="text-xs text-red-500 ml-1">
-                  {tableData.unreconciled.total}
-                </span>
-              )}
-            </Button>
-          ))}
-        </div>
-        {activePage == "reconciled" && (
-          <div className="flex cursor-pointer">
-            <Image
-              className={`${
-                viewMode === "paginated" ? "bg-white" : "bg-gray-300"
-              }`}
-              src="/scopedIcon.svg"
-              height={25}
-              width={25}
-              alt="View by scope"
-              onClick={() => setViewMode("scoped")}
-            />
-            <Image
-              className={`${
-                viewMode === "scoped" ? "bg-white" : "bg-gray-300"
-              }`}
-              src="/hamburger.svg"
-              height={25}
-              width={25}
-              alt="View all"
-              onClick={() => setViewMode("paginated")}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Error & Loading States */}
+      <Header
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        tableData={tableData}
+        activePage={activePage}
+        setActiveTable={setActiveTable}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+      />
       {error ? (
         <p>{error}</p>
       ) : (
         <TableRenderer table={activePage} viewMode={viewMode} />
       )}
+    </div>
+  );
+}
+
+function Header({
+  searchTerm,
+  setSearchTerm,
+  tableData,
+  activePage,
+  setActiveTable,
+  viewMode,
+  setViewMode,
+}: {
+  searchTerm: string;
+  setSearchTerm: (value: string) => void;
+  tableData: any; // Replace with the correct type for `tableData`
+  activePage: string;
+  setActiveTable: (page: "reconciled" | "unreconciled" | "offsets") => void;
+  viewMode: "scoped" | "paginated";
+  setViewMode: (mode: "scoped" | "paginated") => void;
+}) {
+  return (
+    <div>
+      <div className={styles.header}>
+        <p className={styles.formTitle}>Transactions</p>
+        <div className={styles.searchContainer}>
+          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+          <ManualEntryModal />
+        </div>
+      </div>
+
+      <TableSelection
+        tableData={tableData}
+        activePage={activePage}
+        setActiveTable={setActiveTable}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+      />
+    </div>
+  );
+}
+
+function SearchBar({
+  searchTerm,
+  setSearchTerm,
+}: {
+  searchTerm: string;
+  setSearchTerm: (value: string) => void;
+}) {
+  return (
+    <div className={styles.searchWrapper}>
+      <Search className={styles.searchIcon} />
+      <Input
+        placeholder="Search your transactions..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className={styles.input}
+      />
+    </div>
+  );
+}
+
+function TableSelection({
+  tableData,
+  activePage,
+  setActiveTable,
+  viewMode,
+  setViewMode,
+}: {
+  tableData: any; // Replace with the correct type for `tableData`
+  activePage: string;
+  setActiveTable: (page: "reconciled" | "unreconciled" | "offsets") => void;
+  viewMode: "scoped" | "paginated";
+  setViewMode: (mode: "scoped" | "paginated") => void;
+}) {
+  return (
+    <div className="flex justify-between">
+      <div className={styles.reconciliationToggle}>
+        {["reconciled", "unreconciled", "offsets"].map((page) => (
+          <Button
+            key={page}
+            variant={activePage === page ? "default" : "ghost"}
+            onClick={() =>
+              setActiveTable(page as "reconciled" | "unreconciled" | "offsets")
+            }
+            className={styles.button}
+          >
+            {capitalizeFirstLetter(page)}
+            {page === "unreconciled" && (
+              <span className="text-xs text-red-500 ml-1">
+                {tableData.unreconciled.total}
+              </span>
+            )}
+          </Button>
+        ))}
+      </div>
+      {activePage === "reconciled" && (
+        <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
+      )}
+    </div>
+  );
+}
+
+function ViewModeToggle({
+  viewMode,
+  setViewMode,
+}: {
+  viewMode: "scoped" | "paginated";
+  setViewMode: (mode: "scoped" | "paginated") => void;
+}) {
+  return (
+    <div className="flex cursor-pointer">
+      <Image
+        className={`${viewMode === "paginated" ? "bg-white" : "bg-gray-300"}`}
+        src="/scopedIcon.svg"
+        height={25}
+        width={25}
+        alt="View by scope"
+        onClick={() => setViewMode("scoped")}
+      />
+      <Image
+        className={`${viewMode === "scoped" ? "bg-white" : "bg-gray-300"}`}
+        src="/hamburger.svg"
+        height={25}
+        width={25}
+        alt="View all"
+        onClick={() => setViewMode("paginated")}
+      />
     </div>
   );
 }
