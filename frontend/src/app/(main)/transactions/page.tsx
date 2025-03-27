@@ -1,31 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Search } from "lucide-react";
-import { LineItemsProvider, useLineItems } from "@/context/LineItemsContext";
-import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
-import { EmissionsProvider } from "@/context/EmissionsContext";
-
-import { fetchLineItems } from "@/services/lineItems";
-import ManualEntryModal from "@/components/transactions/ManualEntryModal";
 import ReconciledView from "@/components/transactions/ReconciledView";
 import UnreconciledView from "@/components/transactions/UnreconciledView";
+import { ContactsProvider } from "@/context/ContactsContext";
+import { fetchContacts } from "@/services/contacts";
+import { LineItemsProvider } from "@/context/LineItemsContext";
+import { fetchLineItems } from "@/services/lineItems";
+import { TableProvider, useTableContext } from "@/context/TableContext";
+import Image from "next/image";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
+import ManualEntryModal from "@/components/transactions/ManualEntryModal";
 import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { capitalizeFirstLetter } from "@/lib/utils";
 
-export default function Transactions() {
+export default function TablePage() {
   return (
-    <EmissionsProvider>
+    <ContactsProvider fetchFunction={fetchContacts}>
       <LineItemsProvider fetchFunction={fetchLineItems}>
-        <TransactionsContent />
+        <TableProvider>
+          <TableContent />
+        </TableProvider>
       </LineItemsProvider>
-    </EmissionsProvider>
+    </ContactsProvider>
   );
 }
 
-function TransactionsContent() {
-  const [reconciled, setReconciled] = useState(true);
-  const { filters, setFilters } = useLineItems();
+function TableContent() {
+  const {
+    activePage,
+    setActiveTable,
+    viewMode,
+    setViewMode,
+    filters,
+    setFilters,
+    error,
+  } = useTableContext();
+
   const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(
     filters.searchTerm ?? ""
   );
@@ -37,28 +50,7 @@ function TransactionsContent() {
         searchTerm: debouncedTerm,
       }));
     }
-  }, [debouncedTerm, setFilters]);
-
-  // Only fetch line items when search term actually changes
-  useEffect(() => {
-    if (
-      (filters.searchTerm ||
-        filters.minPrice ||
-        filters.maxPrice ||
-        filters.emissionFactor ||
-        filters.company_id ||
-        filters.contact_id,
-      filters.dates)
-    ) {
-      // Fetch line items based on searchTerm or other filters
-      fetchLineItems(filters);
-    }
-  }, [filters]);
-
-  const updateReconciled = (update: boolean) => {
-    setReconciled(update);
-    setFilters({ ...filters, reconciled: update });
-  };
+  }, [debouncedTerm, setFilters, filters.searchTerm]);
 
   return (
     <div className={styles.container}>
@@ -77,30 +69,80 @@ function TransactionsContent() {
           <ManualEntryModal />
         </div>
       </div>
-      <div className={styles.reconciliationToggle}>
-        <Button
-          variant={reconciled ? "default" : "ghost"}
-          onClick={() => updateReconciled(true)}
-          className={styles.button}
-        >
-          Reconciled
-        </Button>
-        <Button
-          variant={reconciled ? "ghost" : "default"}
-          onClick={() => updateReconciled(false)}
-          className={styles.button}
-        >
-          Unreconciled
-        </Button>
+
+      {/* Table Selection */}
+      <div className="flex justify-between">
+        <div className={styles.reconciliationToggle}>
+          {["reconciled", "unreconciled", "offsets"].map((page) => (
+            <Button
+              key={page}
+              variant={activePage === page ? "default" : "ghost"}
+              onClick={() =>
+                setActiveTable(
+                  page as "reconciled" | "unreconciled" | "offsets"
+                )
+              }
+              className={"rounded-md px-4 py-2"}
+            >
+              {capitalizeFirstLetter(page)}
+            </Button>
+          ))}
+        </div>
+        {activePage == "reconciled" && (
+          <div className="flex cursor-pointer">
+            <Image
+              className={`${
+                viewMode === "paginated" ? "bg-white" : "bg-gray-300"
+              }`}
+              src="/scopedIcon.svg"
+              height={25}
+              width={25}
+              alt="View by scope"
+              onClick={() => setViewMode("scoped")}
+            />
+            <Image
+              className={`${
+                viewMode === "scoped" ? "bg-white" : "bg-gray-300"
+              }`}
+              src="/hamburger.svg"
+              height={25}
+              width={25}
+              alt="View all"
+              onClick={() => setViewMode("paginated")}
+            />
+          </div>
+        )}
       </div>
-      {reconciled ? (
-        <ReconciledView viewMode="paginated" />
+
+      {/* Error & Loading States */}
+      {error ? (
+        <p>{error}</p>
       ) : (
-        <UnreconciledView />
+        <TableRenderer table={activePage} viewMode={viewMode} />
       )}
     </div>
   );
 }
+
+function TableRenderer({
+  table,
+  viewMode,
+}: {
+  table: string;
+  viewMode: "scoped" | "paginated";
+}) {
+  switch (table) {
+    case "reconciled":
+      return <ReconciledView viewMode={viewMode} />;
+    case "unreconciled":
+      return <UnreconciledView />;
+    case "offsets":
+      return <p>Carbon credit table.</p>;
+    default:
+      return <p>No table selected.</p>;
+  }
+}
+
 const styles = {
   container:
     "p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] flex-1",
