@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTransactionsContext } from "@/context/TransactionsContext";
+import { useTransactionsContext } from "@/context/TransactionContext";
 
 export default function PriceFilter({
   className,

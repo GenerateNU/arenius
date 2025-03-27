@@ -1,4 +1,4 @@
-import { PaginationState, Table } from "@tanstack/react-table";
+import { Table } from "@tanstack/react-table";
 import {
   ChevronLeft,
   ChevronRight,
@@ -6,6 +6,7 @@ import {
   ChevronsRight,
 } from "lucide-react";
 import { Button } from "./button";
+import { useTransactionsContext } from "@/context/TransactionContext";
 import {
   Select,
   SelectContent,
@@ -16,36 +17,35 @@ import {
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
-  pagination: PaginationState;
+  page: number;
+  pageLimit: number;
   total_count: number;
+  setPage: (page: number) => void;
+  setPageLimit: (limit: number) => void;
 }
-import { useTransactionsContext } from "@/context/TransactionsContext";
 
 export function DataTablePagination<TData>({
   table,
+  page,
+  pageLimit,
   total_count,
+  setPage,
+  setPageLimit,
 }: DataTablePaginationProps<TData>) {
-  const {
-    activePage: activeTable,
-    pageIndex: page,
-    pageSize: pageLimit,
-    setPage,
-  } = useTransactionsContext();
-
   return (
     <div className="flex items-center justify-end px-2 mt-4">
       <div className="flex items-center space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium">Rows per page</p>
           <Select
-            value={`${pageLimit[activeTable]}`}
+            value={`${pageLimit}`}
             onValueChange={(value) => {
               table.setPageSize(Number(value)); // Update TanStack table state
-              setPage(activeTable, 1); // Reset to first page
+              setPage(1); // Reset to first page
             }}
           >
             <SelectTrigger className="h-8 w-[70px]">
-              <SelectValue placeholder={pageLimit[activeTable]} />
+              <SelectValue placeholder={pageLimit} />
             </SelectTrigger>
             <SelectContent side="top">
               {[10, 20, 50, 100, 200].map((pageSize) => (
@@ -57,15 +57,14 @@ export function DataTablePagination<TData>({
           </Select>
         </div>
         <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-          Page {page[activeTable]} of{" "}
-          {getNumberPages(pageLimit[activeTable], total_count)}
+          Page {page} of {getNumberPages(pageLimit, total_count)}
         </div>
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
             className="hidden h-8 w-8 p-0 lg:flex"
-            onClick={() => setPage(activeTable, 1)}
-            disabled={page[activeTable] === 1}
+            onClick={() => setPage(1)}
+            disabled={page === 1}
           >
             <span className="sr-only">Go to first page</span>
             <ChevronsLeft />
@@ -73,8 +72,8 @@ export function DataTablePagination<TData>({
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
-            onClick={() => setPage(activeTable, page[activeTable] - 1)}
-            disabled={page[activeTable] === 1}
+            onClick={() => setPage(page - 1)}
+            disabled={page === 1}
           >
             <span className="sr-only">Go to previous page</span>
             <ChevronLeft />
@@ -82,8 +81,8 @@ export function DataTablePagination<TData>({
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
-            onClick={() => setPage(activeTable, page[activeTable] + 1)}
-            disabled={page[activeTable] * pageLimit[activeTable] >= total_count}
+            onClick={() => setPage(page + 1)}
+            disabled={page * pageLimit >= total_count}
           >
             <span className="sr-only">Go to next page</span>
             <ChevronRight />
@@ -91,13 +90,8 @@ export function DataTablePagination<TData>({
           <Button
             variant="outline"
             className="hidden h-8 w-8 p-0 lg:flex"
-            onClick={() =>
-              setPage(
-                activeTable,
-                getNumberPages(pageLimit[activeTable], total_count)
-              )
-            }
-            disabled={page[activeTable] * pageLimit[activeTable] >= total_count}
+            onClick={() => setPage(getNumberPages(pageLimit, total_count))}
+            disabled={page * pageLimit >= total_count}
           >
             <span className="sr-only">Go to last page</span>
             <ChevronsRight />

@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useContacts } from "@/context/ContactsContext";
+import { useContacts } from "@/context/ContactContext";
 import { Contact } from "@/types";
 import { ChevronDown } from "lucide-react";
 

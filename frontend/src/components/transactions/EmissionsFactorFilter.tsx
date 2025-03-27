@@ -5,7 +5,7 @@ import EmissionsFactorSelector from "./CategorySelector";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
-import { useTransactionsContext } from "@/context/TransactionsContext";
+import { useTransactionsContext } from "@/context/TransactionContext";
 
 export default function EmissionsFactorFilter({
   className,

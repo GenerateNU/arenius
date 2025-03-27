@@ -99,7 +99,7 @@ export type Contact = {
 
 export type GetContactsRequest = {
   company_id: string;
-  search_term: string;
+  search_term?: string;
   pageSize?: number;
   pageIndex?: number;
   unpaginated?: boolean;

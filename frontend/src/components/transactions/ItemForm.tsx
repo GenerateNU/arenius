@@ -23,7 +23,7 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useAuth } from "@/context/AuthContext";
-import { useTransactionsContext } from "@/context/TransactionsContext";
+import { useTransactionsContext } from "@/context/TransactionContext";
 
 const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AUD"];
 

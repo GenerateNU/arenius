@@ -4,7 +4,7 @@ import { DatePickerWithRange } from "./DatePicker";
 import PriceFilter from "./PriceFilter";
 import ContactFilter from "./ContactFilter";
 import { Button } from "../ui/button";
-import { useTransactionsContext } from "@/context/TransactionsContext";
+import { useTransactionsContext } from "@/context/TransactionContext";
 
 export default function LineItemTableFilters() {
   const { filters, setFilters } = useTransactionsContext();

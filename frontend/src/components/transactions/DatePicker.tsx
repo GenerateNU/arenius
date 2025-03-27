@@ -12,7 +12,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ChevronDown } from "lucide-react";
-import { useTransactionsContext } from "@/context/TransactionsContext";
+import { useTransactionsContext } from "@/context/TransactionContext";
 
 export function DatePickerWithRange({
   className,

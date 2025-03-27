@@ -4,11 +4,9 @@ import { useEffect } from "react";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import {
-  TransactionsProvider,
+  TransactionProvider,
   useTransactionsContext,
-} from "@/context/TransactionsContext";
-import { ContactsProvider } from "@/context/ContactsContext";
-import { fetchContacts } from "@/services/contacts";
+} from "@/context/TransactionContext";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import ReconciledView from "@/components/transactions/ReconciledView";
 import UnreconciledView from "@/components/transactions/UnreconciledView";
@@ -16,14 +14,15 @@ import ManualEntryModal from "@/components/transactions/ManualEntryModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { capitalizeFirstLetter } from "@/lib/utils";
+import { ContactProvider } from "@/context/ContactContext";
 
 export default function Transactions() {
   return (
-    <ContactsProvider fetchFunction={fetchContacts}>
-      <TransactionsProvider>
+    <ContactProvider>
+      <TransactionProvider>
         <TableContent />
-      </TransactionsProvider>
-    </ContactsProvider>
+      </TransactionProvider>
+    </ContactProvider>
   );
 }
 

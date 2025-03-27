@@ -25,6 +25,7 @@ interface TableContextType {
   pageIndex: Record<TableKey, number>;
   pageSize: Record<TableKey, number>;
   setPage: (table: TableKey, page: number) => void;
+  setPageSize: (table: TableKey, size: number) => void;
   fetchTableData: (table: TableKey, filters: LineItemFilters) => Promise<void>;
   loading: boolean;
   error: string | null;
@@ -38,9 +39,11 @@ interface TableContextType {
   ) => void;
 }
 
-const TableContext = createContext<TableContextType | undefined>(undefined);
+const TransactionContext = createContext<TableContextType | undefined>(
+  undefined
+);
 
-export function TransactionsProvider({ children }: { children: ReactNode }) {
+export function TransactionProvider({ children }: { children: ReactNode }) {
   const [activePage, setActivePage] = useState<TableKey>("reconciled");
   const [viewMode, setViewMode] = useState<"paginated" | "scoped">("scoped");
   const [tableData, setTableData] = useState<
@@ -60,7 +63,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
     offsets: 1,
   });
 
-  const [pageLimit] = useState<Record<TableKey, number>>({
+  const [pageSize, setPageSize] = useState<Record<TableKey, number>>({
     reconciled: 10,
     unreconciled: 10,
     offsets: 10,
@@ -144,7 +147,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
           ...filters,
           company_id: companyId,
           pageIndex: page[table],
-          pageSize: pageLimit[table],
+          pageSize: pageSize[table],
         });
 
         setTableData((prev) => ({ ...prev, [table]: data }));
@@ -154,7 +157,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
 
       setLoading(false);
     },
-    [companyId, filters, page, pageLimit]
+    [companyId, filters, page, pageSize]
   );
 
   // Fetch all data on mount when companyId becomes available
@@ -165,7 +168,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
   }, [companyId, fetchAllData]);
 
   const currentPage = page[activePage];
-  const currentLimit = pageLimit[activePage];
+  const currentLimit = pageSize[activePage];
 
   // Fetch data for the active table when relevant dependencies change
   useEffect(() => {
@@ -182,15 +185,17 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
   ]);
 
   return (
-    <TableContext.Provider
+    <TransactionContext.Provider
       value={{
         activePage,
         setActiveTable: setActivePage,
         tableData,
         pageIndex: page,
-        pageSize: pageLimit,
+        pageSize: pageSize,
         setPage: (table: TableKey, pageNumber: number) =>
           setPage((prev) => ({ ...prev, [table]: pageNumber })),
+        setPageSize: (table: TableKey, limit: number) =>
+          setPageSize((prev) => ({ ...prev, [table]: limit })),
         fetchTableData,
         loading,
         error,
@@ -201,12 +206,12 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
-    </TableContext.Provider>
+    </TransactionContext.Provider>
   );
 }
 
 export function useTransactionsContext() {
-  const context = useContext(TableContext);
+  const context = useContext(TransactionContext);
   if (!context) {
     throw new Error(
       "useTransactionsContext must be used within a TableProvider"

@@ -23,7 +23,7 @@ import LineItemTableActions from "./LineItemTableActions";
 import { ModalDialog } from "./ModalDialog";
 import Image from "next/image";
 import { DataTablePagination } from "../ui/DataTablePagination";
-import { useTransactionsContext } from "@/context/TransactionsContext";
+import { useTransactionsContext } from "@/context/TransactionContext";
 
 export type LineItemTableProps = {
   activePage: "reconciled" | "unreconciled" | "offsets";
@@ -46,7 +46,14 @@ export default function LineItemTable({
 }: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const { tableData, fetchTableData } = useTransactionsContext();
+  const {
+    tableData,
+    fetchTableData,
+    pageIndex,
+    pageSize,
+    setPage,
+    setPageSize,
+  } = useTransactionsContext();
 
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -168,8 +175,11 @@ export default function LineItemTable({
       {paginated && (
         <DataTablePagination
           table={table}
-          pagination={pagination}
-          total_count={tableData[activeTableData].total}
+          page={pageIndex[activePage]}
+          pageLimit={pageSize[activePage]}
+          total_count={tableData[activePage].total}
+          setPage={(newPage) => setPage(activePage, newPage)}
+          setPageLimit={(newLimit) => setPageSize(activePage, newLimit)}
         />
       )}
 
