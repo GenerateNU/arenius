@@ -22,8 +22,8 @@ import {
 } from "../ui/select";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { useLineItems } from "@/context/LineItemsContext";
 import { useAuth } from "@/context/AuthContext";
+import { useTableContext } from "@/context/TableContext";
 
 const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AUD"];
 
@@ -34,7 +34,7 @@ const formSchema = z.object({
 });
 
 export default function ItemForm() {
-  const { fetchData } = useLineItems();
+  const { fetchTableData } = useTableContext();
   const { companyId } = useAuth(); // Get companyId from AuthContext
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -48,17 +48,20 @@ export default function ItemForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (companyId) {
-      await createLineItem({
-        description: values.description,
-        total_amount: values.price,
-        currency_code: values.currency_code,
-      }, companyId);
-      fetchData();
+      await createLineItem(
+        {
+          description: values.description,
+          total_amount: values.price,
+          currency_code: values.currency_code,
+        },
+        companyId
+      );
+      fetchTableData("unreconciled", {});
       form.reset();
     } else {
       console.error("Company ID is null");
     }
-    fetchData();
+    fetchTableData("unreconciled", {});
     form.reset();
   }
 

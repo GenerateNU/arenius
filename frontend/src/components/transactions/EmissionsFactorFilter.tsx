@@ -3,15 +3,15 @@
 import { EmissionsFactor } from "@/types";
 import EmissionsFactorSelector from "./CategorySelector";
 import { useEffect, useState } from "react";
-import { useLineItems } from "@/context/LineItemsContext";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import { useTableContext } from "@/context/TableContext";
 
 export default function EmissionsFactorFilter({
   className,
 }: React.HTMLAttributes<HTMLDivElement>) {
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
-  const { filters, setFilters } = useLineItems();
+  const { filters, setFilters } = useTableContext();
   const { companyId } = useAuth();
 
   // Update filter whenever emissionsFactor changes

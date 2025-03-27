@@ -16,9 +16,9 @@ import {
   LineItem,
   ReconcileBatchRequest,
 } from "@/types";
-import { useLineItems } from "@/context/LineItemsContext";
 import { reconcileBatch, reconcileBatchOffset } from "@/services/lineItems";
 import { useAuth } from "@/context/AuthContext";
+import { useTableContext } from "@/context/TableContext";
 
 type LineItemTableActionsProps = {
   table: Table<LineItem>;
@@ -29,7 +29,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
   const [carbon, setCarbon] = useState<number>();
   const { companyId } = useAuth();
-  const { fetchData } = useLineItems();
+  const { fetchTableData } = useTableContext();
 
   async function handleReconciliation() {
     if (scope === "0") {
@@ -43,7 +43,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
     }
 
     resetState();
-    fetchData();
+    fetchTableData("unreconciled", {});
   }
 
   // Handles reconciliation for carbon offsets
