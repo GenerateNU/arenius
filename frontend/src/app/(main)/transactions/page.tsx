@@ -1,29 +1,25 @@
 "use client";
 
-import ReconciledView from "@/components/transactions/ReconciledView";
-import UnreconciledView from "@/components/transactions/UnreconciledView";
+import { useEffect } from "react";
+import Image from "next/image";
+import { Search } from "lucide-react";
+import { TransactionsProvider, useTableContext } from "@/context/TableContext";
 import { ContactsProvider } from "@/context/ContactsContext";
 import { fetchContacts } from "@/services/contacts";
-import { LineItemsProvider } from "@/context/LineItemsContext";
-import { fetchLineItems } from "@/services/lineItems";
-import { TableProvider, useTableContext } from "@/context/TableContext";
-import Image from "next/image";
-import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
+import ReconciledView from "@/components/transactions/ReconciledView";
+import UnreconciledView from "@/components/transactions/UnreconciledView";
 import ManualEntryModal from "@/components/transactions/ManualEntryModal";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
 import { capitalizeFirstLetter } from "@/lib/utils";
 
-export default function TablePage() {
+export default function Transactions() {
   return (
     <ContactsProvider fetchFunction={fetchContacts}>
-      <LineItemsProvider fetchFunction={fetchLineItems}>
-        <TableProvider>
-          <TableContent />
-        </TableProvider>
-      </LineItemsProvider>
+      <TransactionsProvider>
+        <TableContent />
+      </TransactionsProvider>
     </ContactsProvider>
   );
 }
@@ -82,7 +78,7 @@ function TableContent() {
                   page as "reconciled" | "unreconciled" | "offsets"
                 )
               }
-              className={"rounded-md px-4 py-2"}
+              className={styles.button}
             >
               {capitalizeFirstLetter(page)}
             </Button>

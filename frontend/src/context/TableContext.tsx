@@ -40,7 +40,7 @@ interface TableContextType {
 
 const TableContext = createContext<TableContextType | undefined>(undefined);
 
-export function TableProvider({ children }: { children: ReactNode }) {
+export function TransactionsProvider({ children }: { children: ReactNode }) {
   const [activePage, setActivePage] = useState<TableKey>("reconciled");
   const [viewMode, setViewMode] = useState<"paginated" | "scoped">("scoped");
   const [tableData, setTableData] = useState<
