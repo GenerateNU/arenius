@@ -31,6 +31,7 @@ function TableContent() {
   const {
     activePage,
     setActiveTable,
+    tableData,
     viewMode,
     setViewMode,
     filters,
@@ -84,6 +85,11 @@ function TableContent() {
               className={styles.button}
             >
               {capitalizeFirstLetter(page)}
+              {page === "unreconciled" && (
+                <span className="text-xs text-red-500 ml-1">
+                  {tableData.unreconciled.total}
+                </span>
+              )}
             </Button>
           ))}
         </div>

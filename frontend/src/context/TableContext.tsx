@@ -72,51 +72,83 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Fetch all data for all tables and scopes
+  const fetchAllData = useCallback(async () => {
+    if (!companyId) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const [reconciled, unreconciled, offsets, scope1, scope2, scope3] =
+        await Promise.all([
+          fetchLineItems({
+            reconciled: true,
+            ...filters,
+            company_id: companyId,
+          }),
+          fetchLineItems({
+            reconciled: false,
+            ...filters,
+            company_id: companyId,
+          }),
+          // TODO: update this to fetch offsets once endpoint is built
+          fetchLineItems({
+            reconciled: true,
+            ...filters,
+            company_id: companyId,
+          }),
+          fetchLineItems({
+            scope: 1,
+            ...filters,
+            company_id: companyId,
+          }),
+          fetchLineItems({
+            scope: 2,
+            ...filters,
+            company_id: companyId,
+          }),
+          fetchLineItems({
+            scope: 3,
+            ...filters,
+            company_id: companyId,
+          }),
+        ]);
+
+      setTableData({
+        reconciled,
+        unreconciled,
+        offsets,
+        scope1,
+        scope2,
+        scope3,
+      });
+    } catch (err) {
+      setError(`Failed to load data: ${err}`);
+    }
+
+    setLoading(false);
+  }, [companyId]);
+
+  // Fetch data for the active table only
   const fetchTableData = useCallback(
     async (table: TableKey, otherFilters: LineItemFilters) => {
-      if (!companyId) {
-        console.log("Company ID is not available yet");
-        return; // Don't fetch if companyId is not available
-      }
+      if (!companyId) return;
 
       setLoading(true);
       setError(null);
 
       try {
-        if (table === "reconciled") {
-          const [scope1, scope2, scope3] = await Promise.all([
-            fetchLineItems({
-              scope: 1,
-              ...filters,
-              ...otherFilters,
-              company_id: companyId,
-            }),
-            fetchLineItems({
-              scope: 2,
-              ...filters,
-              ...otherFilters,
-              company_id: companyId,
-            }),
-            fetchLineItems({
-              scope: 3,
-              ...filters,
-              ...otherFilters,
-              company_id: companyId,
-            }),
-          ]);
-
-          setTableData((prevData) => ({ ...prevData, scope1, scope2, scope3 }));
-        }
-
-        // Fetch normally for paginated view
         const data = await fetchLineItems({
           reconciled: table === "reconciled",
+          // offsets: table === "offsets",
           ...filters,
           ...otherFilters,
           company_id: companyId,
           pageIndex: page[table],
           pageSize: pageLimit[table],
         });
+
         setTableData((prev) => ({ ...prev, [table]: data }));
       } catch (err) {
         setError(`Failed to load data: ${err}`);
@@ -124,17 +156,34 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
 
       setLoading(false);
     },
-    [companyId, filters]
+    [companyId, filters, page, pageLimit]
   );
 
+  // Fetch all data on mount when companyId becomes available
   useEffect(() => {
-    fetchTableData(activePage, {});
-  }, [companyId, activePage, filters, page[activePage], pageLimit[activePage]]);
+    if (companyId) {
+      fetchAllData();
+    }
+  }, [companyId, fetchAllData]);
+
+  // Fetch data for the active table when relevant dependencies change
+  useEffect(() => {
+    if (companyId) {
+      fetchTableData(activePage, {});
+    }
+  }, [
+    companyId,
+    // activePage,
+    filters,
+    page[activePage],
+    pageLimit[activePage],
+    fetchTableData,
+  ]);
 
   return (
     <TableContext.Provider
       value={{
-        activePage: activePage,
+        activePage,
         setActiveTable: setActivePage,
         tableData,
         pageIndex: page,

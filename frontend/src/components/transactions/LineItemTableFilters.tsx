@@ -7,7 +7,10 @@ import { Button } from "../ui/button";
 import { useTransactionsContext } from "@/context/TableContext";
 
 export default function LineItemTableFilters() {
-  const { setFilters } = useTransactionsContext();
+  const { filters, setFilters } = useTransactionsContext();
+
+  const hasFilter =
+    filters.dates || filters.minPrice || filters.maxPrice || filters.dates;
 
   return (
     <div className="flex flex-col my-2">
@@ -17,9 +20,11 @@ export default function LineItemTableFilters() {
         <PriceFilter className={styles.filter} />
       </div>
       <div className="flex justify-end">
-        <Button variant="ghost" onClick={() => setFilters({})}>
-          Clear filters
-        </Button>
+        {hasFilter && (
+          <Button variant="ghost" onClick={() => setFilters({})}>
+            Clear filters
+          </Button>
+        )}
       </div>
     </div>
   );
