@@ -19,6 +19,7 @@ const ReconciledView = ({ viewMode }: ReconciledViewProps) => {
   if (viewMode == "paginated") {
     return (
       <div>
+        <p className="font-bold text-lg py-4">All reconciled transactions</p>
         <LineItemTable
           activePage={"reconciled"}
           activeTableData="reconciled"

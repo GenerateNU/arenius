@@ -30,6 +30,12 @@ interface TableContextType {
   error: string | null;
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
+  filters: LineItemFilters;
+  setFilters: (
+    update:
+      | LineItemFilters
+      | ((prevFilters: LineItemFilters) => LineItemFilters)
+  ) => void;
 }
 
 const TableContext = createContext<TableContextType | undefined>(undefined);
@@ -59,6 +65,7 @@ export function TableProvider({ children }: { children: ReactNode }) {
     unreconciled: 10,
     offsets: 10,
   });
+  const [filters, setFilters] = useState<LineItemFilters>({});
 
   const { companyId } = useAuth();
 
@@ -80,16 +87,19 @@ export function TableProvider({ children }: { children: ReactNode }) {
           const [scope1, scope2, scope3] = await Promise.all([
             fetchLineItems({
               scope: 1,
+              ...filters,
               ...otherFilters,
               company_id: companyId,
             }),
             fetchLineItems({
               scope: 2,
+              ...filters,
               ...otherFilters,
               company_id: companyId,
             }),
             fetchLineItems({
               scope: 3,
+              ...filters,
               ...otherFilters,
               company_id: companyId,
             }),
@@ -101,6 +111,7 @@ export function TableProvider({ children }: { children: ReactNode }) {
         // Fetch normally for paginated view
         const data = await fetchLineItems({
           reconciled: table === "reconciled",
+          ...filters,
           ...otherFilters,
           company_id: companyId,
           pageIndex: page[table],
@@ -113,12 +124,12 @@ export function TableProvider({ children }: { children: ReactNode }) {
 
       setLoading(false);
     },
-    [companyId]
+    [companyId, filters]
   );
 
   useEffect(() => {
     fetchTableData(activePage, {});
-  }, [companyId, activePage, page[activePage], pageLimit[activePage]]);
+  }, [companyId, activePage, filters, page[activePage], pageLimit[activePage]]);
 
   return (
     <TableContext.Provider
@@ -135,6 +146,8 @@ export function TableProvider({ children }: { children: ReactNode }) {
         error,
         viewMode,
         setViewMode,
+        filters,
+        setFilters,
       }}
     >
       {children}
