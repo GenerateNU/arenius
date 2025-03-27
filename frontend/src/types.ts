@@ -26,6 +26,7 @@ export interface LineItemFilters {
   searchTerm?: string;
   company_id?: string;
   contact_id?: string;
+  scope?: number;
   pageSize?: number;
   pageIndex?: number;
   reconciled?: boolean;

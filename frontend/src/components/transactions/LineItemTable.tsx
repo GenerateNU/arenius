@@ -19,27 +19,39 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { LineItem } from "@/types";
-import { useLineItems } from "@/context/LineItemsContext";
 import LineItemTableActions from "./LineItemTableActions";
 import { ModalDialog } from "./ModalDialog";
 import Image from "next/image";
 import { DataTablePagination } from "../ui/DataTablePagination";
+import { useTableContext } from "@/context/TableContext";
 
 export type LineItemTableProps = {
+  activePage: "reconciled" | "unreconciled" | "offsets";
+  activeTableData:
+    | "reconciled"
+    | "scope1"
+    | "scope2"
+    | "scope3"
+    | "unreconciled"
+    | "offsets";
   columns: ColumnDef<LineItem>[];
-  data: LineItem[];
-  rowCount: number;
   paginated?: boolean;
 };
 
 export default function LineItemTable({
   columns,
-  data,
-  rowCount,
+  activePage,
+  activeTableData,
   paginated = true,
 }: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { fetchData, pagination, setPagination } = useLineItems();
+
+  const { tableData, fetchTableData } = useTableContext();
+
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   // object and boolean to handle clicking a row's action button
   const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
@@ -48,13 +60,13 @@ export default function LineItemTable({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const table = useReactTable({
-    data: data || [],
+    data: tableData[activeTableData].line_items || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
-    rowCount,
+    rowCount: tableData[activeTableData].total,
     onPaginationChange: setPagination,
     getRowId: (row: LineItem) => row.id,
     state: {
@@ -74,7 +86,7 @@ export default function LineItemTable({
   };
 
   const handleReconcileSuccess = () => {
-    fetchData();
+    fetchTableData(activePage, {});
     setIsDialogOpen(false);
   };
 
@@ -157,7 +169,7 @@ export default function LineItemTable({
         <DataTablePagination
           table={table}
           pagination={pagination}
-          total_count={rowCount}
+          total_count={tableData[activeTableData].total}
         />
       )}
 

@@ -93,7 +93,11 @@ function TransactionsContent() {
           Unreconciled
         </Button>
       </div>
-      {reconciled ? <ReconciledView /> : <UnreconciledView />}
+      {reconciled ? (
+        <ReconciledView viewMode="paginated" />
+      ) : (
+        <UnreconciledView />
+      )}
     </div>
   );
 }

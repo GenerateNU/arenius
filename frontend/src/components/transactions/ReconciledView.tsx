@@ -3,20 +3,37 @@ import { GetLineItemResponse } from "@/types";
 import { reconciledColumns } from "./columns";
 import { HelpCircle, ArrowRight } from "lucide-react";
 import LineItemTable from "./LineItemTable";
-import { useLineItems } from "@/context/LineItemsContext";
+import { useTableContext } from "@/context/TableContext";
 
-const ReconciledView = () => {
+export type ReconciledViewProps = {
+  viewMode: "paginated" | "scoped";
+};
+
+const ReconciledView = ({ viewMode }: ReconciledViewProps) => {
   const [seeScope, setSeeScope] = useState<number | undefined>();
 
-  const { data } = useLineItems();
+  const { tableData } = useTableContext();
+
+  console.log("tableData: ", tableData);
+
+  if (viewMode == "paginated") {
+    return (
+      <div>
+        <LineItemTable
+          activePage={"reconciled"}
+          activeTableData="reconciled"
+          columns={reconciledColumns}
+        />
+      </div>
+    );
+  }
 
   return (
     <div>
       {!seeScope &&
-        [1, 2, 3].map((scope) => (
+        ([1, 2, 3] as (1 | 2 | 3)[]).map((scope) => (
           <ScopeTablePreview
             key={scope}
-            data={data}
             scope={scope}
             handleClick={() => setSeeScope(scope)}
           />
@@ -24,7 +41,7 @@ const ReconciledView = () => {
 
       {seeScope && (
         <ScopeReconciledView
-          data={data}
+          data={tableData.reconciled}
           scope={seeScope}
           handleClick={() => setSeeScope(undefined)}
         />
@@ -34,18 +51,12 @@ const ReconciledView = () => {
 };
 
 const ScopeTablePreview = ({
-  data,
   scope,
   handleClick,
 }: {
-  data: GetLineItemResponse;
-  scope?: number;
+  scope: 1 | 2 | 3;
   handleClick?: () => void;
 }) => {
-  const filteredData = data.line_items
-    ?.filter((item) => item.scope === scope)
-    .slice(0, 5);
-
   return (
     <div className="mt-4 mb-8">
       {scope && (
@@ -64,9 +75,9 @@ const ScopeTablePreview = ({
         </div>
       )}
       <LineItemTable
+        activePage="reconciled"
+        activeTableData={`scope${scope}`}
         columns={reconciledColumns}
-        data={filteredData}
-        rowCount={filteredData?.length}
         paginated={false}
       />
     </div>
@@ -93,9 +104,9 @@ const ScopeReconciledView = ({
         </p>
       </div>
       <LineItemTable
+        activePage="reconciled"
+        activeTableData="reconciled"
         columns={reconciledColumns}
-        data={filteredData}
-        rowCount={filteredData.length}
       />
     </div>
   );
