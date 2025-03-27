@@ -2,7 +2,6 @@
 import React from "react";
 import { DatePickerWithRange } from "./DatePicker";
 import PriceFilter from "./PriceFilter";
-import EmissionsFactorFilter from "./EmissionsFactorFilter";
 import ContactFilter from "./ContactFilter";
 import { Button } from "../ui/button";
 import { useLineItems } from "@/context/LineItemsContext";
@@ -14,7 +13,6 @@ export default function LineItemTableFilters() {
     <div className="flex flex-col my-2">
       <div className={styles.container}>
         <DatePickerWithRange className={styles.filter} />
-        <EmissionsFactorFilter className={styles.filter} />
         <ContactFilter className={styles.filter} />
         <PriceFilter className={styles.filter} />
       </div>
