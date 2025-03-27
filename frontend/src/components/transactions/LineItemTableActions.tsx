@@ -27,12 +27,16 @@ type LineItemTableActionsProps = {
 export function LineItemTableActions({ table }: LineItemTableActionsProps) {
   const [scope, setScope] = useState("");
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
-  const [carbon, setCarbon] = useState(0);
+  const [carbon, setCarbon] = useState<number>();
   const { companyId } = useAuth();
   const { fetchData } = useLineItems();
 
   async function handleReconciliation() {
     if (scope === "0") {
+      if (!carbon || carbon <= 0) {
+        alert("Please enter a valid carbon offset amount.");
+        return;
+      }
       await handleCarbonOffsetReconciliation();
     } else {
       await handleLineItemReconciliation();
@@ -46,7 +50,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
   async function handleCarbonOffsetReconciliation() {
     const request: BatchCreateCarbonOffsetsRequest = {
       carbon_offsets: table.getSelectedRowModel().rows.map((row) => ({
-        carbon_amount_kg: carbon,
+        carbon_amount_kg: carbon ?? 0,
         company_id: companyId ?? "",
         source: row.original.description,
         purchase_date: row.original.date,
@@ -117,7 +121,7 @@ function CarbonOffsetInput({
   carbon,
   setCarbon,
 }: {
-  carbon: number;
+  carbon: number | undefined;
   setCarbon: (value: number) => void;
 }) {
   return (
@@ -126,9 +130,10 @@ function CarbonOffsetInput({
       <Input
         type="number"
         className="bg-white"
-        value={carbon ?? ""}
+        value={carbon ?? "0"}
         onChange={(e) => setCarbon(parseFloat(e.target.value))}
         placeholder="10 kg"
+        min="0"
       />
     </div>
   );
