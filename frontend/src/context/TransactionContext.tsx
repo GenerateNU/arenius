@@ -11,10 +11,10 @@ import { GetLineItemResponse, LineItemFilters } from "@/types";
 import { useAuth } from "./AuthContext";
 
 type TABLES = ["reconciled", "unreconciled", "offsets"];
-type TableKey = TABLES[number];
+export type TableKey = TABLES[number];
 
 type SCOPES = ["scope1", "scope2", "scope3"];
-type ScopeKey = SCOPES[number];
+export type ScopeKey = SCOPES[number];
 
 type ViewMode = "paginated" | "scoped";
 

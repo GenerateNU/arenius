@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import {
+  ScopeKey,
+  TableKey,
   TransactionProvider,
   useTransactionsContext,
 } from "@/context/TransactionContext";
@@ -14,6 +16,7 @@ import ManualEntryModal from "@/components/transactions/ManualEntryModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { capitalizeFirstLetter } from "@/lib/utils";
+import { GetLineItemResponse } from "@/types";
 
 export default function Transactions() {
   return (
@@ -80,7 +83,7 @@ function Header({
 }: {
   searchTerm: string;
   setSearchTerm: (value: string) => void;
-  tableData: any; // Replace with the correct type for `tableData`
+  tableData: Record<TableKey | ScopeKey, GetLineItemResponse>;
   activePage: string;
   setActiveTable: (page: "reconciled" | "unreconciled" | "offsets") => void;
   viewMode: "scoped" | "paginated";
@@ -134,7 +137,7 @@ function TableSelection({
   viewMode,
   setViewMode,
 }: {
-  tableData: any; // Replace with the correct type for `tableData`
+  tableData: Record<TableKey | ScopeKey, GetLineItemResponse>;
   activePage: string;
   setActiveTable: (page: "reconciled" | "unreconciled" | "offsets") => void;
   viewMode: "scoped" | "paginated";

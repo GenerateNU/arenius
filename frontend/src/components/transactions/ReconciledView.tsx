@@ -9,7 +9,7 @@ export type ReconciledViewProps = {
 };
 
 const ReconciledView = ({ viewMode }: ReconciledViewProps) => {
-  const [seeScope, setSeeScope] = useState<number | undefined>();
+  const [seeScope, setSeeScope] = useState<1 | 2 | 3 | undefined>();
 
   const { tableData } = useTransactionsContext();
 
@@ -87,7 +87,7 @@ const ScopeReconciledView = ({
   scope,
   handleClick,
 }: {
-  scope?: number;
+  scope: 1 | 2 | 3;
   handleClick: () => void;
 }) => {
   return (
@@ -100,7 +100,7 @@ const ScopeReconciledView = ({
       </div>
       <LineItemTable
         activePage="reconciled"
-        activeTableData="reconciled"
+        activeTableData={`scope${scope}`}
         columns={reconciledColumns}
       />
     </div>
