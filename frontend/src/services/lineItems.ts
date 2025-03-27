@@ -1,4 +1,5 @@
 import {
+  BatchCreateCarbonOffsetsRequest,
   CreateLineItemRequest,
   GetLineItemResponse,
   LineItemFilters,
@@ -92,6 +93,16 @@ export async function reconcileBatch(request: ReconcileBatchRequest) {
     });
   } catch (error) {
     console.error("Error updating dashboard items", error);
+  }
+}
+
+export async function reconcileBatchOffset(
+  request: BatchCreateCarbonOffsetsRequest
+) {
+  try {
+    await apiClient.post("/carbon-offset/batch", request);
+  } catch (error) {
+    console.error("Error reconciling carbon offsets", error);
   }
 }
 
