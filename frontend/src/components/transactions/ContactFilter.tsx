@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Contact } from "@/types";
 import { ContactsProvider } from "@/context/ContactsContext";
 import { fetchContacts } from "@/services/contacts";
-import { useTransactionsContext } from "@/context/TableContext";
+import { useTransactionsContext } from "@/context/TransactionsContext";
 
 export default function ContactFilter({
   className,

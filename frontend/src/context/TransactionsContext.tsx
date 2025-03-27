@@ -132,7 +132,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
 
   // Fetch data for the active table only
   const fetchTableData = useCallback(
-    async (table: TableKey, otherFilters: LineItemFilters) => {
+    async (table: TableKey) => {
       if (!companyId) return;
 
       setLoading(true);
@@ -141,9 +141,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
       try {
         const data = await fetchLineItems({
           reconciled: table === "reconciled",
-          // offsets: table === "offsets",
           ...filters,
-          ...otherFilters,
           company_id: companyId,
           pageIndex: page[table],
           pageSize: pageLimit[table],
@@ -166,17 +164,20 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
     }
   }, [companyId, fetchAllData]);
 
+  const currentPage = page[activePage];
+  const currentLimit = pageLimit[activePage];
+
   // Fetch data for the active table when relevant dependencies change
   useEffect(() => {
     if (companyId) {
-      fetchTableData(activePage, {});
+      fetchTableData(activePage);
     }
   }, [
     companyId,
     // activePage,
     filters,
-    page[activePage],
-    pageLimit[activePage],
+    currentPage,
+    currentLimit,
     fetchTableData,
   ]);
 
@@ -207,7 +208,9 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
 export function useTransactionsContext() {
   const context = useContext(TableContext);
   if (!context) {
-    throw new Error("useTableContext must be used within a TableProvider");
+    throw new Error(
+      "useTransactionsContext must be used within a TableProvider"
+    );
   }
   return context;
 }

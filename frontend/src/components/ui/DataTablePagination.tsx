@@ -19,7 +19,7 @@ interface DataTablePaginationProps<TData> {
   pagination: PaginationState;
   total_count: number;
 }
-import { useTransactionsContext } from "@/context/TableContext"; // Ensure correct path
+import { useTransactionsContext } from "@/context/TransactionsContext";
 
 export function DataTablePagination<TData>({
   table,
@@ -109,8 +109,5 @@ export function DataTablePagination<TData>({
 }
 
 function getNumberPages(pageSize: number, total_count: number): number {
-  console.log("total_count", total_count);
-  console.log("pageSize", pageSize);
-  console.log("total_count / pageSize", total_count / pageSize);
   return Math.ceil(total_count / pageSize);
 }

@@ -23,7 +23,7 @@ import LineItemTableActions from "./LineItemTableActions";
 import { ModalDialog } from "./ModalDialog";
 import Image from "next/image";
 import { DataTablePagination } from "../ui/DataTablePagination";
-import { useTransactionsContext } from "@/context/TableContext";
+import { useTransactionsContext } from "@/context/TransactionsContext";
 
 export type LineItemTableProps = {
   activePage: "reconciled" | "unreconciled" | "offsets";

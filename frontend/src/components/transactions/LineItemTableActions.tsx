@@ -18,7 +18,7 @@ import {
 } from "@/types";
 import { reconcileBatch, reconcileBatchOffset } from "@/services/lineItems";
 import { useAuth } from "@/context/AuthContext";
-import { useTransactionsContext } from "@/context/TableContext";
+import { useTransactionsContext } from "@/context/TransactionsContext";
 
 type LineItemTableActionsProps = {
   table: Table<LineItem>;

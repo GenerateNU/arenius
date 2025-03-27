@@ -23,7 +23,7 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useAuth } from "@/context/AuthContext";
-import { useTransactionsContext } from "@/context/TableContext";
+import { useTransactionsContext } from "@/context/TransactionsContext";
 
 const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AUD"];
 
@@ -61,8 +61,6 @@ export default function ItemForm() {
     } else {
       console.error("Company ID is null");
     }
-    fetchTableData("unreconciled", {});
-    form.reset();
   }
 
   return (

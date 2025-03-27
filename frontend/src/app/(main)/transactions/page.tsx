@@ -6,7 +6,7 @@ import { Search } from "lucide-react";
 import {
   TransactionsProvider,
   useTransactionsContext,
-} from "@/context/TableContext";
+} from "@/context/TransactionsContext";
 import { ContactsProvider } from "@/context/ContactsContext";
 import { fetchContacts } from "@/services/contacts";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";

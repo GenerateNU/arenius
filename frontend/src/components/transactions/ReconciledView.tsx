@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { reconciledColumns } from "./columns";
 import { HelpCircle, ArrowRight } from "lucide-react";
 import LineItemTable from "./LineItemTable";
-import { useTransactionsContext } from "@/context/TableContext";
+import { useTransactionsContext } from "@/context/TransactionsContext";
 
 export type ReconciledViewProps = {
   viewMode: "paginated" | "scoped";
