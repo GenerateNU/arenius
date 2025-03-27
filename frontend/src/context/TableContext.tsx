@@ -10,11 +10,11 @@ import { fetchLineItems } from "@/services/lineItems";
 import { GetLineItemResponse, LineItemFilters } from "@/types";
 import { useAuth } from "./AuthContext";
 
-const TABLES = ["reconciled", "unreconciled", "offsets"] as const;
-type TableKey = (typeof TABLES)[number];
+type TABLES = ["reconciled", "unreconciled", "offsets"];
+type TableKey = TABLES[number];
 
-const SCOPES = ["scope1", "scope2", "scope3"];
-type ScopeKey = (typeof SCOPES)[number];
+type SCOPES = ["scope1", "scope2", "scope3"];
+type ScopeKey = SCOPES[number];
 
 type ViewMode = "paginated" | "scoped";
 
@@ -119,7 +119,7 @@ export function TableProvider({ children }: { children: ReactNode }) {
         });
         setTableData((prev) => ({ ...prev, [table]: data }));
       } catch (err) {
-        setError("Failed to load data");
+        setError(`Failed to load data: ${err}`);
       }
 
       setLoading(false);

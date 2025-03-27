@@ -8,15 +8,14 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useLineItems } from "@/context/LineItemsContext";
-
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTableContext } from "@/context/TableContext";
 
 export default function PriceFilter({
   className,
 }: React.HTMLAttributes<HTMLDivElement>) {
-  const { filters, setFilters } = useLineItems();
+  const { filters, setFilters } = useTableContext();
   const [minPrice, setMinPrice] = useState(filters.minPrice || undefined);
   const [maxPrice, setMaxPrice] = useState(filters.maxPrice || undefined);
 

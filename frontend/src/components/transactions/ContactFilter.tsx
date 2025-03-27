@@ -3,16 +3,16 @@
 import { cn } from "@/lib/utils";
 import ContactsSelector from "./ContactsSelector";
 import { useEffect, useState } from "react";
-import { useLineItems } from "@/context/LineItemsContext";
 import { Contact } from "@/types";
 import { ContactsProvider } from "@/context/ContactsContext";
 import { fetchContacts } from "@/services/contacts";
+import { useTableContext } from "@/context/TableContext";
 
 export default function ContactFilter({
   className,
 }: React.HTMLAttributes<HTMLDivElement>) {
   const [contact, setContact] = useState<Contact | undefined>(undefined);
-  const { filters, setFilters } = useLineItems();
+  const { filters, setFilters } = useTableContext();
 
   useEffect(() => {
     if (contact) {

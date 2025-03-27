@@ -11,13 +11,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useLineItems } from "@/context/LineItemsContext";
 import { ChevronDown } from "lucide-react";
+import { useTableContext } from "@/context/TableContext";
 
 export function DatePickerWithRange({
   className,
 }: React.HTMLAttributes<HTMLDivElement>) {
-  const { filters, setFilters } = useLineItems();
+  const { filters, setFilters } = useTableContext();
   const dates = filters.dates;
 
   const handleFilterChange = (e: DateRange | undefined) => {

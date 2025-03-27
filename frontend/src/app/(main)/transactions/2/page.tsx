@@ -42,8 +42,6 @@ function TableContent() {
     filters.searchTerm ?? ""
   );
 
-  console.log("search term: ", searchTerm);
-
   useEffect(() => {
     if (filters.searchTerm !== debouncedTerm) {
       setFilters((prevFilters) => ({
@@ -51,7 +49,7 @@ function TableContent() {
         searchTerm: debouncedTerm,
       }));
     }
-  }, [debouncedTerm, setFilters]);
+  }, [debouncedTerm, setFilters, filters.searchTerm]);
 
   return (
     <div className="mt-24 min-h-200px flex-1">

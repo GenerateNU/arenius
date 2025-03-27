@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { GetLineItemResponse } from "@/types";
 import { reconciledColumns } from "./columns";
 import { HelpCircle, ArrowRight } from "lucide-react";
 import LineItemTable from "./LineItemTable";
@@ -42,7 +41,6 @@ const ReconciledView = ({ viewMode }: ReconciledViewProps) => {
 
       {seeScope && (
         <ScopeReconciledView
-          data={tableData.reconciled}
           scope={seeScope}
           handleClick={() => setSeeScope(undefined)}
         />
@@ -86,16 +84,12 @@ const ScopeTablePreview = ({
 };
 
 const ScopeReconciledView = ({
-  data,
   scope,
   handleClick,
 }: {
-  data: GetLineItemResponse;
   scope?: number;
   handleClick: () => void;
 }) => {
-  const filteredData = data.line_items?.filter((item) => item.scope === scope);
-
   return (
     <div className="mt-4 mb-8">
       <div className="flex justify-between">
