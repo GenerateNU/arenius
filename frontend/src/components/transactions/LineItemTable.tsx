@@ -55,11 +55,6 @@ export default function LineItemTable({
     setPageSize,
   } = useTransactionsContext();
 
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-
   // object and boolean to handle clicking a row's action button
   const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
     null
@@ -74,11 +69,9 @@ export default function LineItemTable({
     getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
     rowCount: tableData[activeTableData].total,
-    onPaginationChange: setPagination,
     getRowId: (row: LineItem) => row.id,
     state: {
       sorting,
-      pagination,
     },
   });
 

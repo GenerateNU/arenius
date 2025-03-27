@@ -10,7 +10,7 @@ export default function LineItemTableFilters() {
   const { filters, setFilters } = useTransactionsContext();
 
   const hasFilter =
-    filters.dates || filters.minPrice || filters.maxPrice || filters.dates;
+    filters.contact_id || filters.minPrice || filters.maxPrice || filters.dates;
 
   return (
     <div className="flex flex-col my-2">

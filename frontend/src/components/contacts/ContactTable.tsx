@@ -33,11 +33,9 @@ export default function ContactTable() {
     getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
     rowCount: data.total,
-    onPaginationChange: setPagination,
     getRowId: (row: Contact) => row.id,
     state: {
       sorting,
-      pagination,
     },
   });
 

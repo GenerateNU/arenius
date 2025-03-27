@@ -99,5 +99,6 @@ export function DataTablePagination({
 }
 
 function getNumberPages(pageSize: number, total_count: number): number {
+  if (total_count === 0) return 1;
   return Math.ceil(total_count / pageSize);
 }
