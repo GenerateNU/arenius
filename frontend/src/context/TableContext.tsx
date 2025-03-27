@@ -155,7 +155,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useTableContext() {
+export function useTransactionsContext() {
   const context = useContext(TableContext);
   if (!context) {
     throw new Error("useTableContext must be used within a TableProvider");

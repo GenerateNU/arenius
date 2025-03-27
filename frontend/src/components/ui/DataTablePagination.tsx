@@ -19,7 +19,7 @@ interface DataTablePaginationProps<TData> {
   pagination: PaginationState;
   total_count: number;
 }
-import { useTableContext } from "@/context/TableContext"; // Ensure correct path
+import { useTransactionsContext } from "@/context/TableContext"; // Ensure correct path
 
 export function DataTablePagination<TData>({
   table,
@@ -30,7 +30,7 @@ export function DataTablePagination<TData>({
     pageIndex: page,
     pageSize: pageLimit,
     setPage,
-  } = useTableContext();
+  } = useTransactionsContext();
 
   return (
     <div className="flex items-center justify-end px-2 mt-4">

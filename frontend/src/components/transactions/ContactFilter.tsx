@@ -6,13 +6,13 @@ import { useEffect, useState } from "react";
 import { Contact } from "@/types";
 import { ContactsProvider } from "@/context/ContactsContext";
 import { fetchContacts } from "@/services/contacts";
-import { useTableContext } from "@/context/TableContext";
+import { useTransactionsContext } from "@/context/TableContext";
 
 export default function ContactFilter({
   className,
 }: React.HTMLAttributes<HTMLDivElement>) {
   const [contact, setContact] = useState<Contact | undefined>(undefined);
-  const { filters, setFilters } = useTableContext();
+  const { filters, setFilters } = useTransactionsContext();
 
   useEffect(() => {
     if (contact) {

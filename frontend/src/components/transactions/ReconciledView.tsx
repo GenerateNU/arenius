@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { reconciledColumns } from "./columns";
 import { HelpCircle, ArrowRight } from "lucide-react";
 import LineItemTable from "./LineItemTable";
-import { useTableContext } from "@/context/TableContext";
+import { useTransactionsContext } from "@/context/TableContext";
 
 export type ReconciledViewProps = {
   viewMode: "paginated" | "scoped";
@@ -11,7 +11,7 @@ export type ReconciledViewProps = {
 const ReconciledView = ({ viewMode }: ReconciledViewProps) => {
   const [seeScope, setSeeScope] = useState<number | undefined>();
 
-  const { tableData } = useTableContext();
+  const { tableData } = useTransactionsContext();
 
   console.log("tableData: ", tableData);
 

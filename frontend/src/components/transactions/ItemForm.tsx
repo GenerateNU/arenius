@@ -23,7 +23,7 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useAuth } from "@/context/AuthContext";
-import { useTableContext } from "@/context/TableContext";
+import { useTransactionsContext } from "@/context/TableContext";
 
 const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AUD"];
 
@@ -34,7 +34,7 @@ const formSchema = z.object({
 });
 
 export default function ItemForm() {
-  const { fetchTableData } = useTableContext();
+  const { fetchTableData } = useTransactionsContext();
   const { companyId } = useAuth(); // Get companyId from AuthContext
 
   const form = useForm<z.infer<typeof formSchema>>({

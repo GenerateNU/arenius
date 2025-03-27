@@ -4,10 +4,10 @@ import { DatePickerWithRange } from "./DatePicker";
 import PriceFilter from "./PriceFilter";
 import ContactFilter from "./ContactFilter";
 import { Button } from "../ui/button";
-import { useTableContext } from "@/context/TableContext";
+import { useTransactionsContext } from "@/context/TableContext";
 
 export default function LineItemTableFilters() {
-  const { setFilters } = useTableContext();
+  const { setFilters } = useTransactionsContext();
 
   return (
     <div className="flex flex-col my-2">

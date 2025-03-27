@@ -3,7 +3,10 @@
 import { useEffect } from "react";
 import Image from "next/image";
 import { Search } from "lucide-react";
-import { TransactionsProvider, useTableContext } from "@/context/TableContext";
+import {
+  TransactionsProvider,
+  useTransactionsContext,
+} from "@/context/TableContext";
 import { ContactsProvider } from "@/context/ContactsContext";
 import { fetchContacts } from "@/services/contacts";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
@@ -33,7 +36,7 @@ function TableContent() {
     filters,
     setFilters,
     error,
-  } = useTableContext();
+  } = useTransactionsContext();
 
   const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(
     filters.searchTerm ?? ""

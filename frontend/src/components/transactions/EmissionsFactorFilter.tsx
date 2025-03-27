@@ -5,13 +5,13 @@ import EmissionsFactorSelector from "./CategorySelector";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
-import { useTableContext } from "@/context/TableContext";
+import { useTransactionsContext } from "@/context/TableContext";
 
 export default function EmissionsFactorFilter({
   className,
 }: React.HTMLAttributes<HTMLDivElement>) {
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
-  const { filters, setFilters } = useTableContext();
+  const { filters, setFilters } = useTransactionsContext();
   const { companyId } = useAuth();
 
   // Update filter whenever emissionsFactor changes

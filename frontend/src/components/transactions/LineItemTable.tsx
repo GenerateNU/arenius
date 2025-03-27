@@ -23,7 +23,7 @@ import LineItemTableActions from "./LineItemTableActions";
 import { ModalDialog } from "./ModalDialog";
 import Image from "next/image";
 import { DataTablePagination } from "../ui/DataTablePagination";
-import { useTableContext } from "@/context/TableContext";
+import { useTransactionsContext } from "@/context/TableContext";
 
 export type LineItemTableProps = {
   activePage: "reconciled" | "unreconciled" | "offsets";
@@ -46,7 +46,7 @@ export default function LineItemTable({
 }: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const { tableData, fetchTableData } = useTableContext();
+  const { tableData, fetchTableData } = useTransactionsContext();
 
   const [pagination, setPagination] = useState({
     pageIndex: 0,
