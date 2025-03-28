@@ -7,10 +7,11 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import { useAuth } from "@/context/AuthContext";
 import { PaginationState } from "@tanstack/react-table";
-import { GetContactsRequest, GetContactsResponse } from "@/types"; // Assuming Contact type is defined in your types
-import { fetchContacts } from "@/services/contacts"; // Assuming this is your fetch function
+
+import { useAuth } from "@/context/AuthContext";
+import { fetchContacts } from "@/services/contacts";
+import { GetContactsRequest, GetContactsResponse } from "@/types";
 
 interface ContactContextValue {
   data: GetContactsResponse;
@@ -75,7 +76,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [companyId, fetchData, filters, isLoading, pagination]);
 
   if (isLoading) {
-    return <div>Loading...</div>; // Or any loading state you want
+    return <div>Loading...</div>;
   }
 
   return (

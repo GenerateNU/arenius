@@ -35,7 +35,7 @@ const formSchema = z.object({
 
 export default function ItemForm() {
   const { fetchTableData } = useTransactionsContext();
-  const { companyId } = useAuth(); // Get companyId from AuthContext
+  const { companyId } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

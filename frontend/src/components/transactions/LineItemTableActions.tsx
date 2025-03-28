@@ -1,5 +1,16 @@
 import React, { useState } from "react";
 import { Table } from "@tanstack/react-table";
+
+import { useAuth } from "@/context/AuthContext";
+import { useTransactionsContext } from "@/context/TransactionContext";
+import { reconcileBatch, reconcileBatchOffset } from "@/services/lineItems";
+import {
+  BatchCreateCarbonOffsetsRequest,
+  EmissionsFactor,
+  LineItem,
+  ReconcileBatchRequest,
+} from "@/types";
+import EmissionsFactorSelector from "./CategorySelector";
 import {
   Select,
   SelectContent,
@@ -8,17 +19,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Button } from "../ui/button";
-import EmissionsFactorSelector from "./CategorySelector";
 import { Input } from "../ui/input";
-import {
-  BatchCreateCarbonOffsetsRequest,
-  EmissionsFactor,
-  LineItem,
-  ReconcileBatchRequest,
-} from "@/types";
-import { reconcileBatch, reconcileBatchOffset } from "@/services/lineItems";
-import { useAuth } from "@/context/AuthContext";
-import { useTransactionsContext } from "@/context/TransactionContext";
 
 type LineItemTableActionsProps = {
   table: Table<LineItem>;
