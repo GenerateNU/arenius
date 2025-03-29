@@ -216,14 +216,14 @@ func (r *SummaryRepository) GetTopEmissions(ctx context.Context, req models.GetC
 	const query = `
 		SELECT 
 			ROW_NUMBER() OVER (ORDER BY COALESCE(SUM(co2), 0) DESC) AS rank,
-			emission_factor,
+			ef.name,
 			COALESCE(SUM(co2), 0) AS total_co2
 		FROM 
-			line_item
+			line_item join emission_factor ef on line_item.emission_factor_id = ef.activity_id
 		WHERE
 			company_id = $1
 			AND date BETWEEN $2 AND $3
-		GROUP BY emission_factor
+		GROUP BY ef.name
 		ORDER BY total_co2 DESC
 		LIMIT 5;
 	`
@@ -255,6 +255,7 @@ func (r *SummaryRepository) GetTopEmissions(ctx context.Context, req models.GetC
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
+	fmt.Println(topEmissions)
 
 	return &topEmissions, nil
 }

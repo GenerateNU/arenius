@@ -24,13 +24,15 @@ const DashboardContent: React.FC = () => {
           <GrossSummary />
           <ScopeBreakdown />
         </div>
+        <div className="col-span-2 ">
+          <TopEmissionsFactors />
+        </div>
 
         <div className="sm:col-span-4 mt-2">
           <ContactEmissionsTreeMap />
         </div>
         <div className="col-span-1 ">
           <p>Other graph</p>
-          <TopEmissionsFactors />
         </div>
       </div>
     </div>
