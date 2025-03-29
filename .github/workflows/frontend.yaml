@@ -2,13 +2,14 @@ name: frontend
 on:
   push:
     branches:
-      - "main"
+      - "**"
     paths:
       - "frontend/**"
       - ".github/workflows/frontend.yaml"
   pull_request:
     branches:
       - "main"
+      - "featurethon"
     paths:
       - "frontend/**"
       - ".github/workflows/frontend.yaml"
