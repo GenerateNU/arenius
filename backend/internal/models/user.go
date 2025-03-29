@@ -10,6 +10,7 @@ type User struct {
 	City         *string `json:"city,omitempty"`
 	State        *string `json:"state,omitempty"`
 	PhotoUrl     *string `json:"photo_url,omitempty"`
+	Email        string  `json:"email"`
 }
 
 type UpdateUserProfileRequest struct {

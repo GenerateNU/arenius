@@ -101,11 +101,19 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	app.Route("/auth", func(router fiber.Router) {
 		router.Post("/signup", SupabaseAuthHandler.SignUp)
 		router.Post("/login", SupabaseAuthHandler.Login)
+		router.Post("/forgot-password", SupabaseAuthHandler.ForgotPassword)
+		router.Post("/reset-password", SupabaseAuthHandler.ResetPassword)
+		router.Post("/sign-out", SupabaseAuthHandler.SignOut)
+		router.Delete("/delete-account/:id", func(c *fiber.Ctx) error {
+			id := c.Params("id")
+			return SupabaseAuthHandler.DeleteAccount(c, id)
+		})
 	})
 
 	// cannot
 	offsetHandler := carbonOffset.NewHandler(repo.Offset)
 	app.Route("/carbon-offset", func(r fiber.Router) {
+		r.Get("/", offsetHandler.GetCarbonOffsets)
 		r.Post("/create", offsetHandler.PostCarbonOffset)
 		r.Post("/batch", offsetHandler.BatchCreateCarbonOffsets)
 	})
@@ -114,6 +122,9 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.SendStatus(http.StatusOK)
 	})
+
+	// Apply Middleware to Protected Routes
+	app.Use(supabase_auth.Middleware(&config.Supabase))
 
 	// cannot
 	lineItemHandler := lineItem.NewHandler(repo.LineItem)
