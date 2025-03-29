@@ -111,7 +111,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	})
 
 	// Apply Middleware to Protected Routes
-	app.Use(supabase_auth.Middleware(&config.Supabase))
+	// app.Use(supabase_auth.Middleware(&config.Supabase))
 
 	// cannot
 	app.Get("/health", func(c *fiber.Ctx) error {
@@ -140,6 +140,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	app.Route("/emissions-factor", func(r fiber.Router) {
 		r.Get("/", emissionsFactorHandler.GetEmissionFactors)
 		r.Patch("/populate", emissionsFactorHandler.PopulateEmissions)
+		r.Post("/favorite", emissionsFactorHandler.PostFavoriteEmission)
 	})
 
 	userHandler := user.NewHandler(repo.User)
