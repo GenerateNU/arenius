@@ -13,39 +13,46 @@ import { User } from "@/types";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
+import apiClient from "@/services/apiClient";
 
 export function ProfileDropdown() {
 
     const router = useRouter();
+    const [profilePhoto, setPhoto] = useState(""); // Store profile photo URL
 
     const handleClick = () => {
-        router.push(`/user_profile`);
+        router.push(`/profile`);
     };
 
     const { userId } = useAuth();
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
-        if (userId) {
-            const fetchData = async () => {
+        // Create an async function inside useEffect
+        const fetchData = async () => {
+            if (userId) {
                 const fetchedUser = await fetchUser(userId);
-                setUser(fetchedUser)
-            };
-            fetchData();
-            console.log(user)
-        }
+                setUser(fetchedUser);
+                console.log("----", fetchedUser);
+                setPhoto(fetchedUser.photo_url); // Assuming response.photo_url contains the URL
+            }
+        };
+
+        fetchData(); // Call the async function inside useEffect
     }, [userId]);
 
     if (!user) {
-        return <div>Loading...</div>; 
+        return <div>Loading...</div>;
     }
 
+    console.log("*****", profilePhoto)
     return (
         <div className="z-1 relative">
             <DropdownMenu>
                 <DropdownMenuTrigger>
+                    {/* Use the profile photo or fallback to default */}
                     <Image
-                        src="/user_profile.svg"
+                        src={profilePhoto || "/user_profile.svg"} // Fallback image if no photo is available
                         alt="User Profile"
                         width={30}
                         height={30}
@@ -59,8 +66,9 @@ export function ProfileDropdown() {
                                 <p className="text-sm text-gray-600">dessy@dessy.com</p>
                             </div>
                             <div className="mt-4">
+                                {/* Profile photo in the dropdown */}
                                 <Image
-                                    src="/user_profile.svg"
+                                    src={profilePhoto || "/user_profile.svg"} // Fallback image if no photo is available
                                     alt="Profile"
                                     width={180}
                                     height={180}
@@ -68,7 +76,7 @@ export function ProfileDropdown() {
                                 />
                             </div>
                             <div className="mt-4">
-                                <Link href="/user-profile">
+                                <Link href="/profile">
                                     <button onClick={handleClick} className="w-full h-10 bg-moss text-white text-sm font-semibold rounded-md flex items-center space-x-2 justify-center">
                                         Member Profile
                                     </button>
@@ -81,7 +89,3 @@ export function ProfileDropdown() {
         </div>
     );
 }
-
-const styles = {
-  chevronDown: "h-4 w-4 opacity-50",
-};

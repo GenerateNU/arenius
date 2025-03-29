@@ -1,6 +1,8 @@
 "use client";
 import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import Cookies from "js-cookie";
+import apiClient from "@/services/apiClient";
 
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 // const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
@@ -17,7 +19,7 @@ export default function ProfilePage() {
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-
+  const userId = Cookies.get("userID");
   // Handle file input change
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
@@ -62,8 +64,16 @@ export default function ProfilePage() {
       console.log('Upload data:', data);  // Log the successful upload response
   
       const publicUrl = supabase.storage.from('profile-photos').getPublicUrl(data.path).data.publicUrl;
+
+      console.log(publicUrl)
       setImageUrl(publicUrl);
       setUploadStatus('Image uploaded successfully!');
+      const response = await apiClient.patch(`/user/${userId}`, {
+        photo_url: publicUrl
+      });
+      
+      console.log(response)
+      
     } catch (error: unknown) {
       if (error instanceof Error) {
         setUploadStatus(`Upload failed: ${error.message}`);
