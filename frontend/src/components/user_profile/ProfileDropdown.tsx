@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -10,6 +8,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { fetchUser } from "@/services/user";
 import { User } from "@/types";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
@@ -67,13 +66,25 @@ export function ProfileDropdown() {
                                     className="rounded-full border border-gray-300 shadow-md"
                                 />
                             </div>
-                            <div className="mt-4">
+                            <div className="mt-4 flex flex-col space-y-4">
                                 <Link href="/user-profile">
-                                    <button onClick={handleClick} className="w-full h-10 bg-moss text-white text-sm font-semibold rounded-md flex items-center space-x-2 justify-center">
+                                    <button 
+                                        onClick={handleClick} 
+                                        className="w-full h-8 border border-gray-700 text-gray-800 text-sm font-semibold rounded-full flex items-center justify-center bg-white mx-auto"
+                                    >
                                         Member Profile
                                     </button>
                                 </Link>
+                                <Link href="/user-profile">
+                                    <button 
+                                        onClick={handleClick} 
+                                        className="w-full h-10 bg-moss text-white text-sm font-semibold rounded-md flex items-center justify-center"
+                                    >
+                                        Sign out
+                                    </button>
+                                </Link>
                             </div>
+
                         </div>
                     </div>
                 </DropdownMenuContent>

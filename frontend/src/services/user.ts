@@ -1,4 +1,5 @@
 import {
+    UpdateUserProfileRequest,
     User
 } from "../types";
 import apiClient from "./apiClient";
@@ -11,6 +12,19 @@ userId: string
         return response.data;
     } catch (error) {
         console.error("Error getting user:", error);
+        return null;
+    }
+}
+
+export async function updateUserProfile(
+    userId: string,
+    req: UpdateUserProfileRequest
+): Promise<User | null> {
+    try {
+        const response = await apiClient.patch(`/user/${userId}`, req);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating user profile", error);
         return null;
     }
 }
