@@ -120,3 +120,11 @@ export async function reconcile(request: ReconcileRequest) {
     console.error("Error updating dashboard items", error);
   }
 }
+
+export async function handleRecommendation(lineItemId: string, accept: boolean) {
+  try {
+    await apiClient.patch(`line-item/handle-recommendation/${lineItemId}?accept=${accept}`);
+  } catch (error) {
+    console.error("Error updating dashboard items", error);
+  }
+}

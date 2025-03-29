@@ -10,6 +10,7 @@ export type LineItem = {
   recommended_emission_factor_name?: string;
   recommended_emission_factor_id?: string;
   scope?: number;
+  recommended_scope?: number;
   contact_name?: string;
   contact_id?: string;
   co2?: number;

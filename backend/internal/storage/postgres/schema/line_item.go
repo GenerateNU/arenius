@@ -558,6 +558,53 @@ func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, company
 	return updatedLineItems, nil
 }
 
+func (r *LineItemRepository) HandleRecommendation(ctx context.Context, lineItemId uuid.UUID, accept bool) (*models.LineItem, error) {
+	acceptQuery := ""
+	if accept {
+		acceptQuery = `
+			emission_factor_id = recommended_emission_factor_id,
+			scope = recommended_scope,
+		`
+	}
+
+	updateQuery := `
+		UPDATE line_item
+		SET
+		` + acceptQuery + `
+			recommended_emission_factor_id = NULL,
+			recommended_scope = NULL
+		WHERE id = $1
+		RETURNING 
+			id, 
+			xero_line_item_id, 
+			description, 
+			total_amount, 
+			company_id, 
+			contact_id, 
+			date, 
+			currency_code, 
+			emission_factor_id, 
+			co2, 
+			scope, 
+			co2_unit,
+			recommended_emission_factor_id,
+			recommended_scope
+	`
+
+	rows, err := r.db.Query(ctx, updateQuery, lineItemId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	lineItem, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.LineItem])
+	if err != nil {
+		return nil, err
+	}
+
+	return &lineItem, nil
+}
+
 func NewLineItemRepository(db *pgxpool.Pool) *LineItemRepository {
 	return &LineItemRepository{
 		db,
