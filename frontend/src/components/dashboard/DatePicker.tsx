@@ -158,7 +158,7 @@ export function DatePicker({ className }: React.HTMLAttributes<HTMLDivElement>) 
               caption: "flex justify-center pt-1 relative items-center",
               caption_label: "text-lg font-bold", 
               day_selected: "bg-green-900 text-white hover:bg-green-600 rounded-none",
-              day_range_middle: "bg-green-900 text-green-900 rounded-none",
+              day_range_middle: "bg-green-900 text-white rounded-none",
               day_range_end: "bg-green-900 text-white hover:bg-green-600 rounded-r-full",
               day_range_start: "bg-green-900 text-white hover:bg-green-600 rounded-l-full",
               day_outside: "invisible bg-transparent border-transparent"
