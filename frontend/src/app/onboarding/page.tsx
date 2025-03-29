@@ -25,11 +25,6 @@ export default function CustomForm() {
         firstName: values.firstName,
         lastName: values.lastName,
       });
-
-      if (isLoginError) {
-        console.log("AHHHHHHHHHHHHHHHHHH");
-      }
-      console.log("WAHHHH");
       
       if (response.response && (response.response.status === 201 || response.response.status === 200)) {
         setUseForm(false);
