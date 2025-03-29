@@ -6,6 +6,7 @@ import React from "react";
 import ScopeBreakdown from "@/components/scope-breakdown/scope-breakdown";
 
 import ContactEmissionsTreeMap from "@/components/dashboard/ContactEmissionsTreeMap";
+import TopEmissionsFactors from "@/components/dashboard/TopEmissions";
 
 const DashboardContent: React.FC = () => {
   return (
@@ -29,6 +30,7 @@ const DashboardContent: React.FC = () => {
         </div>
         <div className="col-span-1 ">
           <p>Other graph</p>
+          <TopEmissionsFactors />
         </div>
       </div>
     </div>

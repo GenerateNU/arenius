@@ -56,3 +56,9 @@ type GetNetSummaryRequest struct {
 	StartDate time.Time `json:"start_date"`
 	EndDate   time.Time `json:"end_date"`
 }
+
+type GetTopEmissionsResponse struct {
+	Rank           int     `json:"rank"`
+	EmissionFactor string  `json:"emission_factor"`
+	TotalCO2       float64 `json:"total_co2"`
+}
