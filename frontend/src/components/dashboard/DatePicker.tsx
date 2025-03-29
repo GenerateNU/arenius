@@ -95,12 +95,12 @@ export function DatePicker({ className }: React.HTMLAttributes<HTMLDivElement>) 
     <div className={cn("grid gap-2", className)}>
       <Popover>
         <PopoverTrigger asChild>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <Button
               id="date-from"
               variant={"outline"}
               className={cn(
-                "justify-center text-left font-normal w-40 rounded-lg border-green-900 border-2",
+                "justify-center text-left font-normal w-52 rounded-lg border-green-900 border-2",
                 !dateRange?.from && "text-muted-foreground"
               )}
             >
@@ -116,7 +116,7 @@ export function DatePicker({ className }: React.HTMLAttributes<HTMLDivElement>) 
               id="date-to"
               variant={"outline"}
               className={cn(
-                "justify-center text-left font-normal w-40 rounded-lg border-green-900 border-2",
+                "justify-center text-left font-normal w-52 rounded-lg border-green-900 border-2",
                 !dateRange?.to && "text-muted-foreground"
               )}
             >
