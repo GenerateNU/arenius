@@ -1,18 +1,70 @@
 package schema
 
 import (
-
 	"arenius/internal/models"
+	"arenius/internal/service/utils"
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type OffsetRepository struct {
 	db *pgxpool.Pool
+}
+
+func (r *OffsetRepository) GetCarbonOffsets(ctx context.Context, pagination utils.Pagination, filterParams models.GetCarbonOffsetsRequest) ([]models.CarbonOffset, error) {
+	filterQuery := "WHERE 1=1"
+
+	if filterParams.SearchTerm != nil {
+		filterQuery += fmt.Sprintf(" AND (co.description ILIKE '%%%s%%')", *filterParams.SearchTerm)
+	}
+
+	filterColumns := []string{}
+	filterArgs := []interface{}{}
+
+	if filterParams.CompanyId != nil {
+		filterColumns = append(filterColumns, "co.company_id=")
+		filterArgs = append(filterArgs, *filterParams.CompanyId)
+	}
+
+	if filterParams.BeforeDate != nil {
+		filterColumns = append(filterColumns, "co.purchase_date<=")
+		filterArgs = append(filterArgs, filterParams.BeforeDate.UTC().Add(time.Hour*24))
+	}
+
+	if filterParams.AfterDate != nil {
+		filterColumns = append(filterColumns, "co.purchase_date>=")
+		filterArgs = append(filterArgs, filterParams.AfterDate.UTC())
+	}
+
+	for i := 0; i < len(filterColumns); i++ {
+		filterQuery += fmt.Sprintf(" AND (%s$%d)", filterColumns[i], i+3)
+	}
+
+	query := `
+		SELECT co.id, co.carbon_amount_kg, co.company_id, co.source, co.purchase_date
+		FROM carbon_offset co ` + filterQuery + `
+		ORDER BY co.purchase_date DESC
+		LIMIT $1 OFFSET $2
+	`
+
+	queryArgs := append([]interface{}{pagination.Limit, pagination.GetOffset()}, filterArgs...)
+	rows, err := r.db.Query(ctx, query, queryArgs...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	carbonOffsets, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.CarbonOffset])
+	if err != nil {
+		return nil, err
+	}
+
+	return carbonOffsets, nil
 }
 
 func (r *OffsetRepository) CreateCarbonOffset(ctx context.Context, req models.CreateCarbonOffsetRequest) (*models.CarbonOffset, error) {

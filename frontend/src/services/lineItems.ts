@@ -1,5 +1,4 @@
 import {
-  BatchCreateCarbonOffsetsRequest,
   CreateLineItemRequest,
   GetLineItemResponse,
   LineItemFilters,
@@ -31,7 +30,7 @@ function buildQueryParams(filters: LineItemFilters) {
   if (filters?.searchTerm) {
     params.search_term = filters.searchTerm;
   }
-  if (filters?.scope) {
+  if (filters?.scope !== undefined) {
     params.scope = filters.scope;
   }
   if (filters?.company_id) {
@@ -99,11 +98,13 @@ export async function reconcileBatch(request: ReconcileBatchRequest) {
   }
 }
 
-export async function reconcileBatchOffset(
-  request: BatchCreateCarbonOffsetsRequest
-) {
+export async function reconcileBatchOffset(request: ReconcileBatchRequest) {
   try {
-    await apiClient.post("/carbon-offset/batch", request);
+    // await apiClient.post("/carbon-offset/batch", request);
+    await apiClient.patch("/line-item/batch", {
+      line_item_ids: request.lineItemIds,
+      scope: 0,
+    });
   } catch (error) {
     console.error("Error reconciling carbon offsets", error);
   }

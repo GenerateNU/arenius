@@ -19,7 +19,7 @@ import { capitalizeFirstLetter } from "@/lib/utils";
 import { GetLineItemResponse } from "@/types";
 import SignOutButton from "@/components/auth/signOut";
 import DeleteAccountButton from "@/components/auth/deleteAccount";
-
+import OffsetsView from "@/components/transactions/OffsetsView";
 
 export default function Transactions() {
   return (
@@ -219,7 +219,7 @@ function TableRenderer({
     case "unreconciled":
       return <UnreconciledView />;
     case "offsets":
-      return <p>Carbon credit table.</p>;
+      return <OffsetsView />;
     default:
       return <p>No table selected.</p>;
   }
