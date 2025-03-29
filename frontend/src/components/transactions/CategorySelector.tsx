@@ -30,7 +30,9 @@ interface CategorySelectorProps {
 }
 
 interface CategoryListProps {
-  categories: EmissionsFactorCategory[];
+  categoriesList: EmissionsFactorCategory[];
+  categories: EmissionsFactorCategories | undefined;
+  setCategories: (Value: EmissionsFactorCategories) => void;
   searchTerm: string;
   setEmissionsFactor: (value: EmissionsFactor) => void;
   setIsOpen: (value: boolean) => void;
@@ -41,18 +43,30 @@ interface CategoryProps {
   expandedInitial: boolean;
   setEmissionsFactor: (value: EmissionsFactor) => void;
   setIsOpen: (value: boolean) => void;
+  categories: EmissionsFactorCategories | undefined;
+  setCategories: (Value: EmissionsFactorCategories) => void;
 }
 
 interface EmissionsFactorListProps {
   emissionsFactors: EmissionsFactor[];
   setEmissionsFactor: (value: EmissionsFactor) => void;
   setIsOpen: (value: boolean) => void;
+  categories: EmissionsFactorCategories | undefined;
+  setCategories: (Value: EmissionsFactorCategories) => void;
 }
 
 interface EmissionsFactorProps {
   emissionsFactor: EmissionsFactor;
   setEmissionsFactor: (value: EmissionsFactor) => void;
   setIsOpen: (value: boolean) => void;
+  categories: EmissionsFactorCategories | undefined;
+  setCategories: (Value: EmissionsFactorCategories) => void;
+}
+
+interface FavoriteStarProps {
+  emissionsFactor: EmissionsFactor;
+  categories: EmissionsFactorCategories | undefined;
+  setCategories: (Value: EmissionsFactorCategories) => void;
 }
 
 export default function CategorySelector({
@@ -120,16 +134,20 @@ export default function CategorySelector({
 
         {activeTab === "All" ? (
           <CategoryList
-            categories={categories?.all || []}
+            categoriesList={categories?.all || []}
             searchTerm={debouncedTerm}
             setEmissionsFactor={setEmissionsFactor}
             setIsOpen={setIsOpen}
+            categories={categories}
+            setCategories={setCategories}
           />
         ) : (
           <EmissionsFactorList
             emissionsFactors={(activeTab === "Favorites" ? categories?.favorites.emissions_factors : categories?.history.emissions_factors) || []}
             setEmissionsFactor={setEmissionsFactor}
             setIsOpen={setIsOpen}
+            categories={categories}
+            setCategories={setCategories}
           />
         )}
       </PopoverContent>
@@ -137,12 +155,17 @@ export default function CategorySelector({
   );
 }
 
-function CategoryList({ categories, searchTerm, setEmissionsFactor, setIsOpen }: CategoryListProps) {
+function CategoryList({ categoriesList, searchTerm, setEmissionsFactor, setIsOpen, categories, setCategories }: CategoryListProps) {
   return (
     <div className={styles.categoryList}>
-      {categories.length > 0 ? (
-        categories.map((category) => (
-          <CategoryItem key={`${category.name}-${category.emissions_factors.length}`} category={category} expandedInitial={searchTerm !== ""} setEmissionsFactor={setEmissionsFactor} setIsOpen={setIsOpen} />
+      {categoriesList.length > 0 ? (
+        categoriesList.map((category) => (
+          <CategoryItem key={`${category.name}-${category.emissions_factors.length}`}
+            category={category} expandedInitial={searchTerm !== ""} 
+            setEmissionsFactor={setEmissionsFactor} 
+            setIsOpen={setIsOpen} 
+            categories={categories} 
+            setCategories={setCategories} />
         ))
       ) : (
         <p className={styles.noResults}>No results found</p>
@@ -151,7 +174,7 @@ function CategoryList({ categories, searchTerm, setEmissionsFactor, setIsOpen }:
   );
 }
 
-function CategoryItem({ category, setEmissionsFactor, setIsOpen, expandedInitial = false }: CategoryProps) {
+function CategoryItem({ category, setEmissionsFactor, setIsOpen, categories, setCategories, expandedInitial = false }: CategoryProps) {
   const [expanded, setExpanded] = useState<boolean>(expandedInitial);
 
   return (
@@ -160,17 +183,23 @@ function CategoryItem({ category, setEmissionsFactor, setIsOpen, expandedInitial
         {category.name}
         {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
       </Button>
-      {expanded && <EmissionsFactorList emissionsFactors={category.emissions_factors} setEmissionsFactor={setEmissionsFactor} setIsOpen={setIsOpen} />}
+      {expanded && <EmissionsFactorList emissionsFactors={category.emissions_factors} setEmissionsFactor={setEmissionsFactor} setIsOpen={setIsOpen} categories={categories} setCategories={setCategories} />}
     </>
   )
 }
 
-function EmissionsFactorList({ emissionsFactors, setEmissionsFactor, setIsOpen }: EmissionsFactorListProps) {
+function EmissionsFactorList({ emissionsFactors, setEmissionsFactor, setIsOpen, categories, setCategories }: EmissionsFactorListProps) {
   return (
     <div>
       {emissionsFactors.length > 0 ? (
         emissionsFactors.map((emissionsFactor) => (
-          <EmissionsFactorItem key={emissionsFactor.name} emissionsFactor={emissionsFactor} setEmissionsFactor={setEmissionsFactor} setIsOpen={setIsOpen} />
+          <EmissionsFactorItem 
+            key={emissionsFactor.name} 
+            emissionsFactor={emissionsFactor} 
+            setEmissionsFactor={setEmissionsFactor} 
+            setIsOpen={setIsOpen}
+            categories={categories}
+            setCategories={setCategories} />
         ))
       ) : (
         <p className={styles.noResults}>No results found</p>
@@ -179,29 +208,24 @@ function EmissionsFactorList({ emissionsFactors, setEmissionsFactor, setIsOpen }
   );
 }
 
-function EmissionsFactorItem({ emissionsFactor, setEmissionsFactor, setIsOpen }: EmissionsFactorProps) {
+function EmissionsFactorItem({ emissionsFactor, setEmissionsFactor, setIsOpen, categories, setCategories }: EmissionsFactorProps) {
   return (
     <span className="flex items-center">
       <Button key={emissionsFactor.name} variant="ghost" className={styles.dropdownButton} onClick={() => { setEmissionsFactor(emissionsFactor); setIsOpen(false); }}>
         • {emissionsFactor.name}
       </Button>
-      <FavoriteStar emissionsFactor={emissionsFactor} />
+      <FavoriteStar emissionsFactor={emissionsFactor} categories={categories} setCategories={setCategories} />
     </span>
   )
 }
 
-function FavoriteStar({ 
-  emissionsFactor
-}: { 
-  emissionsFactor: EmissionsFactor;
-}) {
+function FavoriteStar({emissionsFactor, categories, setCategories }: FavoriteStarProps) {
   const [isFavorite, setIsFavorite] = useState(emissionsFactor.favorite);
   
   const toggleFavorite = async () => {
     if (!emissionsFactor.company_id || !emissionsFactor.id) return;
     
     const newFavoriteState = !isFavorite;
-    setIsFavorite(newFavoriteState);
     
     try {
       await setEmissionFactorFavorite(
@@ -209,9 +233,30 @@ function FavoriteStar({
         emissionsFactor.id, 
         newFavoriteState
       );
+      setIsFavorite(newFavoriteState);
+      if (newFavoriteState && categories) {
+        // then it is true, so add it to favorites
+        setCategories({
+          ...categories,
+          favorites: {
+            ...categories.favorites,
+            emissions_factors: categories.favorites.emissions_factors.concat(emissionsFactor)
+          }
+        });
+      } else if (categories) {
+        // then it is false, so remove it from favorites
+        setCategories({
+          ...categories, 
+          favorites: {
+            ...categories.favorites, 
+            emissions_factors: categories.favorites.emissions_factors.filter(
+              factor => factor.id !== emissionsFactor.id
+            )
+          }
+        });
+      }
     } catch (error) {
       console.error("Failed to update favorite status", error);
-      setIsFavorite(!newFavoriteState);
     }
   };
 
