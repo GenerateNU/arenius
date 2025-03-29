@@ -69,7 +69,7 @@ type CreateLineItemRequest struct {
 
 type GetLineItemsRequest struct {
 	CompanyID            *string    `query:"company_id"`
-	ReconciliationStatus *bool      `query:"reconciliation_status"`
+	ReconciliationStatus *string    `query:"reconciliation_status"`
 	BeforeDate           *time.Time `query:"before_date"`
 	AfterDate            *time.Time `query:"after_date"`
 	Scope                *int       `query:"scope"`
