@@ -30,7 +30,7 @@ const formSchema = z.object({
 export default function LoginForm() {
   const router = useRouter();
   const [error, setError] = useState("");
-  const { login } = useAuth();
+  const { login, isLoginError } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,7 +46,7 @@ export default function LoginForm() {
         email: values.email,
         password: values.password,
       });
-  
+
       if (response?.response?.status === 200) {
         router.push("/transactions");
       }
@@ -97,6 +97,10 @@ export default function LoginForm() {
             )}
           />
 
+        {isLoginError && (
+          <div className={styles.error}>Your email or password is incorrect.</div>
+        )}
+
           <div className={styles.actionContainer}>
             <Label className={styles.checkboxContainer}>
               <Checkbox />
@@ -116,7 +120,6 @@ export default function LoginForm() {
               Sign up!
             </a>
           </div>
-          {error && <div className={styles.error}>{error}</div>}
         </form>
       </Form>
     </div>
@@ -130,7 +133,7 @@ const styles = {
   actionContainer: "flex justify-between items-center text-black text-sm mt-3",
   checkboxContainer: "flex items-center gap-2",
   signUpContainer: "w-full mt-3 text-center text-black",
-  error: "mt-4 text-red-500 text-center",
+  error: "mt-4 text-red-500 text-center text-sm",
   link: "text-blue-500 hover:underline",
   forgotPassword: "text-black-500 hover:underline",
   logo: "w-100 pb-20 ", 
