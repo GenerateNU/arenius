@@ -12,7 +12,23 @@ import { useForm } from "react-hook-form";
 import { createClient } from "@supabase/supabase-js";
 import logo from "@/assets/onboarding-logo.png";
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || "", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "");
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+// Add error handling to prevent build failures
+if (!supabaseUrl) {
+  // During static build, provide a fallback for prerendering
+  if (process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
+    console.warn('Supabase URL not found during build. Using placeholder for static generation.');
+  } else {
+    console.error('Supabase URL is required. Please set NEXT_PUBLIC_SUPABASE_URL environment variable.');
+  }
+}
+
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder-for-static-build.supabase.co',
+  supabaseAnonKey || 'placeholder-key-for-static-build'
+);
 
 const formSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters long"),
