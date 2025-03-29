@@ -17,12 +17,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { capitalizeFirstLetter } from "@/lib/utils";
 import { GetLineItemResponse } from "@/types";
+import SignOutButton from "@/components/auth/signOut";
+import DeleteAccountButton from "@/components/auth/deleteAccount";
 import OffsetsView from "@/components/transactions/OffsetsView";
 
 export default function Transactions() {
   return (
     <TransactionProvider>
       <TableContent />
+      <div className="h-4" />
+      <SignOutButton />
+      <DeleteAccountButton />
     </TransactionProvider>
   );
 }
