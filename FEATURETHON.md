@@ -31,3 +31,8 @@ recently reconciled entries [Link to GitHub Repository](https://github.com/adamm
 - Created functionality for Reset Password
 - Created functionality for Signout
 - Created functionality for Delete Account
+
+- Implemented a GET endpoint for carbon offsets with filtering and pagination
+- Added carbon offsets table to frontend
+- Added header to dashboard page and updated gross emissions styles
+- Fixed navigation bar bug
