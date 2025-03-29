@@ -99,11 +99,13 @@ export async function reconcileBatch(request: ReconcileBatchRequest) {
   }
 }
 
-export async function reconcileBatchOffset(
-  request: BatchCreateCarbonOffsetsRequest
-) {
+export async function reconcileBatchOffset(request: ReconcileBatchRequest) {
   try {
-    await apiClient.post("/carbon-offset/batch", request);
+    // await apiClient.post("/carbon-offset/batch", request);
+    await apiClient.patch("/line-item/batch", {
+      line_item_ids: request.lineItemIds,
+      scope: 0,
+    });
   } catch (error) {
     console.error("Error reconciling carbon offsets", error);
   }

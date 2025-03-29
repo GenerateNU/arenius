@@ -29,7 +29,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		if *filterParams.ReconciliationStatus {
 			filterQuery += " AND (li.emission_factor_id IS NOT NULL)"
 		} else {
-			filterQuery += " AND (li.emission_factor_id IS NULL)"
+			filterQuery += " AND (li.emission_factor_id IS NULL) AND (li.scope IS NULL)"
 		}
 	}
 	if filterParams.SearchTerm != nil {
@@ -89,7 +89,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	rows, err := r.db.Query(ctx, query, queryArgs...)
 	if err != nil {
 		return nil, err
-	} 
+	}
 	defer rows.Close()
 
 	lineItems, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.LineItemWithDetails])

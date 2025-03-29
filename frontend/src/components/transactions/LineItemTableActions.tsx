@@ -49,13 +49,19 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
 
   // Handles reconciliation for carbon offsets
   async function handleCarbonOffsetReconciliation() {
-    const request: BatchCreateCarbonOffsetsRequest = {
-      carbon_offsets: table.getSelectedRowModel().rows.map((row) => ({
-        carbon_amount_kg: carbon ?? 0,
-        company_id: companyId ?? "",
-        source: row.original.description,
-        purchase_date: row.original.date,
-      })),
+    // const request: BatchCreateCarbonOffsetsRequest = {
+    //   carbon_offsets: table.getSelectedRowModel().rows.map((row) => ({
+    //     carbon_amount_kg: carbon ?? 0,
+    //     company_id: companyId ?? "",
+    //     source: row.original.description,
+    //     purchase_date: row.original.date,
+    //   })),
+    // };
+    const selectedIds = table.getSelectedRowModel().rows.map((row) => row.id);
+
+    const request: ReconcileBatchRequest = {
+      lineItemIds: selectedIds,
+      ...(scope && { scope: Number(scope) }),
     };
 
     await reconcileBatchOffset(request);
