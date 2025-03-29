@@ -10,6 +10,7 @@ interface AuthContextType {
   companyId: string | undefined;
   tenantId: string | undefined;
   userId: string | undefined;
+  jwt: string | undefined;
   isLoading: boolean;
   isLoginError: boolean;
   login: (
@@ -28,6 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [companyId, setCompanyId] = useState<string>();
   const [tenantId, setTenantId] = useState<string>();
   const [userId, setUserId] = useState<string>();
+  const [jwt, setJwt] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false); // Track loading state
   const [authActionTriggered, setAuthActionTriggered] = useState<
     "login" | "signup" | null
@@ -48,6 +50,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const storedUserId = Cookies.get("userID");
     if (storedUserId) {
       setUserId(storedUserId);
+    }
+
+    const storedJwt = Cookies.get("jwt");
+    if (storedJwt) {
+      setJwt(storedJwt);
     }
   }
 
@@ -118,7 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ companyId, tenantId, userId, isLoading, isLoginError, login, signup }}
+      value={{ companyId, tenantId, userId, jwt, isLoading, isLoginError, login, signup }}
     >
       {children}
     </AuthContext.Provider>
