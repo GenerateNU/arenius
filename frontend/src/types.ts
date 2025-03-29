@@ -6,8 +6,10 @@ export type LineItem = {
   total_amount: number;
   currency_code: string;
   emission_factor_name?: string;
+  emission_factor_id?: string;
   scope?: number;
   contact_name?: string;
+  contact_id?: string;
   co2?: number;
   date: Date;
 };
@@ -84,6 +86,11 @@ export type EmissionsFactorCategories = {
   history: EmissionsFactorCategory;
 };
 
+export type SimpleContact = {
+  id: string;
+  name: string;
+};
+
 export type Contact = {
   id: string;
   name: string;
@@ -157,6 +164,18 @@ export type GrossSummary = {
 };
 
 export type NetSummary = {
+  start_date: Date;
+  end_date: Date;
+  months: MonthNetSummary[];
+};
+
+export type MonthNetSummary = {
+  month_start: Date;
+  emissions: number;
+  offsets: number;
+};
+
+export type ScopeBreakdown = {
   total_co2: number;
   scopes: number;
 };

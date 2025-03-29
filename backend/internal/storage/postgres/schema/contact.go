@@ -28,7 +28,9 @@ func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*
 			city,
 			state,
 			xero_contact_id,
-			company_id
+			company_id,
+			created_at,
+			updated_at
 		FROM contact
 		WHERE contact.id = $1
 		LIMIT 1
