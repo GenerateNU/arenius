@@ -15,8 +15,6 @@ func (h *Handler) GetNetSummary(c *fiber.Ctx) error {
 		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
 	}
 
-	fmt.Println("GetNetSummary called with request:", req)
-
 	if req.CompanyID == "" {
 		return errs.BadRequest("Company ID is required")
 	}
@@ -26,8 +24,6 @@ func (h *Handler) GetNetSummary(c *fiber.Ctx) error {
 		req.StartDate = time.Now().AddDate(0, -3, 0)
 		req.EndDate = time.Now()
 	}
-
-	fmt.Println("GetNetSummary updated request:", req)
 
 	grossSummary, err := h.summaryRepository.GetNetSummary(c.Context(), req)
 	if err != nil {
