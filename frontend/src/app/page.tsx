@@ -22,6 +22,6 @@ export default function LoginPage() {
 
 const styles = {
   container:
-    "h-screen w-full bg-[url('../assets/onboarding-bg.jpeg')] bg-cover bg-center flex",
+    "h-screen w-full bg-[url('/onboarding-bg.jpeg')] bg-cover bg-center flex",
   login: "w-1/2 h-full flex items-center justify-start pl-20",
 };
