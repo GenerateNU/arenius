@@ -391,25 +391,6 @@ func (r *LineItemRepository) GetLineItemsByIds(ctx context.Context, lineItemIDs 
 }
 
 func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, companyId uuid.UUID) ([]models.LineItem, error) {
-    const pastTransactionsQuery = `
-        SELECT line_item.description, emission_factor.name AS emissions_factor, emission_factor.activity_id AS emissions_factor_id, line_item.scope
-        FROM line_item
-        JOIN emission_factor ON line_item.emission_factor_id = emission_factor.activity_id
-        WHERE line_item.company_id = $1
-        ORDER BY line_item.date DESC
-        LIMIT 100;
-    `
-    pastRows, err := r.db.Query(ctx, pastTransactionsQuery, companyId)
-    if err != nil {
-        return nil, err
-    }
-    defer pastRows.Close()
-
-    pastTransactions, err := pgx.CollectRows(pastRows, pgx.RowToStructByName[models.PastLineItemDetails])
-    if err != nil {
-        return nil, err
-    }
-
     const unreconciledTransactionsQuery = `
         SELECT id, description
         FROM line_item
@@ -427,6 +408,33 @@ func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, company
     if err != nil {
         return nil, err
     }
+
+	if len(unreconciledTransactions) == 0 {
+		return []models.LineItem{}, nil
+	}
+
+	const pastTransactionsQuery = `
+		SELECT line_item.description, emission_factor.name AS emissions_factor, emission_factor.activity_id AS emissions_factor_id, line_item.scope
+		FROM line_item
+		JOIN emission_factor ON line_item.emission_factor_id = emission_factor.activity_id
+		WHERE line_item.company_id = $1
+		ORDER BY line_item.date DESC
+		LIMIT 100;
+	`
+	pastRows, err := r.db.Query(ctx, pastTransactionsQuery, companyId)
+	if err != nil {
+		return nil, err
+	}
+	defer pastRows.Close()
+
+	pastTransactions, err := pgx.CollectRows(pastRows, pgx.RowToStructByName[models.PastLineItemDetails])
+	if err != nil {
+		return nil, err
+	}
+
+	if len(pastTransactions) == 0 {
+		return []models.LineItem{}, nil
+	}
 
     reconciliationQuery := models.LineItemReconciliationQuery{
         PastTransactions:          pastTransactions,
