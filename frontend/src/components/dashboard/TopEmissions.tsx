@@ -88,7 +88,7 @@ export default function TopEmissionsFactors() {
       </CardHeader>
       <CardContent className="px-0">
         <div className="space-y-2">
-          {emissions.map((factor, index) => (
+          {emissions && emissions.map((factor, index) => (
             <div
               key={factor.rank}
               className={`flex justify-between items-center p-4 rounded-lg ${
