@@ -22,7 +22,6 @@ import EmissionsFactorSelector from "./CategorySelector";
 import { ContactProvider } from "@/context/ContactContext";
 import ContactsSelector from "./ContactsSelector";
 import { useRouter } from "next/navigation";
-import { ExternalLink } from "lucide-react";
 
 interface ModalDialogProps {
   selectedRowData: Row<LineItem>;
@@ -90,7 +89,6 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
               className="flex items-center gap-2"
             >
               View History
-              <ExternalLink className="h-4 w-4" />
             </Button>
           )}
         </DialogHeader>

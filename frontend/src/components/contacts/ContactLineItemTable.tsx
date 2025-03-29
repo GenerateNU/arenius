@@ -75,7 +75,7 @@ export function ContactLineItemTable({ data }: ContactLineItemTableProps) {
                   ))}
                   <TableCell>
                     <Image
-                      src="/edit-icon.svg"
+                      src="/arrow.svg"
                       alt="Edit"
                       width={20}
                       height={20}
