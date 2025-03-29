@@ -13,6 +13,7 @@
 - Updated transactions page
 
   - Auto-fill when editing a transaction
+  - Updated line item entry modal to auto-close and allow contact selection
 
 - Created the Contact Summary / History Page
 

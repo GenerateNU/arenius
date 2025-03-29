@@ -19,15 +19,18 @@ import { capitalizeFirstLetter } from "@/lib/utils";
 import { GetLineItemResponse } from "@/types";
 import SignOutButton from "@/components/auth/signOut";
 import DeleteAccountButton from "@/components/auth/deleteAccount";
+import { ContactProvider } from "@/context/ContactContext";
 import OffsetsView from "@/components/transactions/OffsetsView";
 
 export default function Transactions() {
   return (
     <TransactionProvider>
-      <TableContent />
-      <div className="h-4" />
-      <SignOutButton />
-      <DeleteAccountButton />
+      <ContactProvider>
+        <TableContent />
+        <div className="h-4" />
+        <SignOutButton />
+        <DeleteAccountButton />
+      </ContactProvider>
     </TransactionProvider>
   );
 }

@@ -13,17 +13,20 @@ import {
   FormMessage,
   Form,
 } from "../ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useAuth } from "@/context/AuthContext";
 import { useTransactionsContext } from "@/context/TransactionContext";
+import { useContacts } from "@/context/ContactContext";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "../ui/select";
+import { DialogClose } from "../ui/dialog";
 
 const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AUD"];
 
@@ -31,11 +34,13 @@ const formSchema = z.object({
   description: z.string().min(2).max(50),
   price: z.coerce.number().min(0),
   currency_code: z.enum([...CURRENCIES] as [string, ...string[]]),
+  contact_id: z.string(),
 });
 
 export default function ItemForm() {
   const { fetchTableData } = useTransactionsContext();
   const { companyId } = useAuth();
+  const { data: contactResponse } = useContacts();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,6 +48,7 @@ export default function ItemForm() {
       description: "",
       price: 0,
       currency_code: "USD",
+      contact_id: "",
     },
   });
 
@@ -53,6 +59,7 @@ export default function ItemForm() {
           description: values.description,
           total_amount: values.price,
           currency_code: values.currency_code,
+          contact_id: values.contact_id,
         },
         companyId
       );
@@ -65,10 +72,7 @@ export default function ItemForm() {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="py-4 flex flex-row items-end space-x-8"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
         <FormField
           control={form.control}
           name="description"
@@ -89,7 +93,7 @@ export default function ItemForm() {
             <FormItem>
               <FormLabel>Price</FormLabel>
               <FormMessage />
-              <FormControl className="w-[100px]">
+              <FormControl className="">
                 <Input type="number" placeholder="100" {...field} />
               </FormControl>
             </FormItem>
@@ -97,22 +101,22 @@ export default function ItemForm() {
         />
         <FormField
           control={form.control}
-          name="currency_code"
+          name="contact_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Currency code</FormLabel>
+              <FormLabel>Contact</FormLabel>
               <FormControl>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
-                  <SelectTrigger className="w-[100px]">
-                    <SelectValue placeholder="USD" />
+                  <SelectTrigger className="">
+                    <SelectValue placeholder="Select contact" />
                   </SelectTrigger>
                   <SelectContent>
-                    {CURRENCIES.map((currency) => (
-                      <SelectItem key={currency} value={currency}>
-                        {currency}
+                    {contactResponse.contacts.map((contact) => (
+                      <SelectItem key={contact.id} value={contact.id}>
+                        {contact.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -122,7 +126,11 @@ export default function ItemForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <DialogClose asChild>
+          <Button className="mt-4" type="submit">
+            Submit
+          </Button>
+        </DialogClose>
       </form>
     </Form>
   );
