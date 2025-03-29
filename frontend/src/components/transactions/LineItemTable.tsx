@@ -175,7 +175,7 @@ export default function LineItemTable({
         />
       )}
 
-      {clickedRowData && (
+      {isDialogOpen && clickedRowData && (
         <ModalDialog
           selectedRowData={clickedRowData}
           isDialogOpen={isDialogOpen}

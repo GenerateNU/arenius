@@ -5,8 +5,10 @@ export type LineItem = {
   description: string;
   total_amount: number;
   currency_code: string;
+  emission_factor_id?: string;
   emission_factor_name?: string;
   scope?: number;
+  contact_id: string;
   contact_name?: string;
   co2?: number;
   date: Date;
@@ -82,6 +84,11 @@ export type EmissionsFactorCategories = {
   all: EmissionsFactorCategory[];
   favorites: EmissionsFactorCategory;
   history: EmissionsFactorCategory;
+};
+
+export type SimpleContact = {
+  id: string;
+  name: string;
 };
 
 export type Contact = {

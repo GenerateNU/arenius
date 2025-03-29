@@ -6,7 +6,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { reconcile } from "@/services/lineItems";
-import { Contact, EmissionsFactor, LineItem, ReconcileRequest } from "@/types";
+import {
+  EmissionsFactor,
+  LineItem,
+  ReconcileRequest,
+  SimpleContact,
+} from "@/types";
 import { Row } from "@tanstack/react-table";
 import React, { useState } from "react";
 import {
@@ -33,9 +38,17 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
   setIsDialogOpen,
   onReconcileSuccess,
 }) => {
-  const [scope, setScope] = useState("");
-  const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
-  const [contact, setContact] = useState<Contact>();
+  const [scope, setScope] = useState(
+    selectedRowData.original.scope?.toString()
+  );
+  const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>({
+    name: selectedRowData.original.emission_factor_name,
+    activity_id: selectedRowData.original.emission_factor_id,
+  } as EmissionsFactor);
+  const [contact, setContact] = useState<SimpleContact>({
+    name: selectedRowData.original.contact_name,
+    id: selectedRowData.original.contact_id,
+  } as SimpleContact);
 
   const date = new Date(selectedRowData.getValue("date"));
   const formattedDate =
@@ -86,7 +99,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
               </p>
               <Select onValueChange={(value) => setScope(value)}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select scope" />
+                  {scope ? `Scope ${scope}` : "Select scope"}
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="1">Scope 1</SelectItem>

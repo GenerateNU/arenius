@@ -8,11 +8,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useContacts } from "@/context/ContactContext";
-import { Contact } from "@/types";
+import { Contact, SimpleContact } from "@/types";
 import { ChevronDown } from "lucide-react";
 
 interface ContactSelectorProps {
-  contact?: Contact;
+  contact?: SimpleContact;
   setContact: (contact: Contact) => void;
   variant?:
     | "link"
