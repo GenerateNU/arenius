@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { capitalizeFirstLetter } from "@/lib/utils";
 import { GetLineItemResponse } from "@/types";
+import OffsetsView from "@/components/transactions/OffsetsView";
 
 export default function Transactions() {
   return (
@@ -213,7 +214,7 @@ function TableRenderer({
     case "unreconciled":
       return <UnreconciledView />;
     case "offsets":
-      return <p>Carbon credit table.</p>;
+      return <OffsetsView />;
     default:
       return <p>No table selected.</p>;
   }
