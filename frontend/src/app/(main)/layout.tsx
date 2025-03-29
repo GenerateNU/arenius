@@ -7,7 +7,7 @@ import TransactionsIcon from "@/components/icons/transactions";
 import { ProfileDropdown } from "@/components/user_profile/ProfileDropdown";
 import Image from "next/image";
 import Link from "next/link";
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 
