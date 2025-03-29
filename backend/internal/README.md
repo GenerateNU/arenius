@@ -7,7 +7,7 @@ Returns 200 OK if the server is running.
 
 ## Auth
 
-POST `/auth/login`
+POST `/login`
 Login for user, returns access token and user information.
 
 ```go
@@ -22,7 +22,7 @@ Example:
 }
 ```
 
-POST `/auth/signup`
+POST `/signup`
 Sign up for user, returns access token and user info.
 
 ```go
@@ -39,6 +39,34 @@ Example:
     "first_name": "zachie",
     "last_name": "croft",
 }
+```
+
+POST `/forgot-password`
+Does forgot password for an email, sends an email with a reset link.
+
+```go
+Body Parameters:
+- `email` (string)
+```
+
+POST `/reset-password`
+Resets a password for the logged in account
+
+```go
+Body Parameters:
+- `password` (string)
+```
+
+POST `/sign-out`
+Signs out the user based on cookies
+
+
+POST `/delete-account`
+Deletes the given account
+
+```go
+Query Parameters:
+- `userId` (string)
 ```
 
 ## User
