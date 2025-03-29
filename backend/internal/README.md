@@ -60,8 +60,7 @@ Body Parameters:
 POST `/sign-out`
 Signs out the user based on cookies
 
-
-POST `/delete-account`
+DELETE `/delete-account`
 Deletes the given account
 
 ```go
