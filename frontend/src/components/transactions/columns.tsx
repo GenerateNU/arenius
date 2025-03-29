@@ -2,8 +2,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { LineItem } from "@/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnHeader } from "../ui/columnHeader";
-import { Check, X } from "lucide-react";
-import { handleRecommendation } from "@/services/lineItems";
 
 const selectColumn: ColumnDef<LineItem> = {
   id: "select",
@@ -158,5 +156,5 @@ export const offsetColumns: ColumnDef<LineItem>[] = [
   descriptionColumn, // Not on carbon offsets table
   co2Column, // We have a total_amount_kg field instead, this needs its own column
   contactColumn, // Not on carbon offsets table (there is a source field though)
-  amountColumn // Not on carbon offets table 
+  amountColumn, // Not on carbon offets table
 ];
