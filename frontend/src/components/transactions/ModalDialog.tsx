@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,7 +11,6 @@ import { reconcile } from "@/services/lineItems";
 import { Contact, EmissionsFactor, LineItem, ReconcileRequest } from "@/types";
 import { Row } from "@tanstack/react-table";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -20,6 +21,8 @@ import {
 import EmissionsFactorSelector from "./CategorySelector";
 import { ContactProvider } from "@/context/ContactContext";
 import ContactsSelector from "./ContactsSelector";
+import { useRouter } from "next/navigation";
+import { ExternalLink } from "lucide-react";
 
 interface ModalDialogProps {
   selectedRowData: Row<LineItem>;
@@ -34,6 +37,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
   setIsDialogOpen,
   onReconcileSuccess,
 }) => {
+  const router = useRouter();
   const [scope, setScope] = useState("");
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
   const [contact, setContact] = useState<Contact>();
@@ -78,7 +82,6 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
           <DialogTitle className="text-lg text-gray-500">
             {selectedRowData.getValue("description")}
           </DialogTitle>
-          <p>action</p>
           {contact?.id && (
             <Button 
               variant="ghost" 
@@ -86,7 +89,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
               onClick={handleContactNavigation}
               className="flex items-center gap-2"
             >
-              Actions
+              View History
               <ExternalLink className="h-4 w-4" />
             </Button>
           )}

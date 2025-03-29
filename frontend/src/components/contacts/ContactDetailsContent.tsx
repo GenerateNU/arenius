@@ -6,8 +6,8 @@ import { useAuth } from "@/context/AuthContext";
 import apiClient from "@/services/apiClient";
 import { ContactLineItemTable } from "@/components/contacts/ContactLineItemTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { MapPin, Mail, Phone } from "lucide-react";
+import { GetLineItemResponse } from "@/types";
 
 interface ContactDetails {
   id: string;
@@ -24,17 +24,10 @@ interface ContactSummary {
   totalEmissions: number;
 }
 
-interface ContactLineItemsProps {
-  date: string;
-  name: string;
-  emissionsFactor: string;
-  amount: number;
-}
-
 interface ContactWithDetails {
   contact: ContactDetails;
   summary: ContactSummary;
-  transactions: ContactLineItemsProps[];
+  transactions: GetLineItemResponse;
 }
 
 export default function ContactDetailsContent() {
@@ -56,7 +49,19 @@ export default function ContactDetailsContent() {
           },
         });
 
-        const { contact, summary, transactions } = response.data;
+        const trasactionsResponse = await apiClient.get(`/line-item/`, {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+          params: {
+            contact_id: contactId,
+          },
+        });
+
+        const { contact, summary } = response.data;
+        const transactions = trasactionsResponse.data;
+        console.log(transactions);
+        
         setContactDetails({
           contact,
           summary: {
@@ -64,7 +69,7 @@ export default function ContactDetailsContent() {
             totalTransactions: summary.total_transactions,
             totalEmissions: summary.total_emissions,
           },
-          transactions,
+          transactions: transactions,
         });
 
         setLoading(false);
@@ -89,7 +94,6 @@ export default function ContactDetailsContent() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>{contact.name}</CardTitle>
-          <Badge variant="secondary">Scope 2</Badge>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -139,10 +143,12 @@ export default function ContactDetailsContent() {
 
           <div className="mt-6">
             <h3 className="text-lg font-semibold mb-4">Recent Transactions</h3>
-            <ContactLineItemTable data={transactions ?? []} />
+            <ContactLineItemTable data = {transactions.line_items} />
+
           </div>
         </CardContent>
       </Card>
     </div>
   );
 }
+
