@@ -9,10 +9,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight, Search } from "lucide-react";
-import { fetchEmissionsFactors } from "@/services/emissionsFactors";
+import { fetchEmissionsFactors, setEmissionFactorFavorite } from "@/services/emissionsFactors";
 import { EmissionsFactorCategories, EmissionsFactorCategory, EmissionsFactor } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
+import Image from "next/image";
 
 interface CategorySelectorProps {
   emissionsFactor?: EmissionsFactor;
@@ -180,11 +181,61 @@ function EmissionsFactorList({ emissionsFactors, setEmissionsFactor, setIsOpen }
 
 function EmissionsFactorItem({ emissionsFactor, setEmissionsFactor, setIsOpen }: EmissionsFactorProps) {
   return (
-    <>
+    <span className="flex items-center">
       <Button key={emissionsFactor.name} variant="ghost" className={styles.dropdownButton} onClick={() => { setEmissionsFactor(emissionsFactor); setIsOpen(false); }}>
         • {emissionsFactor.name}
       </Button>
-    </>
+      <FavoriteStar emissionsFactor={emissionsFactor} />
+    </span>
+  )
+}
+
+function FavoriteStar({ 
+  emissionsFactor
+}: { 
+  emissionsFactor: EmissionsFactor;
+}) {
+  const [isFavorite, setIsFavorite] = useState(emissionsFactor.favorite);
+  
+  const toggleFavorite = async () => {
+    if (!emissionsFactor.company_id || !emissionsFactor.id) return;
+    
+    const newFavoriteState = !isFavorite;
+    setIsFavorite(newFavoriteState);
+    
+    try {
+      await setEmissionFactorFavorite(
+        emissionsFactor.company_id, 
+        emissionsFactor.id, 
+        newFavoriteState
+      );
+    } catch (error) {
+      console.error("Failed to update favorite status", error);
+      setIsFavorite(!newFavoriteState);
+    }
+  };
+
+  if (isFavorite) {
+    return (
+      <Button variant="ghost" onClick={toggleFavorite}>
+        <Image
+            src="/filled_star.svg"
+            alt="Remove from favorites"
+            width={18}
+            height={18}
+        />
+      </Button>
+    )
+  }
+  return (
+    <Button variant="ghost" onClick={toggleFavorite}>
+      <Image
+          src="/Star.svg"
+          alt="Add to favorites"
+          width={18}
+          height={18}
+      />
+    </Button>
   )
 }
 
@@ -199,7 +250,7 @@ const styles = {
   backButton:
     "w-full flex gap-x-2 items-center justify-start py-2 mb-3 text-left",
   dropdownButton:
-    "w-full flex justify-between items-center px-3 py-2 text-left",
+    "w-full flex justify-between items-center px-3 py-2 text-left text-wrap",
   dropdownContent: "min-w-[400px] w-64 max-h-96 overflow-y-auto",
   factorButton:
     "text-left px-4 py-2 whitespace-normal break-words flex justify-start",

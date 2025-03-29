@@ -66,6 +66,9 @@ export type ReconcileRequest = {
 export type EmissionsFactor = {
   name: string;
   activity_id: string;
+  favorite?: boolean;
+  company_id?: string;
+  id?: string;
 };
 
 export type Price = {
