@@ -7,6 +7,7 @@ import DashboardIcon from "@/components/icons/dashboard";
 import TransactionsIcon from "@/components/icons/transactions";
 import ContactsIcon from "@/components/icons/contacts";
 import { usePathname } from "next/navigation";
+import { ProfileDropdown } from "@/components/user_profile/ProfileDropdown";
 
 interface LayoutProps {
   children: ReactNode;
@@ -47,6 +48,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </Link>
             </>
           )}
+          <ProfileDropdown></ProfileDropdown>
         </div>
       </div>
       <div className="pt-10 px-20 bg-grayBackground h-full">{children}</div>{" "}
