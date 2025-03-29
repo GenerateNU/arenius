@@ -164,6 +164,18 @@ export type GrossSummary = {
 };
 
 export type NetSummary = {
+  start_date: Date;
+  end_date: Date;
+  months: MonthNetSummary[];
+};
+
+export type MonthNetSummary = {
+  month_start: Date;
+  emissions: number;
+  offsets: number;
+};
+
+export type ScopeBreakdown = {
   total_co2: number;
   scopes: number;
 };

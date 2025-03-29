@@ -11,11 +11,11 @@ import { ChartContainer, ChartConfig } from "@/components/ui/chart";
 import ScopeChart from "@/components/scope-breakdown/piechart";
 import { useDateRange } from "@/context/DateRangeContext";
 import { useAuth } from "@/context/AuthContext";
-import { NetSummary } from "@/types";
-import { fetchNetSummary } from "@/services/dashboard";
+import { ScopeBreakdown } from "@/types";
+import { fetchScopeBreakdown } from "@/services/dashboard";
 
-const ScopeBreakdown = () => {
-  const [data, setData] = useState<NetSummary[] | null>(null);
+const ScopeBreakdownChart = () => {
+  const [data, setData] = useState<ScopeBreakdown[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { dateRange } = useDateRange();
 
@@ -27,9 +27,12 @@ const ScopeBreakdown = () => {
   const { companyId } = useAuth();
 
   useEffect(() => {
-    console.log("hi");
     if (companyId) {
-      fetchNetSummary(companyId, startDate.toISOString(), endDate.toISOString())
+      fetchScopeBreakdown(
+        companyId,
+        startDate.toISOString(),
+        endDate.toISOString()
+      )
         .then(setData)
         .catch((err) => setError(err.message));
     }
@@ -99,4 +102,4 @@ const ScopeBreakdown = () => {
   );
 };
 
-export default ScopeBreakdown;
+export default ScopeBreakdownChart;
