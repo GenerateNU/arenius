@@ -185,6 +185,15 @@ func (c *UserRepository) UpdateUserProfile(ctx context.Context, userId string, r
 
 }
 
+func (c *UserRepository) DeleteUser(ctx context.Context, userId string) (string, error) {
+	const query = `DELETE FROM user_creds WHERE id = $1`
+	_, err := c.db.Exec(ctx, query, userId)
+	if err != nil {
+		return "", fmt.Errorf("error querying database for user: %w", err)
+	}
+	return "User Deleted Successfully", nil
+}
+
 func NewUserRepository(db *pgxpool.Pool) *UserRepository {
 	return &UserRepository{
 		db,
