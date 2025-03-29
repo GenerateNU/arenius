@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronRight, Search } from "lucide-react";
+import { ChevronDown, ChevronRight, Factory, Search } from "lucide-react";
 import { fetchEmissionsFactors, setEmissionFactorFavorite } from "@/services/emissionsFactors";
 import { EmissionsFactorCategories, EmissionsFactorCategory, EmissionsFactor } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -236,22 +236,81 @@ function FavoriteStar({emissionsFactor, categories, setCategories }: FavoriteSta
       setIsFavorite(newFavoriteState);
       if (newFavoriteState && categories) {
         // then it is true, so add it to favorites
+        const updatedFavoriteFactors = [...(categories.favorites.emissions_factors || []), emissionsFactor];
+  
+        // Sort the list by name
+        updatedFavoriteFactors.sort((a, b) => {
+          return a.name.localeCompare(b.name);
+        });
+
+        const updatedHistoryFactors = (categories.history.emissions_factors || []).map((factor) => {
+          if (factor.id === emissionsFactor.id) {
+            return emissionsFactor
+          } else{
+            return factor
+          }
+        })
+
+        const updatedAllFactors = (categories.all.map((category) => {
+          return {
+            ...category,
+            emission_factors: category.emissions_factors.map((factor) => {
+              if (factor.id === emissionsFactor.id) {
+                return emissionsFactor
+              } else{
+                return factor
+              }
+            })
+          }
+        }))
+        
         setCategories({
-          ...categories,
+          ...categories, 
+          all: updatedAllFactors,
           favorites: {
-            ...categories.favorites,
-            emissions_factors: categories.favorites.emissions_factors.concat(emissionsFactor)
+            ...categories.favorites, 
+            emissions_factors: updatedFavoriteFactors
+          },
+          history: {
+            ...categories.history,
+            emissions_factors: updatedHistoryFactors
           }
         });
       } else if (categories) {
         // then it is false, so remove it from favorites
+        const updatedHistoryFactors = (categories.history.emissions_factors || []).map((factor) => {
+          if (factor.id === emissionsFactor.id) {
+            return emissionsFactor
+          } else{
+            return factor
+          }
+        })
+
+        const updatedAllFactors = (categories.all.map((category) => {
+          return {
+            ...category,
+            emission_factors: category.emissions_factors.map((factor) => {
+              if (factor.id === emissionsFactor.id) {
+                return emissionsFactor
+              } else{
+                return factor
+              }
+            })
+          }
+        }))
+
         setCategories({
           ...categories, 
+          all: updatedAllFactors,
           favorites: {
             ...categories.favorites, 
             emissions_factors: categories.favorites.emissions_factors.filter(
               factor => factor.id !== emissionsFactor.id
             )
+          },
+          history: {
+            ...categories.history,
+            emissions_factors: updatedHistoryFactors
           }
         });
       }
