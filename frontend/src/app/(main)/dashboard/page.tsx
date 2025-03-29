@@ -2,13 +2,12 @@
 import { DatePicker } from "@/components/dashboard/DatePicker";
 import GrossSummary from "@/components/dashboard/GrossEmissionsBarGraph";
 import { DateRangeProvider } from "@/context/DateRangeContext";
-import React, { useEffect } from "react";
+import React from "react";
 
 import ContactEmissionsTreeMap from "@/components/dashboard/ContactEmissionsTreeMap";
 import TopEmissionsFactors from "@/components/dashboard/TopEmissions";
 import ScopeBreakdownChart from "@/components/scope-breakdown/scope-breakdown";
 import NetEmissionsBarGraph from "@/components/dashboard/NetEmissionsBarGraph";
-import { useAuth } from "@/context/AuthContext";
 
 const DashboardContent: React.FC = () => {
   return (
