@@ -7,9 +7,11 @@ export type LineItem = {
   currency_code: string;
   emission_factor_id?: string;
   emission_factor_name?: string;
+  emission_factor_id?: string;
   scope?: number;
   contact_id: string;
   contact_name?: string;
+  contact_id?: string;
   co2?: number;
   date: Date;
 };
