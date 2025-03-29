@@ -1,76 +1,73 @@
-'use client';
+"use client";
+import { useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
 
-import React, { useState } from 'react';
-import AWS from 'aws-sdk';
+const supabase = createClient("https://otqxkhrzvszshplymejg.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90cXhraHJ6dnN6c2hwbHltZWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY1MjkxNDcsImV4cCI6MjA1MjEwNTE0N30.VDqp254ZDc8Skp4Ri6aTanvdmoophssv-wDZPHX_t7E");
 
-// Profile page component
 export default function ProfilePage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
-  // Function to upload image from URL to Supabase
-  const uploadImageFromUrl = async (url: string) => {
+  // Handle file input change
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      setImageFile(file);
+    }
+  };
+
+  const maxSize = 5 * 1024 * 1024; // 5MB max size
+
+  // Validate file size
+  if (imageFile && imageFile.size > maxSize) {
+    setUploadStatus('File is too large. Max size is 5MB.');
+  }
+
+  // Validate file type
+  if (imageFile && !imageFile.type.startsWith('image/')) {
+    setUploadStatus('Invalid file type. Please upload an image.');
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+  
+    if (!imageFile) {
+      setUploadStatus('Please select an image first.');
+      return;
+    }
+  
     setIsUploading(true);
-    setUploadStatus('Uploading...');
-
+    setUploadStatus(null);
+  
     try {
-      // Configure S3 client for Supabase Storage
-      const s3 = new AWS.S3({
-        endpoint: 'BRUH',  // Supabase Storage endpoint
-        accessKeyId: 'BRUH',  // Your Supabase access key
-        secretAccessKey: 'BRUH',  // Your Supabase secret key
-        signatureVersion: 'v4',  // Default AWS Signature version
-        region: 'us-east-1',  // Region (this can be any AWS region, since Supabase Storage is S3-compatible)
-      });
-
-      // Fetch the image
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch image: HTTP status ${response.status}`);
+      const { data, error } = await supabase.storage
+        .from('profile-photos') // The bucket name in Supabase
+        .upload(`profile-photo-${Date.now()}`, imageFile);
+  
+      if (error) {
+        console.error('Supabase upload error:', error); // Log the error
+        throw error;  // Throw the error to be caught in the catch block
       }
-      
-      // Convert response to array buffer
-      const arrayBuffer = await response.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      
-      // Generate a unique file name
-      const fileName = `profile-${Date.now()}.jpg`;
-      
-      // Upload parameters
-      const uploadParams = {
-        Bucket: 'profile-photos',
-        Key: fileName,
-        Body: buffer,
-        ContentType: 'image/jpeg',
-      };
-
-      // Upload to Supabase Storage
-      const result = await s3.upload(uploadParams).promise();
-      
-      // Update state with success
-      setUploadStatus('Upload successful!');
-      setImageUrl(result.Location);
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      setUploadStatus(`Upload failed: ${error instanceof Error ? error.message : String(error)}`);
+  
+      console.log('Upload data:', data);  // Log the successful upload response
+  
+      const publicUrl = supabase.storage.from('profile-photos').getPublicUrl(data.path).data.publicUrl;
+      setImageUrl(publicUrl);
+      setUploadStatus('Image uploaded successfully!');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setUploadStatus(`Upload failed: ${error.message}`);
+      } else {
+        setUploadStatus('Upload failed: Unknown error');
+      }
+      console.error('Error during upload:', error);  // Log the complete error
     } finally {
       setIsUploading(false);
     }
   };
-
-  // Function to handle form submission
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    const url = formData.get('imageUrl') as string;
-    
-    if (url) {
-      uploadImageFromUrl(url);
-    }
-  };
+  
 
   return (
     <div className="container mx-auto p-4">
@@ -79,17 +76,18 @@ export default function ProfilePage() {
       {/* Image upload form */}
       <div className="bg-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-semibold mb-4">Upload Profile Photo</h2>
-        
+          
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-1">
-              Image URL
+              Choose Image
             </label>
             <input
-              type="url"
+              type="file"
               id="imageUrl"
               name="imageUrl"
-              placeholder="https://example.com/image.jpg"
+              onChange={handleFileChange}
+              accept="image/*"
               className="w-full p-2 border rounded"
               required
             />
@@ -97,19 +95,19 @@ export default function ProfilePage() {
           
           <button
             type="submit"
-            disabled={isUploading}
+            disabled={isUploading || !imageFile}
             className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:bg-blue-300"
           >
             {isUploading ? 'Uploading...' : 'Upload Image'}
           </button>
         </form>
-        
+          
         {uploadStatus && (
           <div className={`mt-4 p-3 rounded ${uploadStatus.includes('failed') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
             {uploadStatus}
           </div>
         )}
-        
+          
         {imageUrl && (
           <div className="mt-4">
             <p className="text-sm font-medium text-gray-700 mb-2">Uploaded Image:</p>

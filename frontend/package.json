@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.777.0",
     "@hookform/resolvers": "^4.0.0",
     "@radix-ui/react-checkbox": "^1.1.4",
     "@radix-ui/react-dialog": "^1.1.6",
@@ -17,6 +18,7 @@
     "@radix-ui/react-popover": "^1.1.6",
     "@radix-ui/react-select": "^2.1.6",
     "@radix-ui/react-slot": "^1.1.2",
+    "@supabase/supabase-js": "^2.49.4",
     "@tanstack/react-table": "^8.20.6",
     "apexcharts": "^4.5.0",
     "aws-sdk": "^2.1692.0",
