@@ -19,8 +19,6 @@ import {
 import {
   ChartConfig,
   ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
@@ -79,14 +77,29 @@ export default function GrossEmissionsBarGraph() {
           {grossSummary.total_co2?.toLocaleString("en-US") || 0} kg
         </CardDescription>
         <CardDescription>
-          Total emissions (kg) for {formattedStartMonth} {formattedStartYear} -{" "}
-          {formattedEndMonth} {formattedEndYear}
+          Total emissions (kg) for <span className="font-bold">{formattedStartMonth} {formattedStartYear} -{" "}
+          {formattedEndMonth} {formattedEndYear}</span>
         </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart accessibilityLayer data={chartData}>
+              <defs>
+                <linearGradient id="scope1Gradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#5F8D39" stopOpacity={1}/>
+                  <stop offset="100%" stopColor="#2B3E1B" stopOpacity={1}/>
+                </linearGradient>
+                <linearGradient id="scope2Gradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#94BE7C" stopOpacity={1}/>
+                  <stop offset="39%" stopColor="#5C8957" stopOpacity={1}/>
+                  <stop offset="100%" stopColor="#36663F" stopOpacity={1}/>
+                </linearGradient>
+                <linearGradient id="scope3Gradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#D0F5BC" stopOpacity={1}/>
+                  <stop offset="100%" stopColor="#77B257" stopOpacity={1}/>
+                </linearGradient>
+              </defs>
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="month"
@@ -100,24 +113,24 @@ export default function GrossEmissionsBarGraph() {
                 content={<ChartTooltipContent hideLabel />}
                 wrapperStyle={{ width: "12%" }}
               />
-              <ChartLegend content={<ChartLegendContent />} />
+              {/* <ChartLegend content={<ChartLegendContent />} /> */}
               <Bar
                 dataKey="scope1"
                 stackId="a"
-                fill="var(--color-scope1)"
-                radius={[0, 0, 4, 4]}
+                fill="url(#scope1Gradient)"
+                radius={12}
               />
               <Bar
                 dataKey="scope2"
                 stackId="a"
-                fill="var(--color-scope2)"
-                radius={[4, 4, 0, 0]}
+                fill="url(#scope2Gradient)"
+                radius={12}
               />
               <Bar
                 dataKey="scope3"
                 stackId="a"
-                fill="var(--color-scope3)"
-                radius={[4, 4, 0, 0]}
+                fill="url(#scope3Gradient)"
+                radius={12}
               />
             </BarChart>
           </ResponsiveContainer>
