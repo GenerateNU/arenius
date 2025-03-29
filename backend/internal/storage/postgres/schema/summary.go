@@ -274,11 +274,7 @@ func (r *SummaryRepository) GetContactEmissions(ctx context.Context, req models.
 		return nil, err
 	}
 
-	if len(contacts) == 0 {
-		return nil, fmt.Errorf("no emissions found for company_id: %s", req.CompanyID)
-	}
-
-	if contacts == nil {
+	if len(contacts) == 0 || contacts == nil {
 		contacts = []models.ContactEmissionsSummary{} // Ensure it's an empty array
 	}
 

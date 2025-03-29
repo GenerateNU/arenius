@@ -141,6 +141,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	app.Route("/emissions-factor", func(r fiber.Router) {
 		r.Get("/", emissionsFactorHandler.GetEmissionFactors)
 		r.Patch("/populate", emissionsFactorHandler.PopulateEmissions)
+		r.Post("/favorite", emissionsFactorHandler.PostFavoriteEmission)
 	})
 
 	userHandler := user.NewHandler(repo.User)
