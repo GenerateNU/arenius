@@ -470,19 +470,26 @@ func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, company
     )
     for i, rec := range recommendations {
         idx := i * 3
-        valuePlaceholders = append(valuePlaceholders, fmt.Sprintf("($%d, $%d, $%d)", idx+1, idx+2, idx+3))
-        valueArgs = append(valueArgs, rec.ID, rec.RecommendedScope, rec.RecommendedEmissionsFactorID)
+
+        parsedID, err := uuid.Parse(rec.ID)
+        if err != nil {
+            return nil, fmt.Errorf("invalid UUID in recommendation: %v", err)
+        }
+
+        valuePlaceholders = append(valuePlaceholders, fmt.Sprintf("($%d::uuid, $%d::int, $%d::text)", idx+1, idx+2, idx+3))
+        valueArgs = append(valueArgs, parsedID, rec.RecommendedScope, rec.RecommendedEmissionsFactorID)
     }
 
     updateQuery := fmt.Sprintf(`
+        WITH updates(id, scope, emission_factor_id) AS (
+            VALUES %s
+        )
         UPDATE line_item AS li
         SET
-            recommended_scope = data.scope,
-            recommended_emission_factor_id = data.emission_factor_id
-        FROM (
-            VALUES %s
-        ) AS data(id, scope, emission_factor_id)
-        WHERE li.id = data.id;
+            recommended_scope = updates.scope,
+            recommended_emission_factor_id = updates.emission_factor_id
+        FROM updates
+        WHERE li.id = updates.id;
     `, strings.Join(valuePlaceholders, ", "))
 
     _, err = r.db.Exec(ctx, updateQuery, valueArgs...)
@@ -490,14 +497,18 @@ func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, company
         return nil, fmt.Errorf("bulk update failed: %w", err)
     }
 
-    updatedIDs := make([]string, len(recommendations))
+    updatedUUIDs := make([]uuid.UUID, len(recommendations))
     for i, rec := range recommendations {
-        updatedIDs[i] = rec.ID
+        id, err := uuid.Parse(rec.ID)
+        if err != nil {
+            return nil, fmt.Errorf("invalid UUID in recommendation: %v", err)
+        }
+        updatedUUIDs[i] = id
     }
 
-    idPlaceholders := make([]string, len(updatedIDs))
-    idArgs := make([]interface{}, len(updatedIDs))
-    for i, id := range updatedIDs {
+    idPlaceholders := make([]string, len(updatedUUIDs))
+    idArgs := make([]interface{}, len(updatedUUIDs))
+    for i, id := range updatedUUIDs {
         idPlaceholders[i] = fmt.Sprintf("$%d", i+1)
         idArgs[i] = id
     }
@@ -513,10 +524,10 @@ func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, company
             date, 
             currency_code, 
             emission_factor_id, 
-			recommended_emission_factor_id,
+            recommended_emission_factor_id,
             co2, 
             scope, 
-			recommended_scopem,
+            recommended_scope,
             co2_unit
         FROM line_item
         WHERE id IN (%s);
