@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient("https://otqxkhrzvszshplymejg.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90cXhraHJ6dnN6c2hwbHltZWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY1MjkxNDcsImV4cCI6MjA1MjEwNTE0N30.VDqp254ZDc8Skp4Ri6aTanvdmoophssv-wDZPHX_t7E");
+
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 export default function ProfilePage() {
   const [isUploading, setIsUploading] = useState(false);
