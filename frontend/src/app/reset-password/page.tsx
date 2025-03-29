@@ -25,7 +25,7 @@ if (!supabaseUrl) {
   }
 }
 
-export const supabase = createClient(
+const supabase = createClient(
   supabaseUrl || 'https://placeholder-for-static-build.supabase.co',
   supabaseAnonKey || 'placeholder-key-for-static-build'
 );
