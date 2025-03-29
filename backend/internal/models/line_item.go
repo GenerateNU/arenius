@@ -25,8 +25,9 @@ type LineItem struct {
 
 type LineItemWithDetails struct {
 	LineItem
-	EmissionFactorName *string `json:"emission_factor_name,omitempty"`
-	ContactName        *string `json:"contact_name,omitempty"`
+	EmissionFactorName            *string `json:"emission_factor_name,omitempty"`
+	RecommendedEmissionFactorName *string `json:"recommended_emission_factor_name,omitempty"`
+	ContactName                   *string `json:"contact_name,omitempty"`
 }
 
 type GetLineItemsResponse struct {
