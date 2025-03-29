@@ -86,6 +86,11 @@ export type EmissionsFactorCategories = {
   history: EmissionsFactorCategory;
 };
 
+export type SimpleContact = {
+  id: string;
+  name: string;
+};
+
 export type Contact = {
   id: string;
   name: string;
