@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 export function ProfileDropdown() {
 
     const router = useRouter();
-    const [profilePhoto, setPhoto] = useState(""); // Store profile photo URL
+    const [profilePhoto, setPhoto] = useState("user_profile.svg"); // Store profile photo URL
 
     const handleClick = () => {
         router.push(`/profile`);
@@ -33,7 +33,9 @@ export function ProfileDropdown() {
                 const fetchedUser = await fetchUser(userId);
                 setUser(fetchedUser);
                 console.log("----", fetchedUser);
-                setPhoto(fetchedUser.photo_url); // Assuming response.photo_url contains the URL
+                if fetchedUser.photo_url {
+                    setPhoto(fetchedUser.photo_url); // Assuming response.photo_url contains the URL
+                }
             }
         };
 
