@@ -138,6 +138,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
   const fetchTableData = useCallback(
     async (table: TableKey) => {
       if (!companyId) return;
+      if (table == "offsets") return;
 
       setLoading(true);
       setError(null);
@@ -150,7 +151,6 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
           pageIndex: page[table],
           pageSize: pageSize[table],
         });
-
         setTableData((prev) => ({ ...prev, [table]: data }));
       } catch (err) {
         setError(`Failed to load data: ${err}`);
