@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,6 +21,7 @@ import {
 import EmissionsFactorSelector from "./CategorySelector";
 import { ContactProvider } from "@/context/ContactContext";
 import ContactsSelector from "./ContactsSelector";
+import { useRouter } from "next/navigation";
 
 interface ModalDialogProps {
   selectedRowData: Row<LineItem>;
@@ -33,6 +36,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
   setIsDialogOpen,
   onReconcileSuccess,
 }) => {
+  const router = useRouter();
   const [scope, setScope] = useState("");
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
   const [contact, setContact] = useState<Contact>();
@@ -62,12 +66,30 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
     onReconcileSuccess();
   }
 
+  const handleContactNavigation = () => {
+    if (contact) {
+      router.push(`/contacts/details?contactId=${contact.id}`);
+    }
+  }
+
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent className="sm:max-w-xl max-w-4xl p-8">
         <DialogHeader className="flex-row justify-between items-center">
           <div className="text-lg text-gray-500">{formattedDate}</div>
-          <DialogTitle className="text-lg text-gray-500">Actions</DialogTitle>
+          <DialogTitle className="text-lg text-gray-500">
+            {selectedRowData.getValue("description")}
+          </DialogTitle>
+          {contact?.id && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleContactNavigation}
+              className="flex items-center gap-2"
+            >
+              View History
+            </Button>
+          )}
         </DialogHeader>
 
         <div className="flex mt-4 w-full">
