@@ -46,6 +46,9 @@ export type CreateLineItemRequest = {
   total_amount: number;
   currency_code: string;
   contact_id: string;
+  emission_factor_id: string;
+  scope?: string;
+  date: Date;
 };
 
 export type LoginRequest = {
