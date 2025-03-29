@@ -24,8 +24,8 @@ function buildQueryParams(filters: LineItemFilters) {
   if (filters?.maxPrice) {
     params.max_price = filters.maxPrice?.toString();
   }
-  if (filters?.reconciled != undefined) {
-    params.reconciliation_status = filters.reconciled.toString();
+  if (filters?.reconciliationStatus) {
+    params.reconciliation_status = filters.reconciliationStatus;
   }
   if (filters?.searchTerm) {
     params.search_term = filters.searchTerm;
@@ -116,6 +116,14 @@ export async function reconcile(request: ReconcileRequest) {
       emission_factor: request.emissionsFactorId,
       contact_id: request.contactId,
     });
+  } catch (error) {
+    console.error("Error updating dashboard items", error);
+  }
+}
+
+export async function handleRecommendation(lineItemId: string, accept: boolean) {
+  try {
+    await apiClient.patch(`line-item/handle-recommendation/${lineItemId}?accept=${accept}`);
   } catch (error) {
     console.error("Error updating dashboard items", error);
   }

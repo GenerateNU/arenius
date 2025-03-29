@@ -17,6 +17,10 @@
 
 - Created the Contact Summary / History Page
 
+- Created and deployed a Python FastAPI microservice that utilizes vector embeddings and
+cosine similarity scores to recommend emission factors for unreconciled line items based on the 100 most
+recently reconciled entries [Link to GitHub Repository](https://github.com/adammotts/Reconciliation-Recommendation)
+
 - Created an endpoint to get the top 5 emissions for a company within the given range
 - Created the table for the top 5 emissions in the dashboard page
 
