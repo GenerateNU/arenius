@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import { createClient } from "@supabase/supabase-js";
 import logo from "@/assets/onboarding-logo.png";
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || "", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "");
 
 const formSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters long"),
