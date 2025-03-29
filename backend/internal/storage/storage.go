@@ -19,6 +19,7 @@ type LineItemRepository interface {
 	AddImportedLineItems(ctx context.Context, req []models.AddImportedLineItemRequest) ([]models.LineItem, error)
 	BatchUpdateScopeEmissions(ctx context.Context, lineItems []uuid.UUID, scope *int, emissionsFactorID *string) error
 	GetLineItemsByIds(ctx context.Context, lineItemIDs []uuid.UUID) ([]models.LineItem, error)
+	AutoReconcileLineItems(ctx context.Context, companyId uuid.UUID) ([]models.LineItem, error)
 }
 
 type EmissionsFactorRepository interface {

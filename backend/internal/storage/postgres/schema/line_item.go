@@ -4,9 +4,12 @@ import (
 	"arenius/internal/errs"
 	"arenius/internal/models"
 	"arenius/internal/service/utils"
+	"bytes"
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -89,7 +92,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	rows, err := r.db.Query(ctx, query, queryArgs...)
 	if err != nil {
 		return nil, err
-	} 
+	}
 	defer rows.Close()
 
 	lineItems, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.LineItemWithDetails])
@@ -385,6 +388,152 @@ func (r *LineItemRepository) GetLineItemsByIds(ctx context.Context, lineItemIDs 
 	}
 
 	return lineItems, nil
+}
+
+func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, companyId uuid.UUID) ([]models.LineItem, error) {
+    const pastTransactionsQuery = `
+        SELECT line_item.description, emission_factor.name AS emissions_factor, emission_factor.activity_id AS emissions_factor_id, line_item.scope
+        FROM line_item
+        JOIN emission_factor ON line_item.emission_factor_id = emission_factor.activity_id
+        WHERE line_item.company_id = $1
+        ORDER BY line_item.date DESC
+        LIMIT 100;
+    `
+    pastRows, err := r.db.Query(ctx, pastTransactionsQuery, companyId)
+    if err != nil {
+        return nil, err
+    }
+    defer pastRows.Close()
+
+    pastTransactions, err := pgx.CollectRows(pastRows, pgx.RowToStructByName[models.PastLineItemDetails])
+    if err != nil {
+        return nil, err
+    }
+
+    const unreconciledTransactionsQuery = `
+        SELECT id, description
+        FROM line_item
+        WHERE emission_factor_id IS NULL
+          AND scope IS NULL
+          AND company_id = $1;
+    `
+    unreconciledRows, err := r.db.Query(ctx, unreconciledTransactionsQuery, companyId)
+    if err != nil {
+        return nil, err
+    }
+    defer unreconciledRows.Close()
+
+    unreconciledTransactions, err := pgx.CollectRows(unreconciledRows, pgx.RowToStructByName[models.UnreconciledLineItem])
+    if err != nil {
+        return nil, err
+    }
+
+    reconciliationQuery := models.LineItemReconciliationQuery{
+        PastTransactions:          pastTransactions,
+        UnreconciledTransactions: unreconciledTransactions,
+    }
+
+    jsonBody, err := json.Marshal(reconciliationQuery)
+    if err != nil {
+        return nil, err
+    }
+
+    req, err := http.NewRequest("GET", "https://reconciliation-recommendation-production.up.railway.app/reconciliation/get-recommendation", bytes.NewBuffer(jsonBody))
+    if err != nil {
+        return nil, err
+    }
+    req.Header.Set("Content-Type", "application/json")
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return nil, err
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        return nil, fmt.Errorf("recommendation service returned status: %s", resp.Status)
+    }
+
+    var recommendations []models.Recommendation
+    if err := json.NewDecoder(resp.Body).Decode(&recommendations); err != nil {
+        return nil, err
+    }
+
+    if len(recommendations) == 0 {
+        return []models.LineItem{}, nil
+    }
+
+    var (
+        valueArgs         []interface{}
+        valuePlaceholders []string
+    )
+    for i, rec := range recommendations {
+        idx := i * 3
+        valuePlaceholders = append(valuePlaceholders, fmt.Sprintf("($%d, $%d, $%d)", idx+1, idx+2, idx+3))
+        valueArgs = append(valueArgs, rec.ID, rec.RecommendedScope, rec.RecommendedEmissionsFactorID)
+    }
+
+    updateQuery := fmt.Sprintf(`
+        UPDATE line_item AS li
+        SET
+            recommended_scope = data.scope,
+            recommended_emission_factor_id = data.emission_factor_id
+        FROM (
+            VALUES %s
+        ) AS data(id, scope, emission_factor_id)
+        WHERE li.id = data.id;
+    `, strings.Join(valuePlaceholders, ", "))
+
+    _, err = r.db.Exec(ctx, updateQuery, valueArgs...)
+    if err != nil {
+        return nil, fmt.Errorf("bulk update failed: %w", err)
+    }
+
+    updatedIDs := make([]string, len(recommendations))
+    for i, rec := range recommendations {
+        updatedIDs[i] = rec.ID
+    }
+
+    idPlaceholders := make([]string, len(updatedIDs))
+    idArgs := make([]interface{}, len(updatedIDs))
+    for i, id := range updatedIDs {
+        idPlaceholders[i] = fmt.Sprintf("$%d", i+1)
+        idArgs[i] = id
+    }
+
+    selectQuery := fmt.Sprintf(`
+        SELECT 
+            id, 
+            xero_line_item_id, 
+            description, 
+            total_amount, 
+            company_id, 
+            contact_id, 
+            date, 
+            currency_code, 
+            emission_factor_id, 
+			recommended_emission_factor_id,
+            co2, 
+            scope, 
+			recommended_scopem,
+            co2_unit
+        FROM line_item
+        WHERE id IN (%s);
+    `, strings.Join(idPlaceholders, ", "))
+
+    rows, err := r.db.Query(ctx, selectQuery, idArgs...)
+    if err != nil {
+        return nil, fmt.Errorf("fetching updated line_items failed: %w", err)
+    }
+    defer rows.Close()
+
+    updatedLineItems, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.LineItem])
+    if err != nil {
+        return nil, fmt.Errorf("parsing updated line_items failed: %w", err)
+    }
+
+    return updatedLineItems, nil
 }
 
 func NewLineItemRepository(db *pgxpool.Pool) *LineItemRepository {
