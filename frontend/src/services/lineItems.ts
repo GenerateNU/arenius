@@ -72,8 +72,7 @@ export async function createLineItem(
     total_amount: item.total_amount,
     currency_code: item.currency_code,
     company_id: companyId,
-    contact_id: "b8c4b3e2-08f1-45e9-94a0-125a7e73b4d6",
-    amount: 12,
+    contact_id: item.contact_id,
   };
 
   await apiClient

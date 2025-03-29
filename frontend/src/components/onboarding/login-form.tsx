@@ -104,7 +104,7 @@ export default function LoginForm() {
               <Checkbox />
               Remember me
             </Label>
-            <a href="" className={styles.forgotPassword}>
+            <a href="/forgot-password" className={styles.forgotPassword}>
               Forgot Password?
             </a>
           </div>
