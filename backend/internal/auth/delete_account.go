@@ -8,20 +8,24 @@ import (
 	"net/http"
 )
 
-// SupabaseDeleteAccount deletes a user's account by making a request to the Supabase Auth API
-func SupabaseDeleteAccount(cfg *config.Supabase, accessToken string) error {
+func SupabaseDeleteAccount(cfg *config.Supabase, userID string) error {
 	supabaseURL := cfg.URL
-	apiKey := cfg.Key
+	serviceroleKey := cfg.ServiceRoleKey
 
-	// Create the HTTP request to delete the user
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/auth/v1/user", supabaseURL), nil)
+	// Create the HTTP request to delete the user via admin API
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/auth/v1/admin/users/%s", supabaseURL, userID), nil)
 	if err != nil {
 		return errs.BadRequest(fmt.Sprintf("Failed to create request: %v", err))
 	}
 
-	// Set the Authorization header with the access token
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
-	req.Header.Set("apikey", apiKey)
+	// CRITICAL: Exact header names must match what Supabase expects
+	req.Header.Set("Content-Type", "application/json")
+
+	// The API key header must be exactly "Authorization" with "Bearer " prefix
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", serviceroleKey))
+
+	// The apikey header must be lowercase "apikey"
+	req.Header.Set("apikey", serviceroleKey)
 
 	// Execute the request
 	client := &http.Client{}
@@ -37,10 +41,10 @@ func SupabaseDeleteAccount(cfg *config.Supabase, accessToken string) error {
 		return errs.BadRequest("Failed to read response body")
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return errs.BadRequest(fmt.Sprintf("Failed to delete account, status: %d, response: %s", resp.StatusCode, body))
+	// Supabase might return 200 OK or 204 No Content for successful operations
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
+		return errs.BadRequest(fmt.Sprintf("Failed to delete account, status: %d, response: %s", resp.StatusCode, string(body)))
 	}
 
-	// Successfully deleted the account
 	return nil
 }

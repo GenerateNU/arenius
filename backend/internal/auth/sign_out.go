@@ -10,8 +10,6 @@ import (
 func SupabaseRevokeSession(cfg *config.Supabase, accessToken string) error {
 	supabaseURL := cfg.URL
 	apiKey := cfg.Key
-	fmt.Println("Supabase URL:", supabaseURL)
-	fmt.Println("API Key length:", len(apiKey))
 
 	// Create the HTTP POST request
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/auth/v1/logout", supabaseURL), nil)

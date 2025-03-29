@@ -18,6 +18,8 @@ import { Input } from "@/components/ui/input";
 import { capitalizeFirstLetter } from "@/lib/utils";
 import { GetLineItemResponse } from "@/types";
 import SignOutButton from "@/components/auth/signOut";
+import DeleteAccountButton from "@/components/auth/deleteAccount";
+
 
 export default function Transactions() {
   return (
@@ -25,6 +27,7 @@ export default function Transactions() {
       <TableContent />
       <div className="h-4" />
       <SignOutButton />
+      <DeleteAccountButton />
     </TransactionProvider>
   );
 }

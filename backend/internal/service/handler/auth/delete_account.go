@@ -15,14 +15,22 @@ func (h *Handler) DeleteAccount(c *fiber.Ctx, id string) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "No authentication token found"})
 	}
 
-	_, err := h.userRepository.DeleteUser(c.Context(), id)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Adding User request failed: %v", err)})
+	// Verify that the user ID from the token matches the requested ID to delete
+	// This is a security check to prevent users from deleting other accounts
+	userID := c.Cookies("userID")
+	if userID != id {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "You can only delete your own account"})
 	}
 
-	// Call SupabaseDeleteAccount to delete the account
-	err = auth.SupabaseDeleteAccount(&h.config, accessToken)
+	_, err := h.userRepository.DeleteUser(c.Context(), id)
 	if err != nil {
+		fmt.Println("Error deleting user from database:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Failed to delete user data: %v", err)})
+	}
+
+	err = auth.SupabaseDeleteAccount(&h.config, userID)
+	if err != nil {
+		fmt.Println("Error deleting account from Supabase:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Failed to delete account: %v", err)})
 	}
 
