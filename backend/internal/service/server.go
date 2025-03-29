@@ -110,9 +110,6 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Post("/batch", offsetHandler.BatchCreateCarbonOffsets)
 	})
 
-	// Apply Middleware to Protected Routes
-	app.Use(supabase_auth.Middleware(&config.Supabase))
-
 	// cannot
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.SendStatus(http.StatusOK)
@@ -125,7 +122,11 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Patch("/batch", lineItemHandler.BatchUpdateLineItems)
 		r.Patch("/:id", lineItemHandler.ReconcileLineItem)
 		r.Post("/", lineItemHandler.PostLineItem)
+		r.Get("/get-recommendations", lineItemHandler.AutoReconcileLineItem)
 	})
+
+	// Apply Middleware to Protected Routes
+	app.Use(supabase_auth.Middleware(&config.Supabase))
 
 	// cannot
 	contactHandler := contact.NewHandler(repo.Contact)
