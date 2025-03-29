@@ -46,14 +46,8 @@ export default function LineItemTable({
 }: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const {
-    tableData,
-    fetchTableData,
-    pageIndex,
-    pageSize,
-    setPage,
-    setPageSize,
-  } = useTransactionsContext();
+  const { tableData, pageIndex, pageSize, setPage, setPageSize } =
+    useTransactionsContext();
 
   // object and boolean to handle clicking a row's action button
   const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
