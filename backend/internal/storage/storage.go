@@ -42,6 +42,7 @@ type UserRepository interface {
 	GetUserbyRefreshToken(ctx context.Context, refreshToken string) (userId, companyId, tenantId string, e error)
 	GetUserProfile(ctx context.Context, userID string) (*models.User, error)
 	UpdateUserProfile(ctx context.Context, userID string, req models.UpdateUserProfileRequest) (*models.User, error)
+	DeleteUser(ctx context.Context, userID string) (string, error)
 }
 
 type CompanyRepository interface {
@@ -62,6 +63,7 @@ type ContactRepository interface {
 }
 
 type OffsetRepository interface {
+	GetCarbonOffsets(ctx context.Context, pagination utils.Pagination, filterParams models.GetCarbonOffsetsRequest) ([]models.CarbonOffset, error)
 	CreateCarbonOffset(ctx context.Context, p models.CreateCarbonOffsetRequest) (*models.CarbonOffset, error)
 	BatchCreateCarbonOffsets(ctx context.Context, req models.BatchCreateCarbonOffsetsRequest) ([]models.CarbonOffset, error)
 }

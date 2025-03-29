@@ -1,4 +1,6 @@
 "use client";
+
+import Image from "next/image";
 import onboardingLogo from "@/assets/onboarding-logo.png";
 import ContactsIcon from "@/components/icons/contacts";
 import DashboardIcon from "@/components/icons/dashboard";
@@ -7,21 +9,26 @@ import { ProfileDropdown } from "@/components/user_profile/ProfileDropdown";
 import Image from "next/image";
 import Link from "next/link";
 import React, { ReactNode, useState } from "react";
+import ContactsIcon from "@/components/icons/contacts";
+import { usePathname } from "next/navigation";
+
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [activeTab, setActiveTab] = useState<string>("transactions");
+  const activeTab = usePathname();
 
-  const handleTabClick = (tab: string) => {
-    setActiveTab(tab);
-  };
+  const links = [
+    { href: "/dashboard", label: "Dashboard", icon: DashboardIcon},
+    { href: "/transactions", label: "Transactions", icon: TransactionsIcon},
+    { href: "/contacts", label: "Contacts", icon: ContactsIcon}
+  ];
 
   return (
     <div className="relative overflow-x-hidden flex-1">
-      <div className="flex absolute top-0 left-0 w-full p-4 space-x-8 bg-white">
+      <div className="z-20 flex absolute top-0 left-0 w-full p-4 space-x-8 bg-white">
         <div>
           <Image
             src={onboardingLogo}
@@ -68,6 +75,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             Contacts
           </Link>
           <ProfileDropdown></ProfileDropdown>
+          {links.map((val) => 
+            <>
+              <div key={`ICON-${val.href}`}className="z-1">
+                <val.icon active={activeTab === val.href}/>
+              </div>
+              <Link key={`LINK-${val.href}`}
+                href={val.href}
+                className={`text-lg font-bold ${
+                  activeTab === val.href ? "text-primary" : "text-gray-700"
+                } pr-5`}>
+                {val.label}
+              </Link>
+            </>
+          )}
         </div>
       </div>
       <div className="pt-10 px-20 bg-grayBackground h-full">{children}</div>{" "}

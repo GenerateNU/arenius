@@ -1,5 +1,4 @@
 import {
-  BatchCreateCarbonOffsetsRequest,
   CreateLineItemRequest,
   GetLineItemResponse,
   LineItemFilters,
@@ -31,7 +30,7 @@ function buildQueryParams(filters: LineItemFilters) {
   if (filters?.searchTerm) {
     params.search_term = filters.searchTerm;
   }
-  if (filters?.scope) {
+  if (filters?.scope !== undefined) {
     params.scope = filters.scope;
   }
   if (filters?.company_id) {
@@ -73,8 +72,7 @@ export async function createLineItem(
     total_amount: item.total_amount,
     currency_code: item.currency_code,
     company_id: companyId,
-    contact_id: "b8c4b3e2-08f1-45e9-94a0-125a7e73b4d6",
-    amount: 12,
+    contact_id: item.contact_id,
   };
 
   await apiClient
@@ -99,11 +97,13 @@ export async function reconcileBatch(request: ReconcileBatchRequest) {
   }
 }
 
-export async function reconcileBatchOffset(
-  request: BatchCreateCarbonOffsetsRequest
-) {
+export async function reconcileBatchOffset(request: ReconcileBatchRequest) {
   try {
-    await apiClient.post("/carbon-offset/batch", request);
+    // await apiClient.post("/carbon-offset/batch", request);
+    await apiClient.patch("/line-item/batch", {
+      line_item_ids: request.lineItemIds,
+      scope: 0,
+    });
   } catch (error) {
     console.error("Error reconciling carbon offsets", error);
   }

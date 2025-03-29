@@ -2,8 +2,8 @@ package lineItem
 
 import (
 	"arenius/internal/errs"
-	"log"
 	"arenius/internal/models"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,8 +18,8 @@ func (h *Handler) BatchUpdateLineItems(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"message": "No line items to update"})
 	}
 
-	if req.Scope != nil && (*req.Scope < 1 || *req.Scope > 3) {
-		return c.JSON(fiber.Map{"message": "Scope must be 1, 2, or 3"})
+	if req.Scope != nil && (*req.Scope < 0 || *req.Scope > 3) {
+		return c.JSON(fiber.Map{"message": "Scope must be 0, 1, 2, or 3"})
 	}
 
 	// Call the new wrapper function

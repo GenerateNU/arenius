@@ -38,6 +38,7 @@ export type CreateLineItemRequest = {
   description: string;
   total_amount: number;
   currency_code: string;
+  contact_id: string;
 };
 
 export type LoginRequest = {
