@@ -12,21 +12,15 @@ import {
   ReconcileRequest,
   SimpleContact,
 } from "@/types";
-import { Row } from "@tanstack/react-table";
 import React, { useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui/select";
 import EmissionsFactorSelector from "./CategorySelector";
 import { ContactProvider } from "@/context/ContactContext";
 import ContactsSelector from "./ContactsSelector";
+import { useTransactionsContext } from "@/context/TransactionContext";
 
 interface ModalDialogProps {
-  selectedRowData: Row<LineItem>;
+  selectedRowData: LineItem;
   isDialogOpen: boolean;
   setIsDialogOpen: (open: boolean) => void;
   onReconcileSuccess: () => void;
@@ -38,23 +32,22 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
   setIsDialogOpen,
   onReconcileSuccess,
 }) => {
-  const [scope, setScope] = useState(
-    selectedRowData.original.scope?.toString()
-  );
+  const [scope, setScope] = useState(selectedRowData.scope?.toString());
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>({
-    name: selectedRowData.original.emission_factor_name,
-    activity_id: selectedRowData.original.emission_factor_id,
+    name: selectedRowData.emission_factor_name,
+    activity_id: selectedRowData.emission_factor_id,
   } as EmissionsFactor);
   const [contact, setContact] = useState<SimpleContact>({
-    name: selectedRowData.original.contact_name,
-    id: selectedRowData.original.contact_id,
+    name: selectedRowData.contact_name,
+    id: selectedRowData.contact_id,
   } as SimpleContact);
+  const { fetchAllData } = useTransactionsContext();
 
-  const date = new Date(selectedRowData.getValue("date"));
+  const date = new Date(selectedRowData.date);
   const formattedDate =
     date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
 
-  const amount = parseFloat(selectedRowData.getValue("total_amount"));
+  const amount = selectedRowData.total_amount;
   const formattedAmount = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -62,9 +55,9 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
 
   async function reconcileItems() {
     const request: ReconcileRequest = {
-      lineItemId: selectedRowData.original.id,
+      lineItemId: selectedRowData.id,
       ...(scope && { scope: Number(scope) }),
-      ...(emissionsFactor?.activity_id && {
+      ...(emissionsFactor && {
         emissionsFactorId: emissionsFactor.activity_id,
       }),
       ...(contact?.id && { contactId: contact.id }),
@@ -73,6 +66,8 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
     await reconcile(request);
     setIsDialogOpen(false);
     onReconcileSuccess();
+
+    fetchAllData();
   }
 
   return (
@@ -88,7 +83,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
             <p className="text-md font-medium">CVS</p>
             <p className="text-3xl font-bold">{formattedAmount}</p>
             <p className="text-sm font-medium text-gray-500">
-              {selectedRowData.getValue("description")}
+              {selectedRowData.description}
             </p>
           </div>
 

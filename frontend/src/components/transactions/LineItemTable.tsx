@@ -177,7 +177,7 @@ export default function LineItemTable({
 
       {isDialogOpen && clickedRowData && (
         <ModalDialog
-          selectedRowData={clickedRowData}
+          selectedRowData={clickedRowData.original}
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
           onReconcileSuccess={handleReconcileSuccess}
