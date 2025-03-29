@@ -255,7 +255,6 @@ func (r *SummaryRepository) GetTopEmissions(ctx context.Context, req models.GetC
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	fmt.Println(topEmissions)
 
 	return &topEmissions, nil
 }
