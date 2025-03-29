@@ -1,4 +1,0 @@
-- Rename purchase_date
-- Rename total_amount_kg to CO2
-- Add description field
-- Add contact id
