@@ -62,7 +62,6 @@ export default function ContactDetailsContent() {
 
         const { contact, summary } = response.data;
         const transactions = trasactionsResponse.data;
-        console.log(transactions);
         
         setContactDetails({
           contact,

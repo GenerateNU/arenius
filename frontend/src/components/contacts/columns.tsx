@@ -85,7 +85,7 @@ export const columns = (router: any): ColumnDef<Contact>[] => [
   },
   {
     accessorKey: "view",
-    header: ({ column }) => <ColumnHeader name="View" column={column} />,
+    header: ({ column }) => <ColumnHeader name="" column={column} />,
     cell: ({ row }) => (
       <Image
         src="/arrow.svg"
