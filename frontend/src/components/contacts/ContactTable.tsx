@@ -7,6 +7,7 @@ import {
   SortingState,
   useReactTable,
   getSortedRowModel,
+  Row,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -16,10 +17,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import Image from "next/image";
 import { Contact } from "@/types";
 import { useContacts } from "@/context/ContactsContext";
 import { columns } from "./columns";
 import { DataTablePagination } from "../ui/DataTablePagination";
+import router from "next/router";
 
 export default function ContactTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -40,6 +43,10 @@ export default function ContactTable() {
       pagination,
     },
   });
+
+  const handleContactNavigation = (row: Row<Contact>) => {
+    router.push(`/contacts/detail/${row.original.id}`);
+  }
 
   return (
     <>
@@ -78,6 +85,16 @@ export default function ContactTable() {
                       )}
                     </TableCell>
                   ))}
+                  <TableCell>
+                    <Image
+                      src="/arrow.svg"
+                      alt="Reconcile"
+                      width={24}
+                      height={24}
+                      onClick={() => handleContactNavigation(row)}
+                      style={{ cursor: "pointer" }}
+                    />
+                  </TableCell>
                 </TableRow>
               ))
             ) : (

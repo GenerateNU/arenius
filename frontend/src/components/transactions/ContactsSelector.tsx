@@ -31,7 +31,10 @@ export default function ContactSelector({
     variant = "outline",
   }: ContactSelectorProps) {
   
+    console.log("ContactSelector is rendering");
     const { data: contactResponse } = useContacts();
+
+    console.log("Contacts in ContactSelector:", contactResponse);
   
     return (
       <DropdownMenu>

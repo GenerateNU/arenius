@@ -40,9 +40,11 @@ export async function fetchContacts(
   req: GetContactsRequest,
 ): Promise<GetContactsResponse> {
   try {
+    console.log("fetchContacts:");
     const response = await apiClient.get(`/contact/company/${req.company_id}`, {
       params: buildQueryParams(req),
     });
+    console.log("Response from fetchContacts:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching contacts", error);

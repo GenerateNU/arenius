@@ -58,7 +58,7 @@ export const createDataContext = <T extends object, F extends object>() => {
     }, [filters, fetchFunction, companyId, tenantId, isLoading, pagination]);  // Add `isLoading` to dependencies
 
     useEffect(() => {
-      if (!isLoading && companyId && Object.keys(filters).length > 0) {
+      if (!isLoading && companyId) {
         fetchData();
       }
     }, [companyId, fetchData, filters, isLoading, pagination]); // Fetch data when companyId or filters change

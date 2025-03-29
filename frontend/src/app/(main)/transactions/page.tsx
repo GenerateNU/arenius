@@ -33,7 +33,7 @@ function TransactionsContent() {
     if (filters.searchTerm !== debouncedTerm) {
       setFilters({ ...filters, searchTerm: debouncedTerm });
     }
-  }, [debouncedTerm]);
+  }, [debouncedTerm, filters, setFilters]);
   
   // Only fetch line items when search term actually changes
   useEffect(() => {

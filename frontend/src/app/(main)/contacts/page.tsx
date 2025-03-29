@@ -27,6 +27,7 @@ function ContactsContent() {
 
   useEffect(() => {
     setFilters({ ...filters, search_term: debouncedTerm });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedTerm, setFilters]);
 
   return (

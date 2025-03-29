@@ -4,6 +4,7 @@ import { reconcile } from "@/services/lineItems";
 import { Contact, EmissionsFactor, LineItem, ReconcileRequest } from "@/types";
 import { Row } from "@tanstack/react-table";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -12,9 +13,10 @@ import {
   SelectValue,
 } from "../ui/select";
 import EmissionsFactorSelector from "./CategorySelector";
+import ContactsSelector from "./ContactsSelector";
+import { ExternalLink } from "lucide-react";
 import { ContactsProvider } from "@/context/ContactsContext";
 import { fetchContacts } from "@/services/contacts";
-import ContactsSelector from "./ContactsSelector";
 
 interface ModalDialogProps {
   selectedRowData: Row<LineItem>;
@@ -29,6 +31,8 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
   setIsDialogOpen,
   onReconcileSuccess,
 }) => {
+
+  const router = useRouter();
 
   const [scope, setScope] = useState("");
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
@@ -56,13 +60,34 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
     onReconcileSuccess();
   }
 
+  const handleContactNavigation = () => {
+    if (contact) {
+      router.push(`/contacts/details?contactId=${contact.id}`);
+    }
+  }
+
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent className="sm:max-w-xl max-w-4xl p-8">
 
         <DialogHeader className="flex-row justify-between items-center">
           <div className="text-lg text-gray-500">{formattedDate}</div>
-          <DialogTitle className="text-lg text-gray-500">Actions</DialogTitle>
+          {/* <DialogTitle className="text-lg text-gray-500">Actions</DialogTitle> */}
+          <DialogTitle className="text-lg text-gray-500">
+            {selectedRowData.getValue("description")}
+          </DialogTitle>
+          <p>action</p>
+          {contact?.id && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleContactNavigation}
+              className="flex items-center gap-2"
+            >
+              Actions
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          )}
         </DialogHeader>
 
         <div className="flex mt-4 w-full">
@@ -99,11 +124,11 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
             <div className="space-y-2">
               <p className="text-md font-small text-gray-500">Contact Name</p>
                 <ContactsProvider fetchFunction={fetchContacts}>
-                  <ContactsSelector
-                    contact={contact}
-                    setContact={setContact}
-                    variant='outline'
-                  />
+                <ContactsSelector
+                  contact={contact}
+                  setContact={setContact}
+                  variant='outline'
+                />
                 </ContactsProvider>
             </div>
 
