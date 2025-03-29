@@ -19,6 +19,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import logo from "../../assets/onboarding-logo.png";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 
 const formSchema = z.object({
   email: z.string(),
@@ -28,6 +30,7 @@ const formSchema = z.object({
 export default function LoginForm() {
   const router = useRouter();
   const { login, isLoginError } = useAuth();
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -39,6 +42,7 @@ export default function LoginForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      setLoading(true);
       const response = await login({
         email: values.email,
         password: values.password,
@@ -49,6 +53,8 @@ export default function LoginForm() {
       }
     } catch (err) {
       console.error("An error occured: ", err);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -87,9 +93,11 @@ export default function LoginForm() {
             )}
           />
 
-        {isLoginError && (
-          <div className={styles.error}>Your email or password is incorrect.</div>
-        )}
+          {isLoginError && (
+            <div className={styles.error}>
+              Your email or password is incorrect.
+            </div>
+          )}
 
           <div className={styles.actionContainer}>
             <Label className={styles.checkboxContainer}>
@@ -101,9 +109,17 @@ export default function LoginForm() {
             </a>
           </div>
 
-          <Button className="mt-4" type="submit" size="long">
-            Submit
+          <Button className="mt-4" type="submit" size="long" disabled={loading}>
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Logging in...
+              </>
+            ) : (
+              "Submit"
+            )}
           </Button>
+
           <div className={styles.signUpContainer}>
             Don&apos;t have an account?{" "}
             <a href="/onboarding" className={styles.link}>
