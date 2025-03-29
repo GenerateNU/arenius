@@ -162,6 +162,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Get("/net", summaryHandler.GetNetSummary)
 		r.Get("/contact/emissions", summaryHandler.GetContactEmissions)
 		r.Get("/scopes", summaryHandler.GetScopeBreakdown)
+		r.Get("/top-emissions", summaryHandler.GetTopEmissions)
 	})
 
 	// cannot

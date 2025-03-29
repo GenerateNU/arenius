@@ -5,33 +5,12 @@ import { DateRangeProvider } from "@/context/DateRangeContext";
 import React, { useEffect } from "react";
 
 import ContactEmissionsTreeMap from "@/components/dashboard/ContactEmissionsTreeMap";
+import TopEmissionsFactors from "@/components/dashboard/TopEmissions";
 import ScopeBreakdownChart from "@/components/scope-breakdown/scope-breakdown";
-import { fetchNetEmissions } from "@/services/dashboard";
-import { useAuth } from "@/context/AuthContext";
-import { GetGrossEmissionsRequest } from "@/types";
 import NetEmissionsBarGraph from "@/components/dashboard/NetEmissionsBarGraph";
+import { useAuth } from "@/context/AuthContext";
 
 const DashboardContent: React.FC = () => {
-  const { companyId } = useAuth();
-
-  useEffect(() => {
-    if (!companyId) {
-      return;
-    }
-
-    fetchNetEmissions({
-      company_id: companyId,
-      start_date: new Date("2023-01-01"),
-      end_date: new Date(),
-    } as GetGrossEmissionsRequest)
-      .then((data) => {
-        console.log("Net Emissions Data:", data);
-      })
-      .catch((error) => {
-        console.error("Error fetching net emissions data:", error);
-      });
-  }, [companyId]);
-
   return (
     <div className="flex flex-col items-center pt-14">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-7xl">
@@ -46,6 +25,10 @@ const DashboardContent: React.FC = () => {
         <div className="lg:col-span-2">
           <GrossSummary />
           <ScopeBreakdownChart />
+        </div>
+
+        <div className="col-span-2 ">
+          <TopEmissionsFactors />
           <NetEmissionsBarGraph />
         </div>
 

@@ -31,6 +31,7 @@ type SummaryRepository interface {
 	GetNetSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetNetSummaryResponse, error)
 	GetContactEmissions(ctx context.Context, req models.GetSummaryRequest) (*models.GetContactEmissionsSummaryResponse, error)
 	GetScopeBreakdown(ctx context.Context, req models.GetSummaryRequest) ([]models.NetSummary, error)
+	GetTopEmissions(ctx context.Context, req models.GetSummaryRequest) (*[]models.GetTopEmissionsResponse, error)
 }
 
 type UserRepository interface {
