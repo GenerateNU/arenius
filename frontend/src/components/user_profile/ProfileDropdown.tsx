@@ -33,8 +33,8 @@ export function ProfileDropdown() {
                 const fetchedUser = await fetchUser(userId);
                 setUser(fetchedUser);
                 console.log("----", fetchedUser);
-                if (fetchedUser.photo_url) {
-                    setPhoto(fetchedUser.photo_url); // Assuming response.photo_url contains the URL
+                if (fetchedUser && fetchedUser.photo_url) {
+                    setPhoto(fetchedUser.photo_url); // Safely access photo_url
                 }
             }
         };
