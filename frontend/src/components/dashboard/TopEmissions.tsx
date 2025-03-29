@@ -24,7 +24,6 @@ export default function TopEmissionsFactors() {
   const { dateRange } = useDateRange();
   const [emissions, setEmissions] = useState<EmissionFactor[]>([]);
   const { jwt, companyId, isLoading } = useAuth();
-  console.log("Auth Context: ", { jwt, companyId, isLoading });
 
   // Get the start and end date from the DateRange context
   const formattedStartMonth =
