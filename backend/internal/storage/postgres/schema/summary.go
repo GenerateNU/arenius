@@ -147,8 +147,6 @@ func (r *SummaryRepository) GetNetSummary(ctx context.Context, req models.GetSum
 	var monthSummaries []models.MonthNetSummary
 
 	for rowsMonthly.Next() {
-		fmt.Println("got rowsMonthly.Next(): ", rowsMonthly)
-
 		var co2 float64
 		var emission_type string
 		var monthStart time.Time
@@ -183,9 +181,7 @@ func (r *SummaryRepository) GetNetSummary(ctx context.Context, req models.GetSum
 			}
 
 			monthSummaries = append(monthSummaries, newSummary)
-			currentSummary = &monthSummaries[len(monthSummaries)-1]
 		}
-
 	}
 
 	if errMonthlyRows := rowsMonthly.Err(); errMonthlyRows != nil {
