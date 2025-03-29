@@ -106,6 +106,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	// cannot
 	offsetHandler := carbonOffset.NewHandler(repo.Offset)
 	app.Route("/carbon-offset", func(r fiber.Router) {
+		r.Get("/", offsetHandler.GetCarbonOffsets)
 		r.Post("/create", offsetHandler.PostCarbonOffset)
 		r.Post("/batch", offsetHandler.BatchCreateCarbonOffsets)
 	})
