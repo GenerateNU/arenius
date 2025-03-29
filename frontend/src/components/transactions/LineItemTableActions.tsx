@@ -5,7 +5,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useTransactionsContext } from "@/context/TransactionContext";
 import { reconcileBatch, reconcileBatchOffset } from "@/services/lineItems";
 import {
-  BatchCreateCarbonOffsetsRequest,
   EmissionsFactor,
   LineItem,
   ReconcileBatchRequest,
@@ -29,7 +28,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
   const [scope, setScope] = useState("");
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
   const [carbon, setCarbon] = useState<number>();
-  const { companyId } = useAuth();
+  // const { companyId } = useAuth();
   const { fetchTableData } = useTransactionsContext();
 
   async function handleReconciliation() {

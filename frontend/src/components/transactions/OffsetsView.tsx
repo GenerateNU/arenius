@@ -1,6 +1,5 @@
 import React from "react";
 import LineItemTable from "./LineItemTable";
-import LineItemTableFilters from "./LineItemTableFilters";
 import { offsetColumns } from "./columns";
 import { HelpCircle } from "lucide-react";
 
