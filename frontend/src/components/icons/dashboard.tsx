@@ -2,10 +2,10 @@
 import React from "react";
 
 interface IconProps {
-  activeTab: string;
+  active: boolean;
 }
 
-const DashboardIcon: React.FC<IconProps> = ({ activeTab }) => {
+const DashboardIcon: React.FC<IconProps> = ({ active }) => {
   return (
     <svg
       width="30"
@@ -13,7 +13,7 @@ const DashboardIcon: React.FC<IconProps> = ({ activeTab }) => {
       viewBox="0 0 18 18"
       fill="black"
       xmlns="http://www.w3.org/2000/svg"
-      className={activeTab === "all_navs/dashboard" ? "text-[#07AC5D]" : "text-black"}
+      className={active ? "text-[#07AC5D]" : "text-black"}
     >
       <path
         fillRule="evenodd"
