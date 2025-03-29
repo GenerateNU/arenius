@@ -2,8 +2,6 @@ package auth
 
 import (
 	"arenius/internal/config"
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,20 +10,11 @@ import (
 func SupabaseRevokeSession(cfg *config.Supabase, accessToken string) error {
 	supabaseURL := cfg.URL
 	apiKey := cfg.Key
-
-	// Prepare the request payload
-	payload := struct {
-		AccessToken string `json:"access_token"`
-	}{
-		AccessToken: accessToken,
-	}
-	payloadBytes, err := json.Marshal(payload)
-	if err != nil {
-		return err
-	}
+	fmt.Println("Supabase URL:", supabaseURL)
+	fmt.Println("API Key length:", len(apiKey))
 
 	// Create the HTTP POST request
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/auth/v1/revoke", supabaseURL), bytes.NewBuffer(payloadBytes))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/auth/v1/logout", supabaseURL), nil)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %v", err)
 	}
@@ -33,9 +22,10 @@ func SupabaseRevokeSession(cfg *config.Supabase, accessToken string) error {
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("apikey", apiKey)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
 
 	// Execute the request
-	resp, err := Client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to execute request: %v", err)
 	}
@@ -47,10 +37,11 @@ func SupabaseRevokeSession(cfg *config.Supabase, accessToken string) error {
 		return fmt.Errorf("failed to read response body: %v", err)
 	}
 
-	// Check if the response was successful
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to revoke session: %d, %s", resp.StatusCode, body)
+	// Check if the response was successful (200 OK or 204 No Content are both success responses)
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("failed to revoke session: %d, %s", resp.StatusCode, string(body))
 	}
 
+	fmt.Println("Session revoked successfully with status:", resp.StatusCode)
 	return nil
 }

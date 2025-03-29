@@ -8,17 +8,19 @@ import (
 )
 
 func (h *Handler) ForgotPassword(c *fiber.Ctx) error {
-	var creds struct {
+	var payload struct {
 		Email string `json:"email"`
 	}
 
-	// Parse request body
-	if err := c.BodyParser(&creds); err != nil {
+	if err := c.BodyParser(&payload); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
 
-	// Call Supabase to send reset email
-	err := auth.SupabaseForgotPassword(&h.config, creds.Email)
+	if payload.Email == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Email is required"})
+	}
+
+	err := auth.SupabaseResetPassword(&h.config, payload.Email)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Password reset request failed: %v", err)})
 	}

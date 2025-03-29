@@ -106,9 +106,9 @@ func (c *UserRepository) GetUserbyRefreshToken(ctx context.Context, refreshToken
 func (c *UserRepository) GetUserProfile(ctx context.Context, userId string) (*models.User, error) {
 
 	const query = `
-		SELECT id, first_name, last_name, company_id, refresh_token, tenant_id, city, state, photo_url
-		FROM user_creds
-		WHERE id = $1
+		SELECT user_creds.id, first_name, last_name, company_id, refresh_token, tenant_id, city, state, photo_url, email
+		FROM user_creds join auth.users as u on user_creds.id = u.id
+		WHERE user_creds.id = $1
 		LIMIT 1
 	`
 

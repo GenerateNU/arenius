@@ -12,10 +12,12 @@ func (h *Handler) SignOut(c *fiber.Ctx) error {
 	if accessToken == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "No authentication token found"})
 	}
+	fmt.Println("Access Token:", accessToken)
 
 	// Call SupabaseRevokeSession to invalidate the session
 	err := auth.SupabaseRevokeSession(&h.config, accessToken)
 	if err != nil {
+		fmt.Println("Error revoking session:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Failed to revoke session: %v", err)})
 	}
 

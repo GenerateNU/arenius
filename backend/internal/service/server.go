@@ -103,7 +103,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		router.Post("/login", SupabaseAuthHandler.Login)
 		router.Post("/forgot-password", SupabaseAuthHandler.ForgotPassword)
 		router.Post("/reset-password", SupabaseAuthHandler.ResetPassword)
-		router.Post("/sign-out", SupabaseAuthHandler.SignUp)
+		router.Post("/sign-out", SupabaseAuthHandler.SignOut)
 		router.Delete("/delete-account/:id", func(c *fiber.Ctx) error {
 			id := c.Params("id")
 			return SupabaseAuthHandler.DeleteAccount(c, id)

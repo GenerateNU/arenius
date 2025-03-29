@@ -17,16 +17,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { capitalizeFirstLetter } from "@/lib/utils";
 import { GetLineItemResponse } from "@/types";
-import ForgotPassword from "@/components/auth/forgotPassword";
-import ResetPassword from "@/components/auth/resetPassword";
+import SignOutButton from "@/components/auth/signOut";
 
 export default function Transactions() {
   return (
     <TransactionProvider>
       <TableContent />
       <div className="h-4" />
-      <ForgotPassword />
-      <ResetPassword />
+      <SignOutButton />
     </TransactionProvider>
   );
 }
