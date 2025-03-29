@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="relative overflow-x-hidden flex-1">
-      <div className="flex absolute top-0 left-0 w-full p-4 space-x-8 bg-white">
+      <div className="z-20 flex absolute top-0 left-0 w-full p-4 space-x-8 bg-white">
         <div>
           <Image
             src={onboardingLogo}
@@ -34,18 +34,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
         <div className="flex justify-end w-full max-w-full p-4 space-x-4">
           {links.map((val) => 
-            <div key={val.href}>
-              <div className="z-1">
+            <>
+              <div key={`ICON-${val.href}`}className="z-1">
                 <val.icon active={activeTab === val.href}/>
               </div>
-              <Link
+              <Link key={`LINK-${val.href}`}
                 href={val.href}
                 className={`text-lg font-bold ${
                   activeTab === val.href ? "text-primary" : "text-gray-700"
                 } pr-5`}>
                 {val.label}
               </Link>
-            </div>
+            </>
           )}
         </div>
       </div>
