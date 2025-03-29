@@ -5,11 +5,18 @@ import {
   GetGrossEmissionsRequest,
   GrossSummary,
   NetSummary,
+  ScopeBreakdown,
 } from "@/types";
 import apiClient from "./apiClient";
 
 const DEFAULT_GROSS_SUMMARY: GrossSummary = {
   total_co2: 0,
+  start_date: new Date(),
+  end_date: new Date(),
+  months: [],
+};
+
+const DEFAULT_NET_SUMMARY: NetSummary = {
   start_date: new Date(),
   end_date: new Date(),
   months: [],
@@ -29,14 +36,30 @@ export async function fetchGrossEmissions(
   }
 }
 
-export async function fetchNetSummary(
+export async function fetchNetEmissions(
+  req: GetGrossEmissionsRequest
+): Promise<NetSummary> {
+  console.log("request: ", req);
+
+  try {
+    const response = await apiClient.get(`/summary/net`, {
+      params: req,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching gross emissions", error);
+    return DEFAULT_NET_SUMMARY;
+  }
+}
+
+export async function fetchScopeBreakdown(
   companyId: string,
   startDate: string,
   endDate: string
-): Promise<NetSummary[]> {
+): Promise<ScopeBreakdown[]> {
   try {
     const response = await apiClient.get(
-      `/summary/net?company_id=${companyId}&start_date=${startDate}&end_date=${endDate}`
+      `/summary/scopes?company_id=${companyId}&start_date=${startDate}&end_date=${endDate}`
     );
     return response.data;
   } catch (error) {
