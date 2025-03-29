@@ -93,6 +93,7 @@ export default function NetEmissionsBarGraph() {
       offsets: month.offsets || 0,
       emissions: month.emissions || 0,
       netEmissions: (month.emissions || 0) - (month.offsets || 0),
+      netEmissionsLine: (month.emissions || 0) - (month.offsets || 0),
     })) ?? [];
 
   return (
@@ -154,7 +155,7 @@ export default function NetEmissionsBarGraph() {
               {/* Line Graph */}
               <Line
                 type="monotone"
-                dataKey="netEmissions"
+                dataKey="netEmissionsLine"
                 stroke="black"
                 strokeWidth={5}
                 dot={{ r: 2 }}
