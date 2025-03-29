@@ -3,31 +3,35 @@ package emissionsFactor
 import (
 	"arenius/internal/errs"
 	"fmt"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func (h *Handler) PostFavoriteEmission(c *fiber.Ctx) error {
-	companyId := c.Query("company_id")
-	emissionFactorId := c.Query("emission_factor_id")
-
-	var setFavorite bool
-
-	if val := c.Query("set_favorite"); val != "" {
-		parsed, err := strconv.ParseBool(val)
-		if err == nil {
-			setFavorite = parsed
-		} else {
-			return errs.BadRequest(fmt.Sprintf("Invalid set_favorite value: ", err))
-		}
+	type FavoriteRequest struct {
+		CompanyID         string `json:"company_id"`
+		EmissionsFactorID string `json:"emissions_factor_id"`
+		SetFavorite       bool   `json:"set_favorite"`
 	}
 
-	if companyId == "" || emissionFactorId == "" {
-		return errs.BadRequest("company_id and emission_factor_id required")
+	var req FavoriteRequest
+	if err := c.BodyParser(&req); err != nil {
+		return errs.BadRequest(fmt.Sprintf("Invalid request body: %s", err))
 	}
 
-	err := h.emissionsFactorRepository.PostFavoriteEmissionFactors(c.Context(), companyId, emissionFactorId, setFavorite)
+	if req.EmissionsFactorID == "" {
+		return errs.BadRequest("emissions_factor_id required")
+	}
+	if req.CompanyID == "" {
+		return errs.BadRequest("company_id required")
+	}
+
+	err := h.emissionsFactorRepository.PostFavoriteEmissionFactors(
+		c.Context(),
+		req.CompanyID,
+		req.EmissionsFactorID,
+		req.SetFavorite,
+	)
 	if err != nil {
 		return err
 	}

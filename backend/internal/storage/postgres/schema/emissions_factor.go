@@ -114,10 +114,10 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 
 	query := `
 		WITH latest_emission AS (
-		SELECT *,
-			ROW_NUMBER() OVER (PARTITION BY activity_id ORDER BY year DESC) AS rn
-		FROM emission_factor
-		WHERE region = 'US' AND unit_type = 'Money'` + searchQuery + `
+			SELECT *,
+				ROW_NUMBER() OVER (PARTITION BY activity_id ORDER BY year DESC) AS rn
+			FROM emission_factor
+			WHERE region = 'US' AND unit_type = 'Money'` + searchQuery + `
 		)
 		SELECT *
 		FROM latest_emission
@@ -138,15 +138,18 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 
 	categories := make([]models.Category, 0, len(categoryMap)+1)
 
+	// Use a map for fast set membership check to check if emission factors are favorites
+	favoriteIdSet := make(map[string]string)
+
 	if companyId != "" {
 		favoriteQuery := `
-			SELECT id, activity_id, name, description, unit, unit_type, year, region, category, source, source_dataset
+			SELECT id, activity_id, name, description, unit, unit_type, year, region, category, source, source_dataset, TRUE as favorite, $1 as company_id
 			FROM emission_factor JOIN company_favorite ON emission_factor.id = company_favorite.emissions_factor_id
-			WHERE company_favorite.company_id = $1` + searchQuery + `
+			WHERE company_favorite.company_id = $2` + searchQuery + `
 			ORDER BY emission_factor.name;
 		`
 
-		favoriteRows, favoriteErr := r.db.Query(ctx, favoriteQuery, companyId)
+		favoriteRows, favoriteErr := r.db.Query(ctx, favoriteQuery, companyId, companyId)
 		if favoriteErr != nil {
 			return nil, favoriteErr
 		}
@@ -162,6 +165,11 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 		}
 
 		favoriteEmissionsFactors = favorites
+
+		// populate the id map
+		for _, factor := range favoriteEmissionsFactors {
+			favoriteIdSet[factor.Id] = factor.Id
+		}
 	}
 
 	for rows.Next() {
@@ -185,6 +193,12 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 		if err != nil {
 			return nil, err
 		}
+		_, exists := favoriteIdSet[emissionsFactor.Id]
+		emissionsFactor.Favorite = &exists
+		if companyId != "" {
+			emissionsFactor.CompanyId = &companyId
+		}
+
 		categoryMap[emissionsFactor.Category] = append(categoryMap[emissionsFactor.Category], emissionsFactor)
 	}
 
