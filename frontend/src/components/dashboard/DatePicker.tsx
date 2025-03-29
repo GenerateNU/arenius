@@ -95,31 +95,43 @@ export function DatePicker({ className }: React.HTMLAttributes<HTMLDivElement>) 
     <div className={cn("grid gap-2", className)}>
       <Popover>
         <PopoverTrigger asChild>
-          <Button
-            id="date"
-            variant={"outline"}
-            className={cn(
-              "w-[300px] justify-start text-left font-normal",
-              !dateRange && "text-muted-foreground"
-            )}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {dateRange?.from ? (
-              dateRange.to ? (
-                <>
-                  {format(dateRange.from, "MM/dd/yy")} -{" "}
-                  {format(dateRange.to, "MM/dd/yy")}
-                </>
-              ) : (
+          <div className="flex items-center space-x-2">
+            <Button
+              id="date-from"
+              variant={"outline"}
+              className={cn(
+                "justify-center text-left font-normal w-40 rounded-lg border-green-900 border-2",
+                !dateRange?.from && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-1 h-4 w-4" />
+              {dateRange?.from ? (
                 format(dateRange.from, "MM/dd/yy")
-              )
-            ) : (
-              <span>Pick a date</span>
-            )}
-          </Button>
+              ) : (
+                <span>Start date</span>
+              )}
+            </Button>
+            <span className="text-sm text-muted-foreground">-</span>
+            <Button
+              id="date-to"
+              variant={"outline"}
+              className={cn(
+                "justify-center text-left font-normal w-40 rounded-lg border-green-900 border-2",
+                !dateRange?.to && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-1 h-4 w-4" />
+              {dateRange?.to ? (
+                format(dateRange.to, "MM/dd/yy")
+              ) : (
+                <span>End date</span>
+              )}
+            </Button>
+          </div>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
           <div className="flex">
+            {/* Left column with quick select buttons */}
             <div className="flex flex-col p-2 border-r bg-muted/20">
               {quickSelectOptions.map((option, index) => (
                 <Button
@@ -145,7 +157,7 @@ export function DatePicker({ className }: React.HTMLAttributes<HTMLDivElement>) 
               month: "space-y-4",
               caption: "flex justify-center pt-1 relative items-center",
               caption_label: "text-lg font-bold", 
-              day_selected: "bg-teal-900 text-white hover:bg-green-600 rounded-none",
+              day_selected: "bg-green-900 text-white hover:bg-green-600 rounded-none",
               day_range_middle: "bg-green-900 text-green-900 rounded-none",
               day_range_end: "bg-green-900 text-white hover:bg-green-600 rounded-r-full",
               day_range_start: "bg-green-900 text-white hover:bg-green-600 rounded-l-full",
