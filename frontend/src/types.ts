@@ -156,6 +156,11 @@ export type GrossSummary = {
   months: MonthSummary[];
 };
 
+export type NetSummary = {
+  total_co2: number;
+  scopes: number;
+};
+
 export type GetContactEmissionsRequest = {
   company_id: string;
   contact_id: string;

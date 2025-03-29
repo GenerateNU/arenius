@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -7,48 +7,33 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ChartContainer, ChartConfig
-} from "@/components/ui/chart";
-import ScopeChart from "@/components/scope-breakdown/piechart"
-import apiClient from "@/services/apiClient";
+import { ChartContainer, ChartConfig } from "@/components/ui/chart";
+import ScopeChart from "@/components/scope-breakdown/piechart";
 import { useDateRange } from "@/context/DateRangeContext";
-
-
-type NetSummary = {
-  total_co2: number;
-  scopes: number;
-};
-
-const fetchNetSummary = async (
-  companyId: string,
-  startDate: string,
-  endDate: string
-): Promise<NetSummary[]> => {
-  try {
-    const response = await apiClient.get(`/summary/net?company_id=${companyId}&start_date=${startDate}&end_date=${endDate}`)
-    return response.data;
-  }
-  catch (error) {
-    console.error("Error fetching emissions", error);
-    return []
-  }
-};
-
+import { useAuth } from "@/context/AuthContext";
+import { NetSummary } from "@/types";
+import { fetchNetSummary } from "@/services/dashboard";
 
 const ScopeBreakdown = () => {
   const [data, setData] = useState<NetSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { dateRange } = useDateRange();
-  const startDate = dateRange?.from ? dateRange.from.toISOString() : "2024-08-01T00:00:00Z";
-  const endDate = dateRange?.to ? dateRange.to.toISOString() : "2025-03-10T00:00:00Z";
-  const companyId = "1e100087-8182-4ed4-9da7-ae5417a43486";
-    
+
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+  const startDate = dateRange?.from || threeMonthsAgo;
+  const endDate = dateRange?.to || new Date();
+  const { companyId } = useAuth();
+
   useEffect(() => {
-    fetchNetSummary(companyId, startDate, endDate)
-      .then(setData)
-      .catch((err) => setError(err.message));
-  }, [startDate, endDate]);
+    console.log("hi");
+    if (companyId) {
+      fetchNetSummary(companyId, startDate.toISOString(), endDate.toISOString())
+        .then(setData)
+        .catch((err) => setError(err.message));
+    }
+  }, [startDate, endDate, companyId]);
 
   if (error) return <div>Error: {error}</div>;
   if (!data) return <div>Loading...</div>;
@@ -56,15 +41,11 @@ const ScopeBreakdown = () => {
   const totalEmissions = data.reduce((acc, cur) => acc + cur.total_co2, 0);
 
   const chartData = data.map((item) => ({
-    name: `Scope ${item.scopes} Emissions`,
+    name: `Scope ${item.scopes}`,
     value: item.total_co2,
     percentage: ((item.total_co2 / totalEmissions) * 100).toFixed(2),
     fill:
-      item.scopes === 1
-        ? "#A1F4A4"
-        : item.scopes === 2
-        ? "#05C569"
-        : "#156641",
+      item.scopes === 1 ? "#A1F4A4" : item.scopes === 2 ? "#05C569" : "#156641",
   }));
 
   const chartConfig = {
@@ -80,36 +61,34 @@ const ScopeBreakdown = () => {
     }, {} as ChartConfig),
   };
 
-
   return (
     <div className="flex flex-col items-center justify-center">
-      <Card className="flex flex-col items-center justify-center w-full max-w-screen-lg">
-        <CardHeader className="items-center pb-0 text-2xl">
+      <Card className="flex flex-col w-full max-w-screen-lg">
+        <CardHeader className="pb-0 text-2xl">
           <CardTitle>Scope Breakdown</CardTitle>
-          <CardDescription>August 2024 - March 2025</CardDescription>
+          <CardDescription>
+            {startDate.toDateString()} - {endDate.toDateString()}
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center items-center w-full p-6 space-x-6">
-        <ChartContainer
+          <ChartContainer
             className="flex justify-center items-center w-[300px] h-[300px] max-w-full"
             config={chartConfig}
           >
-          <ScopeChart chartData={chartData}/>
+            <ScopeChart chartData={chartData} />
           </ChartContainer>
           <div className="flex flex-col justify-center space-y-4">
             {chartData.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-center space-x-4"
-              >
+              <div key={index} className="flex items-center space-x-2">
                 <div
-                  className="p-2 font-normal"
-                >
-                  {`${item.percentage}%`}
-                </div>
-                <div
-                  className="bg-[#F6F6F6] rounded-lg p-2 font-normal"
-                >
-                  {`${item.name} - ${item.value.toLocaleString()} kg CO2`}
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: item.fill }}
+                />
+                <div className="text-sm">{`${item.percentage}%`}</div>
+                <div className="bg-[#F6F6F6] rounded-lg p-2 text-sm">
+                  {`${item.name} - ${item.value
+                    .toFixed()
+                    .toLocaleString()} kg CO2`}
                 </div>
               </div>
             ))}
@@ -118,6 +97,6 @@ const ScopeBreakdown = () => {
       </Card>
     </div>
   );
-}
+};
 
-export default ScopeBreakdown; 
+export default ScopeBreakdown;
