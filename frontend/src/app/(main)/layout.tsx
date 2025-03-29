@@ -1,15 +1,12 @@
 "use client";
-
+import React, { ReactNode } from "react";
+import Image from "next/image";
 import onboardingLogo from "@/assets/onboarding-logo.png";
-import ContactsIcon from "@/components/icons/contacts";
+import Link from "next/link";
 import DashboardIcon from "@/components/icons/dashboard";
 import TransactionsIcon from "@/components/icons/transactions";
-import { ProfileDropdown } from "@/components/user_profile/ProfileDropdown";
-import Image from "next/image";
-import Link from "next/link";
-import React, { ReactNode } from "react";
+import ContactsIcon from "@/components/icons/contacts";
 import { usePathname } from "next/navigation";
-
 
 interface LayoutProps {
   children: ReactNode;
@@ -36,43 +33,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           />
         </div>
         <div className="flex justify-end w-full max-w-full p-4 space-x-4">
-          <div className="z-1">
-            <DashboardIcon activeTab={activeTab} />
-          </div>
-          <Link
-            href="/dashboard"
-            className={`text-lg font-bold ${
-              activeTab === "dashboard" ? "text-primary" : "text-gray-700"
-            } pr-5`}
-            onClick={() => handleTabClick("dashboard")}
-          >
-            Dashboard
-          </Link>
-          <div className="z-1">
-            <TransactionsIcon activeTab={activeTab} />
-          </div>
-          <Link
-            href="/transactions"
-            className={`text-lg font-bold ${
-              activeTab === "transactions" ? "text-primary" : "text-gray-700"
-            } pr-5`}
-            onClick={() => handleTabClick("transactions")}
-          >
-            Transactions
-          </Link>
-          <div className="z-1">
-            <ContactsIcon activeTab={activeTab} />
-          </div>
-          <Link
-            href="/contacts"
-            className={`text-lg font-bold ${
-              activeTab === "contacts" ? "text-primary" : "text-gray-700"
-            } pr-5`}
-            onClick={() => handleTabClick("contacts")}
-          >
-            Contacts
-          </Link>
-          <ProfileDropdown></ProfileDropdown>
           {links.map((val) => 
             <>
               <div key={`ICON-${val.href}`}className="z-1">
