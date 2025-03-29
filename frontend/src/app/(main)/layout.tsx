@@ -8,7 +8,6 @@ import { ProfileDropdown } from "@/components/user_profile/ProfileDropdown";
 import Image from "next/image";
 import Link from "next/link";
 import React, { ReactNode, useState } from "react";
-import ContactsIcon from "@/components/icons/contacts";
 import { usePathname } from "next/navigation";
 
 
