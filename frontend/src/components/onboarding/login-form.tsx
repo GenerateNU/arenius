@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -29,7 +28,6 @@ const formSchema = z.object({
 
 export default function LoginForm() {
   const router = useRouter();
-  const [error, setError] = useState("");
   const { login, isLoginError } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -51,9 +49,7 @@ export default function LoginForm() {
         router.push("/transactions");
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unexpected error occurred"
-      );
+      console.error("An error occured: ", err);
     }
   }
   

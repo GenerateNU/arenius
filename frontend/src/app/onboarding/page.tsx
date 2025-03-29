@@ -9,7 +9,7 @@ import { SignupRequest } from "@/types";
 
 export default function CustomForm() {
   const [useForm, setUseForm] = useState(true);
-  const { signup, isLoginError } = useAuth();
+  const { signup } = useAuth();
 
   
   async function onSubmit(values: SignupRequest) {

@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { AxiosResponse } from "axios";
 import Cookies from "js-cookie";
-import apiClient from "../services/apiClient";
 import authApiClient from "../services/authApiClient";
 import { LoginRequest, SignupRequest } from "@/types";
 
