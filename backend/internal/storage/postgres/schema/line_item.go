@@ -29,9 +29,11 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	filterQuery := "WHERE 1=1"
 
 	if filterParams.ReconciliationStatus != nil {
-		if *filterParams.ReconciliationStatus {
+		if *filterParams.ReconciliationStatus == "reconciled" {
 			filterQuery += " AND (li.emission_factor_id IS NOT NULL)"
-		} else {
+		} else if *filterParams.ReconciliationStatus == "recommended" {
+			filterQuery += " AND (li.emission_factor_id IS NULL) AND (li.recommended_emission_factor_id IS NOT NULL)"
+		} else if *filterParams.ReconciliationStatus == "unreconciled" {
 			filterQuery += " AND (li.emission_factor_id IS NULL)"
 		}
 	}

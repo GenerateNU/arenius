@@ -31,7 +31,7 @@ export interface LineItemFilters {
   scope?: number;
   pageSize?: number;
   pageIndex?: number;
-  reconciled?: boolean;
+  reconciled?: string;
 }
 
 export type CreateLineItemRequest = {

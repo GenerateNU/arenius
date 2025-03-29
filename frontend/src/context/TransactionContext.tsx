@@ -87,18 +87,18 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       const [reconciled, unreconciled, offsets, scope1, scope2, scope3] =
         await Promise.all([
           fetchLineItems({
-            reconciled: true,
+            reconciled: "reconciled",
             ...filters,
             company_id: companyId,
           }),
           fetchLineItems({
-            reconciled: false,
+            reconciled: "unreconciled",
             ...filters,
             company_id: companyId,
           }),
           // TODO: update this to fetch offsets once endpoint is built
           fetchLineItems({
-            reconciled: true,
+            reconciled: "reconciled",
             ...filters,
             company_id: companyId,
           }),
@@ -144,7 +144,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
       try {
         const data = await fetchLineItems({
-          reconciled: table === "reconciled",
+          reconciled: table,
           ...filters,
           company_id: companyId,
           pageIndex: page[table],
