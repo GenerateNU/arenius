@@ -36,7 +36,7 @@ export async function fetchNetSummary(
 ): Promise<NetSummary[]> {
   try {
     const response = await apiClient.get(
-      `/summary/net?company_id=${companyId}&start_date=${startDate}&end_date=${endDate}`
+      `/summary/scopes?company_id=${companyId}&start_date=${startDate}&end_date=${endDate}`
     );
     return response.data;
   } catch (error) {

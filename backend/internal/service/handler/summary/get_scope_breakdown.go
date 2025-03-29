@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func (h *Handler) GetNetSummary(c *fiber.Ctx) error {
+func (h *Handler) GetScopeBreakdown(c *fiber.Ctx) error {
 	companyID := c.Query("company_id")
 	startDate := c.Query("start_date")
 	endDate := c.Query("end_date")
@@ -21,7 +21,7 @@ func (h *Handler) GetNetSummary(c *fiber.Ctx) error {
 		return errs.BadRequest("End Date is required")
 	}
 
-	netSummary, err := h.summaryRepository.GetNetSummary(
+	netSummary, err := h.summaryRepository.GetScopeBreakdown(
 		c.Context(),
 		companyID,
 		startDate,
