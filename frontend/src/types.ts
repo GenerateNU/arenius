@@ -193,3 +193,20 @@ export type CreateCarbonOffsetRequest = {
 export type BatchCreateCarbonOffsetsRequest = {
   carbon_offsets: CreateCarbonOffsetRequest[];
 };
+
+export type User = {
+  id?: string;
+  first_name?: string;
+  last_name?: string;
+  company_id?: string;
+  refresh_token?: string;
+  tenant_id?: string;
+  city?: string;
+  state?: string;
+  photo_url?: string;
+};
+
+
+export type GetUserProfileRequest = {
+  id: string;
+};

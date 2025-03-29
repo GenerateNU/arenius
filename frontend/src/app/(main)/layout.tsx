@@ -1,11 +1,12 @@
 "use client";
-import React, { ReactNode, useState } from "react";
-import Image from "next/image";
 import onboardingLogo from "@/assets/onboarding-logo.png";
-import Link from "next/link";
+import ContactsIcon from "@/components/icons/contacts";
 import DashboardIcon from "@/components/icons/dashboard";
 import TransactionsIcon from "@/components/icons/transactions";
-import ContactsIcon from "@/components/icons/contacts";
+import { ProfileDropdown } from "@/components/user_profile/ProfileDropdown";
+import Image from "next/image";
+import Link from "next/link";
+import React, { ReactNode, useState } from "react";
 
 interface LayoutProps {
   children: ReactNode;
@@ -66,6 +67,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           >
             Contacts
           </Link>
+          <ProfileDropdown></ProfileDropdown>
         </div>
       </div>
       <div className="pt-10 px-20 bg-grayBackground h-full">{children}</div>{" "}
