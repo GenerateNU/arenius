@@ -3,14 +3,14 @@
 import { cn } from "@/lib/utils";
 import ContactsSelector from "./ContactsSelector";
 import { useEffect, useState } from "react";
-import { Contact } from "@/types";
+import { SimpleContact } from "@/types";
 import { useTransactionsContext } from "@/context/TransactionContext";
 import { ContactProvider } from "@/context/ContactContext";
 
 export default function ContactFilter({
   className,
 }: React.HTMLAttributes<HTMLDivElement>) {
-  const [contact, setContact] = useState<Contact | undefined>(undefined);
+  const [contact, setContact] = useState<SimpleContact | undefined>(undefined);
   const { filters, setFilters } = useTransactionsContext();
 
   useEffect(() => {

@@ -46,14 +46,8 @@ export default function LineItemTable({
 }: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const {
-    tableData,
-    fetchTableData,
-    pageIndex,
-    pageSize,
-    setPage,
-    setPageSize,
-  } = useTransactionsContext();
+  const { tableData, pageIndex, pageSize, setPage, setPageSize } =
+    useTransactionsContext();
 
   // object and boolean to handle clicking a row's action button
   const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
@@ -75,6 +69,8 @@ export default function LineItemTable({
     },
   });
 
+  const { fetchAllData } = useTransactionsContext();
+
   // boolean determining if any row is selected
   const rowIsSelected = table
     .getRowModel()
@@ -86,7 +82,7 @@ export default function LineItemTable({
   };
 
   const handleReconcileSuccess = () => {
-    fetchTableData(activePage, {});
+    fetchAllData();
     setIsDialogOpen(false);
   };
 
@@ -175,9 +171,9 @@ export default function LineItemTable({
         />
       )}
 
-      {clickedRowData && (
+      {isDialogOpen && clickedRowData && (
         <ModalDialog
-          selectedRowData={clickedRowData}
+          selectedRowData={clickedRowData.original}
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
           onReconcileSuccess={handleReconcileSuccess}

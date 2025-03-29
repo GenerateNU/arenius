@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func (h *Handler) GetNetSummary(c *fiber.Ctx) error {
+func (h *Handler) GetScopeBreakdown(c *fiber.Ctx) error {
 	var req models.GetSummaryRequest
 	if err := c.QueryParser(&req); err != nil {
 		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
@@ -25,10 +25,10 @@ func (h *Handler) GetNetSummary(c *fiber.Ctx) error {
 		req.EndDate = time.Now()
 	}
 
-	grossSummary, err := h.summaryRepository.GetNetSummary(c.Context(), req)
+	netSummary, err := h.summaryRepository.GetScopeBreakdown(c.Context(), req)
 	if err != nil {
 		return err
 	}
 
-	return c.Status(fiber.StatusOK).JSON(grossSummary)
+	return c.Status(fiber.StatusOK).JSON(netSummary)
 }

@@ -20,14 +20,16 @@ import { Contact } from "@/types";
 import { useContacts } from "@/context/ContactContext";
 import { columns } from "./columns";
 import { DataTablePagination } from "../ui/DataTablePagination";
+import { useRouter } from "next/navigation"; // Use useRouter here
 
 export default function ContactTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const { data, pagination, setPagination } = useContacts();
+  const router = useRouter(); // Get router here
 
   const table = useReactTable({
     data: data.contacts || [],
-    columns,
+    columns: columns(router), // Pass router as a prop to columns
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),

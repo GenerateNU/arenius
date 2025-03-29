@@ -13,7 +13,7 @@ type SummaryRepository struct {
 	db *pgxpool.Pool
 }
 
-func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetGrossSummaryRequest) (*models.GetGrossSummaryResponse, error) {
+func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetGrossSummaryResponse, error) {
 	const monthlyQuery = `
 		SELECT
 			COALESCE(SUM(co2), 0) AS total_co2,
@@ -118,7 +118,84 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetG
 	}, nil
 }
 
-func (r *SummaryRepository) GetNetSummary(ctx context.Context, companyID, startDate, endDate string) ([]models.NetSummary, error) {
+func (r *SummaryRepository) GetNetSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetNetSummaryResponse, error) {
+	const monthlyQuery = `
+		SELECT
+			COALESCE(SUM(co2), 0) AS total_co2, 'emission' as type, 
+				DATE_TRUNC('month', date) AS month_start
+			FROM line_item
+			WHERE company_id = $1
+				AND co2 IS NOT NULL
+				AND date BETWEEN $2 AND $3
+			GROUP BY DATE_TRUNC('month', date)
+		UNION ALL
+		SELECT
+			COALESCE(SUM(carbon_amount_kg), 0) AS total_co2, 'offset' as type, 
+				DATE_TRUNC('month', purchase_date) AS month_start
+			FROM carbon_offset
+			WHERE company_id = $1
+				AND purchase_date BETWEEN $2 AND $3
+			GROUP BY DATE_TRUNC('month', purchase_date)
+		ORDER BY month_start;`
+
+	rowsMonthly, errMonthly := r.db.Query(ctx, monthlyQuery, req.CompanyID, req.StartDate.UTC(), req.EndDate.UTC())
+	if errMonthly != nil {
+		return nil, errMonthly
+	}
+	defer rowsMonthly.Close()
+
+	var monthSummaries []models.MonthNetSummary
+
+	for rowsMonthly.Next() {
+		var co2 float64
+		var emission_type string
+		var monthStart time.Time
+
+		if err := rowsMonthly.Scan(&co2, &emission_type, &monthStart); err != nil {
+			return nil, err
+		}
+
+		var currentSummary *models.MonthNetSummary
+
+		// Check if we already have a summary for this month
+		if len(monthSummaries) > 0 && monthSummaries[len(monthSummaries)-1].MonthStart == monthStart {
+			currentSummary = &monthSummaries[len(monthSummaries)-1]
+
+			if emission_type == "emission" {
+				currentSummary.Emissions = co2
+			} else if emission_type == "offset" {
+				currentSummary.Offsets = co2
+			}
+		} else {
+			// Create a new summary for this month
+			newSummary := models.MonthNetSummary{
+				MonthStart: monthStart,
+				Emissions:  0,
+				Offsets:    0,
+			}
+
+			if emission_type == "emission" {
+				newSummary.Emissions = co2
+			} else if emission_type == "offset" {
+				newSummary.Offsets = co2
+			}
+
+			monthSummaries = append(monthSummaries, newSummary)
+		}
+	}
+
+	if errMonthlyRows := rowsMonthly.Err(); errMonthlyRows != nil {
+		return nil, fmt.Errorf("error iterating over emission factor rows: %w", errMonthlyRows)
+	}
+
+	return &models.GetNetSummaryResponse{
+		StartDate: req.StartDate,
+		EndDate:   req.EndDate,
+		Months:    monthSummaries,
+	}, nil
+}
+
+func (r *SummaryRepository) GetScopeBreakdown(ctx context.Context, req models.GetSummaryRequest) ([]models.NetSummary, error) {
 	const monthlyQuery = `
 		SELECT
 			SUM(co2) AS total_co2,
@@ -138,7 +215,7 @@ func (r *SummaryRepository) GetNetSummary(ctx context.Context, companyID, startD
 
 	var summaries []models.NetSummary
 
-	rows, err := r.db.Query(ctx, monthlyQuery, companyID, startDate, endDate)
+	rows, err := r.db.Query(ctx, monthlyQuery, req.CompanyID, req.StartDate, req.EndDate)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +237,7 @@ func (r *SummaryRepository) GetNetSummary(ctx context.Context, companyID, startD
 	return summaries, nil
 }
 
-func (r *SummaryRepository) GetContactEmissions(ctx context.Context, req models.GetContactEmissionsSummaryRequest) (*models.GetContactEmissionsSummaryResponse, error) {
+func (r *SummaryRepository) GetContactEmissions(ctx context.Context, req models.GetSummaryRequest) (*models.GetContactEmissionsSummaryResponse, error) {
 	const query = `
 		SELECT l.contact_id, name, COALESCE(SUM(co2), 0) AS total_emissions
 		FROM line_item l jOIN contact c ON l.contact_id = c.id
@@ -210,6 +287,53 @@ func (r *SummaryRepository) GetContactEmissions(ctx context.Context, req models.
 		StartDate:        req.StartDate,
 		EndDate:          req.EndDate,
 	}, nil
+}
+
+func (r *SummaryRepository) GetTopEmissions(ctx context.Context, req models.GetSummaryRequest) (*[]models.GetTopEmissionsResponse, error) {
+	const query = `
+		SELECT 
+			ROW_NUMBER() OVER (ORDER BY COALESCE(SUM(co2), 0) DESC) AS rank,
+			ef.name,
+			COALESCE(SUM(co2), 0) AS total_co2
+		FROM 
+			line_item join emission_factor ef on line_item.emission_factor_id = ef.activity_id
+		WHERE
+			company_id = $1
+			AND date BETWEEN $2 AND $3
+		GROUP BY ef.name
+		ORDER BY total_co2 DESC
+		LIMIT 5;
+	`
+
+	rows, err := r.db.Query(ctx, query, req.CompanyID, req.StartDate.UTC(), req.EndDate.UTC())
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var topEmissions []models.GetTopEmissionsResponse
+
+	for rows.Next() {
+		var rank int
+		var emissionFactor string
+		var totalCO2 float64
+
+		if err := rows.Scan(&rank, &emissionFactor, &totalCO2); err != nil {
+			return nil, err
+		}
+
+		topEmissions = append(topEmissions, models.GetTopEmissionsResponse{
+			Rank:           rank,
+			EmissionFactor: emissionFactor,
+			TotalCO2:       totalCO2,
+		})
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return &topEmissions, nil
 }
 
 func NewSummaryRepository(db *pgxpool.Pool) *SummaryRepository {

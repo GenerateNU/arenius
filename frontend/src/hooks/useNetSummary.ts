@@ -2,13 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useAuth } from "@/context/AuthContext";
 import { useDateRange } from "@/context/DateRangeContext";
-import { fetchGrossEmissions } from "@/services/dashboard";
-import { GrossSummary, GetGrossEmissionsRequest } from "@/types";
+import { fetchNetEmissions } from "@/services/dashboard";
+import { GetGrossEmissionsRequest, NetSummary } from "@/types";
 
-export default function useGrossSummary() {
-  const [grossSummary, setGrossSummary] = useState<GrossSummary>(
-    {} as GrossSummary
-  );
+export default function useNetSummary() {
+  const [netSummary, setNetSummary] = useState<NetSummary>({} as NetSummary);
   const { companyId, isLoading } = useAuth();
   const { dateRange } = useDateRange();
 
@@ -33,8 +31,8 @@ export default function useGrossSummary() {
         req = { ...req, end_date: dateRange?.to };
       }
 
-      const grossSummaryData = await fetchGrossEmissions(req);
-      setGrossSummary(grossSummaryData);
+      const grossSummaryData = await fetchNetEmissions(req);
+      setNetSummary(grossSummaryData);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -44,5 +42,5 @@ export default function useGrossSummary() {
     fetchData();
   }, [fetchData]);
 
-  return { grossSummary };
+  return { netSummary };
 }

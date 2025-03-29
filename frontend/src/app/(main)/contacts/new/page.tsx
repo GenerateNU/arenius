@@ -1,3 +1,4 @@
+"use client"
 import ContactForm from "@/components/contacts/ContactForm";
 
 export default function Contacts() {

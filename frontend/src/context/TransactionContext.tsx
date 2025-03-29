@@ -27,6 +27,7 @@ interface TableContextType {
   setPage: (table: TableKey, page: number) => void;
   setPageSize: (table: TableKey, size: number) => void;
   fetchTableData: (table: TableKey, filters: LineItemFilters) => Promise<void>;
+  fetchAllData: () => Promise<void>;
   loading: boolean;
   error: string | null;
   viewMode: ViewMode;
@@ -182,6 +183,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     currentPage,
     currentLimit,
     fetchTableData,
+    fetchAllData,
   ]);
 
   return (
@@ -197,6 +199,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         setPageSize: (table: TableKey, limit: number) =>
           setPageSize((prev) => ({ ...prev, [table]: limit })),
         fetchTableData,
+        fetchAllData,
         loading,
         error,
         viewMode,

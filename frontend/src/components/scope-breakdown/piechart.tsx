@@ -23,11 +23,11 @@ const ScopeChart: React.FC<{
         {chartData.map((entry, index) => (
           <Cell key={`cell-${index}`} fill={entry.fill} />
         ))}
-        
+
         <Label
-          value={`${totalEmissions.toLocaleString()} kg CO2`}
+          value={`${totalEmissions.toFixed(0).toLocaleString()} kg CO2`}
           position="center"
-          fontSize={30}
+          fontSize={24}
           fill="#333"
           fontWeight="bold"
         />

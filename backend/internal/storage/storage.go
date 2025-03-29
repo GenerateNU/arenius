@@ -27,9 +27,11 @@ type EmissionsFactorRepository interface {
 }
 
 type SummaryRepository interface {
-	GetGrossSummary(ctx context.Context, req models.GetGrossSummaryRequest) (*models.GetGrossSummaryResponse, error)
-	GetContactEmissions(ctx context.Context, req models.GetContactEmissionsSummaryRequest) (*models.GetContactEmissionsSummaryResponse, error)
-	GetNetSummary(ctx context.Context, companyID, startDate, endDate string) ([]models.NetSummary, error)
+	GetGrossSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetGrossSummaryResponse, error)
+	GetNetSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetNetSummaryResponse, error)
+	GetContactEmissions(ctx context.Context, req models.GetSummaryRequest) (*models.GetContactEmissionsSummaryResponse, error)
+	GetScopeBreakdown(ctx context.Context, req models.GetSummaryRequest) ([]models.NetSummary, error)
+	GetTopEmissions(ctx context.Context, req models.GetSummaryRequest) (*[]models.GetTopEmissionsResponse, error)
 }
 
 type UserRepository interface {

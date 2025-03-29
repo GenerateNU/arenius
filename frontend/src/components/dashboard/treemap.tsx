@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 
-const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
-
+const ReactApexChart = dynamic(() => import("react-apexcharts"), {
+  ssr: false,
+});
 
 interface ApexChartProps {
   data: { x: string; y: number }[];
@@ -17,7 +18,7 @@ const TreeMap: React.FC<ApexChartProps> = ({ data }) => {
       if (chartContainerRef.current) {
         setChartSize({
           width: chartContainerRef.current.clientWidth,
-          height: chartContainerRef.current.clientHeight,
+          height: Math.min(chartContainerRef.current.clientHeight, 400),
         });
       }
     };
@@ -42,24 +43,33 @@ const TreeMap: React.FC<ApexChartProps> = ({ data }) => {
           show: false,
         },
       },
-      colors: ["#A1F4A4", "#05C569", "#156641"],
+      colors: ["#71A448"],
+      fill: {
+        type: "gradient",
+        gradient: {
+          shade: "dark",
+          type: "vertical",
+          shadeIntensity: 0.8,
+          inverseColors: false,
+          gradientToColors: ["#2B3E1B"],
+          opacityFrom: 1,
+          opacityTo: 1,
+          stops: [0, 73],
+          colorStops: [],
+        },
+      },
       plotOptions: {
         treemap: {
-          distributed: true,
           enableShades: false,
-          useFillColorAsStroke: false,
-          padding: 100,
         },
       },
       dataLabels: {
         enabled: true,
         style: {
-          fontSize: '12px',
-          fontWeight: 'bold',
+          fontSize: "24px",
+          fontWeight: "bold",
+          fontFamily: 'Arimo, "sans-serif"',
         },
-        align: "left", // Aligns text to the left
-        verticalAlign: "bottom",
-        textAnchor: "start" as const,
         formatter: function (text: string, op: { value: string }) {
           return [op.value + "%", text];
         },
@@ -91,14 +101,20 @@ const TreeMap: React.FC<ApexChartProps> = ({ data }) => {
   if (typeof window === "undefined") return null;
 
   return (
-    <div ref={chartContainerRef} style={{ width: "100%", height: "100%", minHeight: "300px" }}>
-      <ReactApexChart 
-        options={state.options} 
-        series={state.series} 
-        type="treemap" 
-        width={chartSize.width} 
-        height={chartSize.height} 
-        padding={{ top: 0, right: 0, bottom: 0, left: 0 }}
+    <div
+      ref={chartContainerRef}
+      id="chart"
+      className="treemap-container"
+      style={{
+        width: "100%",
+      }}
+    >
+      <ReactApexChart
+        options={state.options}
+        series={state.series}
+        type="treemap"
+        width={chartSize.width}
+        height={chartSize.height}
       />
     </div>
   );
