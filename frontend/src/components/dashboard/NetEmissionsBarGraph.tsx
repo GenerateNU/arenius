@@ -52,12 +52,14 @@ function BarGradient(props: BarRectangleItem) {
     <>
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="6%" stopColor="#77B257" />
-          <stop offset="85%" stopColor="#2B3E1B" />
+          <stop offset="0%" stopColor="#5F8D39" stopOpacity={1}/>
+          <stop offset="100%" stopColor="#2B3E1B" stopOpacity={1}/>
         </linearGradient>
       </defs>
 
       <rect
+        rx={12}
+        ry={12}
         x={props.x}
         y={props.y}
         width={props.width}
@@ -148,7 +150,7 @@ export default function NetEmissionsBarGraph() {
                 dataKey="offsets"
                 stackId="a"
                 fill="#C7CFCD"
-                radius={[4, 4, 0, 0]}
+                radius={12}
               />
 
               {/* Line Graph */}
