@@ -2,15 +2,15 @@
 import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+// const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
-console.log(process.env.NEXT_PUBLIC_SUPABASE_URL)
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Supabase URL or ANON KEY is missing!");
-}
+// console.log(process.env.NEXT_PUBLIC_SUPABASE_URL)
+// if (!supabaseUrl || !supabaseAnonKey) {
+//   throw new Error("Supabase URL or ANON KEY is missing!");
+// }
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = createClient("https://otqxkhrzvszshplymejg.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90cXhraHJ6dnN6c2hwbHltZWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY1MjkxNDcsImV4cCI6MjA1MjEwNTE0N30.VDqp254ZDc8Skp4Ri6aTanvdmoophssv-wDZPHX_t7E");
 
 export default function ProfilePage() {
   const [isUploading, setIsUploading] = useState(false);
