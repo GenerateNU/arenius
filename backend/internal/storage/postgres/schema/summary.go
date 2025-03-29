@@ -183,7 +183,6 @@ func (r *SummaryRepository) GetNetSummary(ctx context.Context, req models.GetSum
 			}
 
 			monthSummaries = append(monthSummaries, newSummary)
-			currentSummary = &monthSummaries[len(monthSummaries)-1]
 		}
 
 	}
