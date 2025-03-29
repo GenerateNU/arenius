@@ -10,7 +10,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight, Search } from "lucide-react";
 import { fetchEmissionsFactors } from "@/services/emissionsFactors";
-import { EmissionsFactorCategories, EmissionsFactorCategory, EmissionsFactor } from "@/types";
+import {
+  EmissionsFactorCategories,
+  EmissionsFactorCategory,
+  EmissionsFactor,
+} from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 
@@ -18,14 +22,14 @@ interface CategorySelectorProps {
   emissionsFactor?: EmissionsFactor;
   setEmissionsFactor: (factor: EmissionsFactor) => void;
   variant?:
-  | "link"
-  | "secondary"
-  | "destructive"
-  | "outline"
-  | "default"
-  | "ghost"
-  | null
-  | undefined;
+    | "link"
+    | "secondary"
+    | "destructive"
+    | "outline"
+    | "default"
+    | "ghost"
+    | null
+    | undefined;
 }
 
 interface CategoryListProps {
@@ -62,12 +66,14 @@ export default function CategorySelector({
   const { companyId } = useAuth();
 
   const [activeTab, setActiveTab] = useState<string>("All");
-  
+
   const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch("");
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const [categories, setCategories] = useState<EmissionsFactorCategories | undefined>(undefined);
+  const [categories, setCategories] = useState<
+    EmissionsFactorCategories | undefined
+  >(undefined);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -109,7 +115,7 @@ export default function CategorySelector({
               variant="tab"
               active={activeTab === tab}
               onClick={() => {
-                setActiveTab(tab)
+                setActiveTab(tab);
               }}
             >
               {tab}
@@ -126,7 +132,11 @@ export default function CategorySelector({
           />
         ) : (
           <EmissionsFactorList
-            emissionsFactors={(activeTab === "Favorites" ? categories?.favorites.emissions_factors : categories?.history.emissions_factors) || []}
+            emissionsFactors={
+              (activeTab === "Favorites"
+                ? categories?.favorites.emissions_factors
+                : categories?.history.emissions_factors) || []
+            }
             setEmissionsFactor={setEmissionsFactor}
             setIsOpen={setIsOpen}
           />
@@ -136,12 +146,23 @@ export default function CategorySelector({
   );
 }
 
-function CategoryList({ categories, searchTerm, setEmissionsFactor, setIsOpen }: CategoryListProps) {
+function CategoryList({
+  categories,
+  searchTerm,
+  setEmissionsFactor,
+  setIsOpen,
+}: CategoryListProps) {
   return (
     <div className={styles.categoryList}>
       {categories.length > 0 ? (
         categories.map((category) => (
-          <CategoryItem key={`${category.name}-${category.emissions_factors.length}`} category={category} expandedInitial={searchTerm !== ""} setEmissionsFactor={setEmissionsFactor} setIsOpen={setIsOpen} />
+          <CategoryItem
+            key={`${category.name}-${category.emissions_factors.length}`}
+            category={category}
+            expandedInitial={searchTerm !== ""}
+            setEmissionsFactor={setEmissionsFactor}
+            setIsOpen={setIsOpen}
+          />
         ))
       ) : (
         <p className={styles.noResults}>No results found</p>
@@ -150,26 +171,54 @@ function CategoryList({ categories, searchTerm, setEmissionsFactor, setIsOpen }:
   );
 }
 
-function CategoryItem({ category, setEmissionsFactor, setIsOpen, expandedInitial = false }: CategoryProps) {
+function CategoryItem({
+  category,
+  setEmissionsFactor,
+  setIsOpen,
+  expandedInitial = false,
+}: CategoryProps) {
   const [expanded, setExpanded] = useState<boolean>(expandedInitial);
 
   return (
     <>
-      <Button variant="ghost" className={styles.dropdownButton} onClick={() => setExpanded(!expanded)}>
+      <Button
+        variant="ghost"
+        className={styles.dropdownButton}
+        onClick={() => setExpanded(!expanded)}
+      >
         {category.name}
-        {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+        {expanded ? (
+          <ChevronDown className="w-4 h-4" />
+        ) : (
+          <ChevronRight className="w-4 h-4" />
+        )}
       </Button>
-      {expanded && <EmissionsFactorList emissionsFactors={category.emissions_factors} setEmissionsFactor={setEmissionsFactor} setIsOpen={setIsOpen} />}
+      {expanded && (
+        <EmissionsFactorList
+          emissionsFactors={category.emissions_factors}
+          setEmissionsFactor={setEmissionsFactor}
+          setIsOpen={setIsOpen}
+        />
+      )}
     </>
-  )
+  );
 }
 
-function EmissionsFactorList({ emissionsFactors, setEmissionsFactor, setIsOpen }: EmissionsFactorListProps) {
+function EmissionsFactorList({
+  emissionsFactors,
+  setEmissionsFactor,
+  setIsOpen,
+}: EmissionsFactorListProps) {
   return (
     <div>
       {emissionsFactors.length > 0 ? (
         emissionsFactors.map((emissionsFactor) => (
-          <EmissionsFactorItem key={emissionsFactor.name} emissionsFactor={emissionsFactor} setEmissionsFactor={setEmissionsFactor} setIsOpen={setIsOpen} />
+          <EmissionsFactorItem
+            key={emissionsFactor.activity_id + emissionsFactor.name}
+            emissionsFactor={emissionsFactor}
+            setEmissionsFactor={setEmissionsFactor}
+            setIsOpen={setIsOpen}
+          />
         ))
       ) : (
         <p className={styles.noResults}>No results found</p>
@@ -178,14 +227,26 @@ function EmissionsFactorList({ emissionsFactors, setEmissionsFactor, setIsOpen }
   );
 }
 
-function EmissionsFactorItem({ emissionsFactor, setEmissionsFactor, setIsOpen }: EmissionsFactorProps) {
+function EmissionsFactorItem({
+  emissionsFactor,
+  setEmissionsFactor,
+  setIsOpen,
+}: EmissionsFactorProps) {
   return (
     <>
-      <Button key={emissionsFactor.name} variant="ghost" className={styles.dropdownButton} onClick={() => { setEmissionsFactor(emissionsFactor); setIsOpen(false); }}>
+      <Button
+        key={emissionsFactor.name}
+        variant="ghost"
+        className={styles.dropdownButton}
+        onClick={() => {
+          setEmissionsFactor(emissionsFactor);
+          setIsOpen(false);
+        }}
+      >
         • {emissionsFactor.name}
       </Button>
     </>
-  )
+  );
 }
 
 const styles = {

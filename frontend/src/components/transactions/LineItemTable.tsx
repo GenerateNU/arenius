@@ -33,6 +33,7 @@ export type LineItemTableProps = {
     | "scope2"
     | "scope3"
     | "unreconciled"
+    | "recommended"
     | "offsets";
   columns: ColumnDef<LineItem>[];
   paginated?: boolean;

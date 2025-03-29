@@ -25,8 +25,8 @@ function buildQueryParams(filters: LineItemFilters) {
   if (filters?.maxPrice) {
     params.max_price = filters.maxPrice?.toString();
   }
-  if (filters?.reconciled != undefined) {
-    params.reconciliation_status = filters.reconciled.toString();
+  if (filters?.reconciliationStatus) {
+    params.reconciliation_status = filters.reconciliationStatus;
   }
   if (filters?.searchTerm) {
     params.search_term = filters.searchTerm;

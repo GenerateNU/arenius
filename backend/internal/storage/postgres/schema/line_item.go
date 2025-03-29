@@ -82,9 +82,10 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	}
 
 	query := `
-	SELECT li.id, li.xero_line_item_id, li.description, li.total_amount, li.company_id, li.contact_id, c.name as contact_name, li.date, li.currency_code, li.emission_factor_id, ef.name as emission_factor_name, li.co2, li.co2_unit, li.scope
+	SELECT li.id, li.xero_line_item_id, li.description, li.total_amount, li.company_id, li.contact_id, c.name as contact_name, li.date, li.currency_code, li.emission_factor_id, ef.name as emission_factor_name, li.co2, li.co2_unit, li.scope, li.recommended_emission_factor_id, li.recommended_scope, rec_ef.name as recommended_emission_factor_name
 	FROM line_item li 
 	LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id
+	LEFT JOIN emission_factor rec_ef ON li.recommended_emission_factor_id = ef.activity_id
 	LEFT JOIN contact c on li.contact_id = c.id ` + filterQuery + `
 	ORDER BY li.date DESC
 	LIMIT $1 OFFSET $2
@@ -393,23 +394,23 @@ func (r *LineItemRepository) GetLineItemsByIds(ctx context.Context, lineItemIDs 
 }
 
 func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, companyId uuid.UUID) ([]models.LineItem, error) {
-    const unreconciledTransactionsQuery = `
+	const unreconciledTransactionsQuery = `
         SELECT id, description
         FROM line_item
         WHERE emission_factor_id IS NULL
           AND scope IS NULL
           AND company_id = $1;
     `
-    unreconciledRows, err := r.db.Query(ctx, unreconciledTransactionsQuery, companyId)
-    if err != nil {
-        return nil, err
-    }
-    defer unreconciledRows.Close()
+	unreconciledRows, err := r.db.Query(ctx, unreconciledTransactionsQuery, companyId)
+	if err != nil {
+		return nil, err
+	}
+	defer unreconciledRows.Close()
 
-    unreconciledTransactions, err := pgx.CollectRows(unreconciledRows, pgx.RowToStructByName[models.UnreconciledLineItem])
-    if err != nil {
-        return nil, err
-    }
+	unreconciledTransactions, err := pgx.CollectRows(unreconciledRows, pgx.RowToStructByName[models.UnreconciledLineItem])
+	if err != nil {
+		return nil, err
+	}
 
 	if len(unreconciledTransactions) == 0 {
 		return []models.LineItem{}, nil
@@ -438,59 +439,59 @@ func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, company
 		return []models.LineItem{}, nil
 	}
 
-    reconciliationQuery := models.LineItemReconciliationQuery{
-        PastTransactions:          pastTransactions,
-        UnreconciledTransactions: unreconciledTransactions,
-    }
+	reconciliationQuery := models.LineItemReconciliationQuery{
+		PastTransactions:         pastTransactions,
+		UnreconciledTransactions: unreconciledTransactions,
+	}
 
-    jsonBody, err := json.Marshal(reconciliationQuery)
-    if err != nil {
-        return nil, err
-    }
+	jsonBody, err := json.Marshal(reconciliationQuery)
+	if err != nil {
+		return nil, err
+	}
 
-    req, err := http.NewRequest("GET", "https://reconciliation-recommendation-production.up.railway.app/reconciliation/get-recommendation", bytes.NewBuffer(jsonBody))
-    if err != nil {
-        return nil, err
-    }
-    req.Header.Set("Content-Type", "application/json")
+	req, err := http.NewRequest("GET", "https://reconciliation-recommendation-production.up.railway.app/reconciliation/get-recommendation", bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
 
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        return nil, err
-    }
-    defer resp.Body.Close()
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
 
-    if resp.StatusCode != http.StatusOK {
-        return nil, fmt.Errorf("recommendation service returned status: %s", resp.Status)
-    }
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("recommendation service returned status: %s", resp.Status)
+	}
 
-    var recommendations []models.Recommendation
-    if err := json.NewDecoder(resp.Body).Decode(&recommendations); err != nil {
-        return nil, err
-    }
+	var recommendations []models.Recommendation
+	if err := json.NewDecoder(resp.Body).Decode(&recommendations); err != nil {
+		return nil, err
+	}
 
-    if len(recommendations) == 0 {
-        return []models.LineItem{}, nil
-    }
+	if len(recommendations) == 0 {
+		return []models.LineItem{}, nil
+	}
 
-    var (
-        valueArgs         []interface{}
-        valuePlaceholders []string
-    )
-    for i, rec := range recommendations {
-        idx := i * 3
+	var (
+		valueArgs         []interface{}
+		valuePlaceholders []string
+	)
+	for i, rec := range recommendations {
+		idx := i * 3
 
-        parsedID, err := uuid.Parse(rec.ID)
-        if err != nil {
-            return nil, fmt.Errorf("invalid UUID in recommendation: %v", err)
-        }
+		parsedID, err := uuid.Parse(rec.ID)
+		if err != nil {
+			return nil, fmt.Errorf("invalid UUID in recommendation: %v", err)
+		}
 
-        valuePlaceholders = append(valuePlaceholders, fmt.Sprintf("($%d::uuid, $%d::int, $%d::text)", idx+1, idx+2, idx+3))
-        valueArgs = append(valueArgs, parsedID, rec.RecommendedScope, rec.RecommendedEmissionsFactorID)
-    }
+		valuePlaceholders = append(valuePlaceholders, fmt.Sprintf("($%d::uuid, $%d::int, $%d::text)", idx+1, idx+2, idx+3))
+		valueArgs = append(valueArgs, parsedID, rec.RecommendedScope, rec.RecommendedEmissionsFactorID)
+	}
 
-    updateQuery := fmt.Sprintf(`
+	updateQuery := fmt.Sprintf(`
         WITH updates(id, scope, emission_factor_id) AS (
             VALUES %s
         )
@@ -502,28 +503,28 @@ func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, company
         WHERE li.id = updates.id;
     `, strings.Join(valuePlaceholders, ", "))
 
-    _, err = r.db.Exec(ctx, updateQuery, valueArgs...)
-    if err != nil {
-        return nil, fmt.Errorf("bulk update failed: %w", err)
-    }
+	_, err = r.db.Exec(ctx, updateQuery, valueArgs...)
+	if err != nil {
+		return nil, fmt.Errorf("bulk update failed: %w", err)
+	}
 
-    updatedUUIDs := make([]uuid.UUID, len(recommendations))
-    for i, rec := range recommendations {
-        id, err := uuid.Parse(rec.ID)
-        if err != nil {
-            return nil, fmt.Errorf("invalid UUID in recommendation: %v", err)
-        }
-        updatedUUIDs[i] = id
-    }
+	updatedUUIDs := make([]uuid.UUID, len(recommendations))
+	for i, rec := range recommendations {
+		id, err := uuid.Parse(rec.ID)
+		if err != nil {
+			return nil, fmt.Errorf("invalid UUID in recommendation: %v", err)
+		}
+		updatedUUIDs[i] = id
+	}
 
-    idPlaceholders := make([]string, len(updatedUUIDs))
-    idArgs := make([]interface{}, len(updatedUUIDs))
-    for i, id := range updatedUUIDs {
-        idPlaceholders[i] = fmt.Sprintf("$%d", i+1)
-        idArgs[i] = id
-    }
+	idPlaceholders := make([]string, len(updatedUUIDs))
+	idArgs := make([]interface{}, len(updatedUUIDs))
+	for i, id := range updatedUUIDs {
+		idPlaceholders[i] = fmt.Sprintf("$%d", i+1)
+		idArgs[i] = id
+	}
 
-    selectQuery := fmt.Sprintf(`
+	selectQuery := fmt.Sprintf(`
         SELECT 
             id, 
             xero_line_item_id, 
@@ -543,18 +544,18 @@ func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, company
         WHERE id IN (%s);
     `, strings.Join(idPlaceholders, ", "))
 
-    rows, err := r.db.Query(ctx, selectQuery, idArgs...)
-    if err != nil {
-        return nil, fmt.Errorf("fetching updated line_items failed: %w", err)
-    }
-    defer rows.Close()
+	rows, err := r.db.Query(ctx, selectQuery, idArgs...)
+	if err != nil {
+		return nil, fmt.Errorf("fetching updated line_items failed: %w", err)
+	}
+	defer rows.Close()
 
-    updatedLineItems, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.LineItem])
-    if err != nil {
-        return nil, fmt.Errorf("parsing updated line_items failed: %w", err)
-    }
+	updatedLineItems, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.LineItem])
+	if err != nil {
+		return nil, fmt.Errorf("parsing updated line_items failed: %w", err)
+	}
 
-    return updatedLineItems, nil
+	return updatedLineItems, nil
 }
 
 func NewLineItemRepository(db *pgxpool.Pool) *LineItemRepository {

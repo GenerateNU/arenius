@@ -55,6 +55,14 @@ const emissionFactorColumn: ColumnDef<LineItem> = {
   size: 200,
 };
 
+const recommendedEmissionFactorColumn: ColumnDef<LineItem> = {
+  accessorKey: "recommended_emission_factor_name",
+  header: ({ column }) => {
+    return <ColumnHeader name="Recommended emissions factor" column={column} />;
+  },
+  size: 200,
+};
+
 const contactColumn: ColumnDef<LineItem> = {
   accessorKey: "contact_name",
   header: ({ column }) => {
@@ -106,6 +114,13 @@ export const reconciledColumns: ColumnDef<LineItem>[] = [
   descriptionColumn,
   emissionFactorColumn,
   co2Column,
+  contactColumn,
+  amountColumn,
+];
+export const recommendationColumns: ColumnDef<LineItem>[] = [
+  dateColumn,
+  descriptionColumn,
+  recommendedEmissionFactorColumn,
   contactColumn,
   amountColumn,
 ];

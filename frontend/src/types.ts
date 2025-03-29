@@ -7,6 +7,8 @@ export type LineItem = {
   currency_code: string;
   emission_factor_name?: string;
   emission_factor_id?: string;
+  recommended_emission_factor_name?: string;
+  recommended_emission_factor_id?: string;
   scope?: number;
   contact_name?: string;
   contact_id?: string;
@@ -31,7 +33,11 @@ export interface LineItemFilters {
   scope?: number;
   pageSize?: number;
   pageIndex?: number;
-  reconciled?: string;
+  reconciliationStatus?:
+    | "recommended"
+    | "reconciled"
+    | "unreconciled"
+    | "offsets";
 }
 
 export type CreateLineItemRequest = {
