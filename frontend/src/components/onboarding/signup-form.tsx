@@ -7,6 +7,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { SignupRequest } from "@/types";
+import { useAuth } from "@/context/AuthContext";
 
 interface SignupFormProps {
   onSubmit: (data: SignupRequest) => void;
@@ -19,6 +20,8 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
     handleSubmit,
   } = useFormContext<SignupRequest>();
 
+  const { isLoginError } = useAuth();
+  
   return (
     <div className="w-full max-w-lg space-y-6">
       <h2 className="text-2xl font-semibold text-center">
@@ -78,7 +81,12 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
           </FormControl>
           <FormMessage>{errors.password?.message}</FormMessage>
         </FormItem>
+        <div>
 
+        {isLoginError && (
+          <div className={styles.error}>Email is already in use.</div>
+        )}
+        </div>
         <button
           type="submit"
           className="mt-4 p-4 bg-[#59C295] text-white rounded-md w-full"
@@ -89,3 +97,8 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
     </div>
   );
 }
+
+
+const styles = {
+  error: "mt-4 text-red-500 text-center text-sm",
+};
