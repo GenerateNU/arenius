@@ -13,7 +13,7 @@ const DashboardContent: React.FC = () => {
   return (
     <div>
       <div>
-        <h1 className="text-3xl font-bold mb-4">Carbon Management Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-4 mt-24">Carbon Management Dashboard</h1>
         <div>
           <DatePicker />
         </div>
