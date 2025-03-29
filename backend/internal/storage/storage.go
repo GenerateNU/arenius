@@ -59,6 +59,7 @@ type ContactRepository interface {
 }
 
 type OffsetRepository interface {
+	GetCarbonOffsets(ctx context.Context, pagination utils.Pagination, filterParams models.GetCarbonOffsetsRequest) ([]models.CarbonOffset, error)
 	CreateCarbonOffset(ctx context.Context, p models.CreateCarbonOffsetRequest) (*models.CarbonOffset, error)
 	BatchCreateCarbonOffsets(ctx context.Context, req models.BatchCreateCarbonOffsetsRequest) ([]models.CarbonOffset, error)
 }
