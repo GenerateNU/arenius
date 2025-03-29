@@ -10,7 +10,7 @@ import (
 )
 
 func (h *Handler) GetGrossSummary(c *fiber.Ctx) error {
-	var req models.GetGrossSummaryRequest
+	var req models.GetSummaryRequest
 	if err := c.QueryParser(&req); err != nil {
 		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
 	}

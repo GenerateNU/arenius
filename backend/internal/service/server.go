@@ -147,6 +147,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	app.Route("/emissions-factor", func(r fiber.Router) {
 		r.Get("/", emissionsFactorHandler.GetEmissionFactors)
 		r.Patch("/populate", emissionsFactorHandler.PopulateEmissions)
+		r.Post("/favorite", emissionsFactorHandler.PostFavoriteEmission)
 	})
 
 	userHandler := user.NewHandler(repo.User)
@@ -166,8 +167,10 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	summaryHandler := summary.NewHandler(repo.Summary)
 	app.Route("/summary", func(r fiber.Router) {
 		r.Get("/gross", summaryHandler.GetGrossSummary)
-		r.Get("/contact/emissions", summaryHandler.GetContactEmissions)
 		r.Get("/net", summaryHandler.GetNetSummary)
+		r.Get("/contact/emissions", summaryHandler.GetContactEmissions)
+		r.Get("/scopes", summaryHandler.GetScopeBreakdown)
+		r.Get("/top-emissions", summaryHandler.GetTopEmissions)
 	})
 
 	// cannot
