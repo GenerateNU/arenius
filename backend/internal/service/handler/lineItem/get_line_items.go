@@ -24,9 +24,13 @@ func (h *Handler) GetLineItems(c *fiber.Ctx) error {
 	if err := c.QueryParser(&filterParams); err != nil {
 		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
 	}
+
 	if filterParams.Scope != nil {
-		if *filterParams.Scope != 1 && *filterParams.Scope != 2 && *filterParams.Scope != 3 {
-			return errs.BadRequest("Scope must be 1, 2, or 3")
+		if *filterParams.Scope != 0 &&
+			*filterParams.Scope != 1 &&
+			*filterParams.Scope != 2 &&
+			*filterParams.Scope != 3 {
+			return errs.BadRequest("Scope must be 0, 1, 2, or 3")
 		}
 	}
 

@@ -31,7 +31,7 @@ function buildQueryParams(filters: LineItemFilters) {
   if (filters?.searchTerm) {
     params.search_term = filters.searchTerm;
   }
-  if (filters?.scope) {
+  if (filters?.scope !== undefined) {
     params.scope = filters.scope;
   }
   if (filters?.company_id) {
