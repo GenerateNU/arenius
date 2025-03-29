@@ -13,7 +13,6 @@ import { User } from "@/types";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
-import apiClient from "@/services/apiClient";
 
 export function ProfileDropdown() {
 
