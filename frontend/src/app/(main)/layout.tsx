@@ -1,5 +1,5 @@
 "use client";
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode } from "react";
 import Image from "next/image";
 import onboardingLogo from "@/assets/onboarding-logo.png";
 import Link from "next/link";
@@ -33,7 +33,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           />
         </div>
         <div className="flex justify-end w-full max-w-full p-4 space-x-4">
-          {links.map((val, idx, arr) => 
+          {links.map((val, _) => 
             <>
               <div className="z-1">
                 <val.icon active={activeTab === val.href}/>
