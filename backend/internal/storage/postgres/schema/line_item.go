@@ -85,7 +85,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	SELECT li.id, li.xero_line_item_id, li.description, li.total_amount, li.company_id, li.contact_id, c.name as contact_name, li.date, li.currency_code, li.emission_factor_id, ef.name as emission_factor_name, li.co2, li.co2_unit, li.scope, li.recommended_emission_factor_id, li.recommended_scope, rec_ef.name as recommended_emission_factor_name
 	FROM line_item li 
 	LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id
-	LEFT JOIN emission_factor rec_ef ON li.recommended_emission_factor_id = ef.activity_id
+	LEFT JOIN emission_factor rec_ef ON li.recommended_emission_factor_id = rec_ef.activity_id
 	LEFT JOIN contact c on li.contact_id = c.id ` + filterQuery + `
 	ORDER BY li.date DESC
 	LIMIT $1 OFFSET $2
