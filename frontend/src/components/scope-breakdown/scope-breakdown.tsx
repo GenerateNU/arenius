@@ -73,7 +73,7 @@ const ScopeBreakdownChart = () => {
             {startDate.toDateString()} - {endDate.toDateString()}
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex justify-center items-center w-full p-6 space-x-6">
+        <CardContent className="flex justify-center items-center w-full px-6 space-x-6">
           <ChartContainer
             className="flex justify-center items-center w-[300px] h-[300px] max-w-full"
             config={chartConfig}

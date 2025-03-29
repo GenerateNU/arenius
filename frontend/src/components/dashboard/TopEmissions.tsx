@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -31,16 +30,13 @@ export default function TopEmissionsFactors() {
       month: "long",
       timeZone: "UTC",
     }) || "";
-  const formattedStartDay =
-    new Date(dateRange?.from ?? "").getDate() || "";
+  const formattedStartDay = new Date(dateRange?.from ?? "").getDate() || "";
   const formattedEndMonth =
     new Date(dateRange?.to ?? "").toLocaleDateString("en-US", {
       month: "long",
       timeZone: "UTC",
     }) || "";
-  const formattedEndDay = dateRange?.to
-    ? new Date(dateRange.to).getDate()
-    : "";
+  const formattedEndDay = dateRange?.to ? new Date(dateRange.to).getDate() : "";
   const formattedEndYear = dateRange?.to
     ? new Date(dateRange.to).getFullYear()
     : "";
@@ -58,14 +54,14 @@ export default function TopEmissionsFactors() {
           start_date: dateRange?.from,
           end_date: dateRange?.to,
         };
-  
+
         const response = await apiClient.get("/summary/top-emissions", {
           headers: {
             Authorization: `Bearer ${jwt}`,
           },
           params,
         });
-        
+
         setEmissions(response.data);
       } catch (error) {
         console.error("Error fetching emissions factors:", error);
@@ -78,27 +74,38 @@ export default function TopEmissionsFactors() {
   if (isLoading) {
     return <div>Loading...</div>;
   }
-  
+
   return (
-    <Card className="w-full max-w-3xl pt-2 mx-auto p-6 rounded-xl shadow-sm border border-gray-100">
+    <Card className="w-full max-w-3xl mx-auto px-6 rounded-xl shadow-sm border border-gray-100">
       <CardHeader className="px-0 pb-6">
-        <CardTitle className="text-3xl font-bold text-gray-800">Top Emissions Factors</CardTitle>
+        <CardTitle className="text-2xl font-bold text-gray-800">
+          Top Emissions Factors
+        </CardTitle>
         <CardDescription className="text-gray-500 mt-2 text-lg">
-          for {formattedStartDay} {formattedStartMonth} — {formattedEndDay} {formattedEndMonth}, {formattedEndYear}
+          for {formattedStartDay} {formattedStartMonth} — {formattedEndDay}{" "}
+          {formattedEndMonth}, {formattedEndYear}
         </CardDescription>
       </CardHeader>
       <CardContent className="px-0">
         <div className="space-y-2">
           {emissions.map((factor, index) => (
-            <div 
-              key={factor.rank} 
-              className={`flex justify-between items-center p-4 rounded-lg ${index % 2 === 0 ? 'bg-green-50' : 'bg-white'}`}
+            <div
+              key={factor.rank}
+              className={`flex justify-between items-center p-4 rounded-lg ${
+                index % 2 === 0 ? "bg-green-50" : "bg-white"
+              }`}
             >
               <div className="flex items-center gap-4">
-                <span className="text-2xl font-bold text-gray-800">{factor.rank}</span>
-                <span className="text-l text-gray-700">{factor.emission_factor}</span>
+                <span className="text-2xl font-bold text-gray-800">
+                  {factor.rank}
+                </span>
+                <span className="text-l text-gray-700">
+                  {factor.emission_factor}
+                </span>
               </div>
-              <div className="text-xl font-medium">{factor.total_co2.toFixed(0)} tn</div>
+              <div className="text-xl font-medium">
+                {factor.total_co2.toFixed(0)} tn
+              </div>
             </div>
           ))}
         </div>

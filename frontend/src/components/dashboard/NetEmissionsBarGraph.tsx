@@ -4,8 +4,11 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  ComposedChart,
+  Line,
   ResponsiveContainer,
   XAxis,
+  YAxis,
 } from "recharts";
 
 import {
@@ -35,6 +38,10 @@ const chartConfig = {
   },
   emissions: {
     label: "Emissions",
+    color: "rgba(48,100,68,255)",
+  },
+  netEmissions: {
+    label: "Net emissions",
     color: "rgba(48,100,68,255)",
   },
 } satisfies ChartConfig;
@@ -87,6 +94,7 @@ export default function NetEmissionsBarGraph() {
       }),
       offsets: month.offsets || 0,
       emissions: month.emissions || 0,
+      netEmissions: (month.emissions || 0) - (month.offsets || 0),
     })) ?? [];
 
   return (
@@ -102,7 +110,7 @@ export default function NetEmissionsBarGraph() {
       <CardContent>
         <ChartContainer config={chartConfig}>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart accessibilityLayer data={chartData}>
+            <ComposedChart data={chartData}>
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="month"
@@ -111,13 +119,28 @@ export default function NetEmissionsBarGraph() {
                 axisLine={false}
                 tickFormatter={(value) => value.slice(0, 3)}
               />
+              <YAxis />
               <ChartTooltip
                 content={<ChartTooltipContent hideLabel />}
                 wrapperStyle={{ width: "12%" }}
               />
-              <ChartLegend content={<ChartLegendContent />} />
+              <ChartLegend
+                payload={[
+                  {
+                    value: chartConfig.netEmissions.label,
+                    color: "black",
+                    type: "line",
+                  },
+                  {
+                    value: chartConfig.offsets.label,
+                    color: "#C7CFCD",
+                    type: "rect",
+                  },
+                ]}
+              />
+              {/* Bar Graph */}
               <Bar
-                dataKey="emissions"
+                dataKey="netEmissions"
                 stackId="a"
                 shape={<BarGradient />}
                 activeBar={<BarGradient />}
@@ -129,7 +152,17 @@ export default function NetEmissionsBarGraph() {
                 fill="#C7CFCD"
                 radius={[4, 4, 0, 0]}
               />
-            </BarChart>
+
+              {/* Line Graph */}
+              <Line
+                type="monotone"
+                dataKey="netEmissions"
+                stroke="black"
+                strokeWidth={5}
+                dot={{ r: 2 }}
+                legendType="none"
+              />
+            </ComposedChart>
           </ResponsiveContainer>
         </ChartContainer>
       </CardContent>
