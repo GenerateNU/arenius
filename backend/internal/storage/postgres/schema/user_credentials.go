@@ -106,9 +106,9 @@ func (c *UserRepository) GetUserbyRefreshToken(ctx context.Context, refreshToken
 func (c *UserRepository) GetUserProfile(ctx context.Context, userId string) (*models.User, error) {
 
 	const query = `
-		SELECT id, first_name, last_name, company_id, refresh_token, tenant_id, city, state, photo_url
-		FROM user_creds
-		WHERE id = $1
+		SELECT user_creds.id, first_name, last_name, company_id, refresh_token, tenant_id, city, state, photo_url, email
+		FROM user_creds join auth.users as u on user_creds.id = u.id
+		WHERE user_creds.id = $1
 		LIMIT 1
 	`
 
@@ -183,6 +183,15 @@ func (c *UserRepository) UpdateUserProfile(ctx context.Context, userId string, r
 
 	return &user, nil
 
+}
+
+func (c *UserRepository) DeleteUser(ctx context.Context, userId string) (string, error) {
+	const query = `DELETE FROM user_creds WHERE id = $1`
+	_, err := c.db.Exec(ctx, query, userId)
+	if err != nil {
+		return "", fmt.Errorf("error querying database for user: %w", err)
+	}
+	return "User Deleted Successfully", nil
 }
 
 func NewUserRepository(db *pgxpool.Pool) *UserRepository {

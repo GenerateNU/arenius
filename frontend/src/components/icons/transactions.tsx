@@ -2,10 +2,10 @@
 import React from "react";
 
 interface IconProps {
-  activeTab: string;
+  active: boolean;
 }
 
-const TransactionsIcon: React.FC<IconProps> = ({ activeTab }) => {
+const TransactionsIcon: React.FC<IconProps> = ({ active }) => {
   return (
     <svg
       width="30"
@@ -14,7 +14,7 @@ const TransactionsIcon: React.FC<IconProps> = ({ activeTab }) => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={
-        activeTab === "all_navs/transactions" ? "text-[#07AC5D]" : "text-black"
+        active ? "text-[#07AC5D]" : "text-black"
       }
     >
       <path

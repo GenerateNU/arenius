@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import { Table } from "@tanstack/react-table";
 
-import { useAuth } from "@/context/AuthContext";
 import { useTransactionsContext } from "@/context/TransactionContext";
 import { reconcileBatch, reconcileBatchOffset } from "@/services/lineItems";
 import {
-  BatchCreateCarbonOffsetsRequest,
   EmissionsFactor,
   LineItem,
   ReconcileBatchRequest,
@@ -29,7 +27,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
   const [scope, setScope] = useState("");
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
   const [carbon, setCarbon] = useState<number>();
-  const { companyId } = useAuth();
+  // const { companyId } = useAuth();
   const { fetchTableData } = useTransactionsContext();
 
   async function handleReconciliation() {
@@ -49,13 +47,19 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
 
   // Handles reconciliation for carbon offsets
   async function handleCarbonOffsetReconciliation() {
-    const request: BatchCreateCarbonOffsetsRequest = {
-      carbon_offsets: table.getSelectedRowModel().rows.map((row) => ({
-        carbon_amount_kg: carbon ?? 0,
-        company_id: companyId ?? "",
-        source: row.original.description,
-        purchase_date: row.original.date,
-      })),
+    // const request: BatchCreateCarbonOffsetsRequest = {
+    //   carbon_offsets: table.getSelectedRowModel().rows.map((row) => ({
+    //     carbon_amount_kg: carbon ?? 0,
+    //     company_id: companyId ?? "",
+    //     source: row.original.description,
+    //     purchase_date: row.original.date,
+    //   })),
+    // };
+    const selectedIds = table.getSelectedRowModel().rows.map((row) => row.id);
+
+    const request: ReconcileBatchRequest = {
+      lineItemIds: selectedIds,
+      ...(scope && { scope: Number(scope) }),
     };
 
     await reconcileBatchOffset(request);

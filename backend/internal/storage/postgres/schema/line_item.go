@@ -205,7 +205,7 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 		INSERT INTO line_item
 		(` + strings.Join(columns, ", ") + `)
 		VALUES (` + strings.Join(numInputs, ", ") + `)
-		RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope;
+		RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope, recommended_emission_factor_id, recommended_scope;
 	`
 
 	rows, _ := r.db.Query(ctx, query, queryArgs...)
@@ -270,7 +270,7 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 				co2=NULL,
 				co2_unit=NULL,
 				scope=NULL
-			RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope;
+			RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope, recommended_emission_factor_id, recommended_scope;
 		`
 		rows, err := r.db.Query(ctx, query, queryArgs...)
 		if err != nil {

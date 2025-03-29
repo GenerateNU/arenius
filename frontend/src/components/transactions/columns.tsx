@@ -173,6 +173,7 @@ export const reconciledColumns: ColumnDef<LineItem>[] = [
   contactColumn,
   amountColumn,
 ];
+
 export const recommendationColumns: ColumnDef<LineItem>[] = [
   dateColumn,
   descriptionColumn,
@@ -181,4 +182,12 @@ export const recommendationColumns: ColumnDef<LineItem>[] = [
   contactColumn,
   amountColumn,
   acceptRecommendationButton,
+];
+
+export const offsetColumns: ColumnDef<LineItem>[] = [
+  dateColumn,
+  descriptionColumn, // Not on carbon offsets table
+  co2Column, // We have a total_amount_kg field instead, this needs its own column
+  contactColumn, // Not on carbon offsets table (there is a source field though)
+  amountColumn // Not on carbon offets table 
 ];
