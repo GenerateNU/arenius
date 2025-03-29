@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -6,22 +8,21 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { reconcile } from "@/services/lineItems";
-import { Contact, EmissionsFactor, LineItem, ReconcileRequest } from "@/types";
-import { Row } from "@tanstack/react-table";
-import React, { useState } from "react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+  EmissionsFactor,
+  LineItem,
+  ReconcileRequest,
+  SimpleContact,
+} from "@/types";
+import React, { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui/select";
 import EmissionsFactorSelector from "./CategorySelector";
 import { ContactProvider } from "@/context/ContactContext";
 import ContactsSelector from "./ContactsSelector";
+import { useRouter } from "next/navigation";
 
 interface ModalDialogProps {
-  selectedRowData: Row<LineItem>;
+  selectedRowData: LineItem;
   isDialogOpen: boolean;
   setIsDialogOpen: (open: boolean) => void;
   onReconcileSuccess: () => void;
@@ -33,15 +34,22 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
   setIsDialogOpen,
   onReconcileSuccess,
 }) => {
-  const [scope, setScope] = useState("");
-  const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
-  const [contact, setContact] = useState<Contact>();
+  const router = useRouter();
+  const [scope, setScope] = useState(selectedRowData.scope?.toString());
+  const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>({
+    name: selectedRowData.emission_factor_name,
+    activity_id: selectedRowData.emission_factor_id,
+  } as EmissionsFactor);
+  const [contact, setContact] = useState<SimpleContact>({
+    name: selectedRowData.contact_name,
+    id: selectedRowData.contact_id,
+  } as SimpleContact);
 
-  const date = new Date(selectedRowData.getValue("date"));
+  const date = new Date(selectedRowData.date);
   const formattedDate =
     date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
 
-  const amount = parseFloat(selectedRowData.getValue("total_amount"));
+  const amount = selectedRowData.total_amount;
   const formattedAmount = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -49,9 +57,9 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
 
   async function reconcileItems() {
     const request: ReconcileRequest = {
-      lineItemId: selectedRowData.original.id,
+      lineItemId: selectedRowData.id,
       ...(scope && { scope: Number(scope) }),
-      ...(emissionsFactor?.activity_id && {
+      ...(emissionsFactor && {
         emissionsFactorId: emissionsFactor.activity_id,
       }),
       ...(contact?.id && { contactId: contact.id }),
@@ -62,12 +70,30 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
     onReconcileSuccess();
   }
 
+  const handleContactNavigation = () => {
+    if (contact) {
+      router.push(`/contacts/details?contactId=${contact.id}`);
+    }
+  };
+
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent className="sm:max-w-xl max-w-4xl p-8">
         <DialogHeader className="flex-row justify-between items-center">
           <div className="text-lg text-gray-500">{formattedDate}</div>
-          <DialogTitle className="text-lg text-gray-500">Actions</DialogTitle>
+          <DialogTitle className="text-lg text-gray-500">
+            {selectedRowData.description}
+          </DialogTitle>
+          {contact?.id && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleContactNavigation}
+              className="flex items-center gap-2"
+            >
+              View History
+            </Button>
+          )}
         </DialogHeader>
 
         <div className="flex mt-4 w-full">
@@ -75,7 +101,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
             <p className="text-md font-medium">CVS</p>
             <p className="text-3xl font-bold">{formattedAmount}</p>
             <p className="text-sm font-medium text-gray-500">
-              {selectedRowData.getValue("description")}
+              {selectedRowData.description}
             </p>
           </div>
 
@@ -86,7 +112,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
               </p>
               <Select onValueChange={(value) => setScope(value)}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select scope" />
+                  {scope ? `Scope ${scope}` : "Select scope"}
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="1">Scope 1</SelectItem>

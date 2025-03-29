@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Card,
@@ -6,17 +6,11 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import {
-  ChartConfig,
-  ChartContainer,
-} from "@/components/ui/chart"
-import useContactsTree from "@/hooks/useContactsTree"
-import { useDateRange } from "@/context/DateRangeContext"
-import { ResponsiveContainer } from "recharts"
-import TreeMap from "@/components/dashboard/treemap"
-
-
+} from "@/components/ui/card";
+import { ChartConfig, ChartContainer } from "@/components/ui/chart";
+import useContactsTree from "@/hooks/useContactsTree";
+import { useDateRange } from "@/context/DateRangeContext";
+import TreeMap from "@/components/dashboard/treemap";
 
 const chartConfig = {
   scope1: {
@@ -30,32 +24,46 @@ const chartConfig = {
   scope3: {
     label: "Scope 3",
     color: "rgba(180,242,171,255)",
-  }
-} satisfies ChartConfig
+  },
+} satisfies ChartConfig;
 
 export default function ContactEmissionsTreeMap() {
   const { treeMapData } = useContactsTree();
   const { dateRange } = useDateRange();
-  const formattedStartMonth = new Date(dateRange?.from ?? "").toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }) || ""
-  const formattedStartYear = new Date(dateRange?.from ?? "").getFullYear() || ""
-  const formattedEndMonth = new Date(dateRange?.to ?? "").toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }) || ""
-  const formattedEndYear = dateRange?.to ? new Date(dateRange.to).getFullYear() : ""
+  const formattedStartMonth =
+    new Date(dateRange?.from ?? "").toLocaleDateString("en-US", {
+      month: "short",
+      timeZone: "UTC",
+    }) || "";
+  const formattedStartYear =
+    new Date(dateRange?.from ?? "").getFullYear() || "";
+  const formattedEndMonth =
+    new Date(dateRange?.to ?? "").toLocaleDateString("en-US", {
+      month: "short",
+      timeZone: "UTC",
+    }) || "";
+  const formattedEndYear = dateRange?.to
+    ? new Date(dateRange.to).getFullYear()
+    : "";
 
-  
   return (
-    <Card > 
+    <Card>
       <CardHeader>
-        <CardTitle style={{ fontSize: '1.5rem'}}>Contact Emissions</CardTitle>
+        <CardTitle style={{ fontSize: "1.5rem" }}>Contact Emissions</CardTitle>
         <br />
-        <CardDescription>{formattedStartMonth} {formattedStartYear} - {formattedEndMonth} {formattedEndYear}</CardDescription>
+        <CardDescription>
+          {formattedStartMonth} {formattedStartYear} - {formattedEndMonth}{" "}
+          {formattedEndYear}
+        </CardDescription>
       </CardHeader>
-      <CardContent style={{ height: "100%", padding: "1rem", paddingTop: "0" }}>
-        <ChartContainer config={chartConfig} style={{ height: "100%", paddingTop: "0" }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <TreeMap data={treeMapData} />
-          </ResponsiveContainer>
+      <CardContent style={{ padding: "1rem" }}>
+        <ChartContainer
+          config={chartConfig}
+          className="md:max-h-[400px] w-full"
+        >
+          <TreeMap data={treeMapData} />
         </ChartContainer>
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -212,6 +212,53 @@ func (r *SummaryRepository) GetContactEmissions(ctx context.Context, req models.
 	}, nil
 }
 
+func (r *SummaryRepository) GetTopEmissions(ctx context.Context, req models.GetContactEmissionsSummaryRequest) (*[]models.GetTopEmissionsResponse, error) {
+	const query = `
+		SELECT 
+			ROW_NUMBER() OVER (ORDER BY COALESCE(SUM(co2), 0) DESC) AS rank,
+			ef.name,
+			COALESCE(SUM(co2), 0) AS total_co2
+		FROM 
+			line_item join emission_factor ef on line_item.emission_factor_id = ef.activity_id
+		WHERE
+			company_id = $1
+			AND date BETWEEN $2 AND $3
+		GROUP BY ef.name
+		ORDER BY total_co2 DESC
+		LIMIT 5;
+	`
+
+	rows, err := r.db.Query(ctx, query, req.CompanyID, req.StartDate.UTC(), req.EndDate.UTC())
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var topEmissions []models.GetTopEmissionsResponse
+
+	for rows.Next() {
+		var rank int
+		var emissionFactor string
+		var totalCO2 float64
+
+		if err := rows.Scan(&rank, &emissionFactor, &totalCO2); err != nil {
+			return nil, err
+		}
+
+		topEmissions = append(topEmissions, models.GetTopEmissionsResponse{
+			Rank:           rank,
+			EmissionFactor: emissionFactor,
+			TotalCO2:       totalCO2,
+		})
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return &topEmissions, nil
+}
+
 func NewSummaryRepository(db *pgxpool.Pool) *SummaryRepository {
 	return &SummaryRepository{
 		db,

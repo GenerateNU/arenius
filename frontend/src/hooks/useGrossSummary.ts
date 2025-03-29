@@ -1,8 +1,9 @@
+import { useCallback, useEffect, useState } from "react";
+
 import { useAuth } from "@/context/AuthContext";
 import { useDateRange } from "@/context/DateRangeContext";
 import { fetchGrossEmissions } from "@/services/dashboard";
 import { GrossSummary, GetGrossEmissionsRequest } from "@/types";
-import { useCallback, useEffect, useState } from "react";
 
 export default function useGrossSummary() {
   const [grossSummary, setGrossSummary] = useState<GrossSummary>(
