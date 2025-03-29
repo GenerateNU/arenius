@@ -1,4 +1,9 @@
-import { Contact, CreateContactRequest, GetContactsResponse, GetContactsRequest } from "../types";
+import {
+  Contact,
+  CreateContactRequest,
+  GetContactsResponse,
+  GetContactsRequest,
+} from "../types";
 import apiClient from "./apiClient";
 
 export async function createContact(
@@ -13,7 +18,6 @@ export async function createContact(
 
     const response = await apiClient.post("/contact", new_contact);
     return response.data;
-
   } catch (error) {
     console.error("Error creating contact:", error);
     return null;
@@ -24,10 +28,10 @@ function buildQueryParams(filters: GetContactsRequest) {
   const params: Record<string, string | number | undefined> = {};
 
   if (filters?.search_term) {
-    params.search_term = filters.search_term
+    params.search_term = filters.search_term;
   }
   if (filters?.pageIndex) {
-    params.page = filters.pageIndex + 1;
+    params.page = filters.pageIndex;
   }
   if (filters?.pageSize) {
     params.limit = filters.pageSize;
@@ -37,7 +41,7 @@ function buildQueryParams(filters: GetContactsRequest) {
 }
 
 export async function fetchContacts(
-  req: GetContactsRequest,
+  req: GetContactsRequest
 ): Promise<GetContactsResponse> {
   try {
     const response = await apiClient.get(`/contact/company/${req.company_id}`, {

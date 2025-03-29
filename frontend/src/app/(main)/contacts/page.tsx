@@ -3,8 +3,7 @@
 import ContactTable from "@/components/contacts/ContactTable";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { ContactsProvider, useContacts } from "@/context/ContactsContext";
-import { fetchContacts } from "@/services/contacts";
+import { ContactProvider, useContacts } from "@/context/ContactContext";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
@@ -13,9 +12,9 @@ import Image from "next/image";
 
 export default function Contacts() {
   return (
-    <ContactsProvider fetchFunction={fetchContacts}>
+    <ContactProvider>
       <ContactsContent />
-    </ContactsProvider>
+    </ContactProvider>
   );
 }
 

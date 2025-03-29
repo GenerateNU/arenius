@@ -1,35 +1,48 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import Image from "next/image";
 import { Search } from "lucide-react";
-import { LineItemsProvider, useLineItems } from "@/context/LineItemsContext";
+import {
+  ScopeKey,
+  TableKey,
+  TransactionProvider,
+  useTransactionsContext,
+} from "@/context/TransactionContext";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
-import { EmissionsProvider } from "@/context/EmissionsContext";
-
-import { fetchLineItems } from "@/services/lineItems";
-import ManualEntryModal from "@/components/transactions/ManualEntryModal";
 import ReconciledView from "@/components/transactions/ReconciledView";
 import UnreconciledView from "@/components/transactions/UnreconciledView";
+import ManualEntryModal from "@/components/transactions/ManualEntryModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { capitalizeFirstLetter } from "@/lib/utils";
+import { GetLineItemResponse } from "@/types";
 
 export default function Transactions() {
   return (
-    <EmissionsProvider>
-      <LineItemsProvider fetchFunction={fetchLineItems}>
-        <TransactionsContent />
-      </LineItemsProvider>
-    </EmissionsProvider>
+    <TransactionProvider>
+      <TableContent />
+    </TransactionProvider>
   );
 }
 
-function TransactionsContent() {
-  const [reconciled, setReconciled] = useState(true);
-  const { filters, setFilters } = useLineItems();
+function TableContent() {
+  const {
+    activePage,
+    setActiveTable,
+    tableData,
+    viewMode,
+    setViewMode,
+    filters,
+    setFilters,
+    error,
+  } = useTransactionsContext();
+
   const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(
     filters.searchTerm ?? ""
   );
 
+  // Update filters when the debounced search term changes
   useEffect(() => {
     if (filters.searchTerm !== debouncedTerm) {
       setFilters((prevFilters) => ({
@@ -37,66 +50,175 @@ function TransactionsContent() {
         searchTerm: debouncedTerm,
       }));
     }
-  }, [debouncedTerm, setFilters]);
-
-  // Only fetch line items when search term actually changes
-  useEffect(() => {
-    if (
-      (filters.searchTerm ||
-        filters.minPrice ||
-        filters.maxPrice ||
-        filters.emissionFactor ||
-        filters.company_id ||
-        filters.contact_id,
-      filters.dates)
-    ) {
-      // Fetch line items based on searchTerm or other filters
-      fetchLineItems(filters);
-    }
-  }, [filters]);
-
-  const updateReconciled = (update: boolean) => {
-    setReconciled(update);
-    setFilters({ ...filters, reconciled: update });
-  };
+  }, [debouncedTerm, setFilters, filters.searchTerm]);
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <p className={styles.formTitle}>Transactions</p>
-        <div className={styles.searchContainer}>
-          <div className={styles.searchWrapper}>
-            <Search className={styles.searchIcon} />
-            <Input
-              placeholder="Search your transactions..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.input}
-            />
-          </div>
-          <ManualEntryModal />
-        </div>
-      </div>
-      <div className={styles.reconciliationToggle}>
-        <Button
-          variant={reconciled ? "default" : "ghost"}
-          onClick={() => updateReconciled(true)}
-          className={styles.button}
-        >
-          Reconciled
-        </Button>
-        <Button
-          variant={reconciled ? "ghost" : "default"}
-          onClick={() => updateReconciled(false)}
-          className={styles.button}
-        >
-          Unreconciled
-        </Button>
-      </div>
-      {reconciled ? <ReconciledView /> : <UnreconciledView />}
+      <Header
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        tableData={tableData}
+        activePage={activePage}
+        setActiveTable={setActiveTable}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+      />
+      {error ? (
+        <p>{error}</p>
+      ) : (
+        <TableRenderer table={activePage} viewMode={viewMode} />
+      )}
     </div>
   );
 }
+
+function Header({
+  searchTerm,
+  setSearchTerm,
+  tableData,
+  activePage,
+  setActiveTable,
+  viewMode,
+  setViewMode,
+}: {
+  searchTerm: string;
+  setSearchTerm: (value: string) => void;
+  tableData: Record<TableKey | ScopeKey, GetLineItemResponse>;
+  activePage: string;
+  setActiveTable: (page: "reconciled" | "unreconciled" | "offsets") => void;
+  viewMode: "scoped" | "paginated";
+  setViewMode: (mode: "scoped" | "paginated") => void;
+}) {
+  return (
+    <div>
+      <div className={styles.header}>
+        <p className={styles.formTitle}>Transactions</p>
+        <div className={styles.searchContainer}>
+          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+          <ManualEntryModal />
+        </div>
+      </div>
+
+      <TableSelection
+        tableData={tableData}
+        activePage={activePage}
+        setActiveTable={setActiveTable}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+      />
+    </div>
+  );
+}
+
+function SearchBar({
+  searchTerm,
+  setSearchTerm,
+}: {
+  searchTerm: string;
+  setSearchTerm: (value: string) => void;
+}) {
+  return (
+    <div className={styles.searchWrapper}>
+      <Search className={styles.searchIcon} />
+      <Input
+        placeholder="Search your transactions..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className={styles.input}
+      />
+    </div>
+  );
+}
+
+function TableSelection({
+  tableData,
+  activePage,
+  setActiveTable,
+  viewMode,
+  setViewMode,
+}: {
+  tableData: Record<TableKey | ScopeKey, GetLineItemResponse>;
+  activePage: string;
+  setActiveTable: (page: "reconciled" | "unreconciled" | "offsets") => void;
+  viewMode: "scoped" | "paginated";
+  setViewMode: (mode: "scoped" | "paginated") => void;
+}) {
+  return (
+    <div className="flex justify-between">
+      <div className={styles.reconciliationToggle}>
+        {["reconciled", "unreconciled", "offsets"].map((page) => (
+          <Button
+            key={page}
+            variant={activePage === page ? "default" : "ghost"}
+            onClick={() =>
+              setActiveTable(page as "reconciled" | "unreconciled" | "offsets")
+            }
+            className={styles.button}
+          >
+            {capitalizeFirstLetter(page)}
+            {page === "unreconciled" && (
+              <span className="text-xs text-red-500 ml-1">
+                {tableData.unreconciled.total}
+              </span>
+            )}
+          </Button>
+        ))}
+      </div>
+      {activePage === "reconciled" && (
+        <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
+      )}
+    </div>
+  );
+}
+
+function ViewModeToggle({
+  viewMode,
+  setViewMode,
+}: {
+  viewMode: "scoped" | "paginated";
+  setViewMode: (mode: "scoped" | "paginated") => void;
+}) {
+  return (
+    <div className="flex cursor-pointer">
+      <Image
+        className={`${viewMode === "paginated" ? "bg-white" : "bg-gray-300"}`}
+        src="/scopedIcon.svg"
+        height={25}
+        width={25}
+        alt="View by scope"
+        onClick={() => setViewMode("scoped")}
+      />
+      <Image
+        className={`${viewMode === "scoped" ? "bg-white" : "bg-gray-300"}`}
+        src="/hamburger.svg"
+        height={25}
+        width={25}
+        alt="View all"
+        onClick={() => setViewMode("paginated")}
+      />
+    </div>
+  );
+}
+
+function TableRenderer({
+  table,
+  viewMode,
+}: {
+  table: string;
+  viewMode: "scoped" | "paginated";
+}) {
+  switch (table) {
+    case "reconciled":
+      return <ReconciledView viewMode={viewMode} />;
+    case "unreconciled":
+      return <UnreconciledView />;
+    case "offsets":
+      return <p>Carbon credit table.</p>;
+    default:
+      return <p>No table selected.</p>;
+  }
+}
+
 const styles = {
   container:
     "p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] flex-1",

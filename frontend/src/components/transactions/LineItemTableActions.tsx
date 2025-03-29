@@ -1,5 +1,16 @@
 import React, { useState } from "react";
 import { Table } from "@tanstack/react-table";
+
+import { useAuth } from "@/context/AuthContext";
+import { useTransactionsContext } from "@/context/TransactionContext";
+import { reconcileBatch, reconcileBatchOffset } from "@/services/lineItems";
+import {
+  BatchCreateCarbonOffsetsRequest,
+  EmissionsFactor,
+  LineItem,
+  ReconcileBatchRequest,
+} from "@/types";
+import EmissionsFactorSelector from "./CategorySelector";
 import {
   Select,
   SelectContent,
@@ -8,17 +19,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Button } from "../ui/button";
-import EmissionsFactorSelector from "./CategorySelector";
 import { Input } from "../ui/input";
-import {
-  BatchCreateCarbonOffsetsRequest,
-  EmissionsFactor,
-  LineItem,
-  ReconcileBatchRequest,
-} from "@/types";
-import { useLineItems } from "@/context/LineItemsContext";
-import { reconcileBatch, reconcileBatchOffset } from "@/services/lineItems";
-import { useAuth } from "@/context/AuthContext";
 
 type LineItemTableActionsProps = {
   table: Table<LineItem>;
@@ -29,7 +30,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
   const [carbon, setCarbon] = useState<number>();
   const { companyId } = useAuth();
-  const { fetchData } = useLineItems();
+  const { fetchTableData } = useTransactionsContext();
 
   async function handleReconciliation() {
     if (scope === "0") {
@@ -43,7 +44,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
     }
 
     resetState();
-    fetchData();
+    fetchTableData("unreconciled", {});
   }
 
   // Handles reconciliation for carbon offsets

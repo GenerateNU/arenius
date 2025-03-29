@@ -1,13 +1,17 @@
 "use client";
 import React from "react";
+
+import { useTransactionsContext } from "@/context/TransactionContext";
+import ContactFilter from "./ContactFilter";
 import { DatePickerWithRange } from "./DatePicker";
 import PriceFilter from "./PriceFilter";
-import ContactFilter from "./ContactFilter";
 import { Button } from "../ui/button";
-import { useLineItems } from "@/context/LineItemsContext";
 
 export default function LineItemTableFilters() {
-  const { setFilters } = useLineItems();
+  const { filters, setFilters } = useTransactionsContext();
+
+  const hasFilter =
+    filters.contact_id || filters.minPrice || filters.maxPrice || filters.dates;
 
   return (
     <div className="flex flex-col my-2">
@@ -17,9 +21,11 @@ export default function LineItemTableFilters() {
         <PriceFilter className={styles.filter} />
       </div>
       <div className="flex justify-end">
-        <Button variant="ghost" onClick={() => setFilters({})}>
-          Clear filters
-        </Button>
+        {hasFilter && (
+          <Button variant="ghost" onClick={() => setFilters({})}>
+            Clear filters
+          </Button>
+        )}
       </div>
     </div>
   );

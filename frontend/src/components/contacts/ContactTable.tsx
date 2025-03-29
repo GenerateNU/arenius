@@ -17,27 +17,25 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Contact } from "@/types";
-import { useContacts } from "@/context/ContactsContext";
+import { useContacts } from "@/context/ContactContext";
 import { columns } from "./columns";
 import { DataTablePagination } from "../ui/DataTablePagination";
 
 export default function ContactTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { data: contacts, pagination, setPagination } = useContacts();
+  const { data, pagination, setPagination } = useContacts();
 
   const table = useReactTable({
-    data: contacts.contacts || [],
+    data: data.contacts || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
-    rowCount: contacts.total,
-    onPaginationChange: setPagination,
+    rowCount: data.total,
     getRowId: (row: Contact) => row.id,
     state: {
       sorting,
-      pagination,
     },
   });
 
@@ -94,9 +92,15 @@ export default function ContactTable() {
         </Table>
       </div>
       <DataTablePagination
-        table={table}
-        pagination={pagination}
-        total_count={contacts.total}
+        page={pagination.pageIndex}
+        pageLimit={pagination.pageSize}
+        total_count={data.total}
+        setPage={(newPage) =>
+          setPagination({ ...pagination, pageIndex: newPage })
+        }
+        setPageLimit={(newLimit) =>
+          setPagination({ ...pagination, pageSize: newLimit })
+        }
       />
       <br />
     </>

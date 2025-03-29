@@ -31,6 +31,9 @@ function buildQueryParams(filters: LineItemFilters) {
   if (filters?.searchTerm) {
     params.search_term = filters.searchTerm;
   }
+  if (filters?.scope) {
+    params.scope = filters.scope;
+  }
   if (filters?.company_id) {
     params.company_id = filters.company_id;
   }
@@ -38,7 +41,7 @@ function buildQueryParams(filters: LineItemFilters) {
     params.contact_id = filters.contact_id;
   }
   if (filters?.pageIndex) {
-    params.page = filters.pageIndex + 1;
+    params.page = filters.pageIndex;
   }
   if (filters?.pageSize) {
     params.limit = filters.pageSize;

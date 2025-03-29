@@ -26,6 +26,7 @@ export interface LineItemFilters {
   searchTerm?: string;
   company_id?: string;
   contact_id?: string;
+  scope?: number;
   pageSize?: number;
   pageIndex?: number;
   reconciled?: boolean;
@@ -98,7 +99,7 @@ export type Contact = {
 
 export type GetContactsRequest = {
   company_id: string;
-  search_term: string;
+  search_term?: string;
   pageSize?: number;
   pageIndex?: number;
   unpaginated?: boolean;

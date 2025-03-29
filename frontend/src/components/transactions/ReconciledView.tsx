@@ -1,22 +1,40 @@
 import React, { useState } from "react";
-import { GetLineItemResponse } from "@/types";
-import { reconciledColumns } from "./columns";
 import { HelpCircle, ArrowRight } from "lucide-react";
+
+import { useTransactionsContext } from "@/context/TransactionContext";
+import { reconciledColumns } from "./columns";
 import LineItemTable from "./LineItemTable";
-import { useLineItems } from "@/context/LineItemsContext";
 
-const ReconciledView = () => {
-  const [seeScope, setSeeScope] = useState<number | undefined>();
+export type ReconciledViewProps = {
+  viewMode: "paginated" | "scoped";
+};
 
-  const { data } = useLineItems();
+const ReconciledView = ({ viewMode }: ReconciledViewProps) => {
+  const [seeScope, setSeeScope] = useState<1 | 2 | 3 | undefined>();
+
+  const { tableData } = useTransactionsContext();
+
+  console.log("tableData: ", tableData);
+
+  if (viewMode == "paginated") {
+    return (
+      <div>
+        <p className="font-bold text-lg py-4">All reconciled transactions</p>
+        <LineItemTable
+          activePage={"reconciled"}
+          activeTableData="reconciled"
+          columns={reconciledColumns}
+        />
+      </div>
+    );
+  }
 
   return (
     <div>
       {!seeScope &&
-        [1, 2, 3].map((scope) => (
+        ([1, 2, 3] as (1 | 2 | 3)[]).map((scope) => (
           <ScopeTablePreview
             key={scope}
-            data={data}
             scope={scope}
             handleClick={() => setSeeScope(scope)}
           />
@@ -24,7 +42,6 @@ const ReconciledView = () => {
 
       {seeScope && (
         <ScopeReconciledView
-          data={data}
           scope={seeScope}
           handleClick={() => setSeeScope(undefined)}
         />
@@ -34,18 +51,12 @@ const ReconciledView = () => {
 };
 
 const ScopeTablePreview = ({
-  data,
   scope,
   handleClick,
 }: {
-  data: GetLineItemResponse;
-  scope?: number;
+  scope: 1 | 2 | 3;
   handleClick?: () => void;
 }) => {
-  const filteredData = data.line_items
-    ?.filter((item) => item.scope === scope)
-    .slice(0, 5);
-
   return (
     <div className="mt-4 mb-8">
       {scope && (
@@ -64,9 +75,9 @@ const ScopeTablePreview = ({
         </div>
       )}
       <LineItemTable
+        activePage="reconciled"
+        activeTableData={`scope${scope}`}
         columns={reconciledColumns}
-        data={filteredData}
-        rowCount={filteredData?.length}
         paginated={false}
       />
     </div>
@@ -74,16 +85,12 @@ const ScopeTablePreview = ({
 };
 
 const ScopeReconciledView = ({
-  data,
   scope,
   handleClick,
 }: {
-  data: GetLineItemResponse;
-  scope?: number;
+  scope: 1 | 2 | 3;
   handleClick: () => void;
 }) => {
-  const filteredData = data.line_items?.filter((item) => item.scope === scope);
-
   return (
     <div className="mt-4 mb-8">
       <div className="flex justify-between">
@@ -93,9 +100,9 @@ const ScopeReconciledView = ({
         </p>
       </div>
       <LineItemTable
+        activePage="reconciled"
+        activeTableData={`scope${scope}`}
         columns={reconciledColumns}
-        data={filteredData}
-        rowCount={filteredData.length}
       />
     </div>
   );
