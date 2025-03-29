@@ -89,36 +89,6 @@ const recommendedScope: ColumnDef<LineItem> = {
   },
 };
 
-const acceptRecommendationButton: ColumnDef<LineItem> = {
-  id: "actions",
-  header: "",
-  cell: ({ row }) => {
-    const lineItem = row.original;
-
-    const handleAccept = async () => {
-      await handleRecommendation(lineItem.id, true);
-      window.location.reload();
-    };
-
-    const handleReject = async () => {
-      await handleRecommendation(lineItem.id, false);
-      window.location.reload();
-    };
-
-    return (
-      <div className="flex gap-2 justify-center items-center">
-        <button onClick={handleReject} className="text-red-600 hover:text-red-800">
-          <X size={18} />
-        </button>
-        <button onClick={handleAccept} className="text-green-600 hover:text-green-800">
-          <Check size={18} />
-        </button>
-      </div>
-    );
-  },
-  size: 100,
-};
-
 const contactColumn: ColumnDef<LineItem> = {
   accessorKey: "contact_name",
   header: ({ column }) => {
@@ -180,5 +150,4 @@ export const recommendationColumns: ColumnDef<LineItem>[] = [
   recommendedScope,
   contactColumn,
   amountColumn,
-  acceptRecommendationButton,
 ];
