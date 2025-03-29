@@ -24,6 +24,7 @@ type LineItemRepository interface {
 type EmissionsFactorRepository interface {
 	AddEmissionsFactors(ctx context.Context, emissionFactor []models.EmissionsFactor) ([]models.EmissionsFactor, error)
 	GetEmissionFactors(ctx context.Context, companyId string, searchTerm string) (*models.Categories, error)
+	PostFavoriteEmissionFactors(ctx context.Context, companyId string, emissionFactorId string, setFavorite bool) error
 }
 
 type SummaryRepository interface {

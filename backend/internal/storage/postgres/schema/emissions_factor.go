@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -106,17 +107,17 @@ func (r *EmissionsFactorRepository) AddEmissionsFactors(ctx context.Context, emi
 
 func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, companyId string, searchTerm string) (*models.Categories, error) {
 	searchQuery := ""
-	
+
 	if searchTerm != "" {
 		searchQuery += fmt.Sprintf(" AND (emission_factor.name ILIKE '%%%s%%' OR emission_factor.category ILIKE '%%%s%%')", searchTerm, searchTerm)
 	}
 
 	query := `
 		WITH latest_emission AS (
-		SELECT *,
-			ROW_NUMBER() OVER (PARTITION BY activity_id ORDER BY year DESC) AS rn
-		FROM emission_factor
-		WHERE region = 'US' AND unit_type = 'Money'` + searchQuery + `
+			SELECT *,
+				ROW_NUMBER() OVER (PARTITION BY activity_id ORDER BY year DESC) AS rn
+			FROM emission_factor
+			WHERE region = 'US' AND unit_type = 'Money'` + searchQuery + `
 		)
 		SELECT *
 		FROM latest_emission
@@ -135,17 +136,20 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 
 	historyEmissionsFactors := make([]models.EmissionsFactor, 0, 10)
 
-	categories := make([]models.Category, 0, len(categoryMap) + 1)
+	categories := make([]models.Category, 0, len(categoryMap)+1)
+
+	// Use a map for fast set membership check to check if emission factors are favorites
+	favoriteIdSet := make(map[string]string)
 
 	if companyId != "" {
 		favoriteQuery := `
-			SELECT id, activity_id, name, description, unit, unit_type, year, region, category, source, source_dataset
+			SELECT id, activity_id, name, description, unit, unit_type, year, region, category, source, source_dataset, TRUE as favorite, $1 as company_id
 			FROM emission_factor JOIN company_favorite ON emission_factor.id = company_favorite.emissions_factor_id
-			WHERE company_favorite.company_id = $1` + searchQuery + `
+			WHERE company_favorite.company_id = $2` + searchQuery + `
 			ORDER BY emission_factor.name;
 		`
 
-		favoriteRows, favoriteErr := r.db.Query(ctx, favoriteQuery, companyId)
+		favoriteRows, favoriteErr := r.db.Query(ctx, favoriteQuery, companyId, companyId)
 		if favoriteErr != nil {
 			return nil, favoriteErr
 		}
@@ -161,12 +165,17 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 		}
 
 		favoriteEmissionsFactors = favorites
+
+		// populate the id map
+		for _, factor := range favoriteEmissionsFactors {
+			favoriteIdSet[factor.Id] = factor.Id
+		}
 	}
 
 	for rows.Next() {
-		
+
 		var emissionsFactor models.EmissionsFactor
-		var rn int // this is unused 
+		var rn int // this is unused
 		err := rows.Scan(
 			&emissionsFactor.Id,
 			&emissionsFactor.ActivityId,
@@ -184,6 +193,12 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 		if err != nil {
 			return nil, err
 		}
+		_, exists := favoriteIdSet[emissionsFactor.Id]
+		emissionsFactor.Favorite = &exists
+		if companyId != "" {
+			emissionsFactor.CompanyId = &companyId
+		}
+
 		categoryMap[emissionsFactor.Category] = append(categoryMap[emissionsFactor.Category], emissionsFactor)
 	}
 
@@ -193,7 +208,7 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 
 	for categoryName, factors := range categoryMap {
 		categories = append(categories, models.Category{
-			Name: categoryName,
+			Name:             categoryName,
 			EmissionsFactors: factors,
 		})
 	}
@@ -203,14 +218,53 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 	})
 
 	categoriesSummary := models.Categories{
-		All: categories,
-		Favorites: models.Category{ Name: "Favorites", EmissionsFactors: favoriteEmissionsFactors },
-		History: models.Category{ Name: "History", EmissionsFactors: historyEmissionsFactors },
+		All:       categories,
+		Favorites: models.Category{Name: "Favorites", EmissionsFactors: favoriteEmissionsFactors},
+		History:   models.Category{Name: "History", EmissionsFactors: historyEmissionsFactors},
 	}
 
 	return &categoriesSummary, nil
 }
 
+func (r *EmissionsFactorRepository) PostFavoriteEmissionFactors(ctx context.Context, companyId string, emissionFactorId string, setFavorite bool) error {
+	if setFavorite {
+		insertQuery := `
+			WITH inserted AS (
+				INSERT INTO company_favorite (company_id, emissions_factor_id, date)
+				VALUES ($1, $2, $3)
+				ON CONFLICT (company_id, emissions_factor_id) DO NOTHING
+				RETURNING *
+			)
+			SELECT * FROM inserted
+			UNION ALL
+			SELECT * FROM company_favorite WHERE company_id = $1 AND emissions_factor_id = $2
+			LIMIT 1;
+		`
+
+		rows, err := r.db.Query(ctx, insertQuery, companyId, emissionFactorId, time.Now().UTC())
+		if err != nil {
+			return fmt.Errorf("error inserting company favorite: %w", err)
+		}
+		defer rows.Close()
+
+		return nil
+	} else {
+		deleteQuery := `
+			DELETE FROM company_favorite
+			WHERE company_id = $1
+			AND emissions_factor_id = $2
+			RETURNING *;
+		`
+
+		rows, err := r.db.Query(ctx, deleteQuery, companyId, emissionFactorId)
+		if err != nil {
+			return fmt.Errorf("error deleting company favorite: %w", err)
+		}
+		defer rows.Close()
+
+		return nil
+	}
+}
 
 func NewEmissionsFactorRepository(db *pgxpool.Pool) *EmissionsFactorRepository {
 	return &EmissionsFactorRepository{
