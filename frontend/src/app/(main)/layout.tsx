@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import onboardingLogo from "@/assets/onboarding-logo.png";
 import ContactsIcon from "@/components/icons/contacts";
 import DashboardIcon from "@/components/icons/dashboard";
