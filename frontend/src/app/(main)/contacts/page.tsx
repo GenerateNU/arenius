@@ -3,8 +3,7 @@
 import ContactTable from "@/components/contacts/ContactTable";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { ContactsProvider, useContacts } from "@/context/ContactsContext";
-import { fetchContacts } from "@/services/contacts";
+import { ContactProvider, useContacts } from "@/context/ContactContext";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
@@ -13,9 +12,9 @@ import Image from "next/image";
 
 export default function Contacts() {
   return (
-    <ContactsProvider fetchFunction={fetchContacts}>
+    <ContactProvider>
       <ContactsContent />
-    </ContactsProvider>
+    </ContactProvider>
   );
 }
 
@@ -26,8 +25,10 @@ function ContactsContent() {
   );
 
   useEffect(() => {
-    setFilters({ ...filters, search_term: debouncedTerm });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      search_term: debouncedTerm,
+    }));
   }, [debouncedTerm, setFilters]);
 
   return (
@@ -36,12 +37,12 @@ function ContactsContent() {
         <p className={styles.formTitle}>Contacts</p>
         <div className="relative w-80 justify-start mb-4">
           <Search className={styles.searchIcon} />
-              <Input
-                placeholder="Search your contacts..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={styles.input}
-              />
+          <Input
+            placeholder="Search your contacts..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.input}
+          />
         </div>
         <div className="flex space-x-4 mb-4 ml-auto">
           <Link href="/contacts/new" className="mr-4">
@@ -51,7 +52,7 @@ function ContactsContent() {
                 alt=""
                 width={13}
                 height={13}
-                className= "mr-1"
+                className="mr-1"
               />
               <span>Add Contact</span>
             </button>

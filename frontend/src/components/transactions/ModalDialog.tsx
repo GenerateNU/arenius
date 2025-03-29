@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { reconcile } from "@/services/lineItems";
 import { Contact, EmissionsFactor, LineItem, ReconcileRequest } from "@/types";
 import { Row } from "@tanstack/react-table";
@@ -13,10 +18,8 @@ import {
   SelectValue,
 } from "../ui/select";
 import EmissionsFactorSelector from "./CategorySelector";
+import { ContactProvider } from "@/context/ContactContext";
 import ContactsSelector from "./ContactsSelector";
-import { ExternalLink } from "lucide-react";
-import { ContactsProvider } from "@/context/ContactsContext";
-import { fetchContacts } from "@/services/contacts";
 
 interface ModalDialogProps {
   selectedRowData: Row<LineItem>;
@@ -31,15 +34,13 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
   setIsDialogOpen,
   onReconcileSuccess,
 }) => {
-
-  const router = useRouter();
-
   const [scope, setScope] = useState("");
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor>();
   const [contact, setContact] = useState<Contact>();
 
   const date = new Date(selectedRowData.getValue("date"));
-  const formattedDate = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+  const formattedDate =
+    date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
 
   const amount = parseFloat(selectedRowData.getValue("total_amount"));
   const formattedAmount = new Intl.NumberFormat("en-US", {
@@ -50,11 +51,13 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
   async function reconcileItems() {
     const request: ReconcileRequest = {
       lineItemId: selectedRowData.original.id,
-      ...(scope && { scope: Number(scope) }), 
-      ...(emissionsFactor?.activity_id && { emissionsFactorId: emissionsFactor.activity_id }),
-      ...(contact?.id && { contactId: contact.id}) 
+      ...(scope && { scope: Number(scope) }),
+      ...(emissionsFactor?.activity_id && {
+        emissionsFactorId: emissionsFactor.activity_id,
+      }),
+      ...(contact?.id && { contactId: contact.id }),
     };
-  
+
     await reconcile(request);
     setIsDialogOpen(false);
     onReconcileSuccess();
@@ -69,7 +72,6 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent className="sm:max-w-xl max-w-4xl p-8">
-
         <DialogHeader className="flex-row justify-between items-center">
           <div className="text-lg text-gray-500">{formattedDate}</div>
           {/* <DialogTitle className="text-lg text-gray-500">Actions</DialogTitle> */}
@@ -94,13 +96,16 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
           <div className="flex flex-col space-y-2 w-1/3">
             <p className="text-md font-medium">CVS</p>
             <p className="text-3xl font-bold">{formattedAmount}</p>
-            <p className="text-sm font-medium text-gray-500">{selectedRowData.getValue('description')}</p>
+            <p className="text-sm font-medium text-gray-500">
+              {selectedRowData.getValue("description")}
+            </p>
           </div>
 
           <div className="flex-1 space-y-4">
-
             <div className="space-y-2">
-              <p className="text-md font-small text-gray-500">Emissions Scope</p>
+              <p className="text-md font-small text-gray-500">
+                Emissions Scope
+              </p>
               <Select onValueChange={(value) => setScope(value)}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select scope" />
@@ -114,7 +119,9 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
             </div>
 
             <div className="space-y-2">
-              <p className="text-md font-small text-gray-500">Emissions Factor</p>
+              <p className="text-md font-small text-gray-500">
+                Emissions Factor
+              </p>
               <EmissionsFactorSelector
                 emissionsFactor={emissionsFactor}
                 setEmissionsFactor={setEmissionsFactor}
@@ -123,13 +130,13 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
 
             <div className="space-y-2">
               <p className="text-md font-small text-gray-500">Contact Name</p>
-                <ContactsProvider fetchFunction={fetchContacts}>
+              <ContactProvider>
                 <ContactsSelector
                   contact={contact}
                   setContact={setContact}
-                  variant='outline'
+                  variant="outline"
                 />
-                </ContactsProvider>
+              </ContactProvider>
             </div>
 
             <div className="mt-4">
@@ -139,9 +146,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
             </div>
           </div>
         </div>
-
       </DialogContent>
     </Dialog>
-
   );
 };

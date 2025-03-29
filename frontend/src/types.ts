@@ -9,6 +9,7 @@ export type LineItem = {
   scope?: number;
   contact_name?: string;
   co2?: number;
+  date: Date;
 };
 
 export type GetLineItemResponse = {
@@ -25,6 +26,7 @@ export interface LineItemFilters {
   searchTerm?: string;
   company_id?: string;
   contact_id?: string;
+  scope?: number;
   pageSize?: number;
   pageIndex?: number;
   reconciled?: boolean;
@@ -97,7 +99,7 @@ export type Contact = {
 
 export type GetContactsRequest = {
   company_id: string;
-  search_term: string;
+  search_term?: string;
   pageSize?: number;
   pageIndex?: number;
   unpaginated?: boolean;
@@ -159,4 +161,23 @@ export type GetContactEmissionsRequest = {
   contact_id: string;
   start_date: Date;
   end_date: Date;
+};
+
+export type CarbonOffset = {
+  id: number;
+  carbon_amount_kg: number;
+  company_id: string;
+  source: string;
+  purchase_date: Date;
+};
+
+export type CreateCarbonOffsetRequest = {
+  carbon_amount_kg: number;
+  company_id: string;
+  source: string;
+  purchase_date: Date;
+};
+
+export type BatchCreateCarbonOffsetsRequest = {
+  carbon_offsets: CreateCarbonOffsetRequest[];
 };
