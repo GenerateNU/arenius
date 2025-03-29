@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="relative overflow-x-hidden flex-1">
-      <div className="z-20 flex absolute top-0 left-0 w-full p-4 space-x-8 bg-white">
+      <div key= "val1" className="z-20 flex absolute top-0 left-0 w-full p-4 space-x-8 bg-white">
         <div>
           <Image
             src={onboardingLogo}
@@ -32,7 +32,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             height={200}
           />
         </div>
-        <div className="flex justify-end w-full max-w-full p-4 space-x-4">
+        <div key="val" className="flex justify-end w-full max-w-full p-4 space-x-4">
           {links.map((val) => 
             <>
               <div key={`ICON-${val.href}`}className="z-1">
