@@ -152,7 +152,7 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId s
 	query += fmt.Sprintf(" WHERE id = $%d", argCount)
 	args = append(args, lineItemId)
 
-	query += " RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope"
+	query += " RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope, recommended_emission_factor_id, recommended_scope"
 
 	rows, err := r.db.Query(ctx, query, args...)
 
@@ -176,7 +176,7 @@ func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req model
 		SET co2 = $1,
 		    co2_unit = $2
 		WHERE id = $3
-		RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope
+		RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope, recommended_emission_factor_id, recommended_scope;
 	`
 
 	rows, _ := r.db.Query(ctx, query, req.CO2, req.CO2Unit, req.LineItemId)
