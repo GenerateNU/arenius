@@ -25,7 +25,6 @@ export default function CustomForm() {
         firstName: values.firstName,
         lastName: values.lastName,
       });
-
       if (response.response && (response.response.status === 201 || response.response.status === 200)) {
         setUseForm(false);
       }
