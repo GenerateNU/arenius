@@ -7,7 +7,6 @@ import {
   SortingState,
   useReactTable,
   getSortedRowModel,
-  Row,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -17,20 +16,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Image from "next/image";
 import { Contact } from "@/types";
 import { useContacts } from "@/context/ContactContext";
 import { columns } from "./columns";
 import { DataTablePagination } from "../ui/DataTablePagination";
-import router from "next/router";
+import { useRouter } from "next/navigation"; // Use useRouter here
 
 export default function ContactTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const { data, pagination, setPagination } = useContacts();
+  const router = useRouter(); // Get router here
 
   const table = useReactTable({
     data: data.contacts || [],
-    columns,
+    columns: columns(router), // Pass router as a prop to columns
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
@@ -41,10 +40,6 @@ export default function ContactTable() {
       sorting,
     },
   });
-
-  const handleContactNavigation = (row: Row<Contact>) => {
-    router.push(`/contacts/detail/${row.original.id}`);
-  }
 
   return (
     <>
@@ -83,16 +78,6 @@ export default function ContactTable() {
                       )}
                     </TableCell>
                   ))}
-                  <TableCell>
-                    <Image
-                      src="/arrow.svg"
-                      alt="Reconcile"
-                      width={24}
-                      height={24}
-                      onClick={() => handleContactNavigation(row)}
-                      style={{ cursor: "pointer" }}
-                    />
-                  </TableCell>
                 </TableRow>
               ))
             ) : (

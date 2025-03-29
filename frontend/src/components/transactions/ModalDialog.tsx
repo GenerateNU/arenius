@@ -77,7 +77,6 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
       <DialogContent className="sm:max-w-xl max-w-4xl p-8">
         <DialogHeader className="flex-row justify-between items-center">
           <div className="text-lg text-gray-500">{formattedDate}</div>
-          {/* <DialogTitle className="text-lg text-gray-500">Actions</DialogTitle> */}
           <DialogTitle className="text-lg text-gray-500">
             {selectedRowData.getValue("description")}
           </DialogTitle>

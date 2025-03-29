@@ -114,7 +114,7 @@ export default function ContactDetailsContent() {
   const initials = contact.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
   return (
-    <div className="p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] flex-1">
+    <div className="sm:p-20 font-[family-name:var(--font-geist-sans)] flex-1">
       {/* Top navigation bar */}
       <div className="bg-white p-4 flex items-center justify-between border-b sticky top-0 z-10">
         <div className="flex items-center gap-4">
@@ -133,7 +133,7 @@ export default function ContactDetailsContent() {
         </Button>
       </div>
 
-      <div className="p-6 max-w-7xl mx-auto">
+      <div className="p-6 mx-auto">
         {/* Main content area */}
         <div className="grid grid-cols-1 gap-6">
           {/* Contact card */}
