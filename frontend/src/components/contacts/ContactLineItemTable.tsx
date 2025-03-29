@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
+import React, { useState } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -9,7 +9,7 @@ import {
   SortingState,
   ColumnDef,
   Row,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 import {
   Table,
   TableBody,
@@ -17,26 +17,26 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { ArrowUpDown } from "lucide-react"
-import { LineItem } from "@/types"
-import Image from "next/image"
-import { ModalDialog } from "@/components/transactions/ModalDialog"
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { ArrowUpDown } from "lucide-react";
+import { LineItem } from "@/types";
+import Image from "next/image";
+import { ModalDialog } from "@/components/transactions/ModalDialog";
 
 interface ContactLineItemTableProps {
-  data: LineItem[]
+  data: LineItem[];
 }
 
 export function ContactLineItemTable({ data }: ContactLineItemTableProps) {
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [selectedRow, setSelectedRow] = useState<Row<LineItem> | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [selectedRow, setSelectedRow] = useState<Row<LineItem> | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const openEditDialog = (row: Row<LineItem>) => {
-    setSelectedRow(row)
-    setIsDialogOpen(true)
-  }
+    setSelectedRow(row);
+    setIsDialogOpen(true);
+  };
 
   const table = useReactTable({
     data,
@@ -45,7 +45,7 @@ export function ContactLineItemTable({ data }: ContactLineItemTableProps) {
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
     state: { sorting },
-  })
+  });
 
   return (
     <>
@@ -58,7 +58,10 @@ export function ContactLineItemTable({ data }: ContactLineItemTableProps) {
                   <TableHead key={header.id}>
                     {header.isPlaceholder
                       ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -70,7 +73,10 @@ export function ContactLineItemTable({ data }: ContactLineItemTableProps) {
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </TableCell>
                   ))}
                   <TableCell>
@@ -87,7 +93,10 @@ export function ContactLineItemTable({ data }: ContactLineItemTableProps) {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={contactDetailsColumns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={contactDetailsColumns.length}
+                  className="h-24 text-center"
+                >
                   No results.
                 </TableCell>
               </TableRow>
@@ -98,20 +107,26 @@ export function ContactLineItemTable({ data }: ContactLineItemTableProps) {
 
       {selectedRow && (
         <ModalDialog
-          selectedRowData={selectedRow}
+          selectedRowData={selectedRow.original}
           isDialogOpen={isDialogOpen}
-          setIsDialogOpen={setIsDialogOpen} 
-          onReconcileSuccess={() => setIsDialogOpen(false)} />
+          setIsDialogOpen={setIsDialogOpen}
+          onReconcileSuccess={() => setIsDialogOpen(false)}
+        />
       )}
     </>
-  )
+  );
 }
 
 export const contactDetailsColumns: ColumnDef<LineItem>[] = [
   {
     accessorKey: "date",
     header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() ? undefined : true)}>
+      <Button
+        variant="ghost"
+        onClick={() =>
+          column.toggleSorting(column.getIsSorted() ? undefined : true)
+        }
+      >
         Date <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
@@ -120,7 +135,12 @@ export const contactDetailsColumns: ColumnDef<LineItem>[] = [
   {
     accessorKey: "contact_name",
     header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() ? undefined : true)}>
+      <Button
+        variant="ghost"
+        onClick={() =>
+          column.toggleSorting(column.getIsSorted() ? undefined : true)
+        }
+      >
         Name <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
@@ -136,10 +156,15 @@ export const contactDetailsColumns: ColumnDef<LineItem>[] = [
   {
     accessorKey: "total_amount",
     header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() ? undefined : true)}>
+      <Button
+        variant="ghost"
+        onClick={() =>
+          column.toggleSorting(column.getIsSorted() ? undefined : true)
+        }
+      >
         Amount <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
     cell: ({ getValue }) => `$${(getValue() as number).toFixed(2)}`,
   },
-]
+];

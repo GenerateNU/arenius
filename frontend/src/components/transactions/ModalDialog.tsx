@@ -19,7 +19,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui/select";
 import EmissionsFactorSelector from "./CategorySelector";
 import { ContactProvider } from "@/context/ContactContext";
 import ContactsSelector from "./ContactsSelector";
-import { useTransactionsContext } from "@/context/TransactionContext";
 import { useRouter } from "next/navigation";
 
 interface ModalDialogProps {
@@ -45,7 +44,6 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
     name: selectedRowData.contact_name,
     id: selectedRowData.contact_id,
   } as SimpleContact);
-  const { fetchAllData } = useTransactionsContext();
 
   const date = new Date(selectedRowData.date);
   const formattedDate =
@@ -70,8 +68,6 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
     await reconcile(request);
     setIsDialogOpen(false);
     onReconcileSuccess();
-
-    fetchAllData();
   }
 
   const handleContactNavigation = () => {

@@ -75,6 +75,8 @@ export default function LineItemTable({
     },
   });
 
+  const { fetchAllData } = useTransactionsContext();
+
   // boolean determining if any row is selected
   const rowIsSelected = table
     .getRowModel()
@@ -86,7 +88,7 @@ export default function LineItemTable({
   };
 
   const handleReconcileSuccess = () => {
-    fetchTableData(activePage, {});
+    fetchAllData();
     setIsDialogOpen(false);
   };
 
