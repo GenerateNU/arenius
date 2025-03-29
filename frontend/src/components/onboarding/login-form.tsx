@@ -17,9 +17,8 @@ import {
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import Image from 'next/image';
-import logo from '../../assets/onboarding-logo.png'; 
-
+import Image from "next/image";
+import logo from "../../assets/onboarding-logo.png";
 
 const formSchema = z.object({
   email: z.string(),
@@ -46,24 +45,19 @@ export default function LoginForm() {
       });
 
       if (response?.response?.status === 200) {
-        router.push("/transactions");
+        router.push("/dashboard");
       }
     } catch (err) {
       console.error("An error occured: ", err);
     }
   }
-  
 
   return (
     <div className={styles.formContainer}>
-        <div className="flex flex-col justify-start items-center ">
+      <div className="flex flex-col justify-start items-center ">
         <h2 className="text-2xl mb-4">Welcome to</h2>
-        <Image 
-          src={logo} 
-          alt="Onboarding Logo" 
-          className={styles.logo} 
-        />
-        </div>
+        <Image src={logo} alt="Onboarding Logo" className={styles.logo} />
+      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className={styles.form}>
           <FormField
@@ -132,5 +126,5 @@ const styles = {
   error: "mt-4 text-red-500 text-center text-sm",
   link: "text-blue-500 hover:underline",
   forgotPassword: "text-black-500 hover:underline",
-  logo: "w-100 pb-20 ", 
+  logo: "w-100 pb-20 ",
 };

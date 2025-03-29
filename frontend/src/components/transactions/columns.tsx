@@ -1,7 +1,7 @@
-import { LineItem } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { ColumnHeader } from "../ui/columnHeader";
+import { LineItem } from "@/types";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ColumnHeader } from "../ui/columnHeader";
 
 const selectColumn: ColumnDef<LineItem> = {
   id: "select",
