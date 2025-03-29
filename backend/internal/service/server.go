@@ -111,7 +111,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	})
 
 	// Apply Middleware to Protected Routes
-	// app.Use(supabase_auth.Middleware(&config.Supabase))
+	app.Use(supabase_auth.Middleware(&config.Supabase))
 
 	// cannot
 	app.Get("/health", func(c *fiber.Ctx) error {
