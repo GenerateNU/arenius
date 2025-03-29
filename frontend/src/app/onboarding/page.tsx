@@ -9,7 +9,7 @@ import { SignupRequest } from "@/types";
 
 export default function CustomForm() {
   const [useForm, setUseForm] = useState(true);
-  const { signup } = useAuth();
+  const { signup, isLoginError } = useAuth();
 
   
   async function onSubmit(values: SignupRequest) {
@@ -26,6 +26,11 @@ export default function CustomForm() {
         lastName: values.lastName,
       });
 
+      if (isLoginError) {
+        console.log("AHHHHHHHHHHHHHHHHHH");
+      }
+      console.log("WAHHHH");
+      
       if (response.response && (response.response.status === 201 || response.response.status === 200)) {
         setUseForm(false);
       }
