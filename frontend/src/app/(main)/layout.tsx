@@ -5,9 +5,9 @@ import onboardingLogo from "@/assets/onboarding-logo.png";
 import ContactsIcon from "@/components/icons/contacts";
 import DashboardIcon from "@/components/icons/dashboard";
 import TransactionsIcon from "@/components/icons/transactions";
-import ContactsIcon from "@/components/icons/contacts";
 import { usePathname } from "next/navigation";
 import { ProfileDropdown } from "@/components/user_profile/ProfileDropdown";
+import Link from "next/link";
 
 interface LayoutProps {
   children: ReactNode;
