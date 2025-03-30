@@ -16,9 +16,10 @@ import { useEffect, useState } from "react";
 export function ProfileDropdown() {
 
     const router = useRouter();
+    const [profilePhoto, setPhoto] = useState("user_profile.svg"); // Store profile photo URL
 
     const handleClick = () => {
-        router.push(`/user_profile`);
+        router.push(`/profile`);
     };
 
     const { userId } = useAuth();
@@ -27,8 +28,14 @@ export function ProfileDropdown() {
     useEffect(() => {
         if (userId) {
             const fetchData = async () => {
-                const fetchedUser = await fetchUser(userId);
-                setUser(fetchedUser)
+                if (userId) {
+                    const fetchedUser = await fetchUser(userId);
+                    setUser(fetchedUser);
+                    console.log("----", fetchedUser);
+                    if (fetchedUser && fetchedUser.photo_url) {
+                        setPhoto(fetchedUser.photo_url); // Safely access photo_url
+                    }
+                }
             };
             fetchData();
             console.log(user)
@@ -43,8 +50,9 @@ export function ProfileDropdown() {
         <div className="z-1 relative">
             <DropdownMenu>
                 <DropdownMenuTrigger>
+                    {/* Use the profile photo or fallback to default */}
                     <Image
-                        src="/user_profile.svg"
+                        src={profilePhoto || "/user_profile.svg"} // Fallback image if no photo is available
                         alt="User Profile"
                         width={30}
                         height={30}
@@ -58,8 +66,9 @@ export function ProfileDropdown() {
                                 <p className="text-sm text-gray-600">dessy@dessy.com</p>
                             </div>
                             <div className="mt-4">
+                                {/* Profile photo in the dropdown */}
                                 <Image
-                                    src="/user_profile.svg"
+                                    src={profilePhoto || "/user_profile.svg"} // Fallback image if no photo is available
                                     alt="Profile"
                                     width={180}
                                     height={180}
@@ -93,6 +102,3 @@ export function ProfileDropdown() {
     );
 }
 
-const styles = {
-  chevronDown: "h-4 w-4 opacity-50",
-};

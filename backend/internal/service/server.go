@@ -101,22 +101,30 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	app.Route("/auth", func(router fiber.Router) {
 		router.Post("/signup", SupabaseAuthHandler.SignUp)
 		router.Post("/login", SupabaseAuthHandler.Login)
+		router.Post("/forgot-password", SupabaseAuthHandler.ForgotPassword)
+		router.Post("/reset-password", SupabaseAuthHandler.ResetPassword)
+		router.Post("/sign-out", SupabaseAuthHandler.SignOut)
+		router.Delete("/delete-account/:id", func(c *fiber.Ctx) error {
+			id := c.Params("id")
+			return SupabaseAuthHandler.DeleteAccount(c, id)
+		})
 	})
 
 	// cannot
 	offsetHandler := carbonOffset.NewHandler(repo.Offset)
 	app.Route("/carbon-offset", func(r fiber.Router) {
+		r.Get("/", offsetHandler.GetCarbonOffsets)
 		r.Post("/create", offsetHandler.PostCarbonOffset)
 		r.Post("/batch", offsetHandler.BatchCreateCarbonOffsets)
 	})
-
-	// Apply Middleware to Protected Routes
-	app.Use(supabase_auth.Middleware(&config.Supabase))
 
 	// cannot
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.SendStatus(http.StatusOK)
 	})
+
+	// Apply Middleware to Protected Routes
+	app.Use(supabase_auth.Middleware(&config.Supabase))
 
 	// cannot
 	lineItemHandler := lineItem.NewHandler(repo.LineItem)
@@ -124,8 +132,13 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Get("/", lineItemHandler.GetLineItems)
 		r.Patch("/batch", lineItemHandler.BatchUpdateLineItems)
 		r.Patch("/:id", lineItemHandler.ReconcileLineItem)
+		r.Patch("/handle-recommendation/:id", lineItemHandler.HandleRecommendation)
 		r.Post("/", lineItemHandler.PostLineItem)
+		r.Get("/get-recommendations", lineItemHandler.AutoReconcileLineItem)
 	})
+
+	// Apply Middleware to Protected Routes
+	app.Use(supabase_auth.Middleware(&config.Supabase))
 
 	// cannot
 	contactHandler := contact.NewHandler(repo.Contact)
@@ -140,6 +153,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	app.Route("/emissions-factor", func(r fiber.Router) {
 		r.Get("/", emissionsFactorHandler.GetEmissionFactors)
 		r.Patch("/populate", emissionsFactorHandler.PopulateEmissions)
+		r.Post("/favorite", emissionsFactorHandler.PostFavoriteEmission)
 	})
 
 	userHandler := user.NewHandler(repo.User)
@@ -159,8 +173,9 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	summaryHandler := summary.NewHandler(repo.Summary)
 	app.Route("/summary", func(r fiber.Router) {
 		r.Get("/gross", summaryHandler.GetGrossSummary)
-		r.Get("/contact/emissions", summaryHandler.GetContactEmissions)
 		r.Get("/net", summaryHandler.GetNetSummary)
+		r.Get("/contact/emissions", summaryHandler.GetContactEmissions)
+		r.Get("/scopes", summaryHandler.GetScopeBreakdown)
 		r.Get("/top-emissions", summaryHandler.GetTopEmissions)
 	})
 

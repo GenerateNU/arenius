@@ -55,6 +55,38 @@ const emissionFactorColumn: ColumnDef<LineItem> = {
   size: 200,
 };
 
+const recommendedEmissionFactorColumn: ColumnDef<LineItem> = {
+  accessorKey: "recommended_emission_factor_name",
+  header: ({ column }) => {
+    return <ColumnHeader name="Emissions Factor" column={column} />;
+  },
+  size: 200,
+  cell: ({ row }) => {
+    const value = row.getValue("recommended_emission_factor_name") as string;
+    return (
+      <span className="px-2 py-1 rounded-md bg-green-100 text-green-900 text-sm font-medium">
+        {value}
+      </span>
+    );
+  },
+};
+
+const recommendedScope: ColumnDef<LineItem> = {
+  accessorKey: "recommended_scope",
+  header: ({ column }) => {
+    return <ColumnHeader name="Scope" column={column} />;
+  },
+  size: 100,
+  cell: ({ row }) => {
+    const value = row.getValue("recommended_scope") as number;
+    return (
+      <span className="px-2 py-1 rounded-md bg-green-100 text-green-900 text-sm font-medium">
+        {value}
+      </span>
+    );
+  },
+};
+
 const contactColumn: ColumnDef<LineItem> = {
   accessorKey: "contact_name",
   header: ({ column }) => {
@@ -108,4 +140,21 @@ export const reconciledColumns: ColumnDef<LineItem>[] = [
   co2Column,
   contactColumn,
   amountColumn,
+];
+
+export const recommendationColumns: ColumnDef<LineItem>[] = [
+  dateColumn,
+  descriptionColumn,
+  recommendedEmissionFactorColumn,
+  recommendedScope,
+  contactColumn,
+  amountColumn,
+];
+
+export const offsetColumns: ColumnDef<LineItem>[] = [
+  dateColumn,
+  descriptionColumn, // Not on carbon offsets table
+  co2Column, // We have a total_amount_kg field instead, this needs its own column
+  contactColumn, // Not on carbon offsets table (there is a source field though)
+  amountColumn, // Not on carbon offets table
 ];

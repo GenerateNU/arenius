@@ -7,7 +7,10 @@ export type LineItem = {
   currency_code: string;
   emission_factor_name?: string;
   emission_factor_id?: string;
+  recommended_emission_factor_name?: string;
+  recommended_emission_factor_id?: string;
   scope?: number;
+  recommended_scope?: number;
   contact_name?: string;
   contact_id?: string;
   co2?: number;
@@ -31,13 +34,21 @@ export interface LineItemFilters {
   scope?: number;
   pageSize?: number;
   pageIndex?: number;
-  reconciled?: boolean;
+  reconciliationStatus?:
+    | "recommended"
+    | "reconciled"
+    | "unreconciled"
+    | "offsets";
 }
 
 export type CreateLineItemRequest = {
   description: string;
   total_amount: number;
   currency_code: string;
+  contact_id: string;
+  emission_factor_id: string;
+  scope?: string;
+  date: Date;
 };
 
 export type LoginRequest = {
@@ -68,6 +79,9 @@ export type ReconcileRequest = {
 export type EmissionsFactor = {
   name: string;
   activity_id: string;
+  favorite?: boolean;
+  company_id?: string;
+  id?: string;
 };
 
 export type Price = {
@@ -164,6 +178,18 @@ export type GrossSummary = {
 };
 
 export type NetSummary = {
+  start_date: Date;
+  end_date: Date;
+  months: MonthNetSummary[];
+};
+
+export type MonthNetSummary = {
+  month_start: Date;
+  emissions: number;
+  offsets: number;
+};
+
+export type ScopeBreakdown = {
   total_co2: number;
   scopes: number;
 };
