@@ -35,7 +35,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
         <div key="val" className="flex justify-end w-full max-w-full p-4 space-x-4">
           {links.map((val) => 
-            <>
+            <div key={val.href}>
               <div key={`ICON-${val.href}`}className="z-1">
                 <val.icon active={activeTab === val.href}/>
               </div>
@@ -46,7 +46,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 } pr-5`}>
                 {val.label}
               </Link>
-            </>
+            </div>
           )}
           <ProfileDropdown></ProfileDropdown>
         </div>
