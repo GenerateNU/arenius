@@ -2,12 +2,12 @@
 import React, { ReactNode } from "react";
 import Image from "next/image";
 import onboardingLogo from "@/assets/onboarding-logo.png";
-import Link from "next/link";
+import ContactsIcon from "@/components/icons/contacts";
 import DashboardIcon from "@/components/icons/dashboard";
 import TransactionsIcon from "@/components/icons/transactions";
-import ContactsIcon from "@/components/icons/contacts";
 import { usePathname } from "next/navigation";
 import { ProfileDropdown } from "@/components/user_profile/ProfileDropdown";
+import Link from "next/link";
 
 interface LayoutProps {
   children: ReactNode;
@@ -35,7 +35,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
         <div key="val" className="flex justify-end w-full max-w-full p-4 space-x-4">
           {links.map((val) => 
-            <>
+            <div key={val.href}>
               <div key={`ICON-${val.href}`}className="z-1">
                 <val.icon active={activeTab === val.href}/>
               </div>
@@ -46,7 +46,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 } pr-5`}>
                 {val.label}
               </Link>
-            </>
+            </div>
           )}
           <ProfileDropdown></ProfileDropdown>
         </div>

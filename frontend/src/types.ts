@@ -236,3 +236,12 @@ export type User = {
 export type GetUserProfileRequest = {
   id: string;
 };
+
+
+export type UpdateUserProfileRequest = {
+  first_name?: string | null;
+  last_name?: string | null;
+  city?: string | null;
+  state?: string | null;
+  photoUrl?: string | null;
+};
