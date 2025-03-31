@@ -3,14 +3,16 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { AxiosResponse } from "axios";
 import Cookies from "js-cookie";
-import apiClient from "../services/apiClient";
+import authApiClient from "../services/authApiClient";
 import { LoginRequest, SignupRequest } from "@/types";
 
 interface AuthContextType {
   companyId: string | undefined;
   tenantId: string | undefined;
   userId: string | undefined;
+  jwt: string | undefined;
   isLoading: boolean;
+  isLoginError: boolean;
   login: (
     item: LoginRequest
   ) => Promise<{ response?: AxiosResponse; error?: unknown }>;
@@ -27,10 +29,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [companyId, setCompanyId] = useState<string>();
   const [tenantId, setTenantId] = useState<string>();
   const [userId, setUserId] = useState<string>();
+  const [jwt, setJwt] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false); // Track loading state
   const [authActionTriggered, setAuthActionTriggered] = useState<
     "login" | "signup" | null
   >(null);
+  const [isLoginError, setLoginError] = useState<boolean>(false);
 
   function readCookies() {
     const storedCompanyId = Cookies.get("companyID");
@@ -46,6 +50,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const storedUserId = Cookies.get("userID");
     if (storedUserId) {
       setUserId(storedUserId);
+    }
+
+    const storedJwt = Cookies.get("jwt");
+    if (storedJwt) {
+      setJwt(storedJwt);
     }
   }
 
@@ -71,15 +80,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     item: LoginRequest
   ): Promise<{ response?: AxiosResponse; error?: unknown }> => {
     setIsLoading(true); // Set loading to true when login starts
-
+    setLoginError(false); // Reset error state before attempting login
     try {
-      const response = await apiClient.post("/auth/login", item);
+      const response = await authApiClient.post("/auth/login", item);
 
       // Trigger the effect by setting the state
       setAuthActionTriggered("login");
 
       return { response };
     } catch (error) {
+      setLoginError(true);
       console.error("Login error:", error);
       return { error };
     } finally {
@@ -100,11 +110,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     try {
-      const response = await apiClient.post("/auth/signup", payload);
+      const response = await authApiClient.post("/auth/signup", payload);
       setAuthActionTriggered("signup");
 
       return { response };
     } catch (error) {
+      setLoginError(true);
       console.error("Signup error:", error);
       return { error };
     } finally {
@@ -114,7 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ companyId, tenantId, userId, isLoading, login, signup }}
+      value={{ companyId, tenantId, userId, jwt, isLoading, isLoginError, login, signup }}
     >
       {children}
     </AuthContext.Provider>

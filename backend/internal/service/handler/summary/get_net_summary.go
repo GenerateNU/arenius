@@ -2,34 +2,33 @@ package summary
 
 import (
 	"arenius/internal/errs"
+	"arenius/internal/models"
+	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func (h *Handler) GetNetSummary(c *fiber.Ctx) error {
-	companyID := c.Query("company_id")
-	startDate := c.Query("start_date")
-	endDate := c.Query("end_date")
+	var req models.GetSummaryRequest
+	if err := c.QueryParser(&req); err != nil {
+		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
+	}
 
-	if companyID == "" {
+	if req.CompanyID == "" {
 		return errs.BadRequest("Company ID is required")
 	}
-	if startDate == "" {
-		return errs.BadRequest("Start Date is required")
-	}
-	if endDate == "" {
-		return errs.BadRequest("End Date is required")
+
+	if (req.StartDate == time.Time{} || req.EndDate == time.Time{}) {
+		// Make default start date 3 months ago and default end date today if either are missing
+		req.StartDate = time.Now().AddDate(0, -3, 0)
+		req.EndDate = time.Now()
 	}
 
-	netSummary, err := h.summaryRepository.GetNetSummary(
-		c.Context(),
-		companyID,
-		startDate,
-		endDate,
-	)
+	grossSummary, err := h.summaryRepository.GetNetSummary(c.Context(), req)
 	if err != nil {
 		return err
 	}
 
-	return c.Status(fiber.StatusOK).JSON(netSummary)
+	return c.Status(fiber.StatusOK).JSON(grossSummary)
 }

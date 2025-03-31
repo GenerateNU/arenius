@@ -24,6 +24,8 @@ import { ModalDialog } from "./ModalDialog";
 import Image from "next/image";
 import { DataTablePagination } from "../ui/DataTablePagination";
 import { useTransactionsContext } from "@/context/TransactionContext";
+import { Check, X } from "lucide-react";
+import { handleRecommendation } from "@/services/lineItems";
 
 export type LineItemTableProps = {
   activePage: "reconciled" | "unreconciled" | "offsets";
@@ -33,6 +35,7 @@ export type LineItemTableProps = {
     | "scope2"
     | "scope3"
     | "unreconciled"
+    | "recommended"
     | "offsets";
   columns: ColumnDef<LineItem>[];
   paginated?: boolean;
@@ -46,14 +49,11 @@ export default function LineItemTable({
 }: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const {
-    tableData,
-    fetchTableData,
-    pageIndex,
-    pageSize,
-    setPage,
-    setPageSize,
-  } = useTransactionsContext();
+  const { tableData, pageIndex, pageSize, setPage, setPageSize } =
+    useTransactionsContext();
+
+  console.log("Active page: ", activePage);
+  console.log("tableData: ", tableData);
 
   // object and boolean to handle clicking a row's action button
   const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
@@ -75,6 +75,8 @@ export default function LineItemTable({
     },
   });
 
+  const { fetchAllData } = useTransactionsContext();
+
   // boolean determining if any row is selected
   const rowIsSelected = table
     .getRowModel()
@@ -86,8 +88,18 @@ export default function LineItemTable({
   };
 
   const handleReconcileSuccess = () => {
-    fetchTableData(activePage, {});
+    fetchAllData();
     setIsDialogOpen(false);
+  };
+
+  const handleAccept = async (lineItem: LineItem) => {
+    await handleRecommendation(lineItem.id, true);
+    fetchAllData();
+  };
+
+  const handleReject = async (lineItem: LineItem) => {
+    await handleRecommendation(lineItem.id, false);
+    fetchAllData();
   };
 
   return (
@@ -140,16 +152,42 @@ export default function LineItemTable({
                       )}
                     </TableCell>
                   ))}
-                  <TableCell>
-                    <Image
-                      src="/arrow.svg"
-                      alt="Reconcile"
-                      width={24}
-                      height={24}
-                      onClick={() => openEditDialog(row)}
-                      style={{ cursor: "pointer" }}
-                    />
-                  </TableCell>
+                  {activeTableData == "recommended" && (
+                    <TableCell
+                      style={{
+                        minWidth: 100,
+                        maxWidth: 100,
+                      }}
+                    >
+                      <div className="flex gap-2 justify-center items-center">
+                        <button
+                          onClick={() => handleReject(row.original)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          <X size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleAccept(row.original)}
+                          className="text-green-600 hover:text-green-800"
+                        >
+                          <Check size={18} />
+                        </button>
+                      </div>
+                    </TableCell>
+                  )}
+
+                  {row.original.emission_factor_id && (
+                    <TableCell>
+                      <Image
+                        src="/arrow.svg"
+                        alt="Reconcile"
+                        width={24}
+                        height={24}
+                        onClick={() => openEditDialog(row)}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             ) : (
@@ -175,9 +213,9 @@ export default function LineItemTable({
         />
       )}
 
-      {clickedRowData && (
+      {isDialogOpen && clickedRowData && (
         <ModalDialog
-          selectedRowData={clickedRowData}
+          selectedRowData={clickedRowData.original}
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
           onReconcileSuccess={handleReconcileSuccess}

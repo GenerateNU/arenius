@@ -10,7 +10,7 @@ import { fetchLineItems } from "@/services/lineItems";
 import { GetLineItemResponse, LineItemFilters } from "@/types";
 import { useAuth } from "./AuthContext";
 
-type TABLES = ["reconciled", "unreconciled", "offsets"];
+type TABLES = ["reconciled", "unreconciled", "recommended", "offsets"];
 export type TableKey = TABLES[number];
 
 type SCOPES = ["scope1", "scope2", "scope3"];
@@ -27,6 +27,7 @@ interface TableContextType {
   setPage: (table: TableKey, page: number) => void;
   setPageSize: (table: TableKey, size: number) => void;
   fetchTableData: (table: TableKey, filters: LineItemFilters) => Promise<void>;
+  fetchAllData: () => Promise<void>;
   loading: boolean;
   error: string | null;
   viewMode: ViewMode;
@@ -54,18 +55,21 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     scope2: { count: 0, total: 0, line_items: [] },
     scope3: { count: 0, total: 0, line_items: [] },
     unreconciled: { count: 0, total: 0, line_items: [] },
+    recommended: { count: 0, total: 0, line_items: [] },
     offsets: { count: 0, total: 0, line_items: [] },
   });
 
   const [page, setPage] = useState<Record<TableKey, number>>({
     reconciled: 1,
     unreconciled: 1,
+    recommended: 1,
     offsets: 1,
   });
 
   const [pageSize, setPageSize] = useState<Record<TableKey, number>>({
     reconciled: 10,
     unreconciled: 10,
+    recommended: 10,
     offsets: 10,
   });
   const [filters, setFilters] = useState<LineItemFilters>({});
@@ -83,44 +87,62 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      const [reconciled, unreconciled, offsets, scope1, scope2, scope3] =
-        await Promise.all([
-          fetchLineItems({
-            reconciled: true,
-            ...filters,
-            company_id: companyId,
-          }),
-          fetchLineItems({
-            reconciled: false,
-            ...filters,
-            company_id: companyId,
-          }),
-          // TODO: update this to fetch offsets once endpoint is built
-          fetchLineItems({
-            reconciled: true,
-            ...filters,
-            company_id: companyId,
-          }),
-          fetchLineItems({
-            scope: 1,
-            ...filters,
-            company_id: companyId,
-          }),
-          fetchLineItems({
-            scope: 2,
-            ...filters,
-            company_id: companyId,
-          }),
-          fetchLineItems({
-            scope: 3,
-            ...filters,
-            company_id: companyId,
-          }),
-        ]);
+      const [
+        reconciled,
+        unreconciled,
+        recommended,
+        offsets,
+        scope1,
+        scope2,
+        scope3,
+      ] = await Promise.all([
+        fetchLineItems({
+          reconciliationStatus: "reconciled",
+          ...filters,
+          company_id: companyId,
+        }),
+        fetchLineItems({
+          reconciliationStatus: "unreconciled",
+          ...filters,
+          company_id: companyId,
+        }),
+        fetchLineItems({
+          reconciliationStatus: "recommended",
+          ...filters,
+          company_id: companyId,
+        }),
+        // TODO: update this to fetch offsets once endpoint is built
+        fetchLineItems({
+          reconciliationStatus: "reconciled",
+          ...filters,
+          company_id: companyId,
+        }),
+        fetchLineItems({
+          scope: 0,
+          ...filters,
+          company_id: companyId,
+        }),
+        fetchLineItems({
+          scope: 1,
+          ...filters,
+          company_id: companyId,
+        }),
+        fetchLineItems({
+          scope: 2,
+          ...filters,
+          company_id: companyId,
+        }),
+        fetchLineItems({
+          scope: 3,
+          ...filters,
+          company_id: companyId,
+        }),
+      ]);
 
       setTableData({
         reconciled,
         unreconciled,
+        recommended,
         offsets,
         scope1,
         scope2,
@@ -137,19 +159,19 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
   const fetchTableData = useCallback(
     async (table: TableKey) => {
       if (!companyId) return;
+      if (table == "offsets") return;
 
       setLoading(true);
       setError(null);
 
       try {
         const data = await fetchLineItems({
-          reconciled: table === "reconciled",
+          reconciliationStatus: table,
           ...filters,
           company_id: companyId,
           pageIndex: page[table],
           pageSize: pageSize[table],
         });
-
         setTableData((prev) => ({ ...prev, [table]: data }));
       } catch (err) {
         setError(`Failed to load data: ${err}`);
@@ -182,6 +204,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     currentPage,
     currentLimit,
     fetchTableData,
+    fetchAllData,
   ]);
 
   return (
@@ -197,6 +220,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         setPageSize: (table: TableKey, limit: number) =>
           setPageSize((prev) => ({ ...prev, [table]: limit })),
         fetchTableData,
+        fetchAllData,
         loading,
         error,
         viewMode,

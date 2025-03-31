@@ -6,8 +6,13 @@ export type LineItem = {
   total_amount: number;
   currency_code: string;
   emission_factor_name?: string;
+  emission_factor_id?: string;
+  recommended_emission_factor_name?: string;
+  recommended_emission_factor_id?: string;
   scope?: number;
+  recommended_scope?: number;
   contact_name?: string;
+  contact_id?: string;
   co2?: number;
   date: Date;
 };
@@ -29,13 +34,21 @@ export interface LineItemFilters {
   scope?: number;
   pageSize?: number;
   pageIndex?: number;
-  reconciled?: boolean;
+  reconciliationStatus?:
+    | "recommended"
+    | "reconciled"
+    | "unreconciled"
+    | "offsets";
 }
 
 export type CreateLineItemRequest = {
   description: string;
   total_amount: number;
   currency_code: string;
+  contact_id: string;
+  emission_factor_id: string;
+  scope?: string;
+  date: Date;
 };
 
 export type LoginRequest = {
@@ -66,6 +79,9 @@ export type ReconcileRequest = {
 export type EmissionsFactor = {
   name: string;
   activity_id: string;
+  favorite?: boolean;
+  company_id?: string;
+  id?: string;
 };
 
 export type Price = {
@@ -82,6 +98,11 @@ export type EmissionsFactorCategories = {
   all: EmissionsFactorCategory[];
   favorites: EmissionsFactorCategory;
   history: EmissionsFactorCategory;
+};
+
+export type SimpleContact = {
+  id: string;
+  name: string;
 };
 
 export type Contact = {
@@ -156,6 +177,23 @@ export type GrossSummary = {
   months: MonthSummary[];
 };
 
+export type NetSummary = {
+  start_date: Date;
+  end_date: Date;
+  months: MonthNetSummary[];
+};
+
+export type MonthNetSummary = {
+  month_start: Date;
+  emissions: number;
+  offsets: number;
+};
+
+export type ScopeBreakdown = {
+  total_co2: number;
+  scopes: number;
+};
+
 export type GetContactEmissionsRequest = {
   company_id: string;
   contact_id: string;
@@ -180,4 +218,30 @@ export type CreateCarbonOffsetRequest = {
 
 export type BatchCreateCarbonOffsetsRequest = {
   carbon_offsets: CreateCarbonOffsetRequest[];
+};
+
+export type User = {
+  id?: string;
+  first_name?: string;
+  last_name?: string;
+  company_id?: string;
+  refresh_token?: string;
+  tenant_id?: string;
+  city?: string;
+  state?: string;
+  photo_url?: string;
+};
+
+
+export type GetUserProfileRequest = {
+  id: string;
+};
+
+
+export type UpdateUserProfileRequest = {
+  first_name?: string | null;
+  last_name?: string | null;
+  city?: string | null;
+  state?: string | null;
+  photoUrl?: string | null;
 };

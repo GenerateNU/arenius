@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -18,9 +17,10 @@ import {
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import Image from 'next/image';
-import logo from '../../assets/onboarding-logo.png'; 
-
+import Image from "next/image";
+import logo from "../../assets/onboarding-logo.png";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 
 const formSchema = z.object({
   email: z.string(),
@@ -29,8 +29,8 @@ const formSchema = z.object({
 
 export default function LoginForm() {
   const router = useRouter();
-  const [error, setError] = useState("");
-  const { login } = useAuth();
+  const { login, isLoginError } = useAuth();
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -42,32 +42,28 @@ export default function LoginForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      setLoading(true);
       const response = await login({
         email: values.email,
         password: values.password,
       });
-  
+
       if (response?.response?.status === 200) {
-        router.push("/transactions");
+        router.push("/dashboard");
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unexpected error occurred"
-      );
+      console.error("An error occured: ", err);
+    } finally {
+      setLoading(false);
     }
   }
-  
 
   return (
     <div className={styles.formContainer}>
-        <div className="flex flex-col justify-start items-center ">
+      <div className="flex flex-col justify-start items-center ">
         <h2 className="text-2xl mb-4">Welcome to</h2>
-        <Image 
-          src={logo} 
-          alt="Onboarding Logo" 
-          className={styles.logo} 
-        />
-        </div>
+        <Image src={logo} alt="Onboarding Logo" className={styles.logo} />
+      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className={styles.form}>
           <FormField
@@ -97,26 +93,39 @@ export default function LoginForm() {
             )}
           />
 
+          {isLoginError && (
+            <div className={styles.error}>
+              Your email or password is incorrect.
+            </div>
+          )}
+
           <div className={styles.actionContainer}>
             <Label className={styles.checkboxContainer}>
               <Checkbox />
               Remember me
             </Label>
-            <a href="" className={styles.forgotPassword}>
+            <a href="/forgot-password" className={styles.forgotPassword}>
               Forgot Password?
             </a>
           </div>
 
-          <Button className="mt-4" type="submit" size="long">
-            Submit
+          <Button className="mt-4" type="submit" size="long" disabled={loading}>
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Logging in...
+              </>
+            ) : (
+              "Submit"
+            )}
           </Button>
+
           <div className={styles.signUpContainer}>
             Don&apos;t have an account?{" "}
             <a href="/onboarding" className={styles.link}>
               Sign up!
             </a>
           </div>
-          {error && <div className={styles.error}>{error}</div>}
         </form>
       </Form>
     </div>
@@ -130,8 +139,8 @@ const styles = {
   actionContainer: "flex justify-between items-center text-black text-sm mt-3",
   checkboxContainer: "flex items-center gap-2",
   signUpContainer: "w-full mt-3 text-center text-black",
-  error: "mt-4 text-red-500 text-center",
+  error: "mt-4 text-red-500 text-center text-sm",
   link: "text-blue-500 hover:underline",
   forgotPassword: "text-black-500 hover:underline",
-  logo: "w-100 pb-20 ", 
+  logo: "w-100 pb-20 ",
 };

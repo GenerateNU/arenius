@@ -7,7 +7,7 @@ Returns 200 OK if the server is running.
 
 ## Auth
 
-POST `/auth/login`
+POST `/login`
 Login for user, returns access token and user information.
 
 ```go
@@ -22,7 +22,7 @@ Example:
 }
 ```
 
-POST `/auth/signup`
+POST `/signup`
 Sign up for user, returns access token and user info.
 
 ```go
@@ -39,6 +39,33 @@ Example:
     "first_name": "zachie",
     "last_name": "croft",
 }
+```
+
+POST `/forgot-password`
+Does forgot password for an email, sends an email with a reset link.
+
+```go
+Body Parameters:
+- `email` (string)
+```
+
+POST `/reset-password`
+Resets a password for the logged in account
+
+```go
+Body Parameters:
+- `password` (string)
+```
+
+POST `/sign-out`
+Signs out the user based on cookies
+
+DELETE `/delete-account`
+Deletes the given account
+
+```go
+Query Parameters:
+- `userId` (string)
 ```
 
 ## User
@@ -268,6 +295,19 @@ If either start date or end date are missing, then the date range will default t
         - `end_date`: End of the date range
     - Example:
         - URL: `http://localhost:8080/summary/contact/emissions?company_id=86afab0a-443f-4d9b-89d9-1f19a7ea6a14&start_date=2024-11-01T00:00:00Z&end_date=2025-03-11T00:00:00Z`
+```
+
+GET `/summary/top-emissions` - provides the top 5 emissions for the company within the provided date range
+
+If either start date or end date are missing, then the date range will default to 3 months ago - today
+```go
+
+- Query Parameters:
+        - `company_id`: Company ID
+        - `start_date`: Start of the date range
+        - `end_date`: End of the date range
+    - Example:
+        - URL: `http://localhost:8080/summary/top-emissions?company_id=86afab0a-443f-4d9b-89d9-1f19a7ea6a14&start_date=2024-11-01T00:00:00Z&end_date=2025-03-11T00:00:00Z`
 ```
 
 ## Carbon
