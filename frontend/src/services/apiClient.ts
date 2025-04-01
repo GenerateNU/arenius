@@ -17,9 +17,7 @@ apiClient.interceptors.response.use(
     if (status === 401) {
       // Handle unauthorized access
       console.log("Unauthorized access");
-      if (window.location.href != "/") {
-        window.location.href = "/";
-      }
+      window.location.href = "/";
     } else {
       // Handle other errors
       console.error("An error occurred:", error);
