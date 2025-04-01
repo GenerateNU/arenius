@@ -4,13 +4,16 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { AxiosResponse } from "axios";
 import Cookies from "js-cookie";
 import authApiClient from "../services/authApiClient";
-import { LoginRequest, SignupRequest } from "@/types";
+import { LoginRequest, SignupRequest, User } from "@/types";
+import { fetchUser } from "@/services/user";
 
 interface AuthContextType {
   companyId: string | undefined;
   tenantId: string | undefined;
   userId: string | undefined;
   jwt: string | undefined;
+  user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
   isLoading: boolean;
   isLoginError: boolean;
   login: (
@@ -26,81 +29,96 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [companyId, setCompanyId] = useState<string>();
-  const [tenantId, setTenantId] = useState<string>();
-  const [userId, setUserId] = useState<string>();
-  const [jwt, setJwt] = useState<string>();
-  const [isLoading, setIsLoading] = useState<boolean>(false); // Track loading state
-  const [authActionTriggered, setAuthActionTriggered] = useState<
-    "login" | "signup" | null
-  >(null);
+  // Consolidated state for authentication-related data
+  const [authState, setAuthState] = useState({
+    companyID: undefined as string | undefined,
+    tenantID: undefined as string | undefined,
+    userID: undefined as string | undefined,
+    jwt: undefined as string | undefined,
+  });
+
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoginError, setLoginError] = useState<boolean>(false);
 
-  function readCookies() {
-    const storedCompanyId = Cookies.get("companyID");
-    if (storedCompanyId) {
-      setCompanyId(storedCompanyId);
-    }
+  // Helper function to read cookies and update auth state
+  const readCookies = () => {
+    const keys = ["companyID", "tenantID", "userID", "jwt"];
+    const newAuthState: Partial<typeof authState> = {};
 
-    const storedTenantId = Cookies.get("tenantID");
-    if (storedTenantId) {
-      setTenantId(storedTenantId);
-    }
+    keys.forEach((key) => {
+      const cookieValue = Cookies.get(key);
+      if (cookieValue) {
+        newAuthState[key as keyof typeof authState] = cookieValue;
+      }
+    });
 
-    const storedUserId = Cookies.get("userID");
-    if (storedUserId) {
-      setUserId(storedUserId);
-    }
+    setAuthState((prev) => ({ ...prev, ...newAuthState }));
+  };
 
-    const storedJwt = Cookies.get("jwt");
-    if (storedJwt) {
-      setJwt(storedJwt);
-    }
-  }
+  // Fetch user data based on userId
+  const fetchUserData = async () => {
+    console.log("TRYING TO FETCH USERRRR:", authState);
 
-  useEffect(() => {
+    if (!authState.userID) return;
+    console.log("FETCHING USERRRR:", authState.userID);
+
+    setIsLoading(true);
+    try {
+      console.log("Fetching user data for userId:", authState.userID);
+      const userData = await fetchUser(authState.userID);
+      console.log("Fetched user data:", userData);
+      setUser(userData);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle authentication completion (e.g., after signup or login)
+  const handleAuthCompletion = () => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("authComplete") === "true") {
-      setAuthActionTriggered("signup"); // Trigger after Xero authentication is complete
-    } else {
       readCookies();
     }
+  };
+
+  // Effect to initialize authentication state
+  useEffect(() => {
+    handleAuthCompletion();
+    readCookies();
   }, []);
 
+  // Effect to fetch user data when userId changes
   useEffect(() => {
-    if (authActionTriggered) {
-      readCookies();
-
-      // Reset the action after the effect runs to avoid it running continuously
-      setAuthActionTriggered(null);
-    }
-  }, [authActionTriggered, isLoading]);
+    fetchUserData();
+  }, [authState]);
 
   const login = async (
     item: LoginRequest
   ): Promise<{ response?: AxiosResponse; error?: unknown }> => {
-    setIsLoading(true); // Set loading to true when login starts
-    setLoginError(false); // Reset error state before attempting login
+    setIsLoading(true);
+    setLoginError(false);
+
     try {
       const response = await authApiClient.post("/auth/login", item);
-
-      // Trigger the effect by setting the state
-      setAuthActionTriggered("login");
-
+      readCookies(); // Update cookies after login
       return { response };
     } catch (error) {
       setLoginError(true);
       console.error("Login error:", error);
       return { error };
     } finally {
-      setIsLoading(false); // Set loading to false when login finishes
+      setIsLoading(false);
     }
   };
 
+  // Signup function
   const signup = async (
     item: SignupRequest
   ): Promise<{ response?: AxiosResponse; error?: unknown }> => {
-    setIsLoading(true); // Set loading to true when signup starts
+    setIsLoading(true);
 
     const payload = {
       email: item.email,
@@ -111,8 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     try {
       const response = await authApiClient.post("/auth/signup", payload);
-      setAuthActionTriggered("signup");
-
+      readCookies(); // Update cookies after signup
       return { response };
     } catch (error) {
       setLoginError(true);
@@ -125,7 +142,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ companyId, tenantId, userId, jwt, isLoading, isLoginError, login, signup }}
+      value={{
+        companyId: authState.companyID,
+        tenantId: authState.tenantID,
+        userId: authState.userID,
+        jwt: authState.jwt,
+        user,
+        setUser,
+        isLoading,
+        isLoginError,
+        login,
+        signup,
+      }}
     >
       {children}
     </AuthContext.Provider>
