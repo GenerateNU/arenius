@@ -58,16 +58,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Fetch user data based on userId
   const fetchUserData = async () => {
-    console.log("TRYING TO FETCH USERRRR:", authState);
-
     if (!authState.userID) return;
-    console.log("FETCHING USERRRR:", authState.userID);
 
     setIsLoading(true);
     try {
-      console.log("Fetching user data for userId:", authState.userID);
       const userData = await fetchUser(authState.userID);
-      console.log("Fetched user data:", userData);
       setUser(userData);
     } catch (error) {
       console.error("Error fetching user data:", error);
