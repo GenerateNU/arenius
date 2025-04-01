@@ -134,8 +134,6 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 
 	favoriteEmissionsFactors := make([]models.EmissionsFactor, 0, 10)
 
-	historyEmissionsFactors := make([]models.EmissionsFactor, 0, 10)
-
 	categories := make([]models.Category, 0, len(categoryMap)+1)
 
 	// Use a map for fast set membership check to check if emission factors are favorites
@@ -220,7 +218,6 @@ func (r *EmissionsFactorRepository) GetEmissionFactors(ctx context.Context, comp
 	categoriesSummary := models.Categories{
 		All:       categories,
 		Favorites: models.Category{Name: "Favorites", EmissionsFactors: favoriteEmissionsFactors},
-		History:   models.Category{Name: "History", EmissionsFactors: historyEmissionsFactors},
 	}
 
 	return &categoriesSummary, nil
