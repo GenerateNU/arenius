@@ -7,6 +7,7 @@ import {
   ResponsiveContainer,
   XAxis,
   YAxis,
+  TooltipProps,
 } from "recharts";
 
 import {
@@ -16,56 +17,42 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import useGrossSummary from "@/hooks/useGrossSummary";
 import { MonthSummary } from "@/types";
+import { formatDate } from "@/lib/utils";
 
-const chartConfig = {
-  scope1: {
-    label: "Scope 1",
-    color: "rgb(204,238,186)",
+export const chartConfig = {
+  scope3: {
+    label: "Scope 3",
+    color: "#426227",
+    gradient: "linear-gradient(to bottom, #426227, #0A0F06)",
   },
   scope2: {
     label: "Scope 2",
-    color: "rgb(112,158,92)",
+    color: "#ACC99B",
+    gradient: "linear-gradient(to bottom, #ACC99B, #276E0B)",
   },
-  scope3: {
-    label: "Scope 3",
-    color: "rgb(40,59,24)",
+  scope1: {
+    label: "Scope 1",
+    color: "#D0F5BC",
+    gradient: "linear-gradient(to bottom, #D0F5BC, #C3DCB5)",
   },
-} satisfies ChartConfig;
+};
 
 export default function GrossEmissionsBarGraph() {
   const { grossSummary } = useGrossSummary();
-  const formattedStartMonth =
-    new Date(grossSummary.start_date).toLocaleDateString("en-US", {
-      month: "short",
-      timeZone: "UTC",
-    }) || "";
-  const formattedStartYear =
-    new Date(grossSummary.start_date).getFullYear() || "";
-  const formattedEndMonth =
-    new Date(grossSummary.end_date).toLocaleDateString("en-US", {
-      month: "short",
-      timeZone: "UTC",
-    }) || "";
-  const formattedEndYear = new Date(grossSummary.end_date).getFullYear() || "";
+  const formattedStartMonth = formatDate(grossSummary.start_date, "shortMonth");
+  const formattedStartYear = formatDate(grossSummary.start_date, "year");
+  const formattedEndMonth = formatDate(grossSummary.end_date, "shortMonth");
+  const formattedEndYear = formatDate(grossSummary.end_date, "year");
 
-  const chartData =
-    grossSummary.months?.map((month: MonthSummary) => ({
-      month: new Date(month.month_start).toLocaleString("en-US", {
-        month: "short",
-        timeZone: "UTC",
-      }),
-      scope1: month.scopes.scope_one,
-      scope2: month.scopes.scope_two,
-      scope3: month.scopes.scope_three,
-    })) ?? [];
+  const chartData = grossSummary.months?.map((month: MonthSummary) => ({
+    month: formatDate(month.month_start, "shortMonth"),
+    scope1: month.scopes.scope_one,
+    scope2: month.scopes.scope_two,
+    scope3: month.scopes.scope_three,
+  }));
 
   return (
     <Card>
@@ -117,28 +104,16 @@ export default function GrossEmissionsBarGraph() {
                 tickFormatter={(value) => value.slice(0, 3)}
               />
               <YAxis axisLine={false} fontFamily="Montserrat" />
-              <ChartTooltip
-                content={<ChartTooltipContent hideLabel />}
-                wrapperStyle={{ width: "12%" }}
-              />
-              <Bar
-                dataKey="scope3"
-                stackId="a"
-                fill="url(#scope3Gradient)"
-                radius={12}
-              />
-              <Bar
-                dataKey="scope2"
-                stackId="a"
-                fill="url(#scope2Gradient)"
-                radius={12}
-              />
-              <Bar
-                dataKey="scope1"
-                stackId="a"
-                fill="url(#scope1Gradient)"
-                radius={12}
-              />
+              <ChartTooltip content={<CustomTooltip />} />
+              {Object.keys(chartConfig).map((key) => (
+                <Bar
+                  key={key}
+                  dataKey={key}
+                  stackId="a"
+                  fill={`url(#${key}Gradient)`}
+                  radius={12}
+                />
+              ))}
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>
@@ -150,17 +125,46 @@ export default function GrossEmissionsBarGraph() {
 const CustomLegend = () => {
   return (
     <div className="flex flex-col gap-2 mt-4">
-      {Object.entries(chartConfig).map(([key, { label, color }]) => (
-        <div key={key} className="flex items-center gap-2">
-          <span
-            className="w-4 h-4 rounded-full"
-            style={{ backgroundColor: color }}
-          />
-          <span className="text-md text-muted-foreground font-[Montserrat]">
-            {label}
-          </span>
-        </div>
-      ))}
+      {Object.entries(chartConfig)
+        .reverse()
+        .map(([key, { label, gradient }]) => (
+          <div key={key} className="flex items-center gap-2">
+            <span
+              className="w-4 h-4 rounded-full"
+              style={{ backgroundImage: gradient }}
+            />
+            <span className="text-md text-muted-foreground font-[Montserrat]">
+              {label}
+            </span>
+          </div>
+        ))}
+    </div>
+  );
+};
+
+const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+  if (!active || !payload || payload.length === 0) return null;
+  const sortedPayload = [...payload].reverse();
+
+  return (
+    <div className="bg-white p-3 rounded-lg shadow-md border border-gray-300 font-[Montserrat]">
+      <p className="text-md font-semibold">{payload[0]?.payload?.name}</p>
+      <div className="mt-2 flex flex-col gap-1">
+        {sortedPayload.map((entry, index) => {
+          const config = chartConfig[entry.name as keyof typeof chartConfig]; // Get label
+          return (
+            <div key={index} className="flex items-center gap-2">
+              <span
+                className="w-4 h-4 rounded-full"
+                style={{ backgroundImage: config.gradient }}
+              />
+              <span className="text-sm text-gray-700 font-medium">
+                {config?.label || entry.name}: {entry.value} kg
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
