@@ -26,16 +26,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <div className="relative overflow-x-hidden flex-1">
       <div
         key="val1"
-        className="z-20 flex absolute top-0 left-0 w-full p-4 space-x-8 bg-white"
+        className="flex items-center w-full px-4 py-2 space-x-8 bg-white"
       >
-        <div>
+        <Link href="/dashboard">
           <Image
             src={onboardingLogo}
             alt="Onboarding Logo"
             width={200}
             height={200}
           />
-        </div>
+        </Link>
         <div
           key="val"
           className="flex items-center justify-end w-full max-w-full p-4 space-x-4"
@@ -60,7 +60,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <ProfileDropdown />
         </div>
       </div>
-      <div className="pt-10 px-20 bg-grayBackground h-full">{children}</div>{" "}
+      <div className="px-20 bg-grayBackground h-full">{children}</div>{" "}
     </div>
   );
 };
