@@ -137,9 +137,6 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Get("/get-recommendations", lineItemHandler.AutoReconcileLineItem)
 	})
 
-	// Apply Middleware to Protected Routes
-	app.Use(supabase_auth.Middleware(&config.Supabase))
-
 	// cannot
 	contactHandler := contact.NewHandler(repo.Contact)
 	app.Route("/contact", func(r fiber.Router) {

@@ -6,16 +6,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthContext";
-import { fetchUser } from "@/services/user";
-import { User } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 
 export function ProfileDropdown() {
   const router = useRouter();
-  // const [profilePhoto, setPhoto] = useState("user_profile.svg"); // Store profile photo URL
 
   const handleClick = () => {
     router.push(`/profile`);
@@ -23,29 +19,15 @@ export function ProfileDropdown() {
 
   const { user, isLoading } = useAuth();
 
-  console.log("User in ProfileDropdown:", user);
-
-  // const [user, setUser] = useState<User | null>(null);
-
-  // useEffect(() => {
-  //     if (userId) {
-  //         const fetchData = async () => {
-  //             if (userId) {
-  //                 const fetchedUser = await fetchUser(userId);
-  //                 setUser(fetchedUser);
-  //                 console.log("----", fetchedUser);
-  //                 if (fetchedUser && fetchedUser.photo_url) {
-  //                     setPhoto(fetchedUser.photo_url); // Safely access photo_url
-  //                 }
-  //             }
-  //         };
-  //         fetchData();
-  //         console.log(user)
-  //     }
-  // }, [userId]);
-
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Image
+        src={"/user_profile.svg"} // Fallback image if no photo is available
+        alt="User Profile"
+        width={36}
+        height={36}
+      />
+    );
   }
 
   if (!user) {
@@ -56,9 +38,8 @@ export function ProfileDropdown() {
     <div className="z-1 relative">
       <DropdownMenu>
         <DropdownMenuTrigger>
-          {/* Use the profile photo or fallback to default */}
           <Image
-            src={user.photo_url || "/user_profile.svg"} // Fallback image if no photo is available
+            src={user.photo_url || "/user_profile.svg"}
             alt="User Profile"
             width={36}
             height={36}
@@ -71,7 +52,7 @@ export function ProfileDropdown() {
                 <p className="text-lg font-medium">
                   {user.first_name} {user.last_name}
                 </p>
-                <p className="text-sm text-gray-600">dessy@dessy.com</p>
+                <p className="text-sm text-gray-600">{user.email}</p>
               </div>
               <div className="mt-4">
                 {/* Profile photo in the dropdown */}

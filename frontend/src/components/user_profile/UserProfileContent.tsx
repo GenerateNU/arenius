@@ -1,13 +1,11 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { fetchUser, updateUserProfile } from "@/services/user";
+import { updateUserProfile } from "@/services/user";
 import { UpdateUserProfileRequest, User } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, MapPin } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../ui/button";
@@ -29,22 +27,7 @@ const formSchema = z.object({
 });
 
 export default function UserProfileContent() {
-  const router = useRouter();
-
-  const { user, userId } = useAuth();
-
-  // const [user, setUser] = useState<User | null>(null);
-
-  //   useEffect(() => {
-  //     if (userId) {
-  //       const fetchData = async () => {
-  //         const fetchedUser = await fetchUser(userId);
-  //         setUser(fetchedUser);
-  //       };
-  //       fetchData();
-  //       console.log(user);
-  //     }
-  //   }, [userId]);
+  const { user, setUser, userId } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -85,7 +68,7 @@ export default function UserProfileContent() {
       const response = await updateUserProfile(userId, req);
       if (response) {
         form.reset();
-        router.push(`/transactions`);
+        setUser(response);
       }
     } catch (error) {
       console.error("Error updating user profile:", error);
@@ -118,7 +101,7 @@ export default function UserProfileContent() {
               </div>
               <div className="flex items-center gap-2 text-gray-600">
                 <Mail className="h-4 w-4 text-gray-400" />
-                <span>dessy@dessy.com</span>
+                <span>{user.email}</span>
               </div>
             </div>
           </div>

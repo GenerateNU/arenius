@@ -92,8 +92,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Effect to fetch user data when userId changes
   useEffect(() => {
-    fetchUserData();
-  }, [authState]);
+    if (authState.userID) {
+      fetchUserData();
+    }
+  }, [authState.userID]);
 
   const login = async (
     item: LoginRequest
