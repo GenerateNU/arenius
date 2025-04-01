@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { updateUserProfile } from "@/services/user";
-import { UpdateUserProfileRequest, User } from "@/types";
+import { UpdateUserProfileRequest } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, MapPin } from "lucide-react";
 import Image from "next/image";
