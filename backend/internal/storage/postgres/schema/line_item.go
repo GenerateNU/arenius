@@ -449,7 +449,7 @@ func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, company
 		return nil, err
 	}
 
-	req, err := http.NewRequest("GET", "https://reconciliation-recommendation-production.up.railway.app/reconciliation/get-recommendation", bytes.NewBuffer(jsonBody))
+	req, err := http.NewRequest("GET", "https://reconciliation-recommendation.onrender.com/reconciliation/get-recommendation", bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return nil, err
 	}
