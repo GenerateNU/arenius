@@ -58,22 +58,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const response = await fetchUser(userId);
       setUser(response);
       localStorage.setItem("user", JSON.stringify(response));
-    } catch (error) {
-      console.error("Error fetching user data:", error);
+    } catch (error: Error | unknown) {
       setUser(null);
       localStorage.removeItem("user");
+      console.error("Error fetching user data:", error);
     } finally {
       setIsLoading(false);
     }
   }
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    fetchUserData();
-  }, [userId, jwt]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -103,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // Trigger the effect by setting the state
       setAuthActionTriggered("login");
-
+      fetchUserData();
       return { response };
     } catch (error) {
       setLoginError(true);
@@ -129,6 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       const response = await authApiClient.post("/auth/signup", payload);
       setAuthActionTriggered("signup");
+      fetchUserData();
 
       return { response };
     } catch (error) {
