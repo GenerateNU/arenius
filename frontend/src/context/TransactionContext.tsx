@@ -7,7 +7,7 @@ import {
   useCallback,
 } from "react";
 import { fetchLineItems } from "@/services/lineItems";
-import { GetLineItemResponse, LineItem, LineItemFilters } from "@/types";
+import { LineItem, LineItemFilters } from "@/types";
 import { useAuth } from "./AuthContext";
 
 type TABLES = ["reconciled", "unreconciled", "recommended", "offsets"];
@@ -132,13 +132,6 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       fetchAllData();
     }
   }, [companyId, fetchAllData]);
-
-  // Fetch data for the active table when relevant dependencies change
-  useEffect(() => {
-    if (companyId) {
-      fetchTableData(activePage);
-    }
-  }, [companyId, activePage, filters, fetchTableData, fetchAllData]);
 
   return (
     <TransactionContext.Provider

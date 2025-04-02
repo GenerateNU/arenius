@@ -60,7 +60,7 @@ export default function LineItemTable({
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  var rows = tableData[activeTableData] || [];
+  let rows = tableData[activeTableData] || [];
   if (tableLimit) {
     rows = rows.slice(0, tableLimit);
   }
