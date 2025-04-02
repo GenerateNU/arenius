@@ -59,13 +59,13 @@ export default function LineItemTable({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const table = useReactTable({
-    data: tableData[activeTableData].line_items || [],
+    data: tableData[activeTableData] || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    rowCount: tableData[activeTableData].total,
+    rowCount: tableData[activeTableData].length,
     getRowId: (row: LineItem) => row.id,
     state: {
       sorting,
@@ -204,7 +204,7 @@ export default function LineItemTable({
         <DataTablePagination
           page={table.getState().pagination.pageIndex}
           pageLimit={table.getState().pagination.pageSize}
-          total_count={tableData[activePage].total}
+          total_count={tableData[activePage].length}
           setPage={(newPage) => table.setPageIndex(newPage)}
           setPageLimit={(newLimit) => table.setPageSize(newLimit)}
         />
