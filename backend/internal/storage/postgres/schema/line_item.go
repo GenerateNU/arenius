@@ -44,8 +44,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 
 	// Apply search filtering
 	if filterParams.SearchTerm != nil {
-		filterQuery.WriteString(" AND (li.description ILIKE '%' || $%d || '%')")
-		filterArgs = append(filterArgs, *filterParams.SearchTerm)
+		filterQuery.WriteString(fmt.Sprintf(" AND (li.description ILIKE '%%%s%%')", *filterParams.SearchTerm))
 	}
 
 	// Apply dynamic filters
@@ -101,6 +100,8 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	%s
 	ORDER BY li.date DESC
 	%s`, filterQuery.String(), paginationClause)
+
+	fmt.Println("query: ", query)
 
 	rows, err := r.db.Query(ctx, query, filterArgs...)
 	if err != nil {
