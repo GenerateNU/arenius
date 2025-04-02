@@ -34,7 +34,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	if filterParams.ReconciliationStatus != nil {
 		switch *filterParams.ReconciliationStatus {
 		case "reconciled":
-			filterQuery.WriteString(" AND (li.emission_factor_id IS NOT NULL)")
+			filterQuery.WriteString(" AND (li.emission_factor_id IS NOT NULL AND li.scope != 0)")
 		case "recommended":
 			filterQuery.WriteString(" AND (li.emission_factor_id IS NULL) AND (li.recommended_emission_factor_id IS NOT NULL)")
 		case "unreconciled":
