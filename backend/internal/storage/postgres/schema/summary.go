@@ -127,15 +127,17 @@ func (r *SummaryRepository) GetNetSummary(ctx context.Context, req models.GetSum
 			WHERE company_id = $1
 				AND co2 IS NOT NULL
 				AND date BETWEEN $2 AND $3
+				AND scope > 0
 			GROUP BY DATE_TRUNC('month', date)
 		UNION ALL
 		SELECT
-			COALESCE(SUM(carbon_amount_kg), 0) AS total_co2, 'offset' as type, 
-				DATE_TRUNC('month', purchase_date) AS month_start
-			FROM carbon_offset
+			COALESCE(SUM(co2), 0) AS total_co2, 'offset' as type, 
+				DATE_TRUNC('month', date) AS month_start
+			FROM line_item
 			WHERE company_id = $1
-				AND purchase_date BETWEEN $2 AND $3
-			GROUP BY DATE_TRUNC('month', purchase_date)
+				AND date BETWEEN $2 AND $3
+				AND scope = 0
+			GROUP BY DATE_TRUNC('month', date)
 		ORDER BY month_start;`
 
 	rowsMonthly, errMonthly := r.db.Query(ctx, monthlyQuery, req.CompanyID, req.StartDate.UTC(), req.EndDate.UTC())
