@@ -224,6 +224,7 @@ export type User = {
   id?: string;
   first_name?: string;
   last_name?: string;
+  email?: string;
   company_id?: string;
   refresh_token?: string;
   tenant_id?: string;
@@ -232,11 +233,9 @@ export type User = {
   photo_url?: string;
 };
 
-
 export type GetUserProfileRequest = {
   id: string;
 };
-
 
 export type UpdateUserProfileRequest = {
   first_name?: string | null;

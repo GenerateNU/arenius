@@ -17,41 +17,50 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const activeTab = usePathname();
 
   const links = [
-    { href: "/dashboard", label: "Dashboard", icon: DashboardIcon},
-    { href: "/transactions", label: "Transactions", icon: TransactionsIcon},
-    { href: "/contacts", label: "Contacts", icon: ContactsIcon}
+    { href: "/dashboard", label: "Dashboard", icon: DashboardIcon },
+    { href: "/transactions", label: "Transactions", icon: TransactionsIcon },
+    { href: "/contacts", label: "Contacts", icon: ContactsIcon },
   ];
 
   return (
     <div className="relative overflow-x-hidden flex-1">
-      <div key= "val1" className="z-20 flex absolute top-0 left-0 w-full p-4 space-x-8 bg-white">
-        <div>
+      <div
+        key="val1"
+        className="flex items-center w-full px-4 py-2 space-x-8 bg-white"
+      >
+        <Link href="/dashboard">
           <Image
             src={onboardingLogo}
             alt="Onboarding Logo"
             width={200}
             height={200}
           />
-        </div>
-        <div key="val" className="flex justify-end w-full max-w-full p-4 space-x-4">
-          {links.map((val) => 
-            <div key={val.href}>
-              <div key={`ICON-${val.href}`}className="z-1">
-                <val.icon active={activeTab === val.href}/>
-              </div>
-              <Link key={`LINK-${val.href}`}
+        </Link>
+        <div
+          key="val"
+          className="flex items-center justify-end w-full max-w-full p-4 space-x-4"
+        >
+          {links.map((val) => (
+            <div
+              key={val.href}
+              className={`items-center px-4 py-2 rounded-md font-[Montserrat] font-medium ${
+                activeTab === val.href && "bg-[#77B25733]"
+              }`}
+            >
+              <Link
+                key={`LINK-${val.href}`}
                 href={val.href}
-                className={`text-lg font-bold ${
-                  activeTab === val.href ? "text-primary" : "text-gray-700"
-                } pr-5`}>
-                {val.label}
+                className={`text-sm cursor-pointer flex space-x-2`}
+              >
+                <val.icon active={false} />
+                <p>{val.label}</p>
               </Link>
             </div>
-          )}
-          <ProfileDropdown></ProfileDropdown>
+          ))}
+          <ProfileDropdown />
         </div>
       </div>
-      <div className="pt-10 px-20 bg-grayBackground h-full">{children}</div>{" "}
+      <div className="px-20 bg-grayBackground h-full">{children}</div>{" "}
     </div>
   );
 };

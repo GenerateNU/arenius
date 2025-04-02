@@ -129,7 +129,7 @@ func (c *UserRepository) GetUserProfile(ctx context.Context, userId string) (*mo
 
 func (c *UserRepository) UpdateUserProfile(ctx context.Context, userId string, req models.UpdateUserProfileRequest) (*models.User, error) {
 
-	query := `UPDATE user_creds SET`
+	query := `UPDATE user_creds uc SET`
 	updates := []string{}
 	args := []interface{}{}
 	argCount := 1
@@ -168,7 +168,7 @@ func (c *UserRepository) UpdateUserProfile(ctx context.Context, userId string, r
 	query += fmt.Sprintf(" WHERE id = $%d", argCount)
 	args = append(args, userId)
 
-	query += " RETURNING id, first_name, last_name, company_id, refresh_token, tenant_id, city, state, photo_url"
+	query += " RETURNING id, first_name, last_name, company_id, refresh_token, tenant_id, city, state, photo_url, (SELECT email FROM auth.users WHERE id = uc.id) AS email;"
 
 	rows, err := c.db.Query(ctx, query, args...)
 	if err != nil {

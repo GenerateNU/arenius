@@ -4,12 +4,15 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { AxiosResponse } from "axios";
 import Cookies from "js-cookie";
 import authApiClient from "../services/authApiClient";
-import { LoginRequest, SignupRequest } from "@/types";
+import { LoginRequest, SignupRequest, User } from "@/types";
+import { fetchUser } from "@/services/user";
 
 interface AuthContextType {
   companyId: string | undefined;
   tenantId: string | undefined;
   userId: string | undefined;
+  user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
   jwt: string | undefined;
   isLoading: boolean;
   isLoginError: boolean;
@@ -30,6 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [tenantId, setTenantId] = useState<string>();
   const [userId, setUserId] = useState<string>();
   const [jwt, setJwt] = useState<string>();
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false); // Track loading state
   const [authActionTriggered, setAuthActionTriggered] = useState<
     "login" | "signup" | null
@@ -37,26 +41,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isLoginError, setLoginError] = useState<boolean>(false);
 
   function readCookies() {
-    const storedCompanyId = Cookies.get("companyID");
-    if (storedCompanyId) {
-      setCompanyId(storedCompanyId);
-    }
+    const cookies = ["companyID", "tenantID", "userID", "jwt"];
+    const setters = [setCompanyId, setTenantId, setUserId, setJwt];
 
-    const storedTenantId = Cookies.get("tenantID");
-    if (storedTenantId) {
-      setTenantId(storedTenantId);
-    }
+    cookies.forEach((cookie, index) => {
+      const value = Cookies.get(cookie);
+      if (value) setters[index](value);
+    });
+  }
 
-    const storedUserId = Cookies.get("userID");
-    if (storedUserId) {
-      setUserId(storedUserId);
-    }
+  async function fetchUserData() {
+    if (!userId || !jwt) return;
 
-    const storedJwt = Cookies.get("jwt");
-    if (storedJwt) {
-      setJwt(storedJwt);
+    try {
+      setIsLoading(true);
+      const response = await fetchUser(userId);
+      setUser(response);
+      localStorage.setItem("user", JSON.stringify(response));
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setUser(null);
+      localStorage.removeItem("user");
+    } finally {
+      setIsLoading(false);
     }
   }
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    fetchUserData();
+  }, [userId, jwt]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -74,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // Reset the action after the effect runs to avoid it running continuously
       setAuthActionTriggered(null);
     }
-  }, [authActionTriggered, isLoading]);
+  }, [authActionTriggered]);
 
   const login = async (
     item: LoginRequest
@@ -125,7 +142,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ companyId, tenantId, userId, jwt, isLoading, isLoginError, login, signup }}
+      value={{
+        companyId,
+        tenantId,
+        userId,
+        jwt,
+        user,
+        setUser,
+        isLoading,
+        isLoginError,
+        login,
+        signup,
+      }}
     >
       {children}
     </AuthContext.Provider>
