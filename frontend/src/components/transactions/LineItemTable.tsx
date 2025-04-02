@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -60,10 +60,14 @@ export default function LineItemTable({
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  let rows = tableData[activeTableData] || [];
-  if (tableLimit) {
-    rows = rows.slice(0, tableLimit);
-  }
+  // Memoize the rows to avoid unnecessary recomputations
+  const rows = useMemo(() => {
+    const data = tableData[activeTableData] || [];
+    if (tableLimit) {
+      return data.slice(0, tableLimit); // Slice only when tableLimit is provided
+    }
+    return data;
+  }, [tableData, activeTableData, tableLimit]);
 
   const table = useReactTable({
     data: rows,
