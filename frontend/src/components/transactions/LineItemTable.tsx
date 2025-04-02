@@ -40,6 +40,7 @@ export type LineItemTableProps = {
     | "offsets";
   columns: ColumnDef<LineItem>[];
   paginated?: boolean;
+  tableLimit?: number;
 };
 
 export default function LineItemTable({
@@ -47,6 +48,7 @@ export default function LineItemTable({
   activePage,
   activeTableData,
   paginated = true,
+  tableLimit,
 }: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -58,14 +60,19 @@ export default function LineItemTable({
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  var rows = tableData[activeTableData] || [];
+  if (tableLimit) {
+    rows = rows.slice(0, tableLimit);
+  }
+
   const table = useReactTable({
-    data: tableData[activeTableData] || [],
+    data: rows,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    rowCount: tableData[activeTableData].length,
+    rowCount: rows.length,
     getRowId: (row: LineItem) => row.id,
     state: {
       sorting,

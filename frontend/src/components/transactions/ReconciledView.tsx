@@ -79,6 +79,7 @@ const ScopeTablePreview = ({
         activeTableData={`scope${scope}`}
         columns={reconciledColumns}
         paginated={false}
+        tableLimit={5}
       />
     </div>
   );
