@@ -39,6 +39,7 @@ export interface LineItemFilters {
     | "reconciled"
     | "unreconciled"
     | "offsets";
+  unpaginated?: boolean;
 }
 
 export type CreateLineItemRequest = {
@@ -232,11 +233,9 @@ export type User = {
   photo_url?: string;
 };
 
-
 export type GetUserProfileRequest = {
   id: string;
 };
-
 
 export type UpdateUserProfileRequest = {
   first_name?: string | null;

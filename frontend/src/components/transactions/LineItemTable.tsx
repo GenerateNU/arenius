@@ -9,6 +9,7 @@ import {
   getSortedRowModel,
   Row,
   ColumnDef,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -49,11 +50,7 @@ export default function LineItemTable({
 }: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const { tableData, pageIndex, pageSize, setPage, setPageSize } =
-    useTransactionsContext();
-
-  console.log("Active page: ", activePage);
-  console.log("tableData: ", tableData);
+  const { tableData } = useTransactionsContext();
 
   // object and boolean to handle clicking a row's action button
   const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
@@ -65,9 +62,9 @@ export default function LineItemTable({
     data: tableData[activeTableData].line_items || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    manualPagination: true,
     rowCount: tableData[activeTableData].total,
     getRowId: (row: LineItem) => row.id,
     state: {
@@ -205,11 +202,11 @@ export default function LineItemTable({
       </div>
       {paginated && (
         <DataTablePagination
-          page={pageIndex[activePage]}
-          pageLimit={pageSize[activePage]}
+          page={table.getState().pagination.pageIndex}
+          pageLimit={table.getState().pagination.pageSize}
           total_count={tableData[activePage].total}
-          setPage={(newPage) => setPage(activePage, newPage)}
-          setPageLimit={(newLimit) => setPageSize(activePage, newLimit)}
+          setPage={(newPage) => table.setPageIndex(newPage)}
+          setPageLimit={(newLimit) => table.setPageSize(newLimit)}
         />
       )}
 
