@@ -28,6 +28,14 @@ export function DataTablePagination({
   setPage,
   setPageLimit,
 }: DataTablePaginationProps) {
+  console.log("DataTablePagination: ", {
+    page,
+    pageLimit,
+    total_count,
+    setPage,
+    setPageLimit,
+  });
+
   return (
     <div className="flex items-center justify-end px-2 mt-4">
       <div className="flex items-center space-x-6 lg:space-x-8">
@@ -37,7 +45,7 @@ export function DataTablePagination({
             value={`${pageLimit}`}
             onValueChange={(value) => {
               setPageLimit(parseFloat(value));
-              setPage(1);
+              setPage(0);
             }}
           >
             <SelectTrigger className="h-8 w-[70px]">
@@ -53,14 +61,14 @@ export function DataTablePagination({
           </Select>
         </div>
         <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-          Page {page} of {getNumberPages(pageLimit, total_count)}
+          Page {page + 1} of {getNumberPages(pageLimit, total_count)}
         </div>
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
             className="hidden h-8 w-8 p-0 lg:flex"
-            onClick={() => setPage(1)}
-            disabled={page === 1}
+            onClick={() => setPage(0)}
+            disabled={page === 0}
           >
             <span className="sr-only">Go to first page</span>
             <ChevronsLeft />
@@ -69,7 +77,7 @@ export function DataTablePagination({
             variant="outline"
             className="h-8 w-8 p-0"
             onClick={() => setPage(page - 1)}
-            disabled={page === 1}
+            disabled={page === 0}
           >
             <span className="sr-only">Go to previous page</span>
             <ChevronLeft />
@@ -78,7 +86,7 @@ export function DataTablePagination({
             variant="outline"
             className="h-8 w-8 p-0"
             onClick={() => setPage(page + 1)}
-            disabled={page * pageLimit >= total_count}
+            disabled={(page + 1) * pageLimit > total_count}
           >
             <span className="sr-only">Go to next page</span>
             <ChevronRight />
@@ -86,8 +94,8 @@ export function DataTablePagination({
           <Button
             variant="outline"
             className="hidden h-8 w-8 p-0 lg:flex"
-            onClick={() => setPage(getNumberPages(pageLimit, total_count))}
-            disabled={page * pageLimit >= total_count}
+            onClick={() => setPage(getNumberPages(pageLimit, total_count) - 1)}
+            disabled={(page + 1) * pageLimit > total_count}
           >
             <span className="sr-only">Go to last page</span>
             <ChevronsRight />

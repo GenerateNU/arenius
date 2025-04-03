@@ -39,6 +39,7 @@ export interface LineItemFilters {
     | "reconciled"
     | "unreconciled"
     | "offsets";
+  unpaginated?: boolean;
 }
 
 export type CreateLineItemRequest = {
