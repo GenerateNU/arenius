@@ -39,6 +39,8 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 			filterQuery.WriteString(" AND (li.emission_factor_id IS NULL) AND (li.recommended_emission_factor_id IS NOT NULL)")
 		case "unreconciled":
 			filterQuery.WriteString(" AND (li.emission_factor_id IS NULL)")
+		case "offsets":
+			filterQuery.WriteString(" AND (li.scope = 0)")
 		}
 	}
 

@@ -70,16 +70,17 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      const [reconciled, unreconciled, recommended] = await Promise.all(
-        ["reconciled", "unreconciled", "recommended"].map((status) =>
-          fetchLineItems({
-            reconciliationStatus: status as TableKey,
-            ...filters,
-            company_id: companyId,
-          })
-        )
-      );
-      const offsets = reconciled.line_items.filter((item) => item.scope === 0);
+      const [reconciled, unreconciled, recommended, offsets] =
+        await Promise.all(
+          ["reconciled", "unreconciled", "recommended", "offsets"].map(
+            (status) =>
+              fetchLineItems({
+                reconciliationStatus: status as TableKey,
+                ...filters,
+                company_id: companyId,
+              })
+          )
+        );
       const scope1 = reconciled.line_items.filter((item) => item.scope === 1);
       const scope2 = reconciled.line_items.filter((item) => item.scope === 2);
       const scope3 = reconciled.line_items.filter((item) => item.scope === 3);
@@ -88,7 +89,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         reconciled: reconciled.line_items,
         unreconciled: unreconciled.line_items,
         recommended: recommended.line_items,
-        offsets,
+        offsets: offsets.line_items,
         scope1,
         scope2,
         scope3,
