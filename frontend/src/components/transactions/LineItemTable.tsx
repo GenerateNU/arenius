@@ -102,6 +102,8 @@ export default function LineItemTable({
     fetchAllData();
   };
 
+  console.log("tableData structure:", JSON.stringify(tableData, null, 2));
+
   return (
     <>
       <div className="rounded-md  bg-white">
@@ -163,14 +165,16 @@ export default function LineItemTable({
                         <button
                           onClick={() => handleReject(row.original)}
                           className="text-red-600 hover:text-red-800"
+                          title="Reject"
                         >
                           <X size={18} />
-                        </button>
                         <button
                           onClick={() => handleAccept(row.original)}
                           className="text-green-600 hover:text-green-800"
+                          title="Accept"
                         >
                           <Check size={18} />
+                        </button>
                         </button>
                       </div>
                     </TableCell>

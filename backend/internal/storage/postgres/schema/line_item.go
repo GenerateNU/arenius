@@ -35,6 +35,8 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 			filterQuery += " AND (li.emission_factor_id IS NULL) AND (li.recommended_emission_factor_id IS NOT NULL)"
 		} else if *filterParams.ReconciliationStatus == "unreconciled" {
 			filterQuery += " AND (li.emission_factor_id IS NULL)"
+		} else if *filterParams.ReconciliationStatus == "offsets" {
+			filterQuery += " AND li.scope == 0"
 		}
 	}
 	if filterParams.SearchTerm != nil {

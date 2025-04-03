@@ -111,9 +111,8 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
           ...filters,
           company_id: companyId,
         }),
-        // TODO: update this to fetch offsets once endpoint is built
         fetchLineItems({
-          reconciliationStatus: "reconciled",
+          reconciliationStatus: "offsets",
           ...filters,
           company_id: companyId,
         }),

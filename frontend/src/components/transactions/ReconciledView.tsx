@@ -57,6 +57,7 @@ const ScopeTablePreview = ({
   scope: 1 | 2 | 3;
   handleClick?: () => void;
 }) => {
+  console.log(`Rendering scope${scope} with data:`, [`scope${scope}`]);
   return (
     <div className="mt-4 mb-8">
       {scope && (
@@ -91,6 +92,7 @@ const ScopeReconciledView = ({
   scope: 1 | 2 | 3;
   handleClick: () => void;
 }) => {
+  console.log(`Rendering scope${scope} with data:`, [`scope${scope}`]);
   return (
     <div className="mt-4 mb-8">
       <div className="flex justify-between">

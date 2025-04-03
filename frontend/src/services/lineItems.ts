@@ -56,6 +56,7 @@ export async function fetchLineItems(
     const response = await apiClient.get("/line-item", {
       params: buildQueryParams(filters),
     });
+    console.log("Response from fetchLineItems:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching dashboard items", error);
