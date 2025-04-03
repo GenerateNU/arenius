@@ -7,14 +7,19 @@ import {
   useCallback,
 } from "react";
 import { fetchLineItems } from "@/services/lineItems";
-import { LineItem, LineItemFilters } from "@/types";
+import { GetLineItemResponse, LineItem, LineItemFilters } from "@/types";
 import { useAuth } from "./AuthContext";
 
-type TABLES = ["reconciled", "unreconciled", "recommended", "offsets"];
-export type TableKey = TABLES[number];
+const TABLES = [
+  "reconciled",
+  "unreconciled",
+  "recommended",
+  "offsets",
+] as const;
+export type TableKey = (typeof TABLES)[number];
 
-type SCOPES = ["scope1", "scope2", "scope3"];
-export type ScopeKey = SCOPES[number];
+const SCOPES = ["scope1", "scope2", "scope3"] as const;
+export type ScopeKey = (typeof SCOPES)[number];
 
 type ViewMode = "paginated" | "scoped";
 
@@ -62,6 +67,21 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  function filterByScope(reconciledData: GetLineItemResponse) {
+    const scope1 = reconciledData.line_items.filter((item) => item.scope === 1);
+    const scope2 = reconciledData.line_items.filter((item) => item.scope === 2);
+    const scope3 = reconciledData.line_items.filter((item) => item.scope === 3);
+    return { scope1, scope2, scope3 };
+  }
+
+  function fetchFilteredLineItems(reconciliationStatus: TableKey) {
+    return fetchLineItems({
+      ...filters,
+      reconciliationStatus,
+      company_id: companyId,
+    });
+  }
+
   // Fetch all data for all tables and scopes
   const fetchAllData = useCallback(async () => {
     if (!companyId) return;
@@ -71,19 +91,9 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
     try {
       const [reconciled, unreconciled, recommended, offsets] =
-        await Promise.all(
-          ["reconciled", "unreconciled", "recommended", "offsets"].map(
-            (status) =>
-              fetchLineItems({
-                reconciliationStatus: status as TableKey,
-                ...filters,
-                company_id: companyId,
-              })
-          )
-        );
-      const scope1 = reconciled.line_items.filter((item) => item.scope === 1);
-      const scope2 = reconciled.line_items.filter((item) => item.scope === 2);
-      const scope3 = reconciled.line_items.filter((item) => item.scope === 3);
+        await Promise.all(TABLES.map((table) => fetchFilteredLineItems(table)));
+
+      const { scope1, scope2, scope3 } = filterByScope(reconciled);
 
       setTableData({
         reconciled: reconciled.line_items,
@@ -104,20 +114,27 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
   // Fetch data for the active table only
   const fetchTableData = useCallback(
     async (table: TableKey) => {
-      if (!companyId) return;
-      // TODO: handle offsets properly
-      if (table == "offsets") return;
-
       setLoading(true);
       setError(null);
 
       try {
-        const data = await fetchLineItems({
-          reconciliationStatus: table,
-          ...filters,
-          company_id: companyId,
-        });
-        setTableData((prev) => ({ ...prev, [table]: data.line_items }));
+        const data = await fetchFilteredLineItems(table);
+
+        if (table === "reconciled") {
+          const { scope1, scope2, scope3 } = filterByScope(data);
+          setTableData((prev) => ({
+            ...prev,
+            [table]: data.line_items,
+            scope1,
+            scope2,
+            scope3,
+          }));
+        } else {
+          setTableData((prev) => ({
+            ...prev,
+            [table]: data.line_items,
+          }));
+        }
       } catch (err) {
         setError(`Failed to load data: ${err}`);
       }
@@ -133,6 +150,13 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       fetchAllData();
     }
   }, [companyId, fetchAllData]);
+
+  // Fetch data for the current table when the filters change
+  useEffect(() => {
+    if (companyId) {
+      fetchTableData(activePage);
+    }
+  }, [companyId, filters]);
 
   return (
     <TransactionContext.Provider

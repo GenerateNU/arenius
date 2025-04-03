@@ -103,8 +103,6 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	ORDER BY li.date DESC
 	%s`, filterQuery.String(), paginationClause)
 
-	fmt.Println("query: ", query)
-
 	rows, err := r.db.Query(ctx, query, filterArgs...)
 	if err != nil {
 		return nil, err
