@@ -8,7 +8,8 @@ import {
 import apiClient from "./apiClient";
 
 function buildQueryParams(filters: LineItemFilters) {
-  const params: Record<string, string | Date | number | undefined> = {};
+  const params: Record<string, string | Date | number | boolean | undefined> =
+    {};
 
   if (filters?.dates) {
     params.after_date = filters.dates.from;
@@ -45,6 +46,8 @@ function buildQueryParams(filters: LineItemFilters) {
   if (filters?.pageSize) {
     params.limit = filters.pageSize;
   }
+
+  params.unpaginated = true;
 
   return params;
 }
@@ -124,9 +127,14 @@ export async function reconcile(request: ReconcileRequest) {
   }
 }
 
-export async function handleRecommendation(lineItemId: string, accept: boolean) {
+export async function handleRecommendation(
+  lineItemId: string,
+  accept: boolean
+) {
   try {
-    await apiClient.patch(`line-item/handle-recommendation/${lineItemId}?accept=${accept}`);
+    await apiClient.patch(
+      `line-item/handle-recommendation/${lineItemId}?accept=${accept}`
+    );
   } catch (error) {
     console.error("Error updating dashboard items", error);
   }
