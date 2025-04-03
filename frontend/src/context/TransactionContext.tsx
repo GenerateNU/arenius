@@ -18,8 +18,8 @@ const TABLES = [
 ] as const;
 export type TableKey = (typeof TABLES)[number];
 
-const SCOPES = ["scope1", "scope2", "scope3"] as const;
-export type ScopeKey = (typeof SCOPES)[number];
+type SCOPES = ["scope1", "scope2", "scope3"];
+export type ScopeKey = SCOPES[number];
 
 type ViewMode = "paginated" | "scoped";
 
@@ -74,43 +74,6 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     return { scope1, scope2, scope3 };
   }
 
-  function fetchFilteredLineItems(reconciliationStatus: TableKey) {
-    return fetchLineItems({
-      ...filters,
-      reconciliationStatus,
-      company_id: companyId,
-    });
-  }
-
-  // Fetch all data for all tables and scopes
-  const fetchAllData = useCallback(async () => {
-    if (!companyId) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const [reconciled, unreconciled, recommended, offsets] =
-        await Promise.all(TABLES.map((table) => fetchFilteredLineItems(table)));
-
-      const { scope1, scope2, scope3 } = filterByScope(reconciled);
-
-      setTableData({
-        reconciled: reconciled.line_items,
-        unreconciled: unreconciled.line_items,
-        recommended: recommended.line_items,
-        offsets: offsets.line_items,
-        scope1,
-        scope2,
-        scope3,
-      });
-    } catch (err) {
-      setError(`Failed to load data: ${err}`);
-    }
-
-    setLoading(false);
-  }, [companyId]);
-
   // Fetch data for the active table only
   const fetchTableData = useCallback(
     async (table: TableKey) => {
@@ -118,7 +81,11 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       setError(null);
 
       try {
-        const data = await fetchFilteredLineItems(table);
+        const data = await fetchLineItems({
+          ...filters,
+          reconciliationStatus: table,
+          company_id: companyId,
+        });
 
         if (table === "reconciled") {
           const { scope1, scope2, scope3 } = filterByScope(data);
@@ -144,7 +111,23 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     [companyId, filters]
   );
 
-  // Fetch all data on mount when companyId becomes available
+  // Fetch all data for all tables and scopes
+  const fetchAllData = useCallback(async () => {
+    if (!companyId) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await Promise.all(TABLES.map((table) => fetchTableData(table)));
+    } catch (err) {
+      setError(`Failed to load data: ${err}`);
+    }
+
+    setLoading(false);
+  }, [companyId, fetchTableData]);
+
+  // // Fetch all data on mount when companyId becomes available
   useEffect(() => {
     if (companyId) {
       fetchAllData();
@@ -156,7 +139,9 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     if (companyId) {
       fetchTableData(activePage);
     }
-  }, [companyId, filters]);
+    // ignoring activePage in this dependency array since we don't need to refetch on page change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId, filters, fetchTableData]);
 
   return (
     <TransactionContext.Provider
