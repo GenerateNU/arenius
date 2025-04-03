@@ -68,9 +68,14 @@ const ScopeBreakdownChart = () => {
     <div className="flex flex-col items-center justify-center">
       <Card className="flex flex-col w-full max-w-screen-lg">
         <CardHeader className="pb-0 text-2xl">
-          <CardTitle>Scope Breakdown</CardTitle>
-          <CardDescription>
-            {startDate.toDateString()} - {endDate.toDateString()}
+          <CardTitle className="font-[Arimo] text-4xl">
+            Scope Breakdown
+          </CardTitle>
+          <CardDescription className="font-[Montserrat] py-2">
+            Total emissions (kg) for{" "}
+            <span className="font-bold">
+              {startDate.toLocaleDateString()} – {endDate.toLocaleDateString()}
+            </span>
           </CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center items-center w-full px-6 space-x-6">
@@ -80,14 +85,15 @@ const ScopeBreakdownChart = () => {
           >
             <ScopeChart chartData={chartData} />
           </ChartContainer>
-          <div className="flex flex-col justify-center space-y-4">
+          <div className="flex flex-col justify-center space-y-4 font-[Montserrat]">
             {chartData.map((item, index) => (
-              <div key={index} className="flex items-center space-x-2">
+              <div key={index} className="flex items-center space-x-4">
                 <div
                   className="w-2 h-2 rounded-full"
                   style={{ backgroundColor: item.fill }}
                 />
-                <div className="text-sm">{`${item.percentage}%`}</div>
+                <p className="text-sm">{`${item.percentage}%`}</p>
+
                 <div className="bg-[#F6F6F6] rounded-lg p-2 text-sm">
                   {`${item.name} - ${item.value
                     .toFixed()

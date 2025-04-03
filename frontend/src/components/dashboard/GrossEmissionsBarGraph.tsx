@@ -105,13 +105,15 @@ export default function GrossEmissionsBarGraph() {
               />
               <YAxis axisLine={false} fontFamily="Montserrat" />
               <ChartTooltip content={<CustomTooltip />} />
-              {Object.keys(chartConfig).map((key) => (
+              {Object.keys(chartConfig).map((key, index) => (
                 <Bar
                   key={key}
                   dataKey={key}
                   stackId="a"
                   fill={`url(#${key}Gradient)`}
                   radius={12}
+                  stroke="white"
+                  strokeWidth={2}
                 />
               ))}
             </BarChart>

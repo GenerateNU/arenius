@@ -202,18 +202,13 @@ func (r *SummaryRepository) GetScopeBreakdown(ctx context.Context, req models.Ge
 		SELECT
 			SUM(co2) AS total_co2,
 			scope AS scope      
-		FROM
-			line_item
-		WHERE
-			company_id = $1
-			AND date >= $2
-			AND date <= $3
-			AND scope IS NOT NULL
+		FROM line_item
+		WHERE company_id = $1
+			AND date >= $2 AND date <= $3
+			AND scope > 0
 			AND co2 IS NOT NULL
-		GROUP BY
-			scope
-		ORDER BY
-			scope;`
+		GROUP BY scope
+		ORDER BY scope;`
 
 	var summaries []models.NetSummary
 
