@@ -9,6 +9,7 @@ import { ArrowLeft, MapPin, Mail, Phone } from "lucide-react";
 import { GetLineItemResponse } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import ExportContactSummaryButton from "./ExportContactSummaryButton";
 
 interface ContactDetails {
   id: string;
@@ -127,9 +128,7 @@ export default function ContactDetailsContent() {
             <span className="text-xl font-bold">{contact.name}</span>
           </div>
         </div>
-        <Button variant="outline" className="flex items-center gap-2">
-          Export
-        </Button>
+        <ExportContactSummaryButton contactId={contactId} />
       </div>
 
       <div className="p-6 mx-auto">
