@@ -76,8 +76,13 @@ export async function createLineItem(
     emissions_factor_id: item.emission_factor_id,
     scope: item.scope,
     date: item.date,
+    //transaction_type: item.transaction_type,
   };
 
+  console.log("Creating line item:", new_item);
+  if (item.transaction_type === "offset") {
+    new_item.scope = 0;
+  }
   await apiClient
     .post("/line-item", new_item)
     .then((response) => {

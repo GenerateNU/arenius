@@ -47,8 +47,9 @@ export type CreateLineItemRequest = {
   currency_code: string;
   contact_id: string;
   emission_factor_id: string;
-  scope?: string;
+  scope?: number;
   date: Date;
+  transaction_type: "transaction" | "offset";
 };
 
 export type LoginRequest = {

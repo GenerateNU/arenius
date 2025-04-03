@@ -216,7 +216,6 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 	}
 
 	return &lineItem, nil
-
 }
 
 func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []models.AddImportedLineItemRequest) ([]models.LineItem, error) {
@@ -311,9 +310,9 @@ func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []in
 	}
 
 	// only include the optional columns if they exist
-	if req.EmissionFactor != nil {
+	if req.EmissionFactorId != nil {
 		columns = append(columns, "emission_factor")
-		queryArgs = append(queryArgs, *req.EmissionFactor)
+		queryArgs = append(queryArgs, *req.EmissionFactorId)
 	}
 
 	if req.CO2 != nil {
