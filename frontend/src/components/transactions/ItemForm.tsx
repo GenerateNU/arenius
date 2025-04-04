@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -54,6 +54,8 @@ export default function TransactionForm() {
   const { companyId } = useAuth();
   const { data: contactResponse } = useContacts();
   const { fetchTableData } = useTransactionsContext();
+  const dialogCloseRef = useRef<HTMLButtonElement>(null);
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -73,10 +75,7 @@ export default function TransactionForm() {
   const [tab, setTab] = useState("general");
   const [emissionsFactor, setEmissionsFactor] = useState<EmissionsFactor | undefined>(undefined);
 
-  console.log("Emissions Factor:", emissionsFactor);
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Form values:", values);
-    console.log("submitting");
     const fieldsToValidate = ["description", "amount", "date", "contact_id"];
     
     // Add carbon_amount validation for offsets
@@ -87,10 +86,8 @@ export default function TransactionForm() {
     for (const field of fieldsToValidate) {
       // Cast field to any to avoid type errors
       const fieldResult = await form.trigger(field as keyof z.infer<typeof formSchema>);
-      console.log(`Validation result for ${field}:`, fieldResult);
       if (!fieldResult) isValid = false;
     }
-    console.log("isValid:", isValid);
     
     if (!isValid) {
       // If there are validation errors in required fields, switch to the appropriate tab
@@ -101,34 +98,39 @@ export default function TransactionForm() {
       }
       return;
     }
-    console.log(companyId)
+    
     if (companyId) {
-      console.log("Submitting form with values:", values);
-      console.log("transactionType:", values.transactionType);
-      await createLineItem(
-        {
-          description: values.description,
-          total_amount: values.amount,
-          currency_code: values.currency_code,
-          contact_id: values.contact_id,
-          emission_factor_id: values.transactionType === "transaction" ? (emissionsFactor?.activity_id || "") : "",
-          scope: values.transactionType === "transaction" ? (values.scope || undefined) : 0,
-          date: new Date(values.date),
-          transaction_type: values.transactionType,
-          co2: values.transactionType === "offset" ? values.carbon_amount : undefined,
-          co2_unit: values.transactionType === "offset" ? "kg" : undefined,
-        },
-        companyId
-      );
-      
-      // add 2 sec timeout to allow for carbon estimates to be made
-      setTimeout(async () => {
-        await fetchTableData("unreconciled", {});
-        await fetchTableData("reconciled", {});
-        await fetchTableData("offsets", {});
-      }, 2000);
+      try {
+        await createLineItem(
+          {
+            description: values.description,
+            total_amount: values.amount,
+            currency_code: values.currency_code,
+            contact_id: values.contact_id,
+            emission_factor_id: values.transactionType === "transaction" ? (emissionsFactor?.activity_id || "") : "",
+            scope: values.transactionType === "transaction" ? (values.scope || undefined) : 0,
+            date: new Date(values.date),
+            transaction_type: values.transactionType,
+            co2: values.transactionType === "offset" ? values.carbon_amount : undefined,
+            co2_unit: values.transactionType === "offset" ? "kg" : undefined,
+          },
+          companyId
+        );
+        
+        // add 2 sec timeout to allow for carbon estimates to be made
+        setTimeout(async () => {
+          await fetchTableData("unreconciled", {});
+          await fetchTableData("reconciled", {});
+          await fetchTableData("offsets", {});
+          if (dialogCloseRef.current) {
+            dialogCloseRef.current.click();
+          }
+        }, 2000);
 
-      form.reset();
+        form.reset();
+      } catch (error) {
+        console.error("Error creating line item:", error);
+      }
     } else {
       console.error("Company ID is null");
       form.reset();
@@ -389,7 +391,7 @@ export default function TransactionForm() {
               >
                 Back
               </Button>
-              <DialogClose asChild>
+              <DialogClose ref={dialogCloseRef} asChild>
                 <Button className="bg-[#225244] hover:bg-[#1a3f35] text-white" type="submit">
                   Post Transaction
                 </Button>
