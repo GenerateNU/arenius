@@ -44,6 +44,7 @@ const ScopeBreakdownChart = () => {
   const totalEmissions = data.reduce((acc, cur) => acc + cur.total_co2, 0);
 
   const chartData = data.map((item) => ({
+    scope: item.scopes,
     name: `Scope ${item.scopes}`,
     value: item.total_co2,
     percentage: ((item.total_co2 / totalEmissions) * 100).toFixed(2),
