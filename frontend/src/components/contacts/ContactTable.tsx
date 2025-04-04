@@ -7,6 +7,7 @@ import {
   SortingState,
   useReactTable,
   getSortedRowModel,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -24,16 +25,16 @@ import { useRouter } from "next/navigation"; // Use useRouter here
 
 export default function ContactTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { data, pagination, setPagination } = useContacts();
+  const { data } = useContacts();
   const router = useRouter(); // Get router here
 
   const table = useReactTable({
     data: data.contacts || [],
     columns: columns(router), // Pass router as a prop to columns
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    manualPagination: true,
     rowCount: data.total,
     getRowId: (row: Contact) => row.id,
     state: {
@@ -94,15 +95,11 @@ export default function ContactTable() {
         </Table>
       </div>
       <DataTablePagination
-        page={pagination.pageIndex}
-        pageLimit={pagination.pageSize}
-        total_count={data.total}
-        setPage={(newPage) =>
-          setPagination({ ...pagination, pageIndex: newPage })
-        }
-        setPageLimit={(newLimit) =>
-          setPagination({ ...pagination, pageSize: newLimit })
-        }
+        page={table.getState().pagination.pageIndex}
+        pageLimit={table.getState().pagination.pageSize}
+        total_count={data.contacts?.length}
+        setPage={(newPage) => table.setPageIndex(newPage)}
+        setPageLimit={(newLimit) => table.setPageSize(newLimit)}
       />
       <br />
     </>
