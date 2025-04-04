@@ -32,7 +32,6 @@ import EmissionsFactorSelector from "./CategorySelector";
 import { EmissionsFactor } from "@/types";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-
 const formSchema = z.object({
   transactionType: z.enum(["transaction", "offset"], {
     required_error: "Transaction type is required",
@@ -63,13 +62,13 @@ export default function TransactionForm() {
     defaultValues: {
       transactionType: "transaction",
       description: "",
-      amount: 0,
+      amount: undefined,
       currency_code: "USD",
-      date: "",
+      date: undefined,
       contact_id: "",
       emissions_category: undefined,
       scope: undefined,
-      carbon_amount: 0,
+      carbon_amount: undefined,
     },
   });
 
@@ -104,6 +103,7 @@ export default function TransactionForm() {
     
     if (companyId) {
       try {
+        console.log("date", values.date);
         await createLineItem(
           {
             description: values.description,
@@ -112,7 +112,7 @@ export default function TransactionForm() {
             contact_id: values.contact_id,
             emission_factor_id: values.transactionType === "transaction" ? (emissionsFactor?.activity_id || "") : "",
             scope: values.transactionType === "transaction" ? (values.scope || undefined) : 0,
-            date: new Date(values.date),
+            date: values.date,
             transaction_type: values.transactionType,
             co2: values.transactionType === "offset" ? values.carbon_amount : undefined,
             co2_unit: values.transactionType === "offset" ? "kg" : undefined,
@@ -185,7 +185,7 @@ export default function TransactionForm() {
                       form.setValue("emissions_category", "");
                       setEmissionsFactor(undefined);
                     } else {
-                      form.setValue("carbon_amount", 0);
+                      form.setValue("carbon_amount", undefined);
                     }
                   }}
                   defaultValue={field.value}
@@ -244,7 +244,9 @@ export default function TransactionForm() {
                         placeholder="$400" 
                         {...field} 
                         onChange={(e) => {
-                          field.onChange(e.target.valueAsNumber || 0);
+                          const rawValue = e.target.value;
+                          const sanitizedValue = rawValue.replace(/^0+(?=\d)/, ""); // remove leading zeros
+                          field.onChange(Number(sanitizedValue));
                         }}
                       />
                     </FormControl>
@@ -255,7 +257,7 @@ export default function TransactionForm() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
+            <FormField
                 control={form.control}
                 name="date"
                 render={({ field }) => (
@@ -380,7 +382,7 @@ export default function TransactionForm() {
                         placeholder="1000" 
                         {...field} 
                         onChange={(e) => {
-                          field.onChange(e.target.valueAsNumber || 0);
+                          field.onChange(e.target.valueAsNumber || "");
                         }}
                       />
                     </FormControl>

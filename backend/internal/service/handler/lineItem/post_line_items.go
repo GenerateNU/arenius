@@ -4,6 +4,7 @@ import (
 	"arenius/internal/errs"
 	"arenius/internal/models"
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -27,6 +28,16 @@ func (h *Handler) PostLineItem(c *fiber.Ctx) error {
 	}
 	if req.ContactID == "" {
 		return errs.BadRequest("Contact ID is required")
+	}
+
+	if req.Date != nil {
+		parsedDate, err := time.Parse("2006-01-02", *req.Date)
+
+		if err != nil {
+			return errs.BadRequest(fmt.Sprintf("Invalid date format: %v", err))
+		}
+		utcDate := parsedDate.UTC().Format(time.RFC3339)
+		req.Date = &utcDate
 	}
 
 	createdItem, err := h.lineItemRepository.CreateLineItem(c.Context(), req)

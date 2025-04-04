@@ -49,7 +49,7 @@ export type CreateLineItemRequest = {
   contact_id: string;
   emission_factor_id: string;
   scope?: number;
-  date: Date;
+  date: string;
   transaction_type: "transaction" | "offset";
   co2?: number;
   co2_unit?: string;
