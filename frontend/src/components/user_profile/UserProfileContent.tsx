@@ -6,6 +6,7 @@ import { UpdateUserProfileRequest } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, MapPin } from "lucide-react";
 import Image from "next/image";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../ui/button";
@@ -27,7 +28,17 @@ const formSchema = z.object({
 });
 
 export default function UserProfileContent() {
+
   const { user, setUser, userId } = useAuth();
+
+  useEffect(() => {
+    form.reset({
+      first_name: user?.first_name ?? "",
+      last_name: user?.last_name ?? "",
+      city: user?.city ?? "",
+      state: user?.state ?? "",
+    });
+  }, [user])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -67,7 +78,6 @@ export default function UserProfileContent() {
     try {
       const response = await updateUserProfile(userId, req);
       if (response) {
-        form.reset();
         setUser(response);
       }
     } catch (error) {
