@@ -7,7 +7,6 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import { PaginationState } from "@tanstack/react-table";
 
 import { useAuth } from "@/context/AuthContext";
 import { fetchContacts } from "@/services/contacts";
@@ -37,7 +36,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({
   const [filters, setFilters] = useState<GetContactsRequest>(
     {} as GetContactsRequest
   );
-  const { companyId, tenantId, isLoading } = useAuth();
+  const { companyId, isLoading } = useAuth();
 
   const fetchData = useCallback(async () => {
     if (isLoading) {
@@ -60,7 +59,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error("Error fetching contacts:", error);
     }
-  }, [filters, companyId, tenantId, isLoading]);
+  }, [filters, companyId, isLoading]);
 
   useEffect(() => {
     if (!isLoading && companyId) {
