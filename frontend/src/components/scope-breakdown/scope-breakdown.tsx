@@ -13,11 +13,12 @@ import { useDateRange } from "@/context/DateRangeContext";
 import { useAuth } from "@/context/AuthContext";
 import { ScopeBreakdown } from "@/types";
 import { fetchScopeBreakdown } from "@/services/dashboard";
+import { formatNumber } from "@/lib/utils";
 
 const ScopeBreakdownChart = () => {
   const [data, setData] = useState<ScopeBreakdown[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const { dateRange } = useDateRange();
+  const { dateRange, formattedDateRange } = useDateRange();
 
   const threeMonthsAgo = new Date();
   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
@@ -74,9 +75,7 @@ const ScopeBreakdownChart = () => {
           </CardTitle>
           <CardDescription className="font-[Montserrat] py-2">
             Total emissions (kg) for{" "}
-            <span className="font-bold">
-              {startDate.toLocaleDateString()} – {endDate.toLocaleDateString()}
-            </span>
+            <span className="font-bold">{formattedDateRange}</span>
           </CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center items-center w-full px-6 space-x-6">
@@ -96,9 +95,7 @@ const ScopeBreakdownChart = () => {
                 <p className="text-sm">{`${item.percentage}%`}</p>
 
                 <div className="bg-[#F6F6F6] rounded-lg p-2 text-sm">
-                  {`${item.name} - ${item.value
-                    .toFixed()
-                    .toLocaleString()} kg CO2`}
+                  {`${item.name} - ${formatNumber(item.value)} kg CO2`}
                 </div>
               </div>
             ))}

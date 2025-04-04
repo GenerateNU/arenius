@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { useDateRange } from "@/context/DateRangeContext";
+import { formatDate } from "@/lib/utils";
 import apiClient from "@/services/apiClient";
 import { useState, useEffect } from "react";
 
@@ -20,26 +21,9 @@ interface EmissionFactor {
 }
 
 export default function TopEmissionsFactors() {
-  const { dateRange } = useDateRange();
+  const { dateRange, formattedDateRange } = useDateRange();
   const [emissions, setEmissions] = useState<EmissionFactor[]>([]);
   const { jwt, companyId, isLoading } = useAuth();
-
-  // Get the start and end date from the DateRange context
-  const formattedStartMonth =
-    new Date(dateRange?.from ?? "").toLocaleDateString("en-US", {
-      month: "long",
-      timeZone: "UTC",
-    }) || "";
-  const formattedStartDay = new Date(dateRange?.from ?? "").getDate() || "";
-  const formattedEndMonth =
-    new Date(dateRange?.to ?? "").toLocaleDateString("en-US", {
-      month: "long",
-      timeZone: "UTC",
-    }) || "";
-  const formattedEndDay = dateRange?.to ? new Date(dateRange.to).getDate() : "";
-  const formattedEndYear = dateRange?.to
-    ? new Date(dateRange.to).getFullYear()
-    : "";
 
   useEffect(() => {
     if (!companyId) {
@@ -78,36 +62,37 @@ export default function TopEmissionsFactors() {
   return (
     <Card className="w-full max-w-3xl mx-auto px-6 rounded-xl shadow-sm border border-gray-100">
       <CardHeader className="px-0 pb-6">
-        <CardTitle className="text-2xl font-bold text-gray-800">
+        <CardTitle className="text-black text-4xl mb-2 font-semibold">
           Top Emissions Factors
         </CardTitle>
-        <CardDescription className="text-gray-500 mt-2 text-lg">
-          for {formattedStartDay} {formattedStartMonth} — {formattedEndDay}{" "}
-          {formattedEndMonth}, {formattedEndYear}
+        <CardDescription className="font-[Montserrat] py-2">
+          Total emissions (kg) for{" "}
+          <span className="font-bold">{formattedDateRange}</span>
         </CardDescription>
       </CardHeader>
       <CardContent className="px-0">
         <div className="space-y-2">
-          {emissions && emissions.map((factor, index) => (
-            <div
-              key={factor.rank}
-              className={`flex justify-between items-center p-4 rounded-lg ${
-                index % 2 === 0 ? "bg-green-50" : "bg-white"
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <span className="text-2xl font-bold text-gray-800">
-                  {factor.rank}
-                </span>
-                <span className="text-l text-gray-700">
-                  {factor.emission_factor}
-                </span>
+          {emissions &&
+            emissions.map((factor, index) => (
+              <div
+                key={factor.rank}
+                className={`flex justify-between items-center p-4 rounded-lg ${
+                  index % 2 === 0 ? "bg-green-50" : "bg-white"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <span className="text-2xl font-bold text-gray-800">
+                    {factor.rank}
+                  </span>
+                  <span className="text-l text-gray-700">
+                    {factor.emission_factor}
+                  </span>
+                </div>
+                <div className="text-xl font-medium">
+                  {factor.total_co2.toFixed(0)} tn
+                </div>
               </div>
-              <div className="text-xl font-medium">
-                {factor.total_co2.toFixed(0)} tn
-              </div>
-            </div>
-          ))}
+            ))}
         </div>
       </CardContent>
     </Card>

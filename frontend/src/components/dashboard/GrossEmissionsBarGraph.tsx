@@ -21,6 +21,7 @@ import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import useEmissionSummary from "@/hooks/useEmissionSummary";
 import { MonthSummary } from "@/types";
 import { formatDate, formatNumber } from "@/lib/utils";
+import { useDateRange } from "@/context/DateRangeContext";
 
 export const chartConfig = {
   scope3: {
@@ -42,10 +43,7 @@ export const chartConfig = {
 
 export default function GrossEmissionsBarGraph() {
   const { summary } = useEmissionSummary();
-  const formattedStartMonth = formatDate(summary.start_date, "shortMonth");
-  const formattedStartYear = formatDate(summary.start_date, "year");
-  const formattedEndMonth = formatDate(summary.end_date, "shortMonth");
-  const formattedEndYear = formatDate(summary.end_date, "year");
+  const { formattedDateRange } = useDateRange();
 
   const chartData = summary.months?.map((month: MonthSummary) => ({
     month: formatDate(month.month_start, "shortMonth"),
@@ -69,10 +67,7 @@ export default function GrossEmissionsBarGraph() {
             </CardDescription>
             <CardDescription className="font-[Montserrat] py-2">
               Total emissions (kg) for{" "}
-              <span className="font-bold">
-                {formattedStartMonth} {formattedStartYear} – {formattedEndMonth}{" "}
-                {formattedEndYear}
-              </span>
+              <span className="font-bold">{formattedDateRange}</span>
             </CardDescription>
           </div>
           <CustomLegend />

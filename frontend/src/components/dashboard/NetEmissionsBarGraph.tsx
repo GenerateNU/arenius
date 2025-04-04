@@ -28,6 +28,7 @@ import { BarRectangleItem } from "recharts/types/cartesian/Bar";
 import { useId } from "react";
 import useEmissionSummary from "@/hooks/useEmissionSummary";
 import { formatDate, formatNumber } from "@/lib/utils";
+import { useDateRange } from "@/context/DateRangeContext";
 
 const chartConfig = {
   emissions: {
@@ -72,10 +73,7 @@ function BarGradient(props: BarRectangleItem) {
 
 export default function NetEmissionsBarGraph() {
   const { summary } = useEmissionSummary();
-  const formattedStartMonth = formatDate(summary.start_date, "shortMonth");
-  const formattedStartYear = formatDate(summary.start_date, "year");
-  const formattedEndMonth = formatDate(summary.end_date, "shortMonth");
-  const formattedEndYear = formatDate(summary.end_date, "year");
+  const { formattedDateRange } = useDateRange();
 
   const chartData =
     summary.months?.map((month: MonthSummary) => ({
@@ -91,17 +89,14 @@ export default function NetEmissionsBarGraph() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <div>
             <CardTitle className="font-[Arimo] text-4xl">
               Net Emissions
             </CardTitle>
             <CardDescription className="font-[Montserrat] py-2">
               Total emissions (kg) for{" "}
-              <span className="font-bold">
-                {formattedStartMonth} {formattedStartYear} – {formattedEndMonth}{" "}
-                {formattedEndYear}
-              </span>
+              <p className="font-bold">{formattedDateRange}</p>
             </CardDescription>
           </div>
           <CustomLegend />
