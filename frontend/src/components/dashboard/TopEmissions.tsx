@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { useDateRange } from "@/context/DateRangeContext";
-import { formatDate } from "@/lib/utils";
 import apiClient from "@/services/apiClient";
 import { useState, useEffect } from "react";
 

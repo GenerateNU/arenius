@@ -77,10 +77,7 @@ export default function NetEmissionsBarGraph() {
 
   const chartData =
     summary.months?.map((month: MonthSummary) => ({
-      month: new Date(month.month_start).toLocaleString("en-US", {
-        month: "short",
-        timeZone: "UTC",
-      }),
+      month: formatDate(month.month_start, "shortMonth"),
       offsets: month.offsets || 0,
       emissions: month.emissions || 0,
       netEmissions: (month.emissions || 0) - (month.offsets || 0),

@@ -34,7 +34,7 @@ const ScopeChart: React.FC<{
         paddingAngle={3}
         stroke="#fff"
         strokeWidth={2}
-        cornerRadius={262}
+        cornerRadius={36}
         labelLine={false}
       >
         {chartData.map((_, index) => (
