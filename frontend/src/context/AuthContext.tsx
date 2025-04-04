@@ -34,10 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [userId, setUserId] = useState<string>();
   const [jwt, setJwt] = useState<string>();
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false); // Track loading state
-  const [authActionTriggered, setAuthActionTriggered] = useState<
-    "login" | "signup" | null
-  >(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoginError, setLoginError] = useState<boolean>(false);
 
   function readCookies() {
@@ -58,7 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const response = await fetchUser(userId);
       setUser(response);
       localStorage.setItem("user", JSON.stringify(response));
-    } catch (error: Error | unknown) {
+    } catch (error) {
       setUser(null);
       localStorage.removeItem("user");
       console.error("Error fetching user data:", error);
@@ -67,49 +64,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
+  // Initialize state on mount
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("authComplete") === "true") {
-      setAuthActionTriggered("signup"); // Trigger after Xero authentication is complete
-    } else {
-      readCookies();
+    // Read cookies to populate initial state
+    readCookies();
+
+    // Check for stored user in localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Error parsing user from localStorage:", error);
+        localStorage.removeItem("user");
+      }
     }
+
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
-    if (authActionTriggered) {
-      readCookies();
-
-      // Reset the action after the effect runs to avoid it running continuously
-      setAuthActionTriggered(null);
+    if (userId && jwt && !user) {
+      fetchUserData();
     }
-  }, [authActionTriggered]);
+  }, [userId, jwt]);
 
   const login = async (
     item: LoginRequest
   ): Promise<{ response?: AxiosResponse; error?: unknown }> => {
-    setIsLoading(true); // Set loading to true when login starts
-    setLoginError(false); // Reset error state before attempting login
+    setIsLoading(true);
+    setLoginError(false);
+
     try {
       const response = await authApiClient.post("/auth/login", item);
 
-      // Trigger the effect by setting the state
-      setAuthActionTriggered("login");
+      setUserId(response.data.user.id);
+      setJwt(response.data.access_token);
+
       fetchUserData();
+
       return { response };
     } catch (error) {
       setLoginError(true);
       console.error("Login error:", error);
       return { error };
     } finally {
-      setIsLoading(false); // Set loading to false when login finishes
+      setIsLoading(false);
     }
   };
 
   const signup = async (
     item: SignupRequest
   ): Promise<{ response?: AxiosResponse; error?: unknown }> => {
-    setIsLoading(true); // Set loading to true when signup starts
+    setIsLoading(true);
 
     const payload = {
       email: item.email,
@@ -120,7 +127,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     try {
       const response = await authApiClient.post("/auth/signup", payload);
-      setAuthActionTriggered("signup");
+
+      setUserId(response.data.user.id);
+      setJwt(response.data.access_token);
+
       fetchUserData();
 
       return { response };
