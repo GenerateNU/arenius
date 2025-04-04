@@ -25,7 +25,7 @@ export async function createContact(
 }
 
 function buildQueryParams(filters: GetContactsRequest) {
-  const params: Record<string, string | number | undefined> = {};
+  const params: Record<string, string | number | boolean | undefined> = {};
 
   if (filters?.search_term) {
     params.search_term = filters.search_term;
@@ -37,6 +37,8 @@ function buildQueryParams(filters: GetContactsRequest) {
     params.limit = filters.pageSize;
   }
 
+  params.unpaginated = true;
+
   return params;
 }
 
@@ -44,11 +46,9 @@ export async function fetchContacts(
   req: GetContactsRequest
 ): Promise<GetContactsResponse> {
   try {
-    console.log("fetchContacts:");
     const response = await apiClient.get(`/contact/company/${req.company_id}`, {
       params: buildQueryParams(req),
     });
-    console.log("Response from fetchContacts:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching contacts", error);

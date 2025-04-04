@@ -22,8 +22,6 @@ interface ContactContextValue {
       | GetContactsRequest
       | ((prevFilters: GetContactsRequest) => GetContactsRequest)
   ) => void;
-  pagination: PaginationState;
-  setPagination: React.Dispatch<React.SetStateAction<PaginationState>>;
 }
 
 const ContactContext = createContext<ContactContextValue | undefined>(
@@ -39,10 +37,6 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({
   const [filters, setFilters] = useState<GetContactsRequest>(
     {} as GetContactsRequest
   );
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 1,
-    pageSize: 10,
-  });
   const { companyId, tenantId, isLoading } = useAuth();
 
   const fetchData = useCallback(async () => {
@@ -60,20 +54,19 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log("Fetching contacts...");
       const result = await fetchContacts({
         ...filters,
-        ...pagination,
         company_id: companyId,
       });
       setData(result);
     } catch (error) {
       console.error("Error fetching contacts:", error);
     }
-  }, [filters, pagination, companyId, tenantId, isLoading]);
+  }, [filters, companyId, tenantId, isLoading]);
 
   useEffect(() => {
     if (!isLoading && companyId) {
       fetchData();
     }
-  }, [companyId, fetchData, filters, isLoading, pagination]);
+  }, [companyId, fetchData, filters, isLoading]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -86,8 +79,6 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({
         fetchData,
         filters,
         setFilters,
-        pagination,
-        setPagination,
       }}
     >
       {children}

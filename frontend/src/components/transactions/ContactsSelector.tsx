@@ -40,7 +40,7 @@ export default function ContactSelector({
           <ChevronDown className="ml-2" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-80">
+      <DropdownMenuContent className="w-80 max-h-96 overflow-y-auto">
         {contactResponse?.contacts && contactResponse?.contacts.length > 0 ? (
           contactResponse.contacts.map((c) => (
             <DropdownMenuItem key={c.id} onClick={() => setContact(c)}>
