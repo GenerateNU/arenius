@@ -51,6 +51,8 @@ export type CreateLineItemRequest = {
   scope?: number;
   date: Date;
   transaction_type: "transaction" | "offset";
+  co2?: number;
+  co2_unit?: string;
 };
 
 export type LoginRequest = {
