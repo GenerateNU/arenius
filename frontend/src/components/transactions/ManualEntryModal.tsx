@@ -15,7 +15,7 @@ const ManualEntryModal = () => {
   return (
     <Dialog>
       <DialogTrigger className={cn(buttonVariants({ variant: "default" }))}>
-        Manual entry
+        Add Manual Upload
       </DialogTrigger>
       <DialogContent className="w-[600px]">
         <DialogHeader>

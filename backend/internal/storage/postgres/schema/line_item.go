@@ -40,6 +40,13 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	if filterParams.SearchTerm != nil {
 		filterQuery += fmt.Sprintf(" AND (li.description ILIKE '%%%s%%')", *filterParams.SearchTerm)
 	}
+	if filterParams.CarbonOffset != nil {
+		if *filterParams.CarbonOffset {
+			filterQuery += " AND (li.scope = 0)"
+		} else {
+			filterQuery += " AND (li.scope != 0)"
+		}
+	}
 
 	filterColumns := []string{}
 	filterArgs := []interface{}{}
@@ -77,8 +84,9 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		filterArgs = append(filterArgs, *filterParams.ContactID)
 	}
 
+	totalCount := len(filterColumns)
 	for i := 0; i < len(filterColumns); i++ {
-		filterQuery += fmt.Sprintf(" AND (%s$%d)", filterColumns[i], i+3)
+		filterQuery += fmt.Sprintf(" AND (%s$%d)", filterColumns[i], i+1)
 	}
 
 	query := `
@@ -88,10 +96,16 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	LEFT JOIN emission_factor rec_ef ON li.recommended_emission_factor_id = rec_ef.activity_id
 	LEFT JOIN contact c on li.contact_id = c.id ` + filterQuery + `
 	ORDER BY li.date DESC
-	LIMIT $1 OFFSET $2
 	`
 
-	queryArgs := append([]interface{}{pagination.Limit, pagination.GetOffset()}, filterArgs...)
+	var queryArgs []interface{}
+	if filterParams.Unpaginated != nil && *filterParams.Unpaginated {
+		queryArgs = filterArgs
+	} else {
+		queryArgs = append(filterArgs, pagination.Limit, pagination.GetOffset())
+		query += fmt.Sprintf(` LIMIT $%d OFFSET $%d`, totalCount+1, totalCount+2)
+	}
+
 	rows, err := r.db.Query(ctx, query, queryArgs...)
 	if err != nil {
 		return nil, err
@@ -107,13 +121,10 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	SELECT count(*)
 	FROM line_item li
 	LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id
-	LEFT JOIN contact c on li.contact_id = c.id ` + filterQuery + `
-	AND $1 AND $2
-	` // The $1 and $2 are because filterQuery starts at $3, just make them dummy values here
+	LEFT JOIN contact c on li.contact_id = c.id ` + filterQuery
 
 	var total int
-	countArgs := append([]interface{}{"TRUE", "TRUE"}, filterArgs...)
-	err = r.db.QueryRow(ctx, total_query, countArgs...).Scan(&total)
+	err = r.db.QueryRow(ctx, total_query, filterArgs...).Scan(&total)
 	if err != nil {
 		return nil, err
 	}

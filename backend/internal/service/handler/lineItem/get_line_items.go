@@ -26,6 +26,10 @@ func (h *Handler) GetLineItems(c *fiber.Ctx) error {
 	}
 
 	if filterParams.Scope != nil {
+		if filterParams.CarbonOffset != nil {
+			return errs.BadRequest("Scope and carbon_offset cannot both be set.")
+		}
+
 		if *filterParams.Scope != 0 &&
 			*filterParams.Scope != 1 &&
 			*filterParams.Scope != 2 &&

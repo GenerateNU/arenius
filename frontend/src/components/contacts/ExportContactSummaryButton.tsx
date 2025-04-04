@@ -18,7 +18,6 @@ export default function ExportContactSummaryButton({contactId} : ExportContactSu
                 Authorization: `Bearer ${jwt}`,
             },
         });
-        // TODO: what type is returned?
   
         const trasactionsResponse = await apiClient.get(`/line-item/`, {
             headers: {
@@ -31,8 +30,6 @@ export default function ExportContactSummaryButton({contactId} : ExportContactSu
         });
   
         const { contact, summary } = response.data;
-
-        console.log(summary)
 
         // First sheet to be the summary data
         const summaryData = [

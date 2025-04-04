@@ -111,10 +111,14 @@ Pagination defaults to page 1, limit 10.
 
 Also returns `total` and `count`, where total is the total number of line items that fit those query parameters, ignoring pagination, and count is the number of line items returned in this request.
 
+`reconcilation_status` should be one of: ["reconciled", "unreconciled", "recommended"]
+
+If `carbon_offset` is true, will return only scope 0 line items. If it is false, will return all non-zero scoped line items. Both `scope` and `carbon_offset` cannot be set simulateneously.
+
 ```go
 Query Parameters:
 - `company_id` (string, optional)
-- `reconciliation_status` (bool, optional)
+- `reconciliation_status` (string, optional)
 - `before_date` (time.Time, optional)
 - `after_date` (time.Time, optional)
 - `scope` (int, optional)
@@ -125,6 +129,7 @@ Query Parameters:
 - `contact_id` (string, optional)
 - `limit` (int, optional)
 - `page` (int, optional)
+- `carbon_offset` (bool, optional)
 Example:
 - URL: `http://127.0.0.1:8080/line-item?scope=2&limit=50&page=2`
 ```

@@ -52,9 +52,6 @@ export default function LineItemTable({
   const { tableData, pageIndex, pageSize, setPage, setPageSize } =
     useTransactionsContext();
 
-  console.log("Active page: ", activePage);
-  console.log("tableData: ", tableData);
-
   // object and boolean to handle clicking a row's action button
   const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
     null
