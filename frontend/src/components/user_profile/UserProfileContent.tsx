@@ -7,7 +7,7 @@ import { UpdateUserProfileRequest } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, MapPin } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import DeleteAccountButton from "../auth/deleteAccount";
@@ -33,6 +33,11 @@ export default function UserProfileContent() {
 
   const [message, setMessage] = useState<string | null>(null);
   const { user, setUser, userId } = useAuth();
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     form.reset({
@@ -98,17 +103,52 @@ export default function UserProfileContent() {
     }
   }
 
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      // TODO: handle this logic 
+    }
+  };
+
   return (
     <div className="sm:p-20 w-4/5 mx-auto font-[family-name:var(--font-geist-sans)] flex-1">
       {message && <div className={styles.message}>{message}</div>}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex items-start">
-          <div className="mr-6">
+          <div className="relative mr-6">
             <Image
-              src={user.photo_url || ""}
+              src={user.photo_url || "/profile.png"}
               alt="User Profile"
               width={60}
               height={60}
+              className="rounded-full border border-gray-300 shadow-md"
+            />
+
+            <button
+              type="button"
+              title="Edit Photo"
+              className="w-6 h-6 absolute bottom-0 right-0 bg-white rounded-full shadow-md border border-gray-300 flex items-center justify-center"
+              onClick={handleUploadClick}
+            >
+              <Image
+                src="/edit.svg"
+                alt="Edit"
+                width={10}
+                height={10}
+              />
+            </button>
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              style={{ display: "none" }}
             />
           </div>
 
