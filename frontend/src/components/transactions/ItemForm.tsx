@@ -31,6 +31,12 @@ import { useTransactionsContext } from "@/context/TransactionContext";
 import EmissionsFactorSelector from "./CategorySelector";
 import { EmissionsFactor } from "@/types";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/lib/utils";
+import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover";
+import { Calendar as CalendarIcon } from "lucide-react"; // Icon, not component
+import { Calendar } from "@/components/ui/calendar"; // The actual calendar component
+
+import { format } from "date-fns";
 
 const formSchema = z.object({
   transactionType: z.enum(["transaction", "offset"], {
@@ -218,12 +224,12 @@ export default function TransactionForm() {
 
           {/* General Tab */}
           <TabsContent value="general" className="space-y-6 pt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="description"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="md:col-span-1">
                     <FormLabel>Description <span className="text-red-500">*</span></FormLabel>
                     <FormControl>
                       <Input placeholder="e.g. January electricity" {...field} />
@@ -236,13 +242,14 @@ export default function TransactionForm() {
                 control={form.control}
                 name="amount"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="md:col-span-1">
                     <FormLabel>Cost ($) <span className="text-red-500">*</span></FormLabel>
                     <FormControl>
                       <Input 
                         type="number" 
                         placeholder="$400" 
                         {...field} 
+                        value={field.value || ""}
                         onChange={(e) => {
                           const rawValue = e.target.value;
                           const sanitizedValue = rawValue.replace(/^0+(?=\d)/, ""); // remove leading zeros
@@ -254,17 +261,39 @@ export default function TransactionForm() {
                   </FormItem>
                 )}
               />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
+              <FormField
                 control={form.control}
                 name="date"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Date <span className="text-red-500">*</span></FormLabel>
                     <FormControl>
-                      <Input type="date" placeholder="4/13/25" {...field} />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button 
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(new Date(field.value), "LLL dd, y")
+                            ) : (
+                              <span>Select date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 bg-white border border-gray-200 shadow-md rounded-md" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -381,6 +410,7 @@ export default function TransactionForm() {
                         type="number" 
                         placeholder="1000" 
                         {...field} 
+                        value={field.value || ""}
                         onChange={(e) => {
                           field.onChange(e.target.valueAsNumber || "");
                         }}
