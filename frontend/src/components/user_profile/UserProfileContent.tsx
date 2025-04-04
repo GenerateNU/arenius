@@ -130,7 +130,7 @@ export default function UserProfileContent() {
           <div className="w-1/4">
             <h2 className="text-xl font-semibold mb-4">General</h2>
             <div className="flex flex-col space-y-4">
-              <Link href="/edit-password" passHref>
+              <Link href="/reset-password" passHref>
                 <span className="text-gray-800 font-semibold cursor-pointer">
                   Edit Password
                 </span>

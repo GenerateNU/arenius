@@ -39,7 +39,7 @@ export default function ResetPasswordPage() {
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver:xxxxxxxxxxa zodResolver(formSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       password: "",
     },
