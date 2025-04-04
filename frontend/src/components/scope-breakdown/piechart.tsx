@@ -73,7 +73,7 @@ const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
             }}
           />
           <span className="text-sm text-gray-700 font-medium">
-            {data?.label || "Scope"}: {formatNumber(data?.value)} kg
+            {formatNumber(data?.value)} kg
           </span>
         </div>
       </div>

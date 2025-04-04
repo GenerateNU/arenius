@@ -21,7 +21,6 @@ import {
 import {
   ChartConfig,
   ChartContainer,
-  ChartLegend,
   ChartTooltip,
 } from "@/components/ui/chart";
 import { MonthSummary } from "@/types";
@@ -31,13 +30,13 @@ import useEmissionSummary from "@/hooks/useEmissionSummary";
 import { formatDate, formatNumber } from "@/lib/utils";
 
 const chartConfig = {
-  offsets: {
-    label: "Offsets",
-    color: "#C7CFCD",
-  },
   emissions: {
     label: "Gross emissions",
     color: "#5F8D39",
+  },
+  offsets: {
+    label: "Offsets",
+    color: "#C7CFCD",
   },
   netEmissions: {
     label: "Net emissions",
@@ -92,41 +91,37 @@ export default function NetEmissionsBarGraph() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle style={{ fontSize: "1.5rem" }}>Net Emissions</CardTitle>
-        <br />
-        <CardDescription>
-          Net emissions (kg) for {formattedStartMonth} {formattedStartYear} -{" "}
-          {formattedEndMonth} {formattedEndYear}
-        </CardDescription>
+        <div className="flex justify-between">
+          <div>
+            <CardTitle className="font-[Arimo] text-4xl">
+              Net Emissions
+            </CardTitle>
+            <CardDescription className="font-[Montserrat] py-2">
+              Total emissions (kg) for{" "}
+              <span className="font-bold">
+                {formattedStartMonth} {formattedStartYear} – {formattedEndMonth}{" "}
+                {formattedEndYear}
+              </span>
+            </CardDescription>
+          </div>
+          <CustomLegend />
+        </div>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
           <ResponsiveContainer width="100%" height={300}>
             <ComposedChart data={chartData}>
-              <CartesianGrid vertical={false} />
+              <CartesianGrid vertical={false} strokeDasharray="4 4" />
               <XAxis
                 dataKey="month"
                 tickLine={true}
                 tickMargin={10}
                 axisLine={false}
+                fontFamily="Montserrat"
                 tickFormatter={(value) => value.slice(0, 3)}
               />
-              <YAxis />
+              <YAxis fontFamily="Montserrat" />
               <ChartTooltip content={<CustomTooltip />} />
-              <ChartLegend
-                payload={[
-                  {
-                    value: chartConfig.netEmissions.label,
-                    color: "black",
-                    type: "line",
-                  },
-                  {
-                    value: chartConfig.offsets.label,
-                    color: "#C7CFCD",
-                    type: "rect",
-                  },
-                ]}
-              />
               <Bar
                 dataKey="netEmissions"
                 stackId="a"
@@ -176,6 +171,26 @@ const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
           );
         })}
       </div>
+    </div>
+  );
+};
+
+const CustomLegend = () => {
+  return (
+    <div className="flex flex-col gap-1">
+      {Object.entries(chartConfig).map(([key, { label, color }]) => (
+        <div key={key} className="flex items-center gap-2">
+          <span
+            className={
+              key === "netEmissions" ? "w-2 h-1" : "w-2 h-2 rounded-full"
+            }
+            style={{ backgroundColor: color }}
+          />
+          <span className="text-xs text-muted-foreground font-[Montserrat]">
+            {label}
+          </span>
+        </div>
+      ))}
     </div>
   );
 };

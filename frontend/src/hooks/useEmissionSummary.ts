@@ -33,8 +33,8 @@ export default function useEmissionSummary() {
         req = { ...req, end_date: dateRange?.to };
       }
 
-      const grossSummaryData = await fetchEmissions(req);
-      setSummary(grossSummaryData);
+      const summaryData = await fetchEmissions(req);
+      setSummary(summaryData);
     } catch (error) {
       console.error("Error fetching data:", error);
     }

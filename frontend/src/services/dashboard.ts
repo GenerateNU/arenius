@@ -19,7 +19,7 @@ export async function fetchEmissions(
   req: GetEmissionsRequest
 ): Promise<EmissionSummary> {
   try {
-    const response = await apiClient.get(`/summary/gross`, {
+    const response = await apiClient.get(`/summary/emissions`, {
       params: req,
     });
     return response.data;
