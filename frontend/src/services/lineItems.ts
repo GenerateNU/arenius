@@ -76,7 +76,7 @@ export async function createLineItem(
     currency_code: item.currency_code,
     company_id: companyId,
     contact_id: item.contact_id,
-    emissions_factor_id: item.emission_factor_id,
+    emission_factor_id: item.emission_factor_id,
     scope: item.scope,
     date: item.date,
     co2: item.co2,
