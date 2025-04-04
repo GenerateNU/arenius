@@ -217,8 +217,6 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 		VALUES (` + strings.Join(numInputs, ", ") + `)
 		RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope, recommended_emission_factor_id, recommended_scope;
 	`
-	fmt.Println(query)
-	fmt.Println(queryArgs)
 
 	rows, _ := r.db.Query(ctx, query, queryArgs...)
 	lineItem, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.LineItem])
@@ -323,7 +321,6 @@ func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []in
 
 	// only include the optional columns if they exist
 	if req.EmissionFactorId != nil && *req.EmissionFactorId != "" {
-		fmt.Println("Emission factor ID: ", *req.EmissionFactorId)
 		columns = append(columns, "emission_factor_id")
 		queryArgs = append(queryArgs, *req.EmissionFactorId)
 	}

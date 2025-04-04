@@ -14,7 +14,6 @@ import (
 )
 
 func (h *Handler) ReconcileAndEstimate(ctx *fiber.Ctx, lineItemIDs []uuid.UUID, scope *int, emissionsFactorID *string, contactID *string) error {
-	fmt.Println("ReconcileAndEstimate called with lineItemIDs:", lineItemIDs)
 	// Step 1: Update Line Items in Supabase
 	if contactID != nil && len(lineItemIDs) == 1 {
 		_, err := h.lineItemRepository.ReconcileLineItem(ctx.Context(), lineItemIDs[0].String(), *scope, *emissionsFactorID, contactID)

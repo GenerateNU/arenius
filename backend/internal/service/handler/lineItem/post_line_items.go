@@ -14,7 +14,6 @@ func (h *Handler) PostLineItem(c *fiber.Ctx) error {
 	if err := c.BodyParser(&req); err != nil {
 		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
 	}
-	fmt.Println(req)
 
 	// ensure that all required fields are present
 	if req.Description == "" {
