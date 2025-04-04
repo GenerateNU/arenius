@@ -1,14 +1,13 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
+import apiClient from "@/services/apiClient";
 import { updateUserProfile } from "@/services/user";
 import { UpdateUserProfileRequest } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, MapPin } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import DeleteAccountButton from "../auth/deleteAccount";
@@ -32,7 +31,7 @@ const formSchema = z.object({
 
 export default function UserProfileContent() {
 
-  const router = useRouter();
+  const [message, setMessage] = useState<string | null>(null);
   const { user, setUser, userId } = useAuth();
 
   useEffect(() => {
@@ -57,6 +56,16 @@ export default function UserProfileContent() {
   if (!user) {
     return <div>Loading...</div>;
   }
+
+  const handleEditPasswordClick = async () => {
+    try {
+      await apiClient.post('/auth/forgot-password', { email: user?.email });
+      setMessage("Password reset email sent! Please check your inbox.");
+    } catch (error) {
+      setMessage("Failed to send reset email. Please try again.");
+      console.error(error);
+    }
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!userId) {
@@ -91,6 +100,7 @@ export default function UserProfileContent() {
 
   return (
     <div className="sm:p-20 w-4/5 mx-auto font-[family-name:var(--font-geist-sans)] flex-1">
+      {message && <div className={styles.message}>{message}</div>}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex items-start">
           <div className="mr-6">
@@ -130,11 +140,12 @@ export default function UserProfileContent() {
           <div className="w-1/4">
             <h2 className="text-xl font-semibold mb-4">General</h2>
             <div className="flex flex-col space-y-4">
-              <Link href="/reset-password" passHref>
-                <span className="text-gray-800 font-semibold cursor-pointer">
-                  Edit Password
-                </span>
-              </Link>
+              <span
+                className="text-gray-800 font-semibold cursor-pointer"
+                onClick={handleEditPasswordClick}
+              >
+                Edit Password
+              </span>
               <span className="text-gray-800 font-semibold cursor-pointer">
                 Notifications
               </span>
@@ -220,3 +231,7 @@ export default function UserProfileContent() {
     </div>
   );
 }
+
+const styles = {
+  message: "mt-4 text-center text-green-500",
+};
