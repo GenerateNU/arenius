@@ -153,7 +153,9 @@ const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
           return (
             <div key={entry} className="flex items-center gap-2">
               <span
-                className="w-4 h-4 rounded-full"
+                className={
+                  entry === "netEmissions" ? "w-2 h-1" : "w-2 h-2 rounded-full"
+                }
                 style={{ backgroundColor: config.color || "#C7CFCD" }}
               />
               <span className="text-sm text-gray-700 font-medium">
