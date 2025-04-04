@@ -17,18 +17,6 @@ type GetSummaryResponse struct {
 	Months    []MonthSummary `json:"months"`
 }
 
-type GetNetSummaryResponse struct {
-	StartDate time.Time         `json:"start_date"`
-	EndDate   time.Time         `json:"end_date"`
-	Months    []MonthNetSummary `json:"months"`
-}
-
-type MonthNetSummary struct {
-	MonthStart time.Time `json:"month_start"`
-	Emissions  float64   `json:"emissions"`
-	Offsets    float64   `json:"offsets"`
-}
-
 type MonthSummary struct {
 	MonthStart time.Time    `json:"month_start"`
 	Scopes     ScopeSummary `json:"scopes"`
