@@ -6,9 +6,12 @@ import { UpdateUserProfileRequest } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, MapPin } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import DeleteAccountButton from "../auth/deleteAccount";
 import { Button } from "../ui/button";
 import {
   Form,
@@ -29,6 +32,7 @@ const formSchema = z.object({
 
 export default function UserProfileContent() {
 
+  const router = useRouter();
   const { user, setUser, userId } = useAuth();
 
   useEffect(() => {
@@ -126,9 +130,11 @@ export default function UserProfileContent() {
           <div className="w-1/4">
             <h2 className="text-xl font-semibold mb-4">General</h2>
             <div className="flex flex-col space-y-4">
-              <span className="text-gray-800 font-semibold cursor-pointer">
-                Edit Password
-              </span>
+              <Link href="/edit-password" passHref>
+                <span className="text-gray-800 font-semibold cursor-pointer">
+                  Edit Password
+                </span>
+              </Link>
               <span className="text-gray-800 font-semibold cursor-pointer">
                 Notifications
               </span>
@@ -136,9 +142,7 @@ export default function UserProfileContent() {
                 Billing
               </span>
               <hr className="border-t border-gray-300 my-4" />
-              <span className="text-red-600 font-semibold cursor-pointer">
-                Delete Account
-              </span>
+              <DeleteAccountButton />
             </div>
           </div>
 

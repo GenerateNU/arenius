@@ -1,8 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
-import Image from "next/image";
-import { Search } from "lucide-react";
+import ManualEntryModal from "@/components/transactions/ManualEntryModal";
+import OffsetsView from "@/components/transactions/OffsetsView";
+import ReconciledView from "@/components/transactions/ReconciledView";
+import UnreconciledView from "@/components/transactions/UnreconciledView";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ContactProvider } from "@/context/ContactContext";
 import {
   ScopeKey,
   TableKey,
@@ -10,17 +14,11 @@ import {
   useTransactionsContext,
 } from "@/context/TransactionContext";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
-import ReconciledView from "@/components/transactions/ReconciledView";
-import UnreconciledView from "@/components/transactions/UnreconciledView";
-import ManualEntryModal from "@/components/transactions/ManualEntryModal";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { capitalizeFirstLetter } from "@/lib/utils";
 import { LineItem } from "@/types";
-import SignOutButton from "@/components/auth/signOut";
-import DeleteAccountButton from "@/components/auth/deleteAccount";
-import { ContactProvider } from "@/context/ContactContext";
-import OffsetsView from "@/components/transactions/OffsetsView";
+import { Search } from "lucide-react";
+import Image from "next/image";
+import { useEffect } from "react";
 
 export default function Transactions() {
   return (
@@ -28,8 +26,6 @@ export default function Transactions() {
       <ContactProvider>
         <TableContent />
         <div className="h-4" />
-        <SignOutButton />
-        <DeleteAccountButton />
       </ContactProvider>
     </TransactionProvider>
   );
