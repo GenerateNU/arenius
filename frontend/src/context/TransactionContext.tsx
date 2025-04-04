@@ -106,6 +106,8 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         setError(`Failed to load data: ${err}`);
       }
 
+      console.log("tableData", tableData);
+      console.log("filters", filters);
       setLoading(false);
     },
     [companyId, filters]
