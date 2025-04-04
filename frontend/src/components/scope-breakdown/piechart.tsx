@@ -1,3 +1,4 @@
+import { formatNumber } from "@/lib/utils";
 import React from "react";
 import { PieChart, Pie, Label, Cell, Tooltip, TooltipProps } from "recharts";
 
@@ -40,11 +41,12 @@ const ScopeChart: React.FC<{
           <Cell key={`cell-${index}`} fill={`url(#${index + 1})`} />
         ))}
         <Label
-          value={`${totalEmissions.toFixed(0).toLocaleString()} kg CO2`}
+          value={`${formatNumber(totalEmissions)} kg CO2`}
           position="center"
           fontSize={24}
           fill="#333"
           fontWeight="bold"
+          className="font-[Arimo]"
         />
       </Pie>
       <Tooltip content={<CustomTooltip />} />
@@ -55,24 +57,23 @@ const ScopeChart: React.FC<{
 const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
   if (!active || !payload || payload.length === 0) return null;
 
-  console.log("payload", payload);
+  const data = payload[0]?.payload;
 
   return (
     <div className="bg-white p-3 rounded-lg shadow-md border border-gray-300 font-[Montserrat]">
-      <p className="text-md font-semibold">{payload[0]?.payload?.name}</p>
+      <p className="text-md font-semibold">{data?.name}</p>
       <div className="mt-2 flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <span
             className="w-4 h-4 rounded-full"
             style={{
               backgroundImage: `linear-gradient(to bottom, ${
-                COLORS[payload[0]?.payload?.scope - 1].start
-              }, ${COLORS[payload[0]?.payload?.scope - 1].end})`,
+                COLORS[data?.scope - 1].start
+              }, ${COLORS[data?.scope - 1].end})`,
             }}
           />
           <span className="text-sm text-gray-700 font-medium">
-            {payload[0]?.payload?.label || "Scope"}:{" "}
-            {payload[0]?.payload?.value} kg
+            {data?.label || "Scope"}: {formatNumber(data?.value)} kg
           </span>
         </div>
       </div>

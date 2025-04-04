@@ -18,9 +18,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import useGrossSummary from "@/hooks/useGrossSummary";
+import useEmissionSummary from "@/hooks/useEmissionSummary";
 import { MonthSummary } from "@/types";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatNumber } from "@/lib/utils";
 
 export const chartConfig = {
   scope3: {
@@ -41,18 +41,20 @@ export const chartConfig = {
 };
 
 export default function GrossEmissionsBarGraph() {
-  const { grossSummary } = useGrossSummary();
-  const formattedStartMonth = formatDate(grossSummary.start_date, "shortMonth");
-  const formattedStartYear = formatDate(grossSummary.start_date, "year");
-  const formattedEndMonth = formatDate(grossSummary.end_date, "shortMonth");
-  const formattedEndYear = formatDate(grossSummary.end_date, "year");
+  const { summary } = useEmissionSummary();
+  const formattedStartMonth = formatDate(summary.start_date, "shortMonth");
+  const formattedStartYear = formatDate(summary.start_date, "year");
+  const formattedEndMonth = formatDate(summary.end_date, "shortMonth");
+  const formattedEndYear = formatDate(summary.end_date, "year");
 
-  const chartData = grossSummary.months?.map((month: MonthSummary) => ({
+  const chartData = summary.months?.map((month: MonthSummary) => ({
     month: formatDate(month.month_start, "shortMonth"),
     scope1: month.scopes.scope_one,
     scope2: month.scopes.scope_two,
     scope3: month.scopes.scope_three,
   }));
+
+  const totalEmissions = formatNumber(summary.total_co2);
 
   return (
     <Card>
@@ -63,7 +65,7 @@ export default function GrossEmissionsBarGraph() {
               Gross Emissions
             </CardTitle>
             <CardDescription className="text-black text-4xl font-semibold font-[Arimo]">
-              {grossSummary.total_co2?.toLocaleString("en-US") || 0} kg
+              {totalEmissions || 0} kg
             </CardDescription>
             <CardDescription className="font-[Montserrat] py-2">
               Total emissions (kg) for{" "}
@@ -105,7 +107,7 @@ export default function GrossEmissionsBarGraph() {
               />
               <YAxis axisLine={false} fontFamily="Montserrat" />
               <ChartTooltip content={<CustomTooltip />} />
-              {Object.keys(chartConfig).map((key, index) => (
+              {Object.keys(chartConfig).map((key) => (
                 <Bar
                   key={key}
                   dataKey={key}
@@ -147,6 +149,9 @@ const CustomLegend = () => {
 const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
   if (!active || !payload || payload.length === 0) return null;
   const sortedPayload = [...payload].reverse();
+  const total = sortedPayload.reduce((acc, entry) => {
+    return acc + (entry?.value || 0);
+  }, 0);
 
   return (
     <div className="bg-white p-3 rounded-lg shadow-md border border-gray-300 font-[Montserrat]">
@@ -161,11 +166,17 @@ const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
                 style={{ backgroundImage: config.gradient }}
               />
               <span className="text-sm text-gray-700 font-medium">
-                {config?.label || entry.name}: {entry.value} kg
+                {config?.label || entry.name}: {formatNumber(entry.value) || 0}{" "}
+                kg
               </span>
             </div>
           );
         })}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-700 font-medium">
+            Total: {formatNumber(total)} kg
+          </span>
+        </div>
       </div>
     </div>
   );

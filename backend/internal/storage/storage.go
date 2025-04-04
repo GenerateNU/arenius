@@ -30,8 +30,7 @@ type EmissionsFactorRepository interface {
 }
 
 type SummaryRepository interface {
-	GetGrossSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetGrossSummaryResponse, error)
-	GetNetSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetNetSummaryResponse, error)
+	GetEmissionSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetSummaryResponse, error)
 	GetContactEmissions(ctx context.Context, req models.GetSummaryRequest) (*models.GetContactEmissionsSummaryResponse, error)
 	GetScopeBreakdown(ctx context.Context, req models.GetSummaryRequest) ([]models.NetSummary, error)
 	GetTopEmissions(ctx context.Context, req models.GetSummaryRequest) (*[]models.GetTopEmissionsResponse, error)

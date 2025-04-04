@@ -2,12 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useAuth } from "@/context/AuthContext";
 import { useDateRange } from "@/context/DateRangeContext";
-import { fetchGrossEmissions } from "@/services/dashboard";
-import { GrossSummary, GetGrossEmissionsRequest } from "@/types";
+import { fetchEmissions } from "@/services/dashboard";
+import { EmissionSummary, GetEmissionsRequest } from "@/types";
 
-export default function useGrossSummary() {
-  const [grossSummary, setGrossSummary] = useState<GrossSummary>(
-    {} as GrossSummary
+export default function useEmissionSummary() {
+  const [summary, setSummary] = useState<EmissionSummary>(
+    {} as EmissionSummary
   );
   const { companyId, isLoading } = useAuth();
   const { dateRange } = useDateRange();
@@ -24,7 +24,7 @@ export default function useGrossSummary() {
     }
 
     try {
-      let req = { company_id: companyId } as GetGrossEmissionsRequest;
+      let req = { company_id: companyId } as GetEmissionsRequest;
       if (dateRange?.from) {
         req = { ...req, start_date: dateRange?.from };
       }
@@ -33,8 +33,8 @@ export default function useGrossSummary() {
         req = { ...req, end_date: dateRange?.to };
       }
 
-      const grossSummaryData = await fetchGrossEmissions(req);
-      setGrossSummary(grossSummaryData);
+      const grossSummaryData = await fetchEmissions(req);
+      setSummary(grossSummaryData);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -44,5 +44,5 @@ export default function useGrossSummary() {
     fetchData();
   }, [fetchData]);
 
-  return { grossSummary };
+  return { summary };
 }

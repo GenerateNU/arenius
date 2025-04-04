@@ -102,7 +102,7 @@ export default function CategorySelector({
   }, [companyId, debouncedTerm]);
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover open={isOpen} onOpenChange={setIsOpen} modal={true}>
       <PopoverTrigger asChild>
         <Button className={styles.button} variant={variant}>
           {emissionsFactor?.name || "Select emissions factor"}

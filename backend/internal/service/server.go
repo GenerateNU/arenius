@@ -169,8 +169,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	// cannot
 	summaryHandler := summary.NewHandler(repo.Summary)
 	app.Route("/summary", func(r fiber.Router) {
-		r.Get("/gross", summaryHandler.GetGrossSummary)
-		r.Get("/net", summaryHandler.GetNetSummary)
+		r.Get("/emissions", summaryHandler.GetEmissionSummary)
 		r.Get("/contact/emissions", summaryHandler.GetContactEmissions)
 		r.Get("/scopes", summaryHandler.GetScopeBreakdown)
 		r.Get("/top-emissions", summaryHandler.GetTopEmissions)

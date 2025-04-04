@@ -154,7 +154,7 @@ export type ContactTreeEmissions = {
   end_date: Date;
 };
 
-export type GetGrossEmissionsRequest = {
+export type GetEmissionsRequest = {
   company_id: string;
   start_date: Date;
   end_date: Date;
@@ -169,25 +169,15 @@ export type ScopeSummary = {
 export type MonthSummary = {
   month_start: Date;
   scopes: ScopeSummary;
+  emissions: number;
+  offsets: number;
 };
 
-export type GrossSummary = {
+export type EmissionSummary = {
   total_co2: number;
   start_date: Date;
   end_date: Date;
   months: MonthSummary[];
-};
-
-export type NetSummary = {
-  start_date: Date;
-  end_date: Date;
-  months: MonthNetSummary[];
-};
-
-export type MonthNetSummary = {
-  month_start: Date;
-  emissions: number;
-  offsets: number;
 };
 
 export type ScopeBreakdown = {

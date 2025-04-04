@@ -13,26 +13,17 @@ type SummaryRepository struct {
 	db *pgxpool.Pool
 }
 
-func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetGrossSummaryResponse, error) {
+func (r *SummaryRepository) GetEmissionSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetSummaryResponse, error) {
 	const monthlyQuery = `
 		SELECT
 			COALESCE(SUM(co2), 0) AS total_co2,
 			scope,
 			DATE_TRUNC('month', date) AS month_start
-		FROM
-			line_item
+		FROM line_item
 		WHERE
-			company_id = $1
-			AND
-			date BETWEEN $2 AND $3
-			AND 
-			scope IS NOT NULL
-		GROUP BY
-			scope,
-			DATE_TRUNC('month', date)
-		ORDER BY
-			month_start,
-			scope;
+			company_id = $1 AND date BETWEEN $2 AND $3 AND scope IS NOT NULL
+		GROUP BY scope, DATE_TRUNC('month', date)
+		ORDER BY month_start, scope;
 	`
 
 	rowsMonthly, errMonthly := r.db.Query(ctx, monthlyQuery, req.CompanyID, req.StartDate.UTC(), req.EndDate.UTC())
@@ -65,12 +56,17 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetS
 		}
 
 		switch scope {
+		case 0:
+			currentSummary.Offsets += co2
 		case 1:
 			currentSummary.Scopes.ScopeOne += co2
+			currentSummary.Emissions += co2
 		case 2:
 			currentSummary.Scopes.ScopeTwo += co2
+			currentSummary.Emissions += co2
 		case 3:
 			currentSummary.Scopes.ScopeThree += co2
+			currentSummary.Emissions += co2
 		}
 	}
 
@@ -110,87 +106,8 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetS
 		return nil, fmt.Errorf("error iterating over emission factor total rows: %w", errTotalRows)
 	}
 
-	return &models.GetGrossSummaryResponse{
+	return &models.GetSummaryResponse{
 		TotalCO2:  co2Total,
-		StartDate: req.StartDate,
-		EndDate:   req.EndDate,
-		Months:    monthSummaries,
-	}, nil
-}
-
-func (r *SummaryRepository) GetNetSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetNetSummaryResponse, error) {
-	const monthlyQuery = `
-		SELECT
-			COALESCE(SUM(co2), 0) AS total_co2, 'emission' as type, 
-				DATE_TRUNC('month', date) AS month_start
-			FROM line_item
-			WHERE company_id = $1
-				AND co2 IS NOT NULL
-				AND date BETWEEN $2 AND $3
-				AND scope > 0
-			GROUP BY DATE_TRUNC('month', date)
-		UNION ALL
-		SELECT
-			COALESCE(SUM(co2), 0) AS total_co2, 'offset' as type, 
-				DATE_TRUNC('month', date) AS month_start
-			FROM line_item
-			WHERE company_id = $1
-				AND date BETWEEN $2 AND $3
-				AND scope = 0
-			GROUP BY DATE_TRUNC('month', date)
-		ORDER BY month_start;`
-
-	rowsMonthly, errMonthly := r.db.Query(ctx, monthlyQuery, req.CompanyID, req.StartDate.UTC(), req.EndDate.UTC())
-	if errMonthly != nil {
-		return nil, errMonthly
-	}
-	defer rowsMonthly.Close()
-
-	var monthSummaries []models.MonthNetSummary
-
-	for rowsMonthly.Next() {
-		var co2 float64
-		var emission_type string
-		var monthStart time.Time
-
-		if err := rowsMonthly.Scan(&co2, &emission_type, &monthStart); err != nil {
-			return nil, err
-		}
-
-		var currentSummary *models.MonthNetSummary
-
-		// Check if we already have a summary for this month
-		if len(monthSummaries) > 0 && monthSummaries[len(monthSummaries)-1].MonthStart == monthStart {
-			currentSummary = &monthSummaries[len(monthSummaries)-1]
-
-			if emission_type == "emission" {
-				currentSummary.Emissions = co2
-			} else if emission_type == "offset" {
-				currentSummary.Offsets = co2
-			}
-		} else {
-			// Create a new summary for this month
-			newSummary := models.MonthNetSummary{
-				MonthStart: monthStart,
-				Emissions:  0,
-				Offsets:    0,
-			}
-
-			if emission_type == "emission" {
-				newSummary.Emissions = co2
-			} else if emission_type == "offset" {
-				newSummary.Offsets = co2
-			}
-
-			monthSummaries = append(monthSummaries, newSummary)
-		}
-	}
-
-	if errMonthlyRows := rowsMonthly.Err(); errMonthlyRows != nil {
-		return nil, fmt.Errorf("error iterating over emission factor rows: %w", errMonthlyRows)
-	}
-
-	return &models.GetNetSummaryResponse{
 		StartDate: req.StartDate,
 		EndDate:   req.EndDate,
 		Months:    monthSummaries,
