@@ -120,9 +120,14 @@ export default function TransactionForm() {
         },
         companyId
       );
-      fetchTableData("unreconciled", {});
-      fetchTableData("reconciled", {});
-      fetchTableData("offsets", {});
+      
+      // add 2 sec timeout to allow for carbon estimates to be made
+      setTimeout(async () => {
+        await fetchTableData("unreconciled", {});
+        await fetchTableData("reconciled", {});
+        await fetchTableData("offsets", {});
+      }, 2000);
+
       form.reset();
     } else {
       console.error("Company ID is null");
