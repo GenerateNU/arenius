@@ -3,8 +3,9 @@
 import { useAuth } from "@/context/AuthContext";
 import apiClient from "@/services/apiClient";
 import { updateUserProfile } from "@/services/user";
-import { UpdateUserProfileRequest } from "@/types";
+import { UpdateUserProfileRequest, User } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createClient } from '@supabase/supabase-js';
 import { Mail, MapPin } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
@@ -21,6 +22,8 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+
+const supabase = createClient("https://otqxkhrzvszshplymejg.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90cXhraHJ6dnN6c2hwbHltZWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY1MjkxNDcsImV4cCI6MjA1MjEwNTE0N30.VDqp254ZDc8Skp4Ri6aTanvdmoophssv-wDZPHX_t7E");
 
 const formSchema = z.object({
   first_name: z.string(),
@@ -73,6 +76,7 @@ export default function UserProfileContent() {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+
     if (!userId) {
       console.error("UserID is null.");
       return;
@@ -90,7 +94,6 @@ export default function UserProfileContent() {
       last_name: getFallbackValue(values.last_name, user?.last_name),
       city: getFallbackValue(values.city, user?.city),
       state: getFallbackValue(values.state, user?.state),
-      photoUrl: "",
     };
 
     try {
@@ -101,17 +104,63 @@ export default function UserProfileContent() {
     } catch (error) {
       console.error("Error updating user profile:", error);
     }
+  
   }
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
   };
   
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      // TODO: handle this logic 
+  
+    if (!file) {
+      return;
+    }
+  
+    setImageFile(file);
+    setIsUploading(true);
+    setUploadStatus(null);
+  
+    try {
+      const { data, error } = await supabase.storage
+        .from('profile-photos') // The bucket name in Supabase
+        .upload(`profile-photo-${Date.now()}`, file); // Use `file` instead of `imageFile`
+  
+      if (error) {
+        console.error('Supabase upload error:', error);
+        throw error;
+      }
+    
+      const publicUrl = supabase
+        .storage
+        .from('profile-photos')
+        .getPublicUrl(data.path).data.publicUrl;
+  
+      setImageUrl(publicUrl);
+      setUploadStatus('Image uploaded successfully!');
+  
+      const response = await apiClient.patch(`/user/${userId}`, {
+        photo_url: publicUrl,
+      });
+  
+      const updatedUser: User = {
+        ...user,
+        photo_url: publicUrl,
+      };
+      setUser(updatedUser);
+
+      // TODO: why redirect?
+  
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setUploadStatus(`Upload failed: ${error.message}`);
+      } else {
+        setUploadStatus('Upload failed: Unknown error');
+      }
+      console.error('Error during upload:', error);
+    } finally {
+      setIsUploading(false);
     }
   };
 
