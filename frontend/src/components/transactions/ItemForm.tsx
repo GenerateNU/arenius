@@ -390,7 +390,7 @@ export default function TransactionForm() {
               />
             )}
 
-            <div className="flex justify-between mt-8">
+            <div className="flex justify-between">
               <Button 
                 className="bg-gray-500 hover:bg-gray-600 text-white" 
                 type="button" 
@@ -411,9 +411,8 @@ export default function TransactionForm() {
                   "Post Transaction"
                 )}
               </Button>
-              <DialogClose ref={dialogCloseRef} />
-
             </div>
+            <DialogClose ref={dialogCloseRef} />
           </TabsContent>
         </Tabs>
       </form>
