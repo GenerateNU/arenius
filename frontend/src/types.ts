@@ -159,8 +159,8 @@ export type ContactTreeEmissions = {
 
 export type GetEmissionsRequest = {
   company_id: string;
-  start_date: Date;
-  end_date: Date;
+  start_date?: Date;
+  end_date?: Date;
 };
 
 export type ScopeSummary = {

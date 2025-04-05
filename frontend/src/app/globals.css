@@ -72,7 +72,7 @@ body {
 @layer utilities {
   .treemap-container .apexcharts-treemap rect {
     stroke: white;
-    stroke-width: 12px;
+    stroke-width: 4px;
     rx: 12px;
     ry: 12px;
   }

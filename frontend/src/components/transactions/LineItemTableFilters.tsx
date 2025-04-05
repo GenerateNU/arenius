@@ -14,24 +14,23 @@ export default function LineItemTableFilters() {
     filters.contact_id || filters.minPrice || filters.maxPrice || filters.dates;
 
   return (
-    <div className="flex flex-col my-2">
-      <div className={styles.container}>
-        <DatePickerWithRange className={styles.filter} />
-        <ContactFilter className={styles.filter} />
-        <PriceFilter className={styles.filter} />
-      </div>
-      <div className="flex justify-end">
+    <div className="flex gap-4">
+      <ContactFilter className={styles.filter} />
+      <PriceFilter className={styles.filter} />
+      <DatePickerWithRange className={styles.filter} />
+
+      {/* <div className="flex justify-end">
         {hasFilter && (
           <Button variant="ghost" onClick={() => setFilters({})}>
             Clear filters
           </Button>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }
 
 const styles = {
-  container: "flex gap-4 mt-4 p-4 bg-gray-100 rounded-lg w-full",
-  filter: "flex-1 min-w-0 bg-gray-100",
+  container: "flex px-4 rounded-lg w-full",
+  filter: "flex-1 bg-white rounded-lg shadow-md px-4",
 };

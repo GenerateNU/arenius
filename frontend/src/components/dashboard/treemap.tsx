@@ -66,9 +66,9 @@ const TreeMap: React.FC<ApexChartProps> = ({ data }) => {
       dataLabels: {
         enabled: true,
         style: {
-          fontSize: "24px",
+          fontSize: "20px",
           fontWeight: "bold",
-          fontFamily: 'Arimo, "sans-serif"',
+          fontFamily: "Montserrat",
         },
         formatter: function (text: string, op: { value: string }) {
           return [op.value + "%", text];

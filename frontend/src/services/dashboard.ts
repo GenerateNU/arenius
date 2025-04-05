@@ -45,6 +45,21 @@ export async function fetchScopeBreakdown(
   }
 }
 
+export async function fetchTopEmissions(req: GetEmissionsRequest, jwt: string) {
+  try {
+    const response = await apiClient.get("/summary/top-emissions", {
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+      params: req,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching emissions factors:", error);
+  }
+}
+
 export async function fetchContactEmissions(
   req: GetContactEmissionsRequest
 ): Promise<ContactEmissions[]> {

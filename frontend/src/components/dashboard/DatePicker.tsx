@@ -15,6 +15,13 @@ import { CalendarIcon } from "lucide-react";
 
 const quickSelectOptions = [
   {
+    label: "All time",
+    getRange: () => {
+      const today = new Date();
+      return { from: new Date(2000, 1, 1), to: today };
+    },
+  },
+  {
     label: "This Week",
     getRange: () => {
       const today = new Date();
