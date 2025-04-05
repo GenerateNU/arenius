@@ -22,6 +22,7 @@ import DeleteAccountButton from "@/components/auth/deleteAccount";
 import { ContactProvider } from "@/context/ContactContext";
 import OffsetsView from "@/components/transactions/OffsetsView";
 import ExportTransactionsButton from "@/components/transactions/ExportTransactionsButton";
+import LineItemTableFilters from "@/components/transactions/LineItemTableFilters";
 
 export default function Transactions() {
   return (
@@ -99,12 +100,14 @@ function Header({
   viewMode: "scoped" | "paginated";
   setViewMode: (mode: "scoped" | "paginated") => void;
 }) {
+  const { filters, setFilters } = useTransactionsContext();
+  const hasFilter =
+    filters.contact_id || filters.minPrice || filters.maxPrice || filters.dates;
   return (
     <div>
       <div className={styles.header}>
-        <p className={styles.formTitle}>Transactions</p>
+        <p className={styles.title}>Transactions</p>
         <div className={styles.searchContainer}>
-          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <ManualEntryModal />
           <ExportTransactionsButton />
         </div>
@@ -117,6 +120,22 @@ function Header({
         viewMode={viewMode}
         setViewMode={setViewMode}
       />
+      <div className="flex justify-between items-center mt-4">
+        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <div className="flex gap-4">
+          <LineItemTableFilters />
+          {activePage === "reconciled" && (
+            <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
+          )}
+        </div>
+      </div>
+      {hasFilter && (
+        <div className="flex justify-end mt-2">
+          <Button variant="ghost" onClick={() => setFilters({})}>
+            Clear filters
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
@@ -145,8 +164,6 @@ function TableSelection({
   tableData,
   activePage,
   setActiveTable,
-  viewMode,
-  setViewMode,
 }: {
   tableData: Record<TableKey | ScopeKey, LineItem[]>;
   activePage: string;
@@ -155,29 +172,24 @@ function TableSelection({
   setViewMode: (mode: "scoped" | "paginated") => void;
 }) {
   return (
-    <div className="flex justify-between">
-      <div className={styles.reconciliationToggle}>
-        {["reconciled", "unreconciled", "offsets"].map((page) => (
-          <Button
-            key={page}
-            variant={activePage === page ? "default" : "ghost"}
-            onClick={() =>
-              setActiveTable(page as "reconciled" | "unreconciled" | "offsets")
-            }
-            className={styles.button}
-          >
-            {capitalizeFirstLetter(page)}
-            {page === "unreconciled" && (
-              <span className="text-xs text-red-500 ml-1">
-                {tableData.unreconciled.length}
-              </span>
-            )}
-          </Button>
-        ))}
-      </div>
-      {activePage === "reconciled" && (
-        <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
-      )}
+    <div className={styles.reconciliationToggle}>
+      {["reconciled", "unreconciled", "offsets"].map((page) => (
+        <Button
+          key={page}
+          variant={activePage === page ? "outline" : "ghost"}
+          onClick={() =>
+            setActiveTable(page as "reconciled" | "unreconciled" | "offsets")
+          }
+          className={styles.button}
+        >
+          {capitalizeFirstLetter(page)}
+          {page === "unreconciled" && (
+            <span className="text-xs text-red-500 ml-1">
+              {tableData.unreconciled.length}
+            </span>
+          )}
+        </Button>
+      ))}
     </div>
   );
 }
@@ -190,9 +202,9 @@ function ViewModeToggle({
   setViewMode: (mode: "scoped" | "paginated") => void;
 }) {
   return (
-    <div className="flex cursor-pointer">
+    <div className="flex cursor-pointer h-8">
       <Image
-        className={`${viewMode === "paginated" ? "bg-white" : "bg-gray-300"}`}
+        className={`${viewMode === "scoped" && "bg-gray-200 rounded-md"}`}
         src="/scopedIcon.svg"
         height={25}
         width={25}
@@ -200,7 +212,7 @@ function ViewModeToggle({
         onClick={() => setViewMode("scoped")}
       />
       <Image
-        className={`${viewMode === "scoped" ? "bg-white" : "bg-gray-300"}`}
+        className={`${viewMode === "paginated" && "bg-gray-200 rounded-md"}`}
         src="/hamburger.svg"
         height={25}
         width={25}
@@ -231,16 +243,15 @@ function TableRenderer({
 }
 
 const styles = {
-  container:
-    "p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] flex-1",
-  formTitle: "font-bold text-xl",
+  container: "pt-8 pb-20 gap-16 flex-1",
+  title: "font-header font-bold text-4xl",
   searchIcon:
     "absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500",
   input:
-    "pl-10 py-2 rounded-full bg-gray-100 border-none focus:ring-0 w-full shadow-sm",
-  reconciliationToggle: "flex space-x-4",
+    "pl-10 py-2 rounded-md bg-white border-none focus:ring-0 w-full shadow-md",
+  reconciliationToggle: "flex mt-4 bg-gray-100 rounded-lg w-full",
   header: "flex items-center justify-between mb-4",
   searchContainer: "flex space-x-8",
-  searchWrapper: "relative w-80",
-  button: "px-4 py-2 rounded-md",
+  searchWrapper: "relative w-1/3",
+  button: "rounded-md w-full",
 };

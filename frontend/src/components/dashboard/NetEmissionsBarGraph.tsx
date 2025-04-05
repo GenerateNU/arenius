@@ -48,6 +48,9 @@ const chartConfig = {
 function BarGradient(props: BarRectangleItem) {
   const id = useId();
   const gradientId = `gradient-${id}`;
+  if (props.height && props.height <= 0) {
+    return null; // Don't render the gradient if the height is negative
+  }
 
   return (
     <>

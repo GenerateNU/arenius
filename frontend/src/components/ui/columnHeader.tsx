@@ -17,7 +17,7 @@ const ColumnHeader = <T extends object>({
   return (
     <div className={className}>
       <Button
-        className="font-bold"
+        className="font-bold font-[Arimo]"
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >

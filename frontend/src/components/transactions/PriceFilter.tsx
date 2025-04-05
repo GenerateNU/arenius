@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
+import { useTransactionsContext } from "@/context/TransactionContext";
 import {
   Popover,
   PopoverTrigger,
@@ -8,80 +10,114 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronDown } from "lucide-react";
+import { Slider } from "./RangeSlider";
 import { cn } from "@/lib/utils";
-import { useTransactionsContext } from "@/context/TransactionContext";
 
 export default function PriceFilter({
   className,
 }: React.HTMLAttributes<HTMLDivElement>) {
   const { filters, setFilters } = useTransactionsContext();
-  const [minPrice, setMinPrice] = useState(filters.minPrice || undefined);
-  const [maxPrice, setMaxPrice] = useState(filters.maxPrice || undefined);
 
-  // TODO: replace local states to directly read from filters in context
-  useEffect(() => {
-    if (!filters.maxPrice) {
-      setMaxPrice(undefined);
-    }
-    if (!filters.minPrice) {
-      setMinPrice(undefined);
-    }
-  }, [filters]);
+  const [localValues, setLocalValues] = useState<
+    [number | undefined, number | undefined]
+  >([filters.minPrice, filters.maxPrice]);
+
+  const minPrice = localValues[0];
+  const maxPrice = localValues[1];
 
   const handleApply = () => {
-    const min = minPrice || 0;
-    const max = maxPrice || Number.MAX_SAFE_INTEGER;
     setFilters({
       ...filters,
-      minPrice: min,
-      maxPrice: max,
+      minPrice,
+      maxPrice,
     });
   };
 
+  useEffect(() => {
+    if (!filters.minPrice && !filters.maxPrice) {
+      setLocalValues([undefined, undefined]);
+    }
+  }, [filters]);
+
   return (
-    <div className={cn("grid gap-2", className)}>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="ghost">
-            {minPrice !== undefined && maxPrice !== undefined
-              ? `Price: $${minPrice} - $${maxPrice}`
-              : minPrice === undefined && maxPrice !== undefined
-              ? `Price: < $${maxPrice}`
-              : maxPrice === undefined && minPrice !== undefined
-              ? `Price: > $${minPrice}`
-              : "All Amounts"}
-            <ChevronDown className={styles.chevronDown} />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-80">
-          <div className="flex flex-col gap-4">
-            <label className="text-sm font-medium">Min Price</label>
-            <Input
-              type="number"
-              value={minPrice ?? ""}
-              onChange={(e) =>
-                setMinPrice(
-                  e.target.value ? parseFloat(e.target.value) : undefined
-                )
-              }
-              placeholder="Enter min price"
-            />
-            <label className="text-sm font-medium">Max Price</label>
-            <Input
-              type="number"
-              value={maxPrice ?? ""}
-              onChange={(e) =>
-                setMaxPrice(
-                  e.target.value ? parseFloat(e.target.value) : undefined
-                )
-              }
-              placeholder="Enter max price"
-            />
-            <Button onClick={handleApply}>Apply</Button>
-          </div>
-        </PopoverContent>
-      </Popover>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="dropdown" className={cn(className)}>
+          {minPrice !== undefined && maxPrice !== undefined
+            ? `Price: $${minPrice} - $${maxPrice}`
+            : minPrice === undefined && maxPrice !== undefined
+            ? `Price: < $${maxPrice}`
+            : maxPrice === undefined && minPrice !== undefined
+            ? `Price: > $${minPrice}`
+            : "All Amounts"}
+          <ChevronDown className={styles.chevronDown} />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80">
+        <Slider
+          defaultValue={[minPrice || 0, maxPrice || 10_000]}
+          minStepsBetweenThumbs={100}
+          max={10_000}
+          min={0}
+          step={1}
+          onValueChange={(newValues) =>
+            setLocalValues([
+              newValues[0] === 0 ? undefined : newValues[0],
+              newValues[1] === 10_000 ? undefined : newValues[1],
+            ])
+          }
+          className={cn("w-full")}
+        />
+        <div className="flex justify-between items-center my-4 font-body">
+          <PriceInput
+            label="Min"
+            value={minPrice}
+            onChange={(value) => setLocalValues((prev) => [value, prev[1]])}
+          />
+          <PriceInput
+            label="Max"
+            value={maxPrice}
+            onChange={(value) => setLocalValues((prev) => [prev[0], value])}
+          />
+        </div>
+        <div className="flex justify-end">
+          <Button onClick={handleApply}>Apply</Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function PriceInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number | undefined;
+  onChange: (value: number | undefined) => void;
+}) {
+  return (
+    <div className="flex flex-col items-center">
+      <label className="text-sm font-medium">{label}</label>
+      <Input
+        className="w-24 text-center"
+        type="number"
+        min={0}
+        value={value === undefined ? "" : value}
+        onChange={(e) => {
+          const inputValue = e.target.value;
+          if (inputValue === "") {
+            onChange(undefined);
+          } else {
+            const parsedValue = parseFloat(inputValue);
+            if (!isNaN(parsedValue) && parsedValue >= 0) {
+              onChange(parsedValue);
+            }
+          }
+        }}
+        placeholder="$"
+      />
     </div>
   );
 }
