@@ -19,6 +19,12 @@ export default function ContactFilter({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contact]);
 
+  useEffect(() => {
+    if (!filters.contact_id) {
+      setContact(undefined);
+    }
+  }, [filters]);
+
   return (
     <ContactsSelector
       contact={contact}

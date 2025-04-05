@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useTransactionsContext } from "@/context/TransactionContext";
 import {
@@ -20,7 +20,7 @@ export default function PriceFilter({
 
   const [localValues, setLocalValues] = useState<
     [number | undefined, number | undefined]
-  >([undefined, undefined]);
+  >([filters.minPrice, filters.maxPrice]);
 
   const minPrice = localValues[0];
   const maxPrice = localValues[1];
@@ -32,6 +32,12 @@ export default function PriceFilter({
       maxPrice,
     });
   };
+
+  useEffect(() => {
+    if (!filters.minPrice && !filters.maxPrice) {
+      setLocalValues([undefined, undefined]);
+    }
+  }, [filters]);
 
   return (
     <Popover>
@@ -97,15 +103,16 @@ function PriceInput({
       <Input
         className="w-24 text-center"
         type="number"
-        value={value === undefined ? "" : value} // Show empty string for undefined
+        min={0}
+        value={value === undefined ? "" : value}
         onChange={(e) => {
           const inputValue = e.target.value;
           if (inputValue === "") {
-            onChange(undefined); // Set value to undefined when input is cleared
+            onChange(undefined);
           } else {
             const parsedValue = parseFloat(inputValue);
-            if (!isNaN(parsedValue)) {
-              onChange(parsedValue); // Update with valid number
+            if (!isNaN(parsedValue) && parsedValue >= 0) {
+              onChange(parsedValue);
             }
           }
         }}
