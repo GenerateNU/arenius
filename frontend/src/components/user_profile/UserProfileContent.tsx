@@ -36,10 +36,6 @@ export default function UserProfileContent() {
 
   const [message, setMessage] = useState<string | null>(null);
   const { user, setUser, userId } = useAuth();
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -119,10 +115,6 @@ export default function UserProfileContent() {
       return;
     }
   
-    setImageFile(file);
-    setIsUploading(true);
-    setUploadStatus(null);
-  
     try {
       const { data, error } = await supabase.storage
         .from('profile-photos') // The bucket name in Supabase
@@ -138,10 +130,7 @@ export default function UserProfileContent() {
         .from('profile-photos')
         .getPublicUrl(data.path).data.publicUrl;
   
-      setImageUrl(publicUrl);
-      setUploadStatus('Image uploaded successfully!');
-  
-      const response = await apiClient.patch(`/user/${userId}`, {
+      await apiClient.patch(`/user/${userId}`, {
         photo_url: publicUrl,
       });
   
@@ -150,19 +139,12 @@ export default function UserProfileContent() {
         photo_url: publicUrl,
       };
       setUser(updatedUser);
-
       console.log("we are here and why are we redirecting")
   
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        setUploadStatus(`Upload failed: ${error.message}`);
-      } else {
-        setUploadStatus('Upload failed: Unknown error');
-      }
       console.error('Error during upload:', error);
-    } finally {
-      setIsUploading(false);
     }
+
   };
 
   return (
