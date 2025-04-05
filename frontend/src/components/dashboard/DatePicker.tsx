@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/popover";
 import { useDateRange } from "@/context/DateRangeContext";
 import { CalendarIcon } from "lucide-react";
+import { DateRange } from "react-day-picker";
 
 const quickSelectOptions = [
   {
@@ -90,11 +91,17 @@ const quickSelectOptions = [
   },
 ];
 
-export function DatePicker({
-  className,
-}: React.HTMLAttributes<HTMLDivElement>) {
-  const { dateRange, setDateRange } = useDateRange();
+export type DatePickerProps = {
+  dateRange: DateRange;
+  setDateRange: (range: DateRange | undefined) => void;
+  className?: string;
+};
 
+export function DatePicker({
+  dateRange,
+  setDateRange,
+  className,
+}: DatePickerProps) {
   const handleQuickSelect = (getRange: () => { from: Date; to: Date }) => {
     const range = getRange();
     setDateRange(range);
@@ -109,7 +116,7 @@ export function DatePicker({
               id="date-from"
               variant={"outline"}
               className={cn(
-                "justify-center text-left font-normal w-52 rounded-lg border-green-900 border-2",
+                "justify-center text-left font-normal w-52 rounded-lg",
                 !dateRange?.from && "text-muted-foreground"
               )}
             >
@@ -125,7 +132,7 @@ export function DatePicker({
               id="date-to"
               variant={"outline"}
               className={cn(
-                "justify-center text-left font-normal w-52 rounded-lg border-green-900 border-2",
+                "justify-center text-left font-normal w-52 rounded-l",
                 !dateRange?.to && "text-muted-foreground"
               )}
             >

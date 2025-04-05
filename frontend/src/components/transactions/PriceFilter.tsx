@@ -11,36 +11,36 @@ import { Input } from "@/components/ui/input";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTransactionsContext } from "@/context/TransactionContext";
+import { Slider } from "./RangeSlider";
 
 export default function PriceFilter({
   className,
 }: React.HTMLAttributes<HTMLDivElement>) {
   const { filters, setFilters } = useTransactionsContext();
-  const [minPrice, setMinPrice] = useState(filters.minPrice || undefined);
-  const [maxPrice, setMaxPrice] = useState(filters.maxPrice || undefined);
 
-  // TODO: replace local states to directly read from filters in context
-  useEffect(() => {
-    if (!filters.maxPrice) {
-      setMaxPrice(undefined);
-    }
-    if (!filters.minPrice) {
-      setMinPrice(undefined);
-    }
-  }, [filters]);
+  const [localValues, setLocalValues] = useState<
+    [number | undefined, number | undefined]
+  >([undefined, undefined]);
+
+  const minPrice = localValues[0];
+  const maxPrice = localValues[1];
 
   const handleApply = () => {
-    const min = minPrice || 0;
-    const max = maxPrice || Number.MAX_SAFE_INTEGER;
     setFilters({
       ...filters,
-      minPrice: min,
-      maxPrice: max,
+      minPrice,
+      maxPrice,
     });
   };
 
+  const handleValueChange = (
+    newValues: [number | undefined, number | undefined]
+  ) => {
+    setLocalValues(newValues);
+  };
+
   return (
-    <div className={cn("grid gap-2", className)}>
+    <div className={cn("grid gap-2 ", className)}>
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="ghost">
@@ -55,33 +55,70 @@ export default function PriceFilter({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-80">
-          <div className="flex flex-col gap-4">
-            <label className="text-sm font-medium">Min Price</label>
-            <Input
-              type="number"
-              value={minPrice ?? ""}
-              onChange={(e) =>
-                setMinPrice(
-                  e.target.value ? parseFloat(e.target.value) : undefined
-                )
-              }
-              placeholder="Enter min price"
+          <Slider
+            defaultValue={[minPrice || 0, maxPrice || 10_000]}
+            minStepsBetweenThumbs={100}
+            max={10_000}
+            min={0}
+            step={1}
+            onValueChange={(newValues) =>
+              setLocalValues([
+                newValues[0] === 0 ? undefined : newValues[0],
+                newValues[1] === 10_000 ? undefined : newValues[1],
+              ])
+            }
+            className={cn("w-full")}
+          />
+          <div className="flex justify-between items-center my-4 font-body">
+            <PriceInput
+              label="Min"
+              value={minPrice}
+              onChange={(value) => setLocalValues((prev) => [value, prev[1]])}
             />
-            <label className="text-sm font-medium">Max Price</label>
-            <Input
-              type="number"
-              value={maxPrice ?? ""}
-              onChange={(e) =>
-                setMaxPrice(
-                  e.target.value ? parseFloat(e.target.value) : undefined
-                )
-              }
-              placeholder="Enter max price"
+            <PriceInput
+              label="Max"
+              value={maxPrice}
+              onChange={(value) => setLocalValues((prev) => [prev[0], value])}
             />
+          </div>
+          <div className="flex justify-end">
             <Button onClick={handleApply}>Apply</Button>
           </div>
         </PopoverContent>
       </Popover>
+    </div>
+  );
+}
+
+function PriceInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number | undefined;
+  onChange: (value: number | undefined) => void;
+}) {
+  return (
+    <div className="flex flex-col items-center">
+      <label className="text-sm font-medium">{label}</label>
+      <Input
+        className="w-24 text-center"
+        type="number"
+        value={value === undefined ? "" : value} // Show empty string for undefined
+        onChange={(e) => {
+          const inputValue = e.target.value;
+          if (inputValue === "") {
+            onChange(undefined); // Set value to undefined when input is cleared
+          } else {
+            const parsedValue = parseFloat(inputValue);
+            if (!isNaN(parsedValue)) {
+              onChange(parsedValue); // Update with valid number
+            }
+          }
+        }}
+        placeholder="$"
+      />
     </div>
   );
 }

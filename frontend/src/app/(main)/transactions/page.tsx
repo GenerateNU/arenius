@@ -100,6 +100,9 @@ function Header({
   viewMode: "scoped" | "paginated";
   setViewMode: (mode: "scoped" | "paginated") => void;
 }) {
+  const { filters, setFilters } = useTransactionsContext();
+  const hasFilter =
+    filters.contact_id || filters.minPrice || filters.maxPrice || filters.dates;
   return (
     <div>
       <div className={styles.header}>
@@ -117,14 +120,22 @@ function Header({
         viewMode={viewMode}
         setViewMode={setViewMode}
       />
-      <div className="flex justify-between mt-4">
+      <div className="flex justify-between items-center mt-4">
         <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-        <LineItemTableFilters />
-
-        {activePage === "reconciled" && (
-          <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
-        )}
+        <div className="flex gap-4">
+          <LineItemTableFilters />
+          {activePage === "reconciled" && (
+            <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
+          )}
+        </div>
       </div>
+      {hasFilter && (
+        <div className="flex justify-end mt-2">
+          <Button variant="ghost" onClick={() => setFilters({})}>
+            Clear filters
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
@@ -191,9 +202,9 @@ function ViewModeToggle({
   setViewMode: (mode: "scoped" | "paginated") => void;
 }) {
   return (
-    <div className="flex cursor-pointer text-xl">
+    <div className="flex cursor-pointer h-8">
       <Image
-        className={`${viewMode === "paginated" ? "bg-white" : "bg-gray-300"}`}
+        className={`${viewMode === "scoped" && "bg-gray-200 rounded-md"}`}
         src="/scopedIcon.svg"
         height={25}
         width={25}
@@ -201,7 +212,7 @@ function ViewModeToggle({
         onClick={() => setViewMode("scoped")}
       />
       <Image
-        className={`${viewMode === "scoped" ? "bg-white" : "bg-gray-300"}`}
+        className={`${viewMode === "paginated" && "bg-gray-200 rounded-md"}`}
         src="/hamburger.svg"
         height={25}
         width={25}

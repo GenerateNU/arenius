@@ -1,7 +1,7 @@
 "use client";
 import { DatePicker } from "@/components/dashboard/DatePicker";
 import GrossSummary from "@/components/dashboard/GrossEmissionsBarGraph";
-import { DateRangeProvider } from "@/context/DateRangeContext";
+import { DateRangeProvider, useDateRange } from "@/context/DateRangeContext";
 import React from "react";
 
 import Image from "next/image";
@@ -13,6 +13,7 @@ import ScopeBreakdownChart from "@/components/scope-breakdown/scope-breakdown";
 import NetEmissionsBarGraph from "@/components/dashboard/NetEmissionsBarGraph";
 
 const DashboardContent: React.FC = () => {
+  const { dateRange, setDateRange } = useDateRange();
   return (
     <div>
       <div className="w-[calc(100%+64px)] pt-24 p-8 overflow-hidden relative rounded-2xl -mx-8">
@@ -29,7 +30,11 @@ const DashboardContent: React.FC = () => {
             Carbon Management Dashboard
           </h1>
           <div>
-            <DatePicker />
+            <DatePicker
+              className="w-full max-w-[300px] text-sm font-[Montserrat] font-medium"
+              dateRange={dateRange ?? { from: undefined, to: undefined }}
+              setDateRange={setDateRange}
+            />
           </div>
         </div>
       </div>
