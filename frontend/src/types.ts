@@ -48,8 +48,11 @@ export type CreateLineItemRequest = {
   currency_code: string;
   contact_id: string;
   emission_factor_id: string;
-  scope?: string;
-  date: Date;
+  scope?: number;
+  date: string;
+  transaction_type: "transaction" | "offset";
+  co2?: number;
+  co2_unit?: string;
 };
 
 export type LoginRequest = {
@@ -154,10 +157,10 @@ export type ContactTreeEmissions = {
   end_date: Date;
 };
 
-export type GetGrossEmissionsRequest = {
+export type GetEmissionsRequest = {
   company_id: string;
-  start_date: Date;
-  end_date: Date;
+  start_date?: Date;
+  end_date?: Date;
 };
 
 export type ScopeSummary = {
@@ -169,25 +172,15 @@ export type ScopeSummary = {
 export type MonthSummary = {
   month_start: Date;
   scopes: ScopeSummary;
+  emissions: number;
+  offsets: number;
 };
 
-export type GrossSummary = {
+export type EmissionSummary = {
   total_co2: number;
   start_date: Date;
   end_date: Date;
   months: MonthSummary[];
-};
-
-export type NetSummary = {
-  start_date: Date;
-  end_date: Date;
-  months: MonthNetSummary[];
-};
-
-export type MonthNetSummary = {
-  month_start: Date;
-  emissions: number;
-  offsets: number;
 };
 
 export type ScopeBreakdown = {

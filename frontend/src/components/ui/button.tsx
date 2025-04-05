@@ -16,7 +16,7 @@ const buttonVariants = cva(
           "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
         secondary:
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "text-black hover:bg-accent hover:text-accent-foreground px-2",
+        ghost: "text-black hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         tab: "px-8 py-2 text-gray-500 hover:text-black transition-colors rounded-none",
       },
@@ -26,7 +26,7 @@ const buttonVariants = cva(
         lg: "h-10 rounded-md px-8",
         long: "w-full h-10 rounded-md px-8",
         icon: "h-9 w-9",
-        dropdown: "w-full",
+        dropdown: "px-4 w-full",
       },
       active: {
         true: "border-b-2 border-green-500 text-black",

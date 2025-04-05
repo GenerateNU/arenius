@@ -17,3 +17,8 @@ export function formatDate(date: Date, format: "shortMonth" | "year") {
     ? date.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" })
     : date.getFullYear();
 }
+
+export function formatNumber(number?: number) {
+  if (!number) return "";
+  return Number(number?.toFixed()).toLocaleString();
+}

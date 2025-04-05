@@ -119,13 +119,16 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
+      console.log("Fetching all data...");
+
       await Promise.all(TABLES.map((table) => fetchTableData(table)));
     } catch (err) {
       setError(`Failed to load data: ${err}`);
     }
 
     setLoading(false);
-  }, [companyId, fetchTableData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId]);
 
   // // Fetch all data on mount when companyId becomes available
   useEffect(() => {
@@ -136,7 +139,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
   // Fetch data for the current table when the filters change
   useEffect(() => {
-    if (companyId) {
+    if (companyId && Object.keys(filters).length > 0) {
       fetchTableData(activePage);
     }
     // ignoring activePage in this dependency array since we don't need to refetch on page change

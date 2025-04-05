@@ -17,12 +17,15 @@ body {
     --card-foreground: #1c0a00;
     --popover: #ffffff;
     --popover-foreground: #1c0a00;
-    --primary: #07ac5d;
+    --primary: #59c295;
     --primary-foreground: #f5f8fa;
     --secondary: #d8d8d8;
     --secondary-foreground: #2e2e2e;
     --muted: #e9ebf3;
     --muted-foreground: #767676;
+    --fresh-sage: #77b257;
+    --deep-evergreen: #1b3520;
+    --dark-moss: #2b3e1b;
     --moss: #225244;
     --gray-bg: #f8f8f8;
     --accent: #e9ebf3;
@@ -32,11 +35,6 @@ body {
     --border: #e8e8e8;
     --input: #e8e8e8;
     --ring: #1c0a00;
-    --chart-1: #ff6347;
-    --chart-2: #2e8b57;
-    --chart-3: #4682b4;
-    --chart-4: #ffb6c1;
-    --chart-5: #ff4500;
     --radius: 0.5rem;
   }
   .dark {
@@ -59,11 +57,6 @@ body {
     --border: #2b2b2b;
     --input: #2b2b2b;
     --ring: #d3d3d3;
-    --chart-1: #0000ff;
-    --chart-2: #008080;
-    --chart-3: #ffcc00;
-    --chart-4: #9932cc;
-    --chart-5: #ff1493;
   }
 }
 
@@ -79,7 +72,7 @@ body {
 @layer utilities {
   .treemap-container .apexcharts-treemap rect {
     stroke: white;
-    stroke-width: 12px;
+    stroke-width: 4px;
     rx: 12px;
     ry: 12px;
   }
