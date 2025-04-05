@@ -20,10 +20,14 @@ const DashboardContent: React.FC = () => {
           src={headerImage}
           fill
           className="object-cover z-0"
-          quality={100} alt={""}/>
+          quality={100}
+          alt={""}
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 to-transparent" />
         <div className="relative z-30 flex flex-row w-full justify-between items-end">
-          <h1 className="text-3xl text-primary-foreground font-bold">Carbon Management Dashboard</h1>
+          <h1 className="text-3xl text-primary-foreground font-bold">
+            Carbon Management Dashboard
+          </h1>
           <div>
             <DatePicker />
           </div>

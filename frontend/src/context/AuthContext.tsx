@@ -12,7 +12,7 @@ interface AuthContextType {
   tenantId: string | undefined;
   userId: string | undefined;
   user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  setUser: (user: User | null) => void;
   jwt: string | undefined;
   isLoading: boolean;
   isLoginError: boolean;
@@ -61,6 +61,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Error fetching user data:", error);
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  function setUserInCache(updatedUser: User | null) {
+    setUser(updatedUser);
+    if (updatedUser) {
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    } else {
+      localStorage.removeItem("user");
     }
   }
 
@@ -151,7 +160,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         userId,
         jwt,
         user,
-        setUser,
+        setUser: setUserInCache,
         isLoading,
         isLoginError,
         login,

@@ -45,6 +45,11 @@ const scopeColumn: ColumnDef<LineItem> = {
     return <ColumnHeader name="Scope" column={column} />;
   },
   size: 50,
+  cell: ({ row }) => {
+    return (
+      <div className="text-right font-medium pr-4">{row.getValue("scope")}</div>
+    );
+  },
 };
 
 const descriptionColumn: ColumnDef<LineItem> = {
