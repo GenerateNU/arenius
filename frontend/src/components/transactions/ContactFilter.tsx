@@ -4,7 +4,6 @@ import ContactsSelector from "./ContactsSelector";
 import { useEffect, useState } from "react";
 import { SimpleContact } from "@/types";
 import { useTransactionsContext } from "@/context/TransactionContext";
-import { cn } from "@/lib/utils";
 
 export default function ContactFilter({
   className,
