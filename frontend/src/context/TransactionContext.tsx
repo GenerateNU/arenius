@@ -7,11 +7,16 @@ import {
   useCallback,
 } from "react";
 import { fetchLineItems } from "@/services/lineItems";
-import { GetLineItemResponse, LineItemFilters } from "@/types";
+import { GetLineItemResponse, LineItem, LineItemFilters } from "@/types";
 import { useAuth } from "./AuthContext";
 
-type TABLES = ["reconciled", "unreconciled", "offsets"];
-export type TableKey = TABLES[number];
+const TABLES = [
+  "reconciled",
+  "unreconciled",
+  "recommended",
+  "offsets",
+] as const;
+export type TableKey = (typeof TABLES)[number];
 
 type SCOPES = ["scope1", "scope2", "scope3"];
 export type ScopeKey = SCOPES[number];
@@ -21,11 +26,7 @@ type ViewMode = "paginated" | "scoped";
 interface TableContextType {
   activePage: TableKey;
   setActiveTable: (table: TableKey) => void;
-  tableData: Record<TableKey | ScopeKey, GetLineItemResponse>;
-  pageIndex: Record<TableKey, number>;
-  pageSize: Record<TableKey, number>;
-  setPage: (table: TableKey, page: number) => void;
-  setPageSize: (table: TableKey, size: number) => void;
+  tableData: Record<TableKey | ScopeKey, LineItem[]>;
   fetchTableData: (table: TableKey, filters: LineItemFilters) => Promise<void>;
   fetchAllData: () => Promise<void>;
   loading: boolean;
@@ -48,33 +49,67 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
   const [activePage, setActivePage] = useState<TableKey>("reconciled");
   const [viewMode, setViewMode] = useState<"paginated" | "scoped">("scoped");
   const [tableData, setTableData] = useState<
-    Record<TableKey | ScopeKey, GetLineItemResponse>
+    Record<TableKey | ScopeKey, LineItem[]>
   >({
-    reconciled: { count: 0, total: 0, line_items: [] },
-    scope1: { count: 0, total: 0, line_items: [] },
-    scope2: { count: 0, total: 0, line_items: [] },
-    scope3: { count: 0, total: 0, line_items: [] },
-    unreconciled: { count: 0, total: 0, line_items: [] },
-    offsets: { count: 0, total: 0, line_items: [] },
+    reconciled: [],
+    scope1: [],
+    scope2: [],
+    scope3: [],
+    unreconciled: [],
+    recommended: [],
+    offsets: [],
   });
 
-  const [page, setPage] = useState<Record<TableKey, number>>({
-    reconciled: 1,
-    unreconciled: 1,
-    offsets: 1,
-  });
-
-  const [pageSize, setPageSize] = useState<Record<TableKey, number>>({
-    reconciled: 10,
-    unreconciled: 10,
-    offsets: 10,
-  });
   const [filters, setFilters] = useState<LineItemFilters>({});
 
   const { companyId } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function filterByScope(reconciledData: GetLineItemResponse) {
+    const scope1 = reconciledData.line_items.filter((item) => item.scope === 1);
+    const scope2 = reconciledData.line_items.filter((item) => item.scope === 2);
+    const scope3 = reconciledData.line_items.filter((item) => item.scope === 3);
+    return { scope1, scope2, scope3 };
+  }
+
+  // Fetch data for the active table only
+  const fetchTableData = useCallback(
+    async (table: TableKey) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const data = await fetchLineItems({
+          ...filters,
+          reconciliationStatus: table,
+          company_id: companyId,
+        });
+
+        if (table === "reconciled") {
+          const { scope1, scope2, scope3 } = filterByScope(data);
+          setTableData((prev) => ({
+            ...prev,
+            [table]: data.line_items,
+            scope1,
+            scope2,
+            scope3,
+          }));
+        } else {
+          setTableData((prev) => ({
+            ...prev,
+            [table]: data.line_items,
+          }));
+        }
+      } catch (err) {
+        setError(`Failed to load data: ${err}`);
+      }
+
+      setLoading(false);
+    },
+    [companyId, filters]
+  );
 
   // Fetch all data for all tables and scopes
   const fetchAllData = useCallback(async () => {
@@ -84,107 +119,29 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      const [reconciled, unreconciled, offsets, scope1, scope2, scope3] =
-        await Promise.all([
-          fetchLineItems({
-            reconciled: true,
-            ...filters,
-            company_id: companyId,
-          }),
-          fetchLineItems({
-            reconciled: false,
-            ...filters,
-            company_id: companyId,
-          }),
-          // TODO: update this to fetch offsets once endpoint is built
-          fetchLineItems({
-            scope: 0,
-            ...filters,
-            company_id: companyId,
-          }),
-          fetchLineItems({
-            scope: 1,
-            ...filters,
-            company_id: companyId,
-          }),
-          fetchLineItems({
-            scope: 2,
-            ...filters,
-            company_id: companyId,
-          }),
-          fetchLineItems({
-            scope: 3,
-            ...filters,
-            company_id: companyId,
-          }),
-        ]);
-
-      setTableData({
-        reconciled,
-        unreconciled,
-        offsets,
-        scope1,
-        scope2,
-        scope3,
-      });
+      await Promise.all(TABLES.map((table) => fetchTableData(table)));
     } catch (err) {
       setError(`Failed to load data: ${err}`);
     }
 
     setLoading(false);
-  }, [companyId]);
+  }, [companyId, fetchTableData]);
 
-  // Fetch data for the active table only
-  const fetchTableData = useCallback(
-    async (table: TableKey) => {
-      if (!companyId) return;
-      if (table == "offsets") return;
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        const data = await fetchLineItems({
-          reconciled: table === "reconciled",
-          ...filters,
-          company_id: companyId,
-          pageIndex: page[table],
-          pageSize: pageSize[table],
-        });
-        setTableData((prev) => ({ ...prev, [table]: data }));
-      } catch (err) {
-        setError(`Failed to load data: ${err}`);
-      }
-
-      setLoading(false);
-    },
-    [companyId, filters, page, pageSize]
-  );
-
-  // Fetch all data on mount when companyId becomes available
+  // // Fetch all data on mount when companyId becomes available
   useEffect(() => {
     if (companyId) {
       fetchAllData();
     }
   }, [companyId, fetchAllData]);
 
-  const currentPage = page[activePage];
-  const currentLimit = pageSize[activePage];
-
-  // Fetch data for the active table when relevant dependencies change
+  // Fetch data for the current table when the filters change
   useEffect(() => {
     if (companyId) {
       fetchTableData(activePage);
     }
-  }, [
-    companyId,
-    activePage,
-    filters,
-    currentPage,
-    currentLimit,
-    fetchTableData,
-    fetchAllData,
-  ]);
+    // ignoring activePage in this dependency array since we don't need to refetch on page change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId, filters, fetchTableData]);
 
   return (
     <TransactionContext.Provider
@@ -192,12 +149,6 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         activePage,
         setActiveTable: setActivePage,
         tableData,
-        pageIndex: page,
-        pageSize: pageSize,
-        setPage: (table: TableKey, pageNumber: number) =>
-          setPage((prev) => ({ ...prev, [table]: pageNumber })),
-        setPageSize: (table: TableKey, limit: number) =>
-          setPageSize((prev) => ({ ...prev, [table]: limit })),
         fetchTableData,
         fetchAllData,
         loading,

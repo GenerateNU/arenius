@@ -132,7 +132,9 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Get("/", lineItemHandler.GetLineItems)
 		r.Patch("/batch", lineItemHandler.BatchUpdateLineItems)
 		r.Patch("/:id", lineItemHandler.ReconcileLineItem)
+		r.Patch("/handle-recommendation/:id", lineItemHandler.HandleRecommendation)
 		r.Post("/", lineItemHandler.PostLineItem)
+		r.Get("/get-recommendations", lineItemHandler.AutoReconcileLineItem)
 	})
 
 	// cannot
@@ -167,8 +169,12 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	// cannot
 	summaryHandler := summary.NewHandler(repo.Summary)
 	app.Route("/summary", func(r fiber.Router) {
+<<<<<<< HEAD
 		r.Get("/gross", summaryHandler.GetGrossSummary)
 		r.Get("/net", summaryHandler.GetNetSummary)
+=======
+		r.Get("/emissions", summaryHandler.GetEmissionSummary)
+>>>>>>> 388110e9799371a14971a86c4b0bf0fd6c5ebd17
 		r.Get("/contact/emissions", summaryHandler.GetContactEmissions)
 		r.Get("/scopes", summaryHandler.GetScopeBreakdown)
 		r.Get("/top-emissions", summaryHandler.GetTopEmissions)

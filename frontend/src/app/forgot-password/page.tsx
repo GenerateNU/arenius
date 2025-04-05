@@ -84,5 +84,5 @@ const styles = {
   link: "text-blue-500 hover:underline",
   logo: "w-100 pb-20",
   container:
-    "h-screen w-full bg-[url('../assets/onboarding-bg.jpeg')] bg-cover bg-center flex",
+    "h-screen w-full bg-[url('/onboarding-bg.jpeg')] bg-cover bg-center flex",
 };

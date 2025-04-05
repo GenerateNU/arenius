@@ -13,26 +13,21 @@ type SummaryRepository struct {
 	db *pgxpool.Pool
 }
 
+<<<<<<< HEAD
 func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetGrossSummaryResponse, error) {
+=======
+func (r *SummaryRepository) GetEmissionSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetSummaryResponse, error) {
+>>>>>>> 388110e9799371a14971a86c4b0bf0fd6c5ebd17
 	const monthlyQuery = `
 		SELECT
 			COALESCE(SUM(co2), 0) AS total_co2,
 			scope,
 			DATE_TRUNC('month', date) AS month_start
-		FROM
-			line_item
+		FROM line_item
 		WHERE
-			company_id = $1
-			AND
-			date BETWEEN $2 AND $3
-			AND 
-			scope IS NOT NULL
-		GROUP BY
-			scope,
-			DATE_TRUNC('month', date)
-		ORDER BY
-			month_start,
-			scope;
+			company_id = $1 AND date BETWEEN $2 AND $3 AND scope IS NOT NULL
+		GROUP BY scope, DATE_TRUNC('month', date)
+		ORDER BY month_start, scope;
 	`
 
 	rowsMonthly, errMonthly := r.db.Query(ctx, monthlyQuery, req.CompanyID, req.StartDate.UTC(), req.EndDate.UTC())
@@ -65,12 +60,17 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetS
 		}
 
 		switch scope {
+		case 0:
+			currentSummary.Offsets += co2
 		case 1:
 			currentSummary.Scopes.ScopeOne += co2
+			currentSummary.Emissions += co2
 		case 2:
 			currentSummary.Scopes.ScopeTwo += co2
+			currentSummary.Emissions += co2
 		case 3:
 			currentSummary.Scopes.ScopeThree += co2
+			currentSummary.Emissions += co2
 		}
 	}
 
@@ -110,7 +110,7 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetS
 		return nil, fmt.Errorf("error iterating over emission factor total rows: %w", errTotalRows)
 	}
 
-	return &models.GetGrossSummaryResponse{
+	return &models.GetSummaryResponse{
 		TotalCO2:  co2Total,
 		StartDate: req.StartDate,
 		EndDate:   req.EndDate,
@@ -118,6 +118,7 @@ func (r *SummaryRepository) GetGrossSummary(ctx context.Context, req models.GetS
 	}, nil
 }
 
+<<<<<<< HEAD
 func (r *SummaryRepository) GetNetSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetNetSummaryResponse, error) {
 	const monthlyQuery = `
 		SELECT
@@ -195,23 +196,20 @@ func (r *SummaryRepository) GetNetSummary(ctx context.Context, req models.GetSum
 	}, nil
 }
 
+=======
+>>>>>>> 388110e9799371a14971a86c4b0bf0fd6c5ebd17
 func (r *SummaryRepository) GetScopeBreakdown(ctx context.Context, req models.GetSummaryRequest) ([]models.NetSummary, error) {
 	const monthlyQuery = `
 		SELECT
 			SUM(co2) AS total_co2,
 			scope AS scope      
-		FROM
-			line_item
-		WHERE
-			company_id = $1
-			AND date >= $2
-			AND date <= $3
-			AND scope IS NOT NULL
+		FROM line_item
+		WHERE company_id = $1
+			AND date >= $2 AND date <= $3
+			AND scope > 0
 			AND co2 IS NOT NULL
-		GROUP BY
-			scope
-		ORDER BY
-			scope;`
+		GROUP BY scope
+		ORDER BY scope;`
 
 	var summaries []models.NetSummary
 

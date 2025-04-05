@@ -8,7 +8,8 @@ import {
 import apiClient from "./apiClient";
 
 function buildQueryParams(filters: LineItemFilters) {
-  const params: Record<string, string | Date | number | undefined> = {};
+  const params: Record<string, string | Date | number | boolean | undefined> =
+    {};
 
   if (filters?.dates) {
     params.after_date = filters.dates.from;
@@ -24,8 +25,8 @@ function buildQueryParams(filters: LineItemFilters) {
   if (filters?.maxPrice) {
     params.max_price = filters.maxPrice?.toString();
   }
-  if (filters?.reconciled != undefined) {
-    params.reconciliation_status = filters.reconciled.toString();
+  if (filters?.reconciliationStatus) {
+    params.reconciliation_status = filters.reconciliationStatus;
   }
   if (filters?.searchTerm) {
     params.search_term = filters.searchTerm;
@@ -46,6 +47,8 @@ function buildQueryParams(filters: LineItemFilters) {
     params.limit = filters.pageSize;
   }
 
+  params.unpaginated = true;
+
   return params;
 }
 
@@ -56,6 +59,7 @@ export async function fetchLineItems(
     const response = await apiClient.get("/line-item", {
       params: buildQueryParams(filters),
     });
+    
     return response.data;
   } catch (error) {
     console.error("Error fetching dashboard items", error);
@@ -73,8 +77,17 @@ export async function createLineItem(
     currency_code: item.currency_code,
     company_id: companyId,
     contact_id: item.contact_id,
+    emission_factor_id: item.emission_factor_id,
+    scope: item.scope,
+    date: item.date,
+    co2: item.co2,
+    co2_unit: item.co2_unit,
+    //transaction_type: item.transaction_type,
   };
 
+  if (item.transaction_type === "offset") {
+    new_item.scope = 0;
+  }
   await apiClient
     .post("/line-item", new_item)
     .then((response) => {
@@ -116,6 +129,19 @@ export async function reconcile(request: ReconcileRequest) {
       emission_factor: request.emissionsFactorId,
       contact_id: request.contactId,
     });
+  } catch (error) {
+    console.error("Error updating dashboard items", error);
+  }
+}
+
+export async function handleRecommendation(
+  lineItemId: string,
+  accept: boolean
+) {
+  try {
+    await apiClient.patch(
+      `line-item/handle-recommendation/${lineItemId}?accept=${accept}`
+    );
   } catch (error) {
     console.error("Error updating dashboard items", error);
   }

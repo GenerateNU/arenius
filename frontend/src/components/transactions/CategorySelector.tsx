@@ -9,8 +9,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight, Search } from "lucide-react";
-import { fetchEmissionsFactors, setEmissionFactorFavorite } from "@/services/emissionsFactors";
-import { EmissionsFactorCategories, EmissionsFactorCategory, EmissionsFactor } from "@/types";
+import {
+  fetchEmissionsFactors,
+  setEmissionFactorFavorite,
+} from "@/services/emissionsFactors";
+import {
+  EmissionsFactorCategories,
+  EmissionsFactorCategory,
+  EmissionsFactor,
+} from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import Image from "next/image";
@@ -19,14 +26,14 @@ interface CategorySelectorProps {
   emissionsFactor?: EmissionsFactor;
   setEmissionsFactor: (factor: EmissionsFactor) => void;
   variant?:
-  | "link"
-  | "secondary"
-  | "destructive"
-  | "outline"
-  | "default"
-  | "ghost"
-  | null
-  | undefined;
+    | "link"
+    | "secondary"
+    | "destructive"
+    | "outline"
+    | "default"
+    | "ghost"
+    | null
+    | undefined;
 }
 
 interface CategoryListProps {
@@ -77,12 +84,14 @@ export default function CategorySelector({
   const { companyId } = useAuth();
 
   const [activeTab, setActiveTab] = useState<string>("All");
-  
+
   const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch("");
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const [categories, setCategories] = useState<EmissionsFactorCategories | undefined>(undefined);
+  const [categories, setCategories] = useState<
+    EmissionsFactorCategories | undefined
+  >(undefined);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -93,7 +102,7 @@ export default function CategorySelector({
   }, [companyId, debouncedTerm]);
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover open={isOpen} onOpenChange={setIsOpen} modal={true}>
       <PopoverTrigger asChild>
         <Button className={styles.button} variant={variant}>
           {emissionsFactor?.name || "Select emissions factor"}
@@ -124,7 +133,7 @@ export default function CategorySelector({
               variant="tab"
               active={activeTab === tab}
               onClick={() => {
-                setActiveTab(tab)
+                setActiveTab(tab);
               }}
             >
               {tab}
@@ -143,7 +152,11 @@ export default function CategorySelector({
           />
         ) : (
           <EmissionsFactorList
-            emissionsFactors={(activeTab === "Favorites" ? categories?.favorites.emissions_factors : categories?.history.emissions_factors) || []}
+            emissionsFactors={
+              (activeTab === "Favorites"
+                ? categories?.favorites.emissions_factors
+                : categories?.history.emissions_factors) || []
+            }
             setEmissionsFactor={setEmissionsFactor}
             setIsOpen={setIsOpen}
             categories={categories}
@@ -155,17 +168,27 @@ export default function CategorySelector({
   );
 }
 
-function CategoryList({ categoriesList, searchTerm, setEmissionsFactor, setIsOpen, categories, setCategories }: CategoryListProps) {
+function CategoryList({
+  categoriesList,
+  searchTerm,
+  setEmissionsFactor,
+  setIsOpen,
+  categories,
+  setCategories,
+}: CategoryListProps) {
   return (
     <div className={styles.categoryList}>
       {categoriesList.length > 0 ? (
         categoriesList.map((category) => (
-          <CategoryItem key={`${category.name}-${category.emissions_factors.length}`}
-            category={category} expandedInitial={searchTerm !== ""} 
-            setEmissionsFactor={setEmissionsFactor} 
-            setIsOpen={setIsOpen} 
-            categories={categories} 
-            setCategories={setCategories} />
+          <CategoryItem
+            key={`${category.name}-${category.emissions_factors.length}`}
+            category={category}
+            expandedInitial={searchTerm !== ""}
+            setEmissionsFactor={setEmissionsFactor}
+            setIsOpen={setIsOpen}
+            categories={categories}
+            setCategories={setCategories}
+          />
         ))
       ) : (
         <p className={styles.noResults}>No results found</p>
@@ -174,32 +197,62 @@ function CategoryList({ categoriesList, searchTerm, setEmissionsFactor, setIsOpe
   );
 }
 
-function CategoryItem({ category, setEmissionsFactor, setIsOpen, categories, setCategories, expandedInitial = false }: CategoryProps) {
+function CategoryItem({
+  category,
+  setEmissionsFactor,
+  setIsOpen,
+  categories,
+  setCategories,
+  expandedInitial = false,
+}: CategoryProps) {
   const [expanded, setExpanded] = useState<boolean>(expandedInitial);
 
   return (
     <>
-      <Button variant="ghost" className={styles.dropdownButton} onClick={() => setExpanded(!expanded)}>
+      <Button
+        variant="ghost"
+        className={styles.dropdownButton}
+        onClick={() => setExpanded(!expanded)}
+      >
         {category.name}
-        {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+        {expanded ? (
+          <ChevronDown className="w-4 h-4" />
+        ) : (
+          <ChevronRight className="w-4 h-4" />
+        )}
       </Button>
-      {expanded && <EmissionsFactorList emissionsFactors={category.emissions_factors} setEmissionsFactor={setEmissionsFactor} setIsOpen={setIsOpen} categories={categories} setCategories={setCategories} />}
+      {expanded && (
+        <EmissionsFactorList
+          emissionsFactors={category.emissions_factors}
+          setEmissionsFactor={setEmissionsFactor}
+          setIsOpen={setIsOpen}
+          categories={categories}
+          setCategories={setCategories}
+        />
+      )}
     </>
-  )
+  );
 }
 
-function EmissionsFactorList({ emissionsFactors, setEmissionsFactor, setIsOpen, categories, setCategories }: EmissionsFactorListProps) {
+function EmissionsFactorList({
+  emissionsFactors,
+  setEmissionsFactor,
+  setIsOpen,
+  categories,
+  setCategories,
+}: EmissionsFactorListProps) {
   return (
     <div>
       {emissionsFactors.length > 0 ? (
         emissionsFactors.map((emissionsFactor) => (
-          <EmissionsFactorItem 
-            key={emissionsFactor.name} 
-            emissionsFactor={emissionsFactor} 
-            setEmissionsFactor={setEmissionsFactor} 
+          <EmissionsFactorItem
+            key={emissionsFactor.name}
+            emissionsFactor={emissionsFactor}
+            setEmissionsFactor={setEmissionsFactor}
             setIsOpen={setIsOpen}
             categories={categories}
-            setCategories={setCategories} />
+            setCategories={setCategories}
+          />
         ))
       ) : (
         <p className={styles.noResults}>No results found</p>
@@ -208,99 +261,127 @@ function EmissionsFactorList({ emissionsFactors, setEmissionsFactor, setIsOpen, 
   );
 }
 
-function EmissionsFactorItem({ emissionsFactor, setEmissionsFactor, setIsOpen, categories, setCategories }: EmissionsFactorProps) {
+function EmissionsFactorItem({
+  emissionsFactor,
+  setEmissionsFactor,
+  setIsOpen,
+  categories,
+  setCategories,
+}: EmissionsFactorProps) {
   return (
     <span className="flex items-center">
-      <Button key={emissionsFactor.name} variant="ghost" className={styles.dropdownButton} onClick={() => { setEmissionsFactor(emissionsFactor); setIsOpen(false); }}>
+      <Button
+        key={emissionsFactor.name}
+        variant="ghost"
+        className={styles.dropdownButton}
+        onClick={() => {
+          setEmissionsFactor(emissionsFactor);
+          setIsOpen(false);
+        }}
+      >
         • {emissionsFactor.name}
       </Button>
-      <FavoriteStar emissionsFactor={emissionsFactor} categories={categories} setCategories={setCategories} />
+      <FavoriteStar
+        emissionsFactor={emissionsFactor}
+        categories={categories}
+        setCategories={setCategories}
+      />
     </span>
-  )
+  );
 }
 
-function FavoriteStar({emissionsFactor, categories, setCategories }: FavoriteStarProps) {
+function FavoriteStar({
+  emissionsFactor,
+  categories,
+  setCategories,
+}: FavoriteStarProps) {
   const [isFavorite, setIsFavorite] = useState(emissionsFactor.favorite);
-  
+
   const toggleFavorite = async () => {
     if (!emissionsFactor.company_id || !emissionsFactor.id) return;
-    
+
     const newFavoriteState = !isFavorite;
-    
+
     try {
       await setEmissionFactorFavorite(
-        emissionsFactor.company_id, 
-        emissionsFactor.id, 
+        emissionsFactor.company_id,
+        emissionsFactor.id,
         newFavoriteState
       );
       setIsFavorite(newFavoriteState);
 
       const newEmissionsFactor = {
         ...emissionsFactor,
-        favorite: newFavoriteState
-      }
+        favorite: newFavoriteState,
+      };
       if (newFavoriteState && categories) {
         // then it is true, so add it to favorites
-        const updatedFavoriteFactors = [...(categories.favorites.emissions_factors || []), newEmissionsFactor];
-  
+        const updatedFavoriteFactors = [
+          ...(categories.favorites.emissions_factors || []),
+          newEmissionsFactor,
+        ];
+
         // Sort the list by name
         updatedFavoriteFactors.sort((a, b) => {
           return a.name.localeCompare(b.name);
         });
 
-        const updatedHistoryFactors = (categories.history.emissions_factors || []).map(factor => 
+        const updatedHistoryFactors = (
+          categories.history.emissions_factors || []
+        ).map((factor) =>
           factor.id === newEmissionsFactor.id ? newEmissionsFactor : factor
         );
-        
 
-        const updatedAllFactors = categories.all.map(category => ({
+        const updatedAllFactors = categories.all.map((category) => ({
           ...category,
-          emission_factors: category.emissions_factors.map(factor => 
+          emission_factors: category.emissions_factors.map((factor) =>
             factor.id === newEmissionsFactor.id ? newEmissionsFactor : factor
-          )
+          ),
         }));
 
         setCategories({
-          ...categories, 
+          ...categories,
           all: updatedAllFactors,
           favorites: {
-            ...categories.favorites, 
-            emissions_factors: updatedFavoriteFactors
+            ...categories.favorites,
+            emissions_factors: updatedFavoriteFactors,
           },
           history: {
             ...categories.history,
-            emissions_factors: updatedHistoryFactors
-          }
+            emissions_factors: updatedHistoryFactors,
+          },
         });
       } else if (categories) {
         // then it is false, so remove it from favorites
-        const updatedFavoriteFactors = categories.favorites.emissions_factors.filter(
-          factor => factor.id !== newEmissionsFactor.id
+        const updatedFavoriteFactors =
+          categories.favorites.emissions_factors.filter(
+            (factor) => factor.id !== newEmissionsFactor.id
+          );
+
+        const updatedHistoryFactors = (
+          categories.history.emissions_factors || []
+        ).map((factor) =>
+          factor.id === newEmissionsFactor.id ? newEmissionsFactor : factor
         );
 
-
-        const updatedHistoryFactors = (categories.history.emissions_factors || []).map(factor => 
-          factor.id === newEmissionsFactor.id ? newEmissionsFactor : factor
-        );        
-
-        const updatedAllFactors = categories.all.map(category => ({
+        const updatedAllFactors = categories.all.map((category) => ({
           ...category,
-          emission_factors: category.emissions_factors.map(factor => 
+          emission_factors: category.emissions_factors.map((factor) =>
             factor.id === newEmissionsFactor.id ? newEmissionsFactor : factor
-          )
+          ),
         }));
 
         setCategories({
-          ...categories, 
+          ...categories,
           all: updatedAllFactors,
           favorites: {
-            ...categories.favorites, 
-            emissions_factors: updatedFavoriteFactors
+            ...categories.favorites,
+            emissions_factors: updatedFavoriteFactors,
           },
           history: {
             ...categories.history,
-            emissions_factors: updatedHistoryFactors
-          }
+            emissions_factors: updatedHistoryFactors,
+          },
         });
       }
     } catch (error) {
@@ -312,30 +393,25 @@ function FavoriteStar({emissionsFactor, categories, setCategories }: FavoriteSta
     return (
       <Button variant="ghost" onClick={toggleFavorite}>
         <Image
-            src="/filled_star.svg"
-            alt="Remove from favorites"
-            width={18}
-            height={18}
+          src="/filled_star.svg"
+          alt="Remove from favorites"
+          width={18}
+          height={18}
         />
       </Button>
-    )
+    );
   }
   return (
     <Button variant="ghost" onClick={toggleFavorite}>
-      <Image
-          src="/Star.svg"
-          alt="Add to favorites"
-          width={18}
-          height={18}
-      />
+      <Image src="/Star.svg" alt="Add to favorites" width={18} height={18} />
     </Button>
-  )
+  );
 }
 
 const styles = {
   button: "flex gap-8",
   chevronDown: "h-4 w-4 opacity-50",
-  popoverContent: "w-96 p-2",
+  popoverContent: "w-96 p-2 max-h-[400px] overflow-y-auto",
   searchIcon:
     "absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500",
   input: "pl-10 border-none focus:ring-0",

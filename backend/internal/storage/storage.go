@@ -19,6 +19,8 @@ type LineItemRepository interface {
 	AddImportedLineItems(ctx context.Context, req []models.AddImportedLineItemRequest) ([]models.LineItem, error)
 	BatchUpdateScopeEmissions(ctx context.Context, lineItems []uuid.UUID, scope *int, emissionsFactorID *string) error
 	GetLineItemsByIds(ctx context.Context, lineItemIDs []uuid.UUID) ([]models.LineItem, error)
+	AutoReconcileLineItems(ctx context.Context, companyId uuid.UUID) ([]models.LineItem, error)
+	HandleRecommendation(ctx context.Context, lineItemId uuid.UUID, accept bool) (*models.LineItem, error)
 }
 
 type EmissionsFactorRepository interface {
@@ -28,8 +30,12 @@ type EmissionsFactorRepository interface {
 }
 
 type SummaryRepository interface {
+<<<<<<< HEAD
 	GetGrossSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetGrossSummaryResponse, error)
 	GetNetSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetNetSummaryResponse, error)
+=======
+	GetEmissionSummary(ctx context.Context, req models.GetSummaryRequest) (*models.GetSummaryResponse, error)
+>>>>>>> 388110e9799371a14971a86c4b0bf0fd6c5ebd17
 	GetContactEmissions(ctx context.Context, req models.GetSummaryRequest) (*models.GetContactEmissionsSummaryResponse, error)
 	GetScopeBreakdown(ctx context.Context, req models.GetSummaryRequest) ([]models.NetSummary, error)
 	GetTopEmissions(ctx context.Context, req models.GetSummaryRequest) (*[]models.GetTopEmissionsResponse, error)

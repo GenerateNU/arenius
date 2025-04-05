@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -9,6 +9,7 @@ import {
   getSortedRowModel,
   Row,
   ColumnDef,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -24,6 +25,8 @@ import { ModalDialog } from "./ModalDialog";
 import Image from "next/image";
 import { DataTablePagination } from "../ui/DataTablePagination";
 import { useTransactionsContext } from "@/context/TransactionContext";
+import { Check, X } from "lucide-react";
+import { handleRecommendation } from "@/services/lineItems";
 
 export type LineItemTableProps = {
   activePage: "reconciled" | "unreconciled" | "offsets";
@@ -33,9 +36,11 @@ export type LineItemTableProps = {
     | "scope2"
     | "scope3"
     | "unreconciled"
+    | "recommended"
     | "offsets";
   columns: ColumnDef<LineItem>[];
   paginated?: boolean;
+  tableLimit?: number;
 };
 
 export default function LineItemTable({
@@ -43,14 +48,11 @@ export default function LineItemTable({
   activePage,
   activeTableData,
   paginated = true,
+  tableLimit,
 }: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const { tableData, pageIndex, pageSize, setPage, setPageSize } =
-    useTransactionsContext();
-
-console.log("Active page: ", activePage)
-console.log("tableData: ", tableData)
+  const { tableData } = useTransactionsContext();
 
   // object and boolean to handle clicking a row's action button
   const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
@@ -58,14 +60,23 @@ console.log("tableData: ", tableData)
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Memoize the rows to avoid unnecessary recomputations
+  const rows = useMemo(() => {
+    const data = tableData[activeTableData] || [];
+    if (tableLimit) {
+      return data.slice(0, tableLimit); // Slice only when tableLimit is provided
+    }
+    return data;
+  }, [tableData, activeTableData, tableLimit]);
+
   const table = useReactTable({
-    data: tableData[activeTableData].line_items || [],
+    data: rows,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    manualPagination: true,
-    rowCount: tableData[activeTableData].total,
+    rowCount: rows.length,
     getRowId: (row: LineItem) => row.id,
     state: {
       sorting,
@@ -87,6 +98,16 @@ console.log("tableData: ", tableData)
   const handleReconcileSuccess = () => {
     fetchAllData();
     setIsDialogOpen(false);
+  };
+
+  const handleAccept = async (lineItem: LineItem) => {
+    await handleRecommendation(lineItem.id, true);
+    fetchAllData();
+  };
+
+  const handleReject = async (lineItem: LineItem) => {
+    await handleRecommendation(lineItem.id, false);
+    fetchAllData();
   };
 
   return (
@@ -139,16 +160,42 @@ console.log("tableData: ", tableData)
                       )}
                     </TableCell>
                   ))}
-                  <TableCell>
-                    <Image
-                      src="/arrow.svg"
-                      alt="Reconcile"
-                      width={24}
-                      height={24}
-                      onClick={() => openEditDialog(row)}
-                      style={{ cursor: "pointer" }}
-                    />
-                  </TableCell>
+                  {activeTableData == "recommended" && (
+                    <TableCell
+                      style={{
+                        minWidth: 100,
+                        maxWidth: 100,
+                      }}
+                    >
+                      <div className="flex gap-2 justify-center items-center">
+                        <button
+                          onClick={() => handleReject(row.original)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          <X size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleAccept(row.original)}
+                          className="text-green-600 hover:text-green-800"
+                        >
+                          <Check size={18} />
+                        </button>
+                      </div>
+                    </TableCell>
+                  )}
+
+                  {row.original.emission_factor_id && (
+                    <TableCell>
+                      <Image
+                        src="/arrow.svg"
+                        alt="Reconcile"
+                        width={24}
+                        height={24}
+                        onClick={() => openEditDialog(row)}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             ) : (
@@ -166,11 +213,11 @@ console.log("tableData: ", tableData)
       </div>
       {paginated && (
         <DataTablePagination
-          page={pageIndex[activePage]}
-          pageLimit={pageSize[activePage]}
-          total_count={tableData[activePage].total}
-          setPage={(newPage) => setPage(activePage, newPage)}
-          setPageLimit={(newLimit) => setPageSize(activePage, newLimit)}
+          page={table.getState().pagination.pageIndex}
+          pageLimit={table.getState().pagination.pageSize}
+          total_count={tableData[activePage].length}
+          setPage={(newPage) => table.setPageIndex(newPage)}
+          setPageLimit={(newLimit) => table.setPageSize(newLimit)}
         />
       )}
 

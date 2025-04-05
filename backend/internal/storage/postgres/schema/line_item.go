@@ -4,9 +4,12 @@ import (
 	"arenius/internal/errs"
 	"arenius/internal/models"
 	"arenius/internal/service/utils"
+	"bytes"
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -23,6 +26,7 @@ type LineItemRepository struct {
 }
 
 func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.Pagination, filterParams models.GetLineItemsRequest) (*models.GetLineItemsResponse, error) {
+<<<<<<< HEAD
 	filterQuery := "WHERE 1=1"
 
 	if filterParams.ReconciliationStatus != nil {
@@ -37,56 +41,86 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	}
 
 	filterColumns := []string{}
+=======
+	var filterQuery strings.Builder
+	filterQuery.WriteString("WHERE 1=1")
+>>>>>>> 388110e9799371a14971a86c4b0bf0fd6c5ebd17
 	filterArgs := []interface{}{}
 
+	// Apply reconciliation status filtering
+	if filterParams.ReconciliationStatus != nil {
+		switch *filterParams.ReconciliationStatus {
+		case "reconciled":
+			filterQuery.WriteString(" AND (li.emission_factor_id IS NOT NULL AND (li.scope != 0 OR li.scope IS NULL))")
+		case "recommended":
+			filterQuery.WriteString(" AND (li.emission_factor_id IS NULL) AND (li.recommended_emission_factor_id IS NOT NULL)")
+		case "offsets":
+			filterQuery.WriteString(" AND (li.scope = 0)")
+		case "unreconciled":
+			filterQuery.WriteString(" AND (li.emission_factor_id IS NULL AND (li.scope != 0 OR li.scope IS NULL))")
+		}
+	}
+
+	// Apply search filtering
+	if filterParams.SearchTerm != nil {
+		filterQuery.WriteString(fmt.Sprintf(" AND (li.description ILIKE '%%%s%%')", *filterParams.SearchTerm))
+	}
+
+	// Apply dynamic filters
+	filterFields := map[string]interface{}{}
+
 	if filterParams.CompanyID != nil {
-		filterColumns = append(filterColumns, "li.company_id=")
-		filterArgs = append(filterArgs, *filterParams.CompanyID)
-	}
-	if filterParams.BeforeDate != nil {
-		filterColumns = append(filterColumns, "li.date<=")
-		filterArgs = append(filterArgs, filterParams.BeforeDate.UTC().Add(time.Hour*24))
-	}
-	if filterParams.AfterDate != nil {
-		filterColumns = append(filterColumns, "li.date>=")
-		filterArgs = append(filterArgs, filterParams.AfterDate.UTC())
+		filterFields["li.company_id="] = *filterParams.CompanyID
 	}
 	if filterParams.Scope != nil {
-		filterColumns = append(filterColumns, "li.scope=")
-		filterArgs = append(filterArgs, *filterParams.Scope)
+		filterFields["li.scope="] = *filterParams.Scope
 	}
 	if filterParams.EmissionFactor != nil {
-		filterColumns = append(filterColumns, "ef.activity_id=")
-		filterArgs = append(filterArgs, *filterParams.EmissionFactor)
+		filterFields["ef.activity_id="] = *filterParams.EmissionFactor
 	}
 	if filterParams.MinPrice != nil {
-		filterColumns = append(filterColumns, "li.total_amount >=")
-		filterArgs = append(filterArgs, *filterParams.MinPrice)
+		filterFields["li.total_amount>="] = *filterParams.MinPrice
 	}
 	if filterParams.MaxPrice != nil {
-		filterColumns = append(filterColumns, "li.total_amount <=")
-		filterArgs = append(filterArgs, *filterParams.MaxPrice)
+		filterFields["li.total_amount<="] = *filterParams.MaxPrice
 	}
 	if filterParams.ContactID != nil {
-		filterColumns = append(filterColumns, "li.contact_id=")
-		filterArgs = append(filterArgs, *filterParams.ContactID)
+		filterFields["li.contact_id="] = *filterParams.ContactID
+	}
+	if filterParams.BeforeDate != nil {
+		filterFields["li.date<="] = filterParams.BeforeDate.UTC().Add(24 * time.Hour)
+	}
+	if filterParams.AfterDate != nil {
+		filterFields["li.date>="] = filterParams.AfterDate.UTC()
 	}
 
-	for i := 0; i < len(filterColumns); i++ {
-		filterQuery += fmt.Sprintf(" AND (%s$%d)", filterColumns[i], i+3)
+	for col, val := range filterFields {
+		if val != nil {
+			filterQuery.WriteString(fmt.Sprintf(" AND (%s $%d)", col, len(filterArgs)+1))
+			filterArgs = append(filterArgs, val)
+		}
 	}
 
-	query := `
-	SELECT li.id, li.xero_line_item_id, li.description, li.total_amount, li.company_id, li.contact_id, c.name as contact_name, li.date, li.currency_code, li.emission_factor_id, ef.name as emission_factor_name, li.co2, li.co2_unit, li.scope
+	// Apply pagination if needed
+	var paginationClause string
+	if filterParams.Unpaginated != nil && !*filterParams.Unpaginated {
+		paginationClause = fmt.Sprintf(" LIMIT %d OFFSET %d", pagination.Limit, pagination.GetOffset())
+	}
+
+	query := fmt.Sprintf(`
+	SELECT li.id, li.xero_line_item_id, li.description, li.total_amount, li.company_id, li.contact_id, 
+	       c.name as contact_name, li.date, li.currency_code, li.emission_factor_id, ef.name as emission_factor_name, 
+	       li.co2, li.co2_unit, li.scope, li.recommended_emission_factor_id, li.recommended_scope, 
+	       rec_ef.name as recommended_emission_factor_name
 	FROM line_item li 
 	LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id
-	LEFT JOIN contact c on li.contact_id = c.id ` + filterQuery + `
+	LEFT JOIN emission_factor rec_ef ON li.recommended_emission_factor_id = rec_ef.activity_id
+	LEFT JOIN contact c ON li.contact_id = c.id 
+	%s
 	ORDER BY li.date DESC
-	LIMIT $1 OFFSET $2
-	`
+	%s`, filterQuery.String(), paginationClause)
 
-	queryArgs := append([]interface{}{pagination.Limit, pagination.GetOffset()}, filterArgs...)
-	rows, err := r.db.Query(ctx, query, queryArgs...)
+	rows, err := r.db.Query(ctx, query, filterArgs...)
 	if err != nil {
 		return nil, err
 	}
@@ -97,17 +131,16 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		return nil, err
 	}
 
-	total_query := `
+	// Count total matching rows
+	totalQuery := fmt.Sprintf(`
 	SELECT count(*)
 	FROM line_item li
 	LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id
-	LEFT JOIN contact c on li.contact_id = c.id ` + filterQuery + `
-	AND $1 AND $2
-	` // The $1 and $2 are because filterQuery starts at $3, just make them dummy values here
+	LEFT JOIN contact c ON li.contact_id = c.id 
+	%s`, filterQuery.String())
 
 	var total int
-	countArgs := append([]interface{}{"TRUE", "TRUE"}, filterArgs...)
-	err = r.db.QueryRow(ctx, total_query, countArgs...).Scan(&total)
+	err = r.db.QueryRow(ctx, totalQuery, filterArgs...).Scan(&total)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +179,7 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId s
 	query += fmt.Sprintf(" WHERE id = $%d", argCount)
 	args = append(args, lineItemId)
 
-	query += " RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope"
+	query += " RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope, recommended_emission_factor_id, recommended_scope"
 
 	rows, err := r.db.Query(ctx, query, args...)
 
@@ -170,7 +203,7 @@ func (r *LineItemRepository) AddLineItemEmissions(ctx context.Context, req model
 		SET co2 = $1,
 		    co2_unit = $2
 		WHERE id = $3
-		RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope
+		RETURNING id, xero_line_item_id, description, total_amount, company_id, contact_id, date, currency_code, emission_factor_id, co2, co2_unit, scope, recommended_emission_factor_id, recommended_scope;
 	`
 
 	rows, _ := r.db.Query(ctx, query, req.CO2, req.CO2Unit, req.LineItemId)
@@ -210,7 +243,6 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 	}
 
 	return &lineItem, nil
-
 }
 
 func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []models.AddImportedLineItemRequest) ([]models.LineItem, error) {
@@ -289,6 +321,13 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []interface{}, error) {
 	id := uuid.New().String()
 	createdAt := time.Now().UTC()
+	if req.Date != nil {
+		parsedDate, err := time.Parse(time.RFC3339, *req.Date)
+		if err != nil {
+			return nil, nil, errs.BadRequest("Invalid date format, must be RFC3339")
+		}
+		createdAt = parsedDate
+	}
 	columns := []string{"id", "description", "total_amount", "company_id", "contact_id", "date", "currency_code"}
 	// TODO: fix company id
 	queryArgs := []interface{}{id, req.Description, req.TotalAmount, req.CompanyID, req.ContactID, createdAt, req.CurrencyCode}
@@ -305,9 +344,9 @@ func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []in
 	}
 
 	// only include the optional columns if they exist
-	if req.EmissionFactor != nil {
-		columns = append(columns, "emission_factor")
-		queryArgs = append(queryArgs, *req.EmissionFactor)
+	if req.EmissionFactorId != nil && *req.EmissionFactorId != "" {
+		columns = append(columns, "emission_factor_id")
+		queryArgs = append(queryArgs, *req.EmissionFactorId)
 	}
 
 	if req.CO2 != nil {
@@ -385,6 +424,218 @@ func (r *LineItemRepository) GetLineItemsByIds(ctx context.Context, lineItemIDs 
 	}
 
 	return lineItems, nil
+}
+
+func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, companyId uuid.UUID) ([]models.LineItem, error) {
+	const unreconciledTransactionsQuery = `
+        SELECT id, description
+        FROM line_item
+        WHERE emission_factor_id IS NULL
+          AND scope IS NULL
+          AND company_id = $1;
+    `
+	unreconciledRows, err := r.db.Query(ctx, unreconciledTransactionsQuery, companyId)
+	if err != nil {
+		return nil, err
+	}
+	defer unreconciledRows.Close()
+
+	unreconciledTransactions, err := pgx.CollectRows(unreconciledRows, pgx.RowToStructByName[models.UnreconciledLineItem])
+	if err != nil {
+		return nil, err
+	}
+
+	if len(unreconciledTransactions) == 0 {
+		return []models.LineItem{}, nil
+	}
+
+	const pastTransactionsQuery = `
+		SELECT line_item.description, emission_factor.name AS emissions_factor, emission_factor.activity_id AS emissions_factor_id, line_item.scope
+		FROM line_item
+		JOIN emission_factor ON line_item.emission_factor_id = emission_factor.activity_id
+		WHERE line_item.company_id = $1
+		ORDER BY line_item.date DESC
+		LIMIT 100;
+	`
+	pastRows, err := r.db.Query(ctx, pastTransactionsQuery, companyId)
+	if err != nil {
+		return nil, err
+	}
+	defer pastRows.Close()
+
+	pastTransactions, err := pgx.CollectRows(pastRows, pgx.RowToStructByName[models.PastLineItemDetails])
+	if err != nil {
+		return nil, err
+	}
+
+	if len(pastTransactions) == 0 {
+		return []models.LineItem{}, nil
+	}
+
+	reconciliationQuery := models.LineItemReconciliationQuery{
+		PastTransactions:         pastTransactions,
+		UnreconciledTransactions: unreconciledTransactions,
+	}
+
+	jsonBody, err := json.Marshal(reconciliationQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", "https://reconciliation-recommendation-production.up.railway.app/reconciliation/get-recommendation", bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("recommendation service returned status: %s", resp.Status)
+	}
+
+	var recommendations []models.Recommendation
+	if err := json.NewDecoder(resp.Body).Decode(&recommendations); err != nil {
+		return nil, err
+	}
+
+	if len(recommendations) == 0 {
+		return []models.LineItem{}, nil
+	}
+
+	var (
+		valueArgs         []interface{}
+		valuePlaceholders []string
+	)
+	for i, rec := range recommendations {
+		idx := i * 3
+
+		parsedID, err := uuid.Parse(rec.ID)
+		if err != nil {
+			return nil, fmt.Errorf("invalid UUID in recommendation: %v", err)
+		}
+
+		valuePlaceholders = append(valuePlaceholders, fmt.Sprintf("($%d::uuid, $%d::int, $%d::text)", idx+1, idx+2, idx+3))
+		valueArgs = append(valueArgs, parsedID, rec.RecommendedScope, rec.RecommendedEmissionsFactorID)
+	}
+
+	updateQuery := fmt.Sprintf(`
+        WITH updates(id, scope, emission_factor_id) AS (
+            VALUES %s
+        )
+        UPDATE line_item AS li
+        SET
+            recommended_scope = updates.scope,
+            recommended_emission_factor_id = updates.emission_factor_id
+        FROM updates
+        WHERE li.id = updates.id;
+    `, strings.Join(valuePlaceholders, ", "))
+
+	_, err = r.db.Exec(ctx, updateQuery, valueArgs...)
+	if err != nil {
+		return nil, fmt.Errorf("bulk update failed: %w", err)
+	}
+
+	updatedUUIDs := make([]uuid.UUID, len(recommendations))
+	for i, rec := range recommendations {
+		id, err := uuid.Parse(rec.ID)
+		if err != nil {
+			return nil, fmt.Errorf("invalid UUID in recommendation: %v", err)
+		}
+		updatedUUIDs[i] = id
+	}
+
+	idPlaceholders := make([]string, len(updatedUUIDs))
+	idArgs := make([]interface{}, len(updatedUUIDs))
+	for i, id := range updatedUUIDs {
+		idPlaceholders[i] = fmt.Sprintf("$%d", i+1)
+		idArgs[i] = id
+	}
+
+	selectQuery := fmt.Sprintf(`
+        SELECT 
+            id, 
+            xero_line_item_id, 
+            description, 
+            total_amount, 
+            company_id, 
+            contact_id, 
+            date, 
+            currency_code, 
+            emission_factor_id, 
+            recommended_emission_factor_id,
+            co2, 
+            scope, 
+            recommended_scope,
+            co2_unit
+        FROM line_item
+        WHERE id IN (%s);
+    `, strings.Join(idPlaceholders, ", "))
+
+	rows, err := r.db.Query(ctx, selectQuery, idArgs...)
+	if err != nil {
+		return nil, fmt.Errorf("fetching updated line_items failed: %w", err)
+	}
+	defer rows.Close()
+
+	updatedLineItems, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.LineItem])
+	if err != nil {
+		return nil, fmt.Errorf("parsing updated line_items failed: %w", err)
+	}
+
+	return updatedLineItems, nil
+}
+
+func (r *LineItemRepository) HandleRecommendation(ctx context.Context, lineItemId uuid.UUID, accept bool) (*models.LineItem, error) {
+	acceptQuery := ""
+	if accept {
+		acceptQuery = `
+			emission_factor_id = recommended_emission_factor_id,
+			scope = recommended_scope,
+		`
+	}
+
+	updateQuery := `
+		UPDATE line_item
+		SET
+		` + acceptQuery + `
+			recommended_emission_factor_id = NULL,
+			recommended_scope = NULL
+		WHERE id = $1
+		RETURNING 
+			id, 
+			xero_line_item_id, 
+			description, 
+			total_amount, 
+			company_id, 
+			contact_id, 
+			date, 
+			currency_code, 
+			emission_factor_id, 
+			co2, 
+			scope, 
+			co2_unit,
+			recommended_emission_factor_id,
+			recommended_scope
+	`
+
+	rows, err := r.db.Query(ctx, updateQuery, lineItemId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	lineItem, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.LineItem])
+	if err != nil {
+		return nil, err
+	}
+
+	return &lineItem, nil
 }
 
 func NewLineItemRepository(db *pgxpool.Pool) *LineItemRepository {

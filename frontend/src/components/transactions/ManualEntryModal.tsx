@@ -2,7 +2,6 @@ import React from "react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -15,14 +14,11 @@ const ManualEntryModal = () => {
   return (
     <Dialog>
       <DialogTrigger className={cn(buttonVariants({ variant: "default" }))}>
-        Manual entry
+        Add Manual Upload
       </DialogTrigger>
       <DialogContent className="w-[600px]">
         <DialogHeader>
-          <DialogTitle>Add a new transaction</DialogTitle>
-          <DialogDescription>
-            Manually enter transaction details below.
-          </DialogDescription>
+          <DialogTitle></DialogTitle>
           <ItemForm />
         </DialogHeader>
       </DialogContent>

@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -22,6 +23,9 @@ body {
     --secondary-foreground: #2e2e2e;
     --muted: #e9ebf3;
     --muted-foreground: #767676;
+    --fresh-sage: #77b257;
+    --deep-evergreen: #1b3520;
+    --dark-moss: #2b3e1b;
     --moss: #225244;
     --gray-bg: #f8f8f8;
     --accent: #e9ebf3;
@@ -31,11 +35,6 @@ body {
     --border: #e8e8e8;
     --input: #e8e8e8;
     --ring: #1c0a00;
-    --chart-1: #ff6347;
-    --chart-2: #2e8b57;
-    --chart-3: #4682b4;
-    --chart-4: #ffb6c1;
-    --chart-5: #ff4500;
     --radius: 0.5rem;
   }
   .dark {
@@ -58,11 +57,6 @@ body {
     --border: #2b2b2b;
     --input: #2b2b2b;
     --ring: #d3d3d3;
-    --chart-1: #0000ff;
-    --chart-2: #008080;
-    --chart-3: #ffcc00;
-    --chart-4: #9932cc;
-    --chart-5: #ff1493;
   }
 }
 

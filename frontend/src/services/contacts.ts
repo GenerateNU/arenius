@@ -25,7 +25,7 @@ export async function createContact(
 }
 
 function buildQueryParams(filters: GetContactsRequest) {
-  const params: Record<string, string | number | undefined> = {};
+  const params: Record<string, string | number | boolean | undefined> = {};
 
   if (filters?.search_term) {
     params.search_term = filters.search_term;
@@ -36,6 +36,8 @@ function buildQueryParams(filters: GetContactsRequest) {
   if (filters?.pageSize) {
     params.limit = filters.pageSize;
   }
+
+  params.unpaginated = true;
 
   return params;
 }

@@ -16,11 +16,12 @@ import ManualEntryModal from "@/components/transactions/ManualEntryModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { capitalizeFirstLetter } from "@/lib/utils";
-import { GetLineItemResponse } from "@/types";
+import { LineItem } from "@/types";
 import SignOutButton from "@/components/auth/signOut";
 import DeleteAccountButton from "@/components/auth/deleteAccount";
 import { ContactProvider } from "@/context/ContactContext";
 import OffsetsView from "@/components/transactions/OffsetsView";
+import ExportTransactionsButton from "@/components/transactions/ExportTransactionsButton";
 
 export default function Transactions() {
   return (
@@ -92,7 +93,7 @@ function Header({
 }: {
   searchTerm: string;
   setSearchTerm: (value: string) => void;
-  tableData: Record<TableKey | ScopeKey, GetLineItemResponse>;
+  tableData: Record<TableKey | ScopeKey, LineItem[]>;
   activePage: string;
   setActiveTable: (page: "reconciled" | "unreconciled" | "offsets") => void;
   viewMode: "scoped" | "paginated";
@@ -105,6 +106,7 @@ function Header({
         <div className={styles.searchContainer}>
           <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <ManualEntryModal />
+          <ExportTransactionsButton />
         </div>
       </div>
 
@@ -146,7 +148,7 @@ function TableSelection({
   viewMode,
   setViewMode,
 }: {
-  tableData: Record<TableKey | ScopeKey, GetLineItemResponse>;
+  tableData: Record<TableKey | ScopeKey, LineItem[]>;
   activePage: string;
   setActiveTable: (page: "reconciled" | "unreconciled" | "offsets") => void;
   viewMode: "scoped" | "paginated";
@@ -167,7 +169,7 @@ function TableSelection({
             {capitalizeFirstLetter(page)}
             {page === "unreconciled" && (
               <span className="text-xs text-red-500 ml-1">
-                {tableData.unreconciled.total}
+                {tableData.unreconciled.length}
               </span>
             )}
           </Button>

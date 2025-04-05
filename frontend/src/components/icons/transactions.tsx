@@ -8,14 +8,12 @@ interface IconProps {
 const TransactionsIcon: React.FC<IconProps> = ({ active }) => {
   return (
     <svg
-      width="30"
-      height="30"
+      width="20"
+      height="20"
       viewBox="0 0 18 18"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={
-        active ? "text-[#07AC5D]" : "text-black"
-      }
+      className={active ? "text-[#07AC5D]" : "text-black"}
     >
       <path
         fillRule="evenodd"
