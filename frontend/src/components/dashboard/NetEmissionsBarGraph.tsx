@@ -6,6 +6,7 @@ import {
   ComposedChart,
   Line,
   ResponsiveContainer,
+  TooltipProps,
   XAxis,
   YAxis,
 } from "recharts";
@@ -20,27 +21,27 @@ import {
 import {
   ChartConfig,
   ChartContainer,
-  ChartLegend,
   ChartTooltip,
-  ChartTooltipContent,
 } from "@/components/ui/chart";
-import useNetSummary from "@/hooks/useNetSummary";
-import { MonthNetSummary } from "@/types";
+import { MonthSummary } from "@/types";
 import { BarRectangleItem } from "recharts/types/cartesian/Bar";
 import { useId } from "react";
+import useEmissionSummary from "@/hooks/useEmissionSummary";
+import { formatDate, formatNumber } from "@/lib/utils";
+import { useDateRange } from "@/context/DateRangeContext";
 
 const chartConfig = {
+  emissions: {
+    label: "Gross emissions",
+    color: "#5F8D39",
+  },
   offsets: {
     label: "Offsets",
-    color: "rgba(48,100,68,255)",
-  },
-  emissions: {
-    label: "Emissions",
-    color: "rgba(48,100,68,255)",
+    color: "#C7CFCD",
   },
   netEmissions: {
     label: "Net emissions",
-    color: "rgba(48,100,68,255)",
+    color: "#2B3E1B",
   },
 } satisfies ChartConfig;
 
@@ -52,8 +53,8 @@ function BarGradient(props: BarRectangleItem) {
     <>
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#5F8D39" stopOpacity={1}/>
-          <stop offset="100%" stopColor="#2B3E1B" stopOpacity={1}/>
+          <stop offset="0%" stopColor="#5F8D39" stopOpacity={1} />
+          <stop offset="100%" stopColor="#2B3E1B" stopOpacity={1} />
         </linearGradient>
       </defs>
 
@@ -71,75 +72,48 @@ function BarGradient(props: BarRectangleItem) {
 }
 
 export default function NetEmissionsBarGraph() {
-  const { netSummary } = useNetSummary();
-  const formattedStartMonth =
-    new Date(netSummary.start_date).toLocaleDateString("en-US", {
-      month: "short",
-      timeZone: "UTC",
-    }) || "";
-  const formattedStartYear =
-    new Date(netSummary.start_date).getFullYear() || "";
-  const formattedEndMonth =
-    new Date(netSummary.end_date).toLocaleDateString("en-US", {
-      month: "short",
-      timeZone: "UTC",
-    }) || "";
-  const formattedEndYear = new Date(netSummary.end_date).getFullYear() || "";
+  const { summary } = useEmissionSummary();
+  const { formattedDateRange } = useDateRange();
 
   const chartData =
-    netSummary.months?.map((month: MonthNetSummary) => ({
-      month: new Date(month.month_start).toLocaleString("en-US", {
-        month: "short",
-        timeZone: "UTC",
-      }),
+    summary.months?.map((month: MonthSummary) => ({
+      month: formatDate(month.month_start, "shortMonth"),
       offsets: month.offsets || 0,
       emissions: month.emissions || 0,
       netEmissions: (month.emissions || 0) - (month.offsets || 0),
-      netEmissionsLine: (month.emissions || 0) - (month.offsets || 0),
     })) ?? [];
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle style={{ fontSize: "1.5rem" }}>Net Emissions</CardTitle>
-        <br />
-        <CardDescription>
-          Net emissions (kg) for {formattedStartMonth} {formattedStartYear} -{" "}
-          {formattedEndMonth} {formattedEndYear}
-        </CardDescription>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle className="font-[Arimo] text-4xl">
+              Net Emissions
+            </CardTitle>
+            <CardDescription className="font-[Montserrat] py-2">
+              Total emissions (kg) for{" "}
+              <p className="font-bold">{formattedDateRange}</p>
+            </CardDescription>
+          </div>
+          <CustomLegend />
+        </div>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
           <ResponsiveContainer width="100%" height={300}>
             <ComposedChart data={chartData}>
-              <CartesianGrid vertical={false} />
+              <CartesianGrid vertical={false} strokeDasharray="4 4" />
               <XAxis
                 dataKey="month"
                 tickLine={true}
                 tickMargin={10}
                 axisLine={false}
+                fontFamily="Montserrat"
                 tickFormatter={(value) => value.slice(0, 3)}
               />
-              <YAxis />
-              <ChartTooltip
-                content={<ChartTooltipContent hideLabel />}
-                wrapperStyle={{ width: "12%" }}
-              />
-              <ChartLegend
-                payload={[
-                  {
-                    value: chartConfig.netEmissions.label,
-                    color: "black",
-                    type: "line",
-                  },
-                  {
-                    value: chartConfig.offsets.label,
-                    color: "#C7CFCD",
-                    type: "rect",
-                  },
-                ]}
-              />
-              {/* Bar Graph */}
+              <YAxis fontFamily="Montserrat" />
+              <ChartTooltip content={<CustomTooltip />} />
               <Bar
                 dataKey="netEmissions"
                 stackId="a"
@@ -147,17 +121,10 @@ export default function NetEmissionsBarGraph() {
                 activeBar={<BarGradient />}
                 fill="#77B257"
               />
-              <Bar
-                dataKey="offsets"
-                stackId="a"
-                fill="#C7CFCD"
-                radius={12}
-              />
-
-              {/* Line Graph */}
+              <Bar dataKey="offsets" stackId="a" fill="#C7CFCD" radius={12} />
               <Line
                 type="monotone"
-                dataKey="netEmissionsLine"
+                dataKey="netEmissions"
                 stroke="black"
                 strokeWidth={5}
                 dot={{ r: 2 }}
@@ -170,3 +137,54 @@ export default function NetEmissionsBarGraph() {
     </Card>
   );
 }
+
+const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+  if (!active || !payload || payload.length === 0) return null;
+  const data = payload[0]?.payload;
+
+  return (
+    <div className="bg-white p-3 rounded-lg shadow-md border border-gray-300 font-[Montserrat]">
+      <p className="text-md font-semibold">{data?.month}</p>
+      <div className="mt-2 flex flex-col gap-1">
+        {Object.keys(chartConfig).map((entry) => {
+          const config = chartConfig[entry as keyof typeof chartConfig];
+          const entryValue = data?.[entry as keyof typeof data];
+
+          return (
+            <div key={entry} className="flex items-center gap-2">
+              <span
+                className={
+                  entry === "netEmissions" ? "w-2 h-1" : "w-2 h-2 rounded-full"
+                }
+                style={{ backgroundColor: config.color || "#C7CFCD" }}
+              />
+              <span className="text-sm text-gray-700 font-medium">
+                {config?.label || entry}: {formatNumber(entryValue) || 0} kg
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const CustomLegend = () => {
+  return (
+    <div className="flex flex-col gap-1">
+      {Object.entries(chartConfig).map(([key, { label, color }]) => (
+        <div key={key} className="flex items-center gap-2">
+          <span
+            className={
+              key === "netEmissions" ? "w-2 h-1" : "w-2 h-2 rounded-full"
+            }
+            style={{ backgroundColor: color }}
+          />
+          <span className="text-xs text-muted-foreground font-[Montserrat]">
+            {label}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+};

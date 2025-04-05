@@ -3,11 +3,7 @@ import { Table } from "@tanstack/react-table";
 
 import { useTransactionsContext } from "@/context/TransactionContext";
 import { reconcileBatch, reconcileBatchOffset } from "@/services/lineItems";
-import {
-  EmissionsFactor,
-  LineItem,
-  ReconcileBatchRequest,
-} from "@/types";
+import { EmissionsFactor, LineItem, ReconcileBatchRequest } from "@/types";
 import EmissionsFactorSelector from "./CategorySelector";
 import {
   Select,
