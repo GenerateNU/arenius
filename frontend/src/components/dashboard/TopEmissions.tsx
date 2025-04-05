@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { useDateRange } from "@/context/DateRangeContext";
+import { formatNumber } from "@/lib/utils";
 import apiClient from "@/services/apiClient";
 import { useState, useEffect } from "react";
 
@@ -59,7 +60,7 @@ export default function TopEmissionsFactors() {
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto px-6 rounded-xl shadow-sm border border-gray-100">
+    <Card className="w-full max-w-3xl mx-auto px-6 rounded-xl shadow-sm border border-gray-100 font-[Arimo]">
       <CardHeader className="px-0 pb-6">
         <CardTitle className="text-black text-4xl mb-2 font-semibold">
           Top Emissions Factors
@@ -79,16 +80,16 @@ export default function TopEmissionsFactors() {
                   index % 2 === 0 ? "bg-green-50" : "bg-white"
                 }`}
               >
-                <div className="flex items-center gap-4">
-                  <span className="text-2xl font-bold text-gray-800">
+                <div className="flex items-center">
+                  <span className="text-2xl font-bold text-gray-800 pr-4">
                     {factor.rank}
                   </span>
-                  <span className="text-l text-gray-700">
+                  <span className="text-md text-gray-700 text-wrap">
                     {factor.emission_factor}
                   </span>
                 </div>
-                <div className="text-xl font-medium">
-                  {factor.total_co2.toFixed(0)} tn
+                <div className="text-xl font-medium w-1/5 text-right">
+                  {formatNumber(factor.total_co2)} kg
                 </div>
               </div>
             ))}
