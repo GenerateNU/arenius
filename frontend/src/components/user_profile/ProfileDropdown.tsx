@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import SignOutButton from "../auth/signOut";
 
 export function ProfileDropdown() {
   const router = useRouter();
@@ -61,12 +62,7 @@ export function ProfileDropdown() {
                       </button>
                     </Link>
                     <Link href="/user-profile">
-                      <button
-                        onClick={handleClick}
-                        className="w-full h-10 bg-moss text-white text-sm font-semibold rounded-md flex items-center justify-center"
-                      >
-                        Sign out
-                      </button>
+                      <SignOutButton />
                     </Link>
                   </div>
                 </div>
