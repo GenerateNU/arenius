@@ -4,8 +4,10 @@ import (
 	"arenius/internal/errs"
 	"arenius/internal/models"
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 func (h *Handler) PostLineItem(c *fiber.Ctx) error {
@@ -28,9 +30,33 @@ func (h *Handler) PostLineItem(c *fiber.Ctx) error {
 		return errs.BadRequest("Contact ID is required")
 	}
 
+	if req.Date != nil {
+		parsedDate, err := time.Parse("2006-01-02", *req.Date)
+
+		if err != nil {
+			return errs.BadRequest(fmt.Sprintf("Invalid date format: %v", err))
+		}
+		utcDate := parsedDate.UTC().Format(time.RFC3339)
+		req.Date = &utcDate
+	}
+
 	createdItem, err := h.lineItemRepository.CreateLineItem(c.Context(), req)
 	if err != nil {
 		return err
+	}
+
+	parsedID, parseErr := uuid.Parse(createdItem.ID)
+	if parseErr != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid UUID format for createdItem.ID"})
+	}
+
+	// hit climate API to reconcile and estimate
+	if createdItem.Scope != nil && createdItem.EmissionFactorId != nil && *createdItem.EmissionFactorId != "" {
+		err = h.ReconcileAndEstimate(c, []uuid.UUID{parsedID}, createdItem.Scope, createdItem.EmissionFactorId, &createdItem.ContactID)
+		if err != nil {
+			fmt.Println("Error reconciling and estimating:", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to reconcile line item"})
+		}
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(createdItem)
