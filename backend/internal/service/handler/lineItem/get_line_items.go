@@ -15,21 +15,19 @@ func (h *Handler) GetLineItems(c *fiber.Ctx) error {
 		return errs.BadRequest(fmt.Sprint("invalid pagination query parameters: ", err))
 	}
 
-	if errors := pagination.Validate(); len(errors) > 0 {
-		return errs.BadRequest(fmt.Sprint("invalid pagination values: ", errors))
-	}
-
 	var filterParams models.GetLineItemsRequest
 
 	if err := c.QueryParser(&filterParams); err != nil {
 		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
 	}
 
-	if filterParams.Scope != nil {
-		if filterParams.CarbonOffset != nil {
-			return errs.BadRequest("Scope and carbon_offset cannot both be set.")
+	if filterParams.Unpaginated != nil {
+		if errors := pagination.Validate(); len(errors) > 0 {
+			return errs.BadRequest(fmt.Sprint("invalid pagination values: ", errors))
 		}
+	}
 
+	if filterParams.Scope != nil {
 		if *filterParams.Scope != 0 &&
 			*filterParams.Scope != 1 &&
 			*filterParams.Scope != 2 &&

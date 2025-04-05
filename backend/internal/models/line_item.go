@@ -56,15 +56,16 @@ type UpdateLineItemsRequest struct {
 }
 
 type CreateLineItemRequest struct {
-	Description    string   `json:"description"`
-	TotalAmount    float64  `json:"total_amount"`
-	CompanyID      string   `json:"company_id"`
-	ContactID      string   `json:"contact_id"`
-	CurrencyCode   string   `json:"currency_code"`
-	EmissionFactor *string  `json:"emission_factor,omitempty"`
-	CO2            *float64 `json:"co2,omitempty"`
-	Scope          *int     `json:"scope,omitempty"`
-	CO2Unit        *string  `json:"co2_unit,omitempty"`
+	Description      string   `json:"description"`
+	TotalAmount      float64  `json:"total_amount"`
+	CompanyID        string   `json:"company_id"`
+	ContactID        string   `json:"contact_id"`
+	CurrencyCode     string   `json:"currency_code"`
+	EmissionFactorId *string  `json:"emission_factor_id,omitempty"`
+	CO2              *float64 `json:"co2,omitempty"`
+	Scope            *int     `json:"scope,omitempty"`
+	CO2Unit          *string  `json:"co2_unit,omitempty"`
+	Date             *string  `json:"date,omitempty"`
 }
 
 type GetLineItemsRequest struct {
@@ -79,7 +80,6 @@ type GetLineItemsRequest struct {
 	MaxPrice             *float64   `query:"max_price"`
 	ContactID            *string    `query:"contact_id"`
 	Unpaginated          *bool      `query:"unpaginated"`
-	CarbonOffset         *bool      `query:"carbon_offset"`
 }
 
 type AddImportedLineItemRequest struct {
