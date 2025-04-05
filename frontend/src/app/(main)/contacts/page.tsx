@@ -67,7 +67,7 @@ function ContactsContent() {
 
 const styles = {
   container:
-    "p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] flex-1",
+    "p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-montserrat)] flex-1",
   formTitle: "font-bold text-3xl mb-4 mr-4",
   searchIcon:
     "absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500",

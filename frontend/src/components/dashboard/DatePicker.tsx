@@ -19,7 +19,7 @@ const quickSelectOptions = [
     label: "All time",
     getRange: () => {
       const today = new Date();
-      return { from: new Date(2000, 1, 1), to: today };
+      return { from: new Date(2000, 0, 1), to: today };
     },
   },
   {
@@ -112,37 +112,17 @@ export function DatePicker({
       <Popover>
         <PopoverTrigger asChild>
           <div className="flex items-center space-x-3">
-            <Button
+            <DateButton
               id="date-from"
-              variant={"outline"}
-              className={cn(
-                "justify-center text-left font-normal w-52 rounded-lg",
-                !dateRange?.from && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-1 h-4 w-4" />
-              {dateRange?.from ? (
-                format(dateRange.from, "MM/dd/yy")
-              ) : (
-                <span>Start date</span>
-              )}
-            </Button>
-            <span className="text-sm text-muted-foreground">-</span>
-            <Button
+              date={dateRange?.from}
+              placeholder="Start date"
+            />
+            <span className="text-sm text-muted-foreground">–</span>
+            <DateButton
               id="date-to"
-              variant={"outline"}
-              className={cn(
-                "justify-center text-left font-normal w-52 rounded-l",
-                !dateRange?.to && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-1 h-4 w-4" />
-              {dateRange?.to ? (
-                format(dateRange.to, "MM/dd/yy")
-              ) : (
-                <span>End date</span>
-              )}
-            </Button>
+              date={dateRange?.to}
+              placeholder="End date"
+            />
           </div>
         </PopoverTrigger>
         <PopoverContent
@@ -150,7 +130,6 @@ export function DatePicker({
           align="start"
         >
           <div className="flex">
-            {/* Left column with quick select buttons */}
             <div className="flex flex-col p-2 border-r bg-muted/20">
               {quickSelectOptions.map((option, index) => (
                 <Button
@@ -174,15 +153,16 @@ export function DatePicker({
               numberOfMonths={2}
               classNames={{
                 month: "space-y-4 font-[Arimo]",
+                day: "font-body h-8 w-8 p-0 font-normal aria-selected:opacity-100",
                 caption: "flex justify-center pt-1 relative items-center",
                 caption_label: "text-lg font-bold",
                 day_selected:
-                  "bg-green-900 text-white hover:bg-green-600 rounded-none",
-                day_range_middle: "bg-green-900 text-white rounded-none",
+                  "bg-moss text-white hover:bg-green-600 rounded-none",
+                day_range_middle: "bg-moss text-white rounded-none",
                 day_range_end:
-                  "bg-green-900 text-white hover:bg-green-600 rounded-r-full",
+                  "bg-moss text-white hover:bg-green-600 rounded-r-full",
                 day_range_start:
-                  "bg-green-900 text-white hover:bg-green-600 rounded-l-full",
+                  "bg-moss text-white hover:bg-green-600 rounded-l-full",
                 day_outside: "invisible bg-transparent border-transparent",
               }}
             />
@@ -190,5 +170,31 @@ export function DatePicker({
         </PopoverContent>
       </Popover>
     </div>
+  );
+}
+
+function DateButton({
+  id,
+  date,
+  placeholder,
+  onClick,
+}: {
+  id: string;
+  date?: Date;
+  placeholder: string;
+  onClick?: () => void;
+}) {
+  return (
+    <Button
+      id={id}
+      variant={"ghost"}
+      className={cn(
+        "bg-white justify-center text-left font-medium w-40 rounded-lg shadow-md"
+      )}
+      onClick={onClick}
+    >
+      <CalendarIcon className="mr-1 h-4 w-4" />
+      {date ? format(date, "MM/dd/yy") : <span>{placeholder}</span>}
+    </Button>
   );
 }

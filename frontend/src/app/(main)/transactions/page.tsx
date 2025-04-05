@@ -243,8 +243,7 @@ function TableRenderer({
 }
 
 const styles = {
-  container:
-    "pt-8 pb-20 gap-16 font-[family-name:var(--font-geist-sans)] flex-1",
+  container: "pt-8 pb-20 gap-16 flex-1",
   title: "font-header font-bold text-4xl",
   searchIcon:
     "absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500",

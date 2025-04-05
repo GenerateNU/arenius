@@ -33,12 +33,6 @@ export default function PriceFilter({
     });
   };
 
-  const handleValueChange = (
-    newValues: [number | undefined, number | undefined]
-  ) => {
-    setLocalValues(newValues);
-  };
-
   return (
     <div className={cn("grid gap-2 ", className)}>
       <Popover>

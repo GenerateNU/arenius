@@ -21,14 +21,13 @@ export default function ContactFilter({
   }, [contact]);
 
   return (
-    <div className={cn("grid gap-2", className)}>
-      <ContactProvider>
-        <ContactsSelector
-          contact={contact}
-          setContact={setContact}
-          variant="ghost"
-        />
-      </ContactProvider>
+    <div className={cn("grid gap-2 ", className)}>
+      <ContactsSelector
+        contact={contact}
+        setContact={setContact}
+        variant="ghost"
+        className={className}
+      />
     </div>
   );
 }

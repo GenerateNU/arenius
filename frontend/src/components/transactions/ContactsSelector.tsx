@@ -37,12 +37,12 @@ export default function ContactSelector({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant={variant} className={className}>
+        <Button variant={variant} size={"dropdown"}>
           {contact && contact.name ? contact.name : "All Contacts"}
           <ChevronDown className="ml-2" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className=" max-h-96 overflow-y-auto">
+      <DropdownMenuContent className="max-h-96 overflow-y-auto">
         {data?.contacts && data?.contacts.length > 0 ? (
           data.contacts.map((c) => (
             <DropdownMenuItem key={c.id} onClick={() => setContact(c)}>

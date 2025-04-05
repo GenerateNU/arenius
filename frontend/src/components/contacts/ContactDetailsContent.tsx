@@ -35,7 +35,8 @@ interface ContactWithDetails {
 export default function ContactDetailsContent() {
   const searchParams = useSearchParams();
   const contactId = searchParams.get("contactId");
-  const [contactDetails, setContactDetails] = useState<ContactWithDetails | null>(null);
+  const [contactDetails, setContactDetails] =
+    useState<ContactWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { jwt } = useAuth();
@@ -63,7 +64,7 @@ export default function ContactDetailsContent() {
 
         const { contact, summary } = response.data;
         const transactions = trasactionsResponse.data;
-        
+
         setContactDetails({
           contact,
           summary: {
@@ -84,41 +85,59 @@ export default function ContactDetailsContent() {
     fetchContactDetails();
   }, [contactId, jwt]);
 
-  if (loading) return (
-    <div className="flex justify-center items-center h-screen bg-gray-50">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-    </div>
-  );
-  
-  if (error) return (
-    <div className="flex justify-center items-center h-screen bg-gray-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg text-red-500">
-        <p>{error}</p>
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
-    </div>
-  );
-  
-  if (!contactId) return (
-    <div className="flex justify-center items-center h-screen bg-gray-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg">Contact ID missing</div>
-    </div>
-  );
-  
-  if (!contactDetails) return (
-    <div className="flex justify-center items-center h-screen bg-gray-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg">No contact found</div>
-    </div>
-  );
+    );
+
+  if (error)
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg text-red-500">
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+
+  if (!contactId)
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          Contact ID missing
+        </div>
+      </div>
+    );
+
+  if (!contactDetails)
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          No contact found
+        </div>
+      </div>
+    );
 
   const { contact, summary, transactions } = contactDetails;
-  const initials = contact.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  const initials = contact.name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .substring(0, 2)
+    .toUpperCase();
 
   return (
-    <div className="sm:p-20 font-[family-name:var(--font-geist-sans)] flex-1">
+    <div className="sm:p-20 flex-1">
       {/* Top navigation bar */}
       <div className="bg-white p-4 flex items-center justify-between border-b sticky top-0 z-10">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-full">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.back()}
+            className="rounded-full"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex items-center gap-2">
@@ -140,7 +159,9 @@ export default function ContactDetailsContent() {
               {/* Logo */}
               <div className="mr-6">
                 <div className="bg-red-600 rounded-full h-20 w-20 flex items-center justify-center">
-                  <span className="text-white text-2xl font-bold">{initials}</span>
+                  <span className="text-white text-2xl font-bold">
+                    {initials}
+                  </span>
                 </div>
               </div>
 
@@ -150,7 +171,9 @@ export default function ContactDetailsContent() {
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                   <div className="flex items-center gap-2 text-gray-600">
                     <MapPin className="h-4 w-4 text-gray-400" />
-                    <span>{contact.city}, {contact.state}</span>
+                    <span>
+                      {contact.city}, {contact.state}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-600">
                     <Mail className="h-4 w-4 text-gray-400" />
@@ -169,7 +192,9 @@ export default function ContactDetailsContent() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white rounded-lg shadow-sm p-4">
               <div className="flex justify-between items-center mb-2">
-                <h3 className="text-sm font-medium text-gray-500">Total Spend</h3>
+                <h3 className="text-sm font-medium text-gray-500">
+                  Total Spend
+                </h3>
               </div>
               <p className="text-2xl font-bold">
                 ${summary?.totalSpent?.toLocaleString() || "0"}
@@ -177,15 +202,23 @@ export default function ContactDetailsContent() {
             </div>
             <div className="bg-white rounded-lg shadow-sm p-4">
               <div className="flex justify-between items-center mb-2">
-                <h3 className="text-sm font-medium text-gray-500">Total Transactions</h3>
+                <h3 className="text-sm font-medium text-gray-500">
+                  Total Transactions
+                </h3>
               </div>
-              <p className="text-2xl font-bold">{summary.totalTransactions} Transactions</p>
+              <p className="text-2xl font-bold">
+                {summary.totalTransactions} Transactions
+              </p>
             </div>
             <div className="bg-white rounded-lg shadow-sm p-4">
               <div className="flex justify-between items-center mb-2">
-                <h3 className="text-sm font-medium text-gray-500">Total Emissions</h3>
+                <h3 className="text-sm font-medium text-gray-500">
+                  Total Emissions
+                </h3>
               </div>
-              <p className="text-2xl font-bold">{summary.totalEmissions} Tn CO₂</p>
+              <p className="text-2xl font-bold">
+                {summary.totalEmissions} Tn CO₂
+              </p>
             </div>
           </div>
 

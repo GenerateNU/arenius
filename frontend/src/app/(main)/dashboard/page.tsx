@@ -31,7 +31,6 @@ const DashboardContent: React.FC = () => {
           </h1>
           <div>
             <DatePicker
-              className="w-full max-w-[300px] text-sm font-[Montserrat] font-medium"
               dateRange={dateRange ?? { from: undefined, to: undefined }}
               setDateRange={setDateRange}
             />

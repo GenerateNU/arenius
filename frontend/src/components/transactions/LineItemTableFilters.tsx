@@ -10,7 +10,7 @@ export default function LineItemTableFilters() {
     <div className={styles.container}>
       <ContactFilter className={styles.filter} />
       <PriceFilter className={styles.filter} />
-      <DatePickerWithRange className={styles.filter} />
+      <DatePickerWithRange />
     </div>
   );
 }

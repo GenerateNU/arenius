@@ -1,17 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
-import { AuthProvider } from "@/context/AuthContext"
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Arenius",
@@ -26,9 +15,7 @@ export default function RootLayout({
   return (
     <AuthProvider>
       <html lang="en" className="h-dvh">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased flex min-h-full flex-col`}
-        >
+        <body className="font-[Montserrat] antialiased flex min-h-full flex-col">
           <main className="flex flex-1">{children}</main>
         </body>
       </html>
