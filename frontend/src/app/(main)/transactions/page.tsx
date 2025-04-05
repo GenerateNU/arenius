@@ -21,6 +21,7 @@ import SignOutButton from "@/components/auth/signOut";
 import DeleteAccountButton from "@/components/auth/deleteAccount";
 import { ContactProvider } from "@/context/ContactContext";
 import OffsetsView from "@/components/transactions/OffsetsView";
+import ExportTransactionsButton from "@/components/transactions/ExportTransactionsButton";
 
 export default function Transactions() {
   return (
@@ -105,6 +106,7 @@ function Header({
         <div className={styles.searchContainer}>
           <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <ManualEntryModal />
+          <ExportTransactionsButton />
         </div>
       </div>
 
