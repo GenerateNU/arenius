@@ -4,7 +4,6 @@ import ContactsSelector from "./ContactsSelector";
 import { useEffect, useState } from "react";
 import { SimpleContact } from "@/types";
 import { useTransactionsContext } from "@/context/TransactionContext";
-import { ContactProvider } from "@/context/ContactContext";
 import { cn } from "@/lib/utils";
 
 export default function ContactFilter({
@@ -21,13 +20,11 @@ export default function ContactFilter({
   }, [contact]);
 
   return (
-    <div className={cn("grid gap-2 ", className)}>
-      <ContactsSelector
-        contact={contact}
-        setContact={setContact}
-        variant="ghost"
-        className={className}
-      />
-    </div>
+    <ContactsSelector
+      contact={contact}
+      setContact={setContact}
+      variant="ghost"
+      className={className}
+    />
   );
 }

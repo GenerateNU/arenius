@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useContacts } from "@/context/ContactContext";
+import { cn } from "@/lib/utils";
 import { SimpleContact } from "@/types";
 import { ChevronDown } from "lucide-react";
 
@@ -37,7 +38,7 @@ export default function ContactSelector({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant={variant} size={"dropdown"}>
+        <Button variant={variant} className={cn(className)}>
           {contact && contact.name ? contact.name : "All Contacts"}
           <ChevronDown className="ml-2" />
         </Button>

@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
+import { useTransactionsContext } from "@/context/TransactionContext";
 import {
   Popover,
   PopoverTrigger,
@@ -8,10 +10,8 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useTransactionsContext } from "@/context/TransactionContext";
 import { Slider } from "./RangeSlider";
+import { cn } from "@/lib/utils";
 
 export default function PriceFilter({
   className,
@@ -34,53 +34,51 @@ export default function PriceFilter({
   };
 
   return (
-    <div className={cn("grid gap-2 ", className)}>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="ghost">
-            {minPrice !== undefined && maxPrice !== undefined
-              ? `Price: $${minPrice} - $${maxPrice}`
-              : minPrice === undefined && maxPrice !== undefined
-              ? `Price: < $${maxPrice}`
-              : maxPrice === undefined && minPrice !== undefined
-              ? `Price: > $${minPrice}`
-              : "All Amounts"}
-            <ChevronDown className={styles.chevronDown} />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-80">
-          <Slider
-            defaultValue={[minPrice || 0, maxPrice || 10_000]}
-            minStepsBetweenThumbs={100}
-            max={10_000}
-            min={0}
-            step={1}
-            onValueChange={(newValues) =>
-              setLocalValues([
-                newValues[0] === 0 ? undefined : newValues[0],
-                newValues[1] === 10_000 ? undefined : newValues[1],
-              ])
-            }
-            className={cn("w-full")}
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="dropdown" className={cn(className)}>
+          {minPrice !== undefined && maxPrice !== undefined
+            ? `Price: $${minPrice} - $${maxPrice}`
+            : minPrice === undefined && maxPrice !== undefined
+            ? `Price: < $${maxPrice}`
+            : maxPrice === undefined && minPrice !== undefined
+            ? `Price: > $${minPrice}`
+            : "All Amounts"}
+          <ChevronDown className={styles.chevronDown} />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80">
+        <Slider
+          defaultValue={[minPrice || 0, maxPrice || 10_000]}
+          minStepsBetweenThumbs={100}
+          max={10_000}
+          min={0}
+          step={1}
+          onValueChange={(newValues) =>
+            setLocalValues([
+              newValues[0] === 0 ? undefined : newValues[0],
+              newValues[1] === 10_000 ? undefined : newValues[1],
+            ])
+          }
+          className={cn("w-full")}
+        />
+        <div className="flex justify-between items-center my-4 font-body">
+          <PriceInput
+            label="Min"
+            value={minPrice}
+            onChange={(value) => setLocalValues((prev) => [value, prev[1]])}
           />
-          <div className="flex justify-between items-center my-4 font-body">
-            <PriceInput
-              label="Min"
-              value={minPrice}
-              onChange={(value) => setLocalValues((prev) => [value, prev[1]])}
-            />
-            <PriceInput
-              label="Max"
-              value={maxPrice}
-              onChange={(value) => setLocalValues((prev) => [prev[0], value])}
-            />
-          </div>
-          <div className="flex justify-end">
-            <Button onClick={handleApply}>Apply</Button>
-          </div>
-        </PopoverContent>
-      </Popover>
-    </div>
+          <PriceInput
+            label="Max"
+            value={maxPrice}
+            onChange={(value) => setLocalValues((prev) => [prev[0], value])}
+          />
+        </div>
+        <div className="flex justify-end">
+          <Button onClick={handleApply}>Apply</Button>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
