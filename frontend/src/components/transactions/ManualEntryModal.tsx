@@ -2,7 +2,6 @@ import React from "react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -19,10 +18,7 @@ const ManualEntryModal = () => {
       </DialogTrigger>
       <DialogContent className="w-[600px]">
         <DialogHeader>
-          <DialogTitle>Add a new transaction</DialogTitle>
-          <DialogDescription>
-            Manually enter transaction details below.
-          </DialogDescription>
+          <DialogTitle></DialogTitle>
           <ItemForm />
         </DialogHeader>
       </DialogContent>

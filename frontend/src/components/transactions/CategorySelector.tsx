@@ -411,7 +411,7 @@ function FavoriteStar({
 const styles = {
   button: "flex gap-8",
   chevronDown: "h-4 w-4 opacity-50",
-  popoverContent: "w-96 p-2",
+  popoverContent: "w-96 p-2 max-h-[400px] overflow-y-auto",
   searchIcon:
     "absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500",
   input: "pl-10 border-none focus:ring-0",
