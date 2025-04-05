@@ -112,6 +112,7 @@ export default function UserProfileContent() {
   };
   
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+
     const file = e.target.files?.[0];
   
     if (!file) {
@@ -150,7 +151,7 @@ export default function UserProfileContent() {
       };
       setUser(updatedUser);
 
-      // TODO: why redirect?
+      console.log("we are here and why are we redirecting")
   
     } catch (error: unknown) {
       if (error instanceof Error) {
