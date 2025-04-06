@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createClient } from '@supabase/supabase-js';
 import { Mail, MapPin } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import DeleteAccountButton from "../auth/deleteAccount";
