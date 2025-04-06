@@ -100,13 +100,8 @@ export default function LineItemTable({
     setIsDialogOpen(false);
   };
 
-  const handleAccept = async (lineItem: LineItem) => {
-    await handleRecommendation(lineItem.id, true);
-    fetchAllData();
-  };
-
-  const handleReject = async (lineItem: LineItem) => {
-    await handleRecommendation(lineItem.id, false);
+  const handleAction = async (lineItem: LineItem, approved: boolean) => {
+    await handleRecommendation(lineItem.id, approved);
     fetchAllData();
   };
 
@@ -169,13 +164,13 @@ export default function LineItemTable({
                     >
                       <div className="flex gap-2 justify-center items-center">
                         <button
-                          onClick={() => handleReject(row.original)}
+                          onClick={() => handleAction(row.original, false)}
                           className="text-red-600 hover:text-red-800"
                         >
                           <X size={18} />
                         </button>
                         <button
-                          onClick={() => handleAccept(row.original)}
+                          onClick={() => handleAction(row.original, true)}
                           className="text-green-600 hover:text-green-800"
                         >
                           <Check size={18} />
