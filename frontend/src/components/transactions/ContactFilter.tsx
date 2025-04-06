@@ -1,11 +1,9 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import ContactsSelector from "./ContactsSelector";
 import { useEffect, useState } from "react";
 import { SimpleContact } from "@/types";
 import { useTransactionsContext } from "@/context/TransactionContext";
-import { ContactProvider } from "@/context/ContactContext";
 
 export default function ContactFilter({
   className,
@@ -20,15 +18,18 @@ export default function ContactFilter({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contact]);
 
+  useEffect(() => {
+    if (!filters.contact_id) {
+      setContact(undefined);
+    }
+  }, [filters]);
+
   return (
-    <div className={cn("grid gap-2", className)}>
-      <ContactProvider>
-        <ContactsSelector
-          contact={contact}
-          setContact={setContact}
-          variant="ghost"
-        />
-      </ContactProvider>
-    </div>
+    <ContactsSelector
+      contact={contact}
+      setContact={setContact}
+      variant="ghost"
+      className={className}
+    />
   );
 }

@@ -11,7 +11,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
   FormControl,
   Form,
 } from "@/components/ui/form";
@@ -21,6 +20,7 @@ import Image from "next/image";
 import logo from "../../assets/onboarding-logo.png";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 const formSchema = z.object({
   email: z.string(),
@@ -60,8 +60,8 @@ export default function LoginForm() {
 
   return (
     <div className={styles.formContainer}>
-      <div className="flex flex-col justify-start items-center ">
-        <h2 className="text-2xl mb-4">Welcome to</h2>
+      <div className="flex flex-col justify-start w-full">
+        <h2 className="font-header text-2xl mb-4">Welcome to</h2>
         <Image src={logo} alt="Onboarding Logo" className={styles.logo} />
       </div>
       <Form {...form}>
@@ -71,10 +71,13 @@ export default function LoginForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormMessage />
+                <FormLabel className={styles.formLabel}>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="john@email.com" {...field} />
+                  <Input
+                    className="rounded-sm"
+                    placeholder="Enter your company email"
+                    {...field}
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -84,10 +87,14 @@ export default function LoginForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormMessage />
+                <FormLabel className={styles.formLabel}>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" {...field} />
+                  <Input
+                    className="rounded-sm"
+                    type="password"
+                    {...field}
+                    placeholder="Enter your password"
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -104,27 +111,27 @@ export default function LoginForm() {
               <Checkbox />
               Remember me
             </Label>
-            <a href="/forgot-password" className={styles.forgotPassword}>
-              Forgot Password?
-            </a>
+            <Link href="/forgot-password" className={styles.forgotPassword}>
+              Forgot password
+            </Link>
           </div>
 
-          <Button className="mt-4" type="submit" size="long" disabled={loading}>
+          <Button type="submit" size="long" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Logging in...
               </>
             ) : (
-              "Submit"
+              "Log in"
             )}
           </Button>
 
           <div className={styles.signUpContainer}>
             Don&apos;t have an account?{" "}
-            <a href="/onboarding" className={styles.link}>
+            <Link href="/onboarding" className={styles.signUp}>
               Sign up!
-            </a>
+            </Link>
           </div>
         </form>
       </Form>
@@ -134,13 +141,14 @@ export default function LoginForm() {
 
 const styles = {
   formContainer:
-    "h-[90vh] w-[45vw] flex flex-col items-center justify-center bg-white/100 p-8 rounded-lg shadow-lg",
-  form: "w-3/4",
-  actionContainer: "flex justify-between items-center text-black text-sm mt-3",
+    "h-[80vh] w-full flex flex-col items-center justify-center bg-white/100 px-16 py-10 rounded-lg shadow-lg font-body",
+  form: "w-full flex flex-col gap-4 mt-10",
+  formLabel: "font-header text-[20px]",
+  actionContainer: "flex justify-between items-center font-body text-sm my-3",
   checkboxContainer: "flex items-center gap-2",
-  signUpContainer: "w-full mt-3 text-center text-black",
-  error: "mt-4 text-red-500 text-center text-sm",
-  link: "text-blue-500 hover:underline",
-  forgotPassword: "text-black-500 hover:underline",
-  logo: "w-100 pb-20 ",
+  signUpContainer: "w-full mt-3 text-center font-body",
+  error: "text-red-500 text-center text-sm",
+  signUp: "underline font-semibold",
+  forgotPassword: "underline font-bold",
+  logo: "w-100",
 };

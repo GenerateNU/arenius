@@ -111,10 +111,12 @@ Pagination defaults to page 1, limit 10.
 
 Also returns `total` and `count`, where total is the total number of line items that fit those query parameters, ignoring pagination, and count is the number of line items returned in this request.
 
+`reconcilation_status` should be one of: ["reconciled", "unreconciled", "recommended", "offset"]
+
 ```go
 Query Parameters:
 - `company_id` (string, optional)
-- `reconciliation_status` (bool, optional)
+- `reconciliation_status` (string, optional)
 - `before_date` (time.Time, optional)
 - `after_date` (time.Time, optional)
 - `scope` (int, optional)

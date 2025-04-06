@@ -2,53 +2,30 @@ import axios from "axios";
 import {
   ContactEmissions,
   GetContactEmissionsRequest,
-  GetGrossEmissionsRequest,
-  GrossSummary,
-  NetSummary,
+  GetEmissionsRequest,
+  EmissionSummary,
   ScopeBreakdown,
 } from "@/types";
 import apiClient from "./apiClient";
 
-const DEFAULT_GROSS_SUMMARY: GrossSummary = {
+const DEFAULT_GROSS_SUMMARY: EmissionSummary = {
   total_co2: 0,
   start_date: new Date(),
   end_date: new Date(),
   months: [],
 };
 
-const DEFAULT_NET_SUMMARY: NetSummary = {
-  start_date: new Date(),
-  end_date: new Date(),
-  months: [],
-};
-
-export async function fetchGrossEmissions(
-  req: GetGrossEmissionsRequest
-): Promise<GrossSummary> {
+export async function fetchEmissions(
+  req: GetEmissionsRequest
+): Promise<EmissionSummary> {
   try {
-    const response = await apiClient.get(`/summary/gross`, {
+    const response = await apiClient.get(`/summary/emissions`, {
       params: req,
     });
     return response.data;
   } catch (error) {
-    console.error("Error fetching gross emissions", error);
+    console.error("Error fetching emissions", error);
     return DEFAULT_GROSS_SUMMARY;
-  }
-}
-
-export async function fetchNetEmissions(
-  req: GetGrossEmissionsRequest
-): Promise<NetSummary> {
-  console.log("request: ", req);
-
-  try {
-    const response = await apiClient.get(`/summary/net`, {
-      params: req,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching gross emissions", error);
-    return DEFAULT_NET_SUMMARY;
   }
 }
 
@@ -65,6 +42,21 @@ export async function fetchScopeBreakdown(
   } catch (error) {
     console.error("Error fetching emissions", error);
     return [];
+  }
+}
+
+export async function fetchTopEmissions(req: GetEmissionsRequest, jwt: string) {
+  try {
+    const response = await apiClient.get("/summary/top-emissions", {
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+      params: req,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching emissions factors:", error);
   }
 }
 

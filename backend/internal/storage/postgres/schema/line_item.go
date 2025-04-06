@@ -34,13 +34,13 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	if filterParams.ReconciliationStatus != nil {
 		switch *filterParams.ReconciliationStatus {
 		case "reconciled":
-			filterQuery.WriteString(" AND (li.emission_factor_id IS NOT NULL AND li.scope != 0)")
+			filterQuery.WriteString(" AND (li.emission_factor_id IS NOT NULL AND (li.scope != 0 OR li.scope IS NULL))")
 		case "recommended":
 			filterQuery.WriteString(" AND (li.emission_factor_id IS NULL) AND (li.recommended_emission_factor_id IS NOT NULL)")
-		case "unreconciled":
-			filterQuery.WriteString(" AND (li.emission_factor_id IS NULL)")
 		case "offsets":
 			filterQuery.WriteString(" AND (li.scope = 0)")
+		case "unreconciled":
+			filterQuery.WriteString(" AND (li.emission_factor_id IS NULL AND (li.scope != 0 OR li.scope IS NULL))")
 		}
 	}
 
@@ -226,7 +226,6 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 	}
 
 	return &lineItem, nil
-
 }
 
 func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []models.AddImportedLineItemRequest) ([]models.LineItem, error) {
@@ -305,6 +304,13 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []interface{}, error) {
 	id := uuid.New().String()
 	createdAt := time.Now().UTC()
+	if req.Date != nil {
+		parsedDate, err := time.Parse(time.RFC3339, *req.Date)
+		if err != nil {
+			return nil, nil, errs.BadRequest("Invalid date format, must be RFC3339")
+		}
+		createdAt = parsedDate
+	}
 	columns := []string{"id", "description", "total_amount", "company_id", "contact_id", "date", "currency_code"}
 	// TODO: fix company id
 	queryArgs := []interface{}{id, req.Description, req.TotalAmount, req.CompanyID, req.ContactID, createdAt, req.CurrencyCode}
@@ -321,9 +327,9 @@ func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []in
 	}
 
 	// only include the optional columns if they exist
-	if req.EmissionFactor != nil {
-		columns = append(columns, "emission_factor")
-		queryArgs = append(queryArgs, *req.EmissionFactor)
+	if req.EmissionFactorId != nil && *req.EmissionFactorId != "" {
+		columns = append(columns, "emission_factor_id")
+		queryArgs = append(queryArgs, *req.EmissionFactorId)
 	}
 
 	if req.CO2 != nil {

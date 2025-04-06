@@ -3,9 +3,11 @@ import { GetContactsRequest } from "@/types";
 import { useContacts } from "@/context/ContactContext";
 import Image from "next/image";
 import { fetchContacts } from "@/services/contacts";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ExportContactsButton() {
   const { filters } = useContacts();
+  const { companyId } = useAuth();
 
   const csvConfig = mkConfig({
     useKeysAsHeaders: true,
@@ -17,7 +19,8 @@ export default function ExportContactsButton() {
       const contactResponse = await fetchContacts({
         ...filters,
         unpaginated: true,
-      } as GetContactsRequest);
+        company_id: companyId
+      } as GetContactsRequest) || [];
 
       const csvData = contactResponse.contacts.map((contact) => ({
         Name: contact.name,

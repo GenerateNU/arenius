@@ -155,7 +155,7 @@ export default function UserProfileContent() {
   };
 
   return (
-    <div className="sm:p-20 w-4/5 mx-auto font-[family-name:var(--font-geist-sans)] flex-1">
+    <div className="sm:p-20 w-4/5 mx-auto flex-1">
       {message && <div className={styles.message}>{message}</div>}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex items-start">
