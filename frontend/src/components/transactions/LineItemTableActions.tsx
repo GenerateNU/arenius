@@ -63,6 +63,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
     
 
     await reconcileBatchOffset(request);
+    fetchTableData("offsets", {});
   }
 
   // Handles reconciliation for regular line items
@@ -78,6 +79,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
     };
 
     await reconcileBatch(request);
+    fetchTableData("reconciled", {});
   }
 
   function resetState() {
