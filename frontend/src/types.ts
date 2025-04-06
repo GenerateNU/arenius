@@ -236,5 +236,4 @@ export type UpdateUserProfileRequest = {
   last_name?: string | null;
   city?: string | null;
   state?: string | null;
-  photoUrl?: string | null;
 };

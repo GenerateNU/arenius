@@ -1,13 +1,17 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
+import apiClient from "@/services/apiClient";
 import { updateUserProfile } from "@/services/user";
-import { UpdateUserProfileRequest } from "@/types";
+import { UpdateUserProfileRequest, User } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createClient } from '@supabase/supabase-js';
 import { Mail, MapPin } from "lucide-react";
 import Image from "next/image";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import DeleteAccountButton from "../auth/deleteAccount";
 import { Button } from "../ui/button";
 import {
   Form,
@@ -19,6 +23,24 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+// Add error handling to prevent build failures
+if (!supabaseUrl) {
+  // During static build, provide a fallback for prerendering
+  if (process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
+    console.warn('Supabase URL not found during build. Using placeholder for static generation.');
+  } else {
+    console.error('Supabase URL is required. Please set NEXT_PUBLIC_SUPABASE_URL environment variable.');
+  }
+}
+
+const supabase = createClient(
+  supabaseUrl || 'https://placeholder-for-static-build.supabase.co',
+  supabaseAnonKey || 'placeholder-key-for-static-build'
+);
+
 const formSchema = z.object({
   first_name: z.string(),
   last_name: z.string(),
@@ -27,7 +49,10 @@ const formSchema = z.object({
 });
 
 export default function UserProfileContent() {
+
+  const [message, setMessage] = useState<string | null>(null);
   const { user, setUser, userId } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,7 +68,18 @@ export default function UserProfileContent() {
     return <div>Loading...</div>;
   }
 
+  const handleEditPasswordClick = async () => {
+    try {
+      await apiClient.post('/auth/forgot-password', { email: user?.email });
+      setMessage("Password reset email sent! Please check your inbox.");
+    } catch (error) {
+      setMessage("Failed to send reset email. Please try again.");
+      console.error(error);
+    }
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
+
     if (!userId) {
       console.error("UserID is null.");
       return;
@@ -61,30 +97,97 @@ export default function UserProfileContent() {
       last_name: getFallbackValue(values.last_name, user?.last_name),
       city: getFallbackValue(values.city, user?.city),
       state: getFallbackValue(values.state, user?.state),
-      photoUrl: "",
     };
 
     try {
       const response = await updateUserProfile(userId, req);
       if (response) {
-        form.reset();
         setUser(response);
       }
     } catch (error) {
       console.error("Error updating user profile:", error);
     }
+  
   }
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+  
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+
+    const file = e.target.files?.[0];
+  
+    if (!file) {
+      return;
+    }
+  
+    try {
+      const { data, error } = await supabase.storage
+        .from('profile-photos') // The bucket name in Supabase
+        .upload(`profile-photo-${Date.now()}`, file); // Use `file` instead of `imageFile`
+  
+      if (error) {
+        console.error('Supabase upload error:', error);
+        throw error;
+      }
+    
+      const publicUrl = supabase
+        .storage
+        .from('profile-photos')
+        .getPublicUrl(data.path).data.publicUrl;
+  
+      await apiClient.patch(`/user/${userId}`, {
+        photo_url: publicUrl,
+      });
+  
+      const updatedUser: User = {
+        ...user,
+        photo_url: publicUrl,
+      };
+      setUser(updatedUser);
+      console.log("we are here and why are we redirecting")
+  
+    } catch (error: unknown) {
+      console.error('Error during upload:', error);
+    }
+
+  };
 
   return (
     <div className="sm:p-20 w-4/5 mx-auto flex-1">
+      {message && <div className={styles.message}>{message}</div>}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex items-start">
-          <div className="mr-6">
+          <div className="relative mr-6">
             <Image
-              src={user.photo_url || ""}
+              src={user.photo_url || "/profile.png"}
               alt="User Profile"
               width={60}
               height={60}
+              className="rounded-full border border-gray-300 shadow-md"
+            />
+
+            <button
+              type="button"
+              title="Edit Photo"
+              className="w-6 h-6 absolute bottom-0 right-0 bg-white rounded-full shadow-md border border-gray-300 flex items-center justify-center"
+              onClick={handleUploadClick}
+            >
+              <Image
+                src="/edit.svg"
+                alt="Edit"
+                width={10}
+                height={10}
+              />
+            </button>
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              style={{ display: "none" }}
             />
           </div>
 
@@ -116,7 +219,10 @@ export default function UserProfileContent() {
           <div className="w-1/4">
             <h2 className="text-xl font-semibold mb-4">General</h2>
             <div className="flex flex-col space-y-4">
-              <span className="text-gray-800 font-semibold cursor-pointer">
+              <span
+                className="text-gray-800 font-semibold cursor-pointer"
+                onClick={handleEditPasswordClick}
+              >
                 Edit Password
               </span>
               <span className="text-gray-800 font-semibold cursor-pointer">
@@ -126,9 +232,7 @@ export default function UserProfileContent() {
                 Billing
               </span>
               <hr className="border-t border-gray-300 my-4" />
-              <span className="text-red-600 font-semibold cursor-pointer">
-                Delete Account
-              </span>
+              <DeleteAccountButton />
             </div>
           </div>
 
@@ -206,3 +310,7 @@ export default function UserProfileContent() {
     </div>
   );
 }
+
+const styles = {
+  message: "mt-4 text-center text-green-500",
+};

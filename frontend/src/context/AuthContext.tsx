@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { fetchUser } from "@/services/user";
+import { LoginRequest, SignupRequest, User } from "@/types";
 import { AxiosResponse } from "axios";
 import Cookies from "js-cookie";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import authApiClient from "../services/authApiClient";
-import { LoginRequest, SignupRequest, User } from "@/types";
-import { fetchUser } from "@/services/user";
 
 interface AuthContextType {
   companyId: string | undefined;
