@@ -23,7 +23,23 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 
-const supabase = createClient("https://otqxkhrzvszshplymejg.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90cXhraHJ6dnN6c2hwbHltZWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY1MjkxNDcsImV4cCI6MjA1MjEwNTE0N30.VDqp254ZDc8Skp4Ri6aTanvdmoophssv-wDZPHX_t7E");
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+// Add error handling to prevent build failures
+if (!supabaseUrl) {
+  // During static build, provide a fallback for prerendering
+  if (process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
+    console.warn('Supabase URL not found during build. Using placeholder for static generation.');
+  } else {
+    console.error('Supabase URL is required. Please set NEXT_PUBLIC_SUPABASE_URL environment variable.');
+  }
+}
+
+const supabase = createClient(
+  supabaseUrl || 'https://placeholder-for-static-build.supabase.co',
+  supabaseAnonKey || 'placeholder-key-for-static-build'
+);
 
 const formSchema = z.object({
   first_name: z.string(),
@@ -37,15 +53,6 @@ export default function UserProfileContent() {
   const [message, setMessage] = useState<string | null>(null);
   const { user, setUser, userId } = useAuth();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    form.reset({
-      first_name: user?.first_name ?? "",
-      last_name: user?.last_name ?? "",
-      city: user?.city ?? "",
-      state: user?.state ?? "",
-    });
-  }, [user])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
