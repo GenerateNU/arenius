@@ -113,7 +113,7 @@ export async function reconcileBatch(request: ReconcileBatchRequest) {
 export async function reconcileBatchOffset(request: ReconcileBatchRequest) {
   try {
     // await apiClient.post("/carbon-offset/batch", request);
-    await apiClient.patch("/line-item/offset/batch", {
+    await apiClient.patch("/line-item/batch/offset", {
       line_item_ids: request.lineItemIds,
       scope: 0,
       co2: request.co2,

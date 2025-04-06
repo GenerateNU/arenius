@@ -112,32 +112,30 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
           </div>
           <div className="flex-1 space-y-4">
           {type === "reconciled" && (
-            <div className="space-y-2">
-              <p className="text-md font-small text-gray-500">
-                Emissions Scope
-              </p>
-              <Select onValueChange={(value) => setScope(value)}>
-                <SelectTrigger className="w-full">
-                  {scope ? `Scope ${scope}` : "Select scope"}
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">Scope 1</SelectItem>
-                  <SelectItem value="2">Scope 2</SelectItem>
-                  <SelectItem value="3">Scope 3</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <><div className="space-y-2">
+                <p className="text-md font-small text-gray-500">
+                  Emissions Scope
+                </p>
+                <Select onValueChange={(value) => setScope(value)}>
+                  <SelectTrigger className="w-full">
+                    {scope ? `Scope ${scope}` : "Select scope"}
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">Scope 1</SelectItem>
+                    <SelectItem value="2">Scope 2</SelectItem>
+                    <SelectItem value="3">Scope 3</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+                <div className="space-y-2">
+                  <p className="text-md font-small text-gray-500">
+                    Emissions Factor
+                  </p>
+                  <EmissionsFactorSelector
+                    emissionsFactor={emissionsFactor}
+                    setEmissionsFactor={setEmissionsFactor} />
+                </div></>
             )}
-
-            <div className="space-y-2">
-              <p className="text-md font-small text-gray-500">
-                Emissions Factor
-              </p>
-              <EmissionsFactorSelector
-                emissionsFactor={emissionsFactor}
-                setEmissionsFactor={setEmissionsFactor}
-              />
-            </div>
 
             <div className="space-y-2">
               <p className="text-md font-small text-gray-500">Contact Name</p>
