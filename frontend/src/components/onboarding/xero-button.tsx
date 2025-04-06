@@ -28,7 +28,7 @@ const XeroSSOButton: React.FC<{ onGoBack: () => void }> = ({ onGoBack }) => {
       <h2 className="text-3xl font-extrabold p-12">Connect with Xero</h2>
       <span
         data-xero-sso
-        data-href={process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/xero"}
+        data-href={"http://localhost:8080/auth/xero"}
         data-label="Sign In with Xero"
       />
       <button

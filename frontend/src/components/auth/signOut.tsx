@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LogOut } from 'lucide-react';
 import apiClient from '@/services/apiClient';
+import Cookies from 'js-cookie';
 
 const SignOutButton = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -33,6 +34,10 @@ const SignOutButton = () => {
       setTimeout(() => {
         window.location.href = '/';
       }, 1500);
+
+
+      Cookies.remove("userID")
+      localStorage.clear()
       
     } catch (err) {
       if (err instanceof Error) {

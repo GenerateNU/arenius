@@ -27,7 +27,7 @@ export function ProfileDropdown() {
           <>
             <DropdownMenuTrigger>
               <Image
-                src={user?.photo_url || ""}
+                src={user?.photo_url || "/user_profile.svg"}
                 alt="User Profile"
                 width={36}
                 height={36}
@@ -61,9 +61,7 @@ export function ProfileDropdown() {
                         Member Profile
                       </button>
                     </Link>
-                    <Link href="/user-profile">
-                      <SignOutButton />
-                    </Link>
+                    <SignOutButton />
                   </div>
                 </div>
               </div>
