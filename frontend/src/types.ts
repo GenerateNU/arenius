@@ -71,6 +71,8 @@ export type ReconcileBatchRequest = {
   lineItemIds: string[];
   scope?: number;
   emissionsFactorId?: string;
+  co2?: number;
+  co2_unit?: string;
 };
 
 export type ReconcileRequest = {
@@ -78,6 +80,8 @@ export type ReconcileRequest = {
   scope?: number;
   emissionsFactorId?: string;
   contactId?: string;
+  co2?: number;
+  co2_unit?: string;
 };
 
 export type EmissionsFactor = {

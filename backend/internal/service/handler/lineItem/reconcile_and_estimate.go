@@ -16,12 +16,12 @@ import (
 func (h *Handler) ReconcileAndEstimate(ctx *fiber.Ctx, lineItemIDs []uuid.UUID, scope *int, emissionsFactorID *string, contactID *string) error {
 	// Step 1: Update Line Items in Supabase
 	if contactID != nil && len(lineItemIDs) == 1 {
-		_, err := h.lineItemRepository.ReconcileLineItem(ctx.Context(), lineItemIDs[0].String(), *scope, *emissionsFactorID, contactID)
+		_, err := h.lineItemRepository.ReconcileLineItem(ctx.Context(), lineItemIDs[0].String(), *scope, *emissionsFactorID, contactID, nil, nil)
 		if err != nil {
 			return fmt.Errorf("error updating line items: %w", err)
 		}
 	} else {
-		err := h.lineItemRepository.BatchUpdateScopeEmissions(ctx.Context(), lineItemIDs, scope, emissionsFactorID)
+		err := h.lineItemRepository.BatchUpdateLineItems(ctx.Context(), lineItemIDs, scope, emissionsFactorID, nil, nil)
 		if err != nil {
 			return fmt.Errorf("error updating line items: %w", err)
 		}

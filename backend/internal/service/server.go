@@ -129,12 +129,18 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	// cannot
 	lineItemHandler := lineItem.NewHandler(repo.LineItem)
 	app.Route("/line-item", func(r fiber.Router) {
-		r.Get("/", lineItemHandler.GetLineItems)
-		r.Patch("/batch", lineItemHandler.BatchUpdateLineItems)
-		r.Patch("/:id", lineItemHandler.ReconcileLineItem)
-		r.Patch("/handle-recommendation/:id", lineItemHandler.HandleRecommendation)
-		r.Post("/", lineItemHandler.PostLineItem)
 		r.Get("/get-recommendations", lineItemHandler.AutoReconcileLineItem)
+		r.Patch("/batch", lineItemHandler.BatchUpdateLineItems)
+		r.Patch("/batch/offset", lineItemHandler.BatchUpdateLineItemsOffset)
+		r.Patch("/handle-recommendation/:id", lineItemHandler.HandleRecommendation)
+		r.Patch("/offset/:id", lineItemHandler.UpdateLineItemOffset)
+
+		// Parameter routes
+		r.Patch("/:id", lineItemHandler.ReconcileLineItem)
+
+		// Generic routes last
+		r.Post("/", lineItemHandler.PostLineItem)
+		r.Get("/", lineItemHandler.GetLineItems)
 	})
 
 	// cannot

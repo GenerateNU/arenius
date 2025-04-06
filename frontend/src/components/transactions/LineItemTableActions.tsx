@@ -56,7 +56,11 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
     const request: ReconcileBatchRequest = {
       lineItemIds: selectedIds,
       ...(scope && { scope: Number(scope) }),
+      co2: carbon ?? 0,
+      co2_unit: "kg",
     };
+    console.log("Reconcile request:", request);
+    
 
     await reconcileBatchOffset(request);
   }
