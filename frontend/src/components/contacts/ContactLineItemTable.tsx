@@ -111,6 +111,7 @@ export function ContactLineItemTable({ data }: ContactLineItemTableProps) {
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
           onReconcileSuccess={() => setIsDialogOpen(false)}
+          type="reconciled"
         />
       )}
     </>
