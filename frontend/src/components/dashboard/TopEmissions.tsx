@@ -44,10 +44,6 @@ export default function TopEmissionsFactors() {
     fetchEmissions();
   }, [dateRange, jwt, user, isLoading]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <Card className="w-full px-6">
       <CardHeader className="px-0 pb-6">

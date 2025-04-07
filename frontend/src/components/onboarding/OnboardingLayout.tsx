@@ -27,7 +27,7 @@ export default function OnboardingLayout({
 const styles = {
   container:
     "h-screen w-full bg-[url('/onboarding-bg.jpeg')] bg-cover bg-center flex",
-  loginSection: "w-2/5 flex items-center pl-20",
+  loginSection: "3/5 md:w-2/5 flex items-center pl-20",
   formWrapper:
     "h-[80vh] w-full flex flex-col items-center justify-center bg-white/100 px-16 pt-16 rounded-lg shadow-lg font-body",
   formContent: "flex flex-col justify-between h-full pb-24",

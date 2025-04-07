@@ -59,7 +59,7 @@ export async function fetchLineItems(
     const response = await apiClient.get("/line-item", {
       params: buildQueryParams(filters),
     });
-    
+
     return response.data;
   } catch (error) {
     console.error("Error fetching dashboard items", error);
@@ -101,10 +101,10 @@ export async function createLineItem(
 export async function reconcileBatch(request: ReconcileBatchRequest) {
   try {
     await apiClient.patch("/line-item/batch", {
-        line_item_ids: request.lineItemIds,
-        scope: request.scope,
-        emissions_factor_id: request.emissionsFactorId,
-      });
+      line_item_ids: request.lineItemIds,
+      scope: request.scope,
+      emissions_factor_id: request.emissionsFactorId,
+    });
   } catch (error) {
     console.error("Error updating dashboard items", error);
   }

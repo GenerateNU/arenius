@@ -36,7 +36,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({
   const [filters, setFilters] = useState<GetContactsRequest>(
     {} as GetContactsRequest
   );
-  const { companyId, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
 
   const fetchData = useCallback(async () => {
     if (isLoading) {
@@ -44,7 +44,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({
       return;
     }
 
-    if (!companyId) {
+    if (!user) {
       console.log("Company ID is not available yet");
       return;
     }
@@ -53,19 +53,19 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log("Fetching contacts...");
       const result = await fetchContacts({
         ...filters,
-        company_id: companyId,
+        company_id: user.company_id,
       });
       setData(result);
     } catch (error) {
       console.error("Error fetching contacts:", error);
     }
-  }, [filters, companyId, isLoading]);
+  }, [filters, user, isLoading]);
 
   useEffect(() => {
-    if (!isLoading && companyId) {
+    if (!isLoading && user) {
       fetchData();
     }
-  }, [companyId, fetchData, filters, isLoading]);
+  }, [user, fetchData, filters, isLoading]);
 
   if (isLoading) {
     return <div>Loading...</div>;
