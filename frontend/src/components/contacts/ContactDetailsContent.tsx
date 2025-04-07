@@ -263,9 +263,9 @@ export default function ContactDetailsContent() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-7 gap-6">
           {/* Left side - Transactions */}
-          <div className="md:col-span-3">
+          <div className="md:col-span-5">
             <h2 className="text-xl font-bold mb-4">All Transactions</h2>
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               <Tabs defaultValue="transactions" className="w-full">
