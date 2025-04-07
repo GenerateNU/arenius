@@ -24,19 +24,20 @@ import Link from "next/link";
 
 const formSchema = z.object({
   email: z.string(),
-  password: z.string(),
+  password: z.string()
 });
 
 export default function LoginForm() {
   const router = useRouter();
   const { login, isLoginError } = useAuth();
   const [loading, setLoading] = useState(false);
-
+  const [checked, setChecked] = useState(true);
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      password: "",
+      password: ""
     },
   });
 
@@ -46,6 +47,7 @@ export default function LoginForm() {
       const response = await login({
         email: values.email,
         password: values.password,
+        rememberMe: checked,
       });
 
       if (response?.response?.status === 200) {
@@ -108,7 +110,10 @@ export default function LoginForm() {
 
           <div className={styles.actionContainer}>
             <Label className={styles.checkboxContainer}>
-              <Checkbox />
+            <Checkbox
+                checked={checked}
+                onCheckedChange={() => setChecked(!checked)}
+              />
               Remember me
             </Label>
             <Link href="/forgot-password" className={styles.forgotPassword}>

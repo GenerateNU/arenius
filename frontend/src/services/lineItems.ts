@@ -101,10 +101,10 @@ export async function createLineItem(
 export async function reconcileBatch(request: ReconcileBatchRequest) {
   try {
     await apiClient.patch("/line-item/batch", {
-      line_item_ids: request.lineItemIds,
-      scope: request.scope,
-      emissions_factor_id: request.emissionsFactorId,
-    });
+        line_item_ids: request.lineItemIds,
+        scope: request.scope,
+        emissions_factor_id: request.emissionsFactorId,
+      });
   } catch (error) {
     console.error("Error updating dashboard items", error);
   }
@@ -113,9 +113,10 @@ export async function reconcileBatch(request: ReconcileBatchRequest) {
 export async function reconcileBatchOffset(request: ReconcileBatchRequest) {
   try {
     // await apiClient.post("/carbon-offset/batch", request);
-    await apiClient.patch("/line-item/batch", {
+    await apiClient.patch("/line-item/batch/offset", {
       line_item_ids: request.lineItemIds,
       scope: 0,
+      co2: request.co2,
     });
   } catch (error) {
     console.error("Error reconciling carbon offsets", error);
@@ -124,11 +125,19 @@ export async function reconcileBatchOffset(request: ReconcileBatchRequest) {
 
 export async function reconcile(request: ReconcileRequest) {
   try {
-    await apiClient.patch(`line-item/${request.lineItemId}`, {
-      scope: request.scope,
-      emission_factor: request.emissionsFactorId,
-      contact_id: request.contactId,
-    });
+    if (request.scope === 0) {
+      await apiClient.patch(`line-item/offset/${request.lineItemId}`, {
+        co2: request.co2,
+        scope: request.scope,
+        contact_id: request.contactId,
+      });
+    } else {
+      await apiClient.patch(`line-item/${request.lineItemId}`, {
+        scope: request.scope,
+        emission_factor: request.emissionsFactorId,
+        contact_id: request.contactId,
+      });
+    }
   } catch (error) {
     console.error("Error updating dashboard items", error);
   }

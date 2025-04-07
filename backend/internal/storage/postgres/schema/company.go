@@ -90,7 +90,7 @@ func (r *CompanyRepository) GetOrCreateCompany(ctx context.Context, xeroTenantID
 	}
 
 	// If there was an error (i.e., no company found), we create a new company and set the credentials
-	if err != nil && err.Error() == "no rows in result set" {
+	if err.Error() == "no rows in result set" {
 		// Generate a new UUID for the company
 		companyID = uuid.New().String()
 

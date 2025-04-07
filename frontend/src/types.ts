@@ -58,6 +58,7 @@ export type CreateLineItemRequest = {
 export type LoginRequest = {
   email: string;
   password: string;
+  rememberMe: boolean;
 };
 
 export type SignupRequest = {
@@ -71,6 +72,8 @@ export type ReconcileBatchRequest = {
   lineItemIds: string[];
   scope?: number;
   emissionsFactorId?: string;
+  co2?: number;
+  co2_unit?: string;
 };
 
 export type ReconcileRequest = {
@@ -78,6 +81,8 @@ export type ReconcileRequest = {
   scope?: number;
   emissionsFactorId?: string;
   contactId?: string;
+  co2?: number;
+  co2_unit?: string;
 };
 
 export type EmissionsFactor = {
@@ -101,7 +106,6 @@ export type EmissionsFactorCategory = {
 export type EmissionsFactorCategories = {
   all: EmissionsFactorCategory[];
   favorites: EmissionsFactorCategory;
-  history: EmissionsFactorCategory;
 };
 
 export type SimpleContact = {

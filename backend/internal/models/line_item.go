@@ -37,10 +37,12 @@ type GetLineItemsResponse struct {
 }
 
 type ReconcileLineItemRequest struct {
-	ID              string  `json:"id"`
-	EmissionsFactor string  `json:"emission_factor,omitempty"`
-	Scope           int     `json:"scope,omitempty"`
-	ContactID       *string `json:"contact_id,omitempty"`
+	ID              string   `json:"id"`
+	EmissionsFactor string   `json:"emission_factor,omitempty"`
+	Scope           int      `json:"scope,omitempty"`
+	ContactID       *string  `json:"contact_id,omitempty"`
+	CO2             *float64 `json:"co2,omitempty"`
+	CO2Unit         *string  `json:"co2_unit,omitempty"`
 }
 
 type LineItemEmissionsRequest struct {
@@ -53,6 +55,8 @@ type UpdateLineItemsRequest struct {
 	LineItemIDs       []uuid.UUID `json:"line_item_ids"`
 	Scope             *int        `json:"scope,omitempty"`
 	EmissionsFactorID *string     `json:"emissions_factor_id,omitempty"`
+	CO2               *float64    `json:"co2,omitempty"`
+	CO2Unit           *string     `json:"co2_unit,omitempty"`
 }
 
 type CreateLineItemRequest struct {

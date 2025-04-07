@@ -179,7 +179,7 @@ export default function LineItemTable({
                     </TableCell>
                   )}
 
-                  {row.original.emission_factor_id && (
+                  {activePage !== "unreconciled" && (
                     <TableCell>
                       <Image
                         src="/arrow.svg"
@@ -222,6 +222,7 @@ export default function LineItemTable({
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
           onReconcileSuccess={handleReconcileSuccess}
+          type={activePage}
         />
       )}
 
