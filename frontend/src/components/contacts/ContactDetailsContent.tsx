@@ -90,7 +90,7 @@ export default function ContactDetailsContent() {
 
         // Categorize line items by scope
         if (transactions.line_items) {
-          setTransactionItems(transactions.line_items.filter((item: LineItem) => item.scope > 0));
+          setTransactionItems(transactions.line_items.filter((item: LineItem) => (item.scope ?? -1) > 0));
           setOffsetItems(transactions.line_items.filter((item: LineItem) => item.scope === 0));
           setUnreconciledItems(transactions.line_items.filter((item: LineItem) => item.scope === null || item.scope === undefined));
         }
@@ -133,7 +133,7 @@ export default function ContactDetailsContent() {
   if (loading)
     return (
       <div className="flex justify-center items-center h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-freshSage"></div>
       </div>
     );
 
@@ -254,7 +254,7 @@ export default function ContactDetailsContent() {
             <div className="mt-4 md:mt-0">
               <Button 
                 variant="ghost" 
-                className="flex items-center text-blue-600 hover:text-blue-800"
+                className="flex items-center text-freshSage hover:text-freshSage"
                 onClick={() => console.log("Edit Contact")}
               >
                 Edit Contact
@@ -273,19 +273,19 @@ export default function ContactDetailsContent() {
                   <TabsList className="p-0 bg-transparent w-full flex rounded-none border-b">
                     <TabsTrigger 
                       value="transactions" 
-                      className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:shadow-none rounded-none flex-1"
+                      className="data-[state=active]:border-b-2 data-[state=active]:border-freshSage data-[state=active]:shadow-none rounded-none flex-1"
                     >
                       Reconciled ({transactionItems.length})
                     </TabsTrigger>
                     <TabsTrigger 
                       value="offsets" 
-                      className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:shadow-none rounded-none flex-1"
+                      className="data-[state=active]:border-b-2 data-[state=active]:border-freshSage data-[state=active]:shadow-none rounded-none flex-1"
                     >
                       Offsets ({offsetItems.length})
                     </TabsTrigger>
                     <TabsTrigger 
                       value="unreconciled" 
-                      className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:shadow-none rounded-none flex-1"
+                      className="data-[state=active]:border-b-2 data-[state=active]:border-freshSage data-[state=active]:shadow-none rounded-none flex-1"
                     >
                       Unreconciled ({unreconciledItems.length})
                     </TabsTrigger>

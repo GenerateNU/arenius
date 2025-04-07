@@ -20,7 +20,7 @@ import {
 import { ChevronRight } from "lucide-react";
 import { LineItem } from "@/types";
 import { ModalDialog } from "@/components/transactions/ModalDialog";
-import { reconciledColumns, offsetColumns, unreconciledColumns } from "./contactDetailedColumns";
+import { reconciledColumns, offsetColumns, unreconciledColumns } from "./ContactDetailsColumns";
 
 interface ContactLineItemTableProps {
   data: LineItem[];
