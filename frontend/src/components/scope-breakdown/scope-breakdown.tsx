@@ -25,19 +25,19 @@ const ScopeBreakdownChart = () => {
 
   const startDate = dateRange?.from || threeMonthsAgo;
   const endDate = dateRange?.to || new Date();
-  const { companyId } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (companyId) {
+    if (user) {
       fetchScopeBreakdown(
-        companyId,
+        user.company_id,
         startDate.toISOString(),
         endDate.toISOString()
       )
         .then(setData)
         .catch((err) => setError(err.message));
     }
-  }, [startDate, endDate, companyId]);
+  }, [startDate, endDate, user]);
 
   if (error) return <div>Error: {error}</div>;
   if (!data) return <div>Loading...</div>;

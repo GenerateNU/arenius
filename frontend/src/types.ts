@@ -223,7 +223,7 @@ export type User = {
   first_name?: string;
   last_name?: string;
   email?: string;
-  company_id?: string;
+  company_id: string;
   refresh_token?: string;
   tenant_id?: string;
   city?: string;

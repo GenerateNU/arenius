@@ -9,7 +9,7 @@ export default function useEmissionSummary() {
   const [summary, setSummary] = useState<EmissionSummary>(
     {} as EmissionSummary
   );
-  const { companyId, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const { dateRange } = useDateRange();
 
   const fetchData = useCallback(async () => {
@@ -18,13 +18,13 @@ export default function useEmissionSummary() {
       return;
     }
 
-    if (!companyId) {
+    if (!user) {
       console.log("Company ID is not available yet");
       return;
     }
 
     try {
-      let req = { company_id: companyId } as GetEmissionsRequest;
+      let req = { company_id: user.company_id } as GetEmissionsRequest;
       if (dateRange?.from) {
         req = { ...req, start_date: dateRange?.from };
       }
@@ -38,11 +38,11 @@ export default function useEmissionSummary() {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  }, [companyId, dateRange, isLoading]);
+  }, [user, dateRange, isLoading]);
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, [fetchData, user]);
 
   return { summary };
 }
