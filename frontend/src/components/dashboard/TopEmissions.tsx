@@ -22,17 +22,17 @@ interface TopEmissionFactor {
 export default function TopEmissionsFactors() {
   const { dateRange, formattedDateRange } = useDateRange();
   const [emissions, setEmissions] = useState<TopEmissionFactor[]>([]);
-  const { jwt, companyId, isLoading } = useAuth();
+  const { jwt, user, isLoading } = useAuth();
 
   useEffect(() => {
-    if (!companyId || !jwt) {
+    if (!user || !jwt) {
       console.log("Company ID or JWT is not available.");
       return;
     }
 
     const fetchEmissions = async () => {
       const params = {
-        company_id: companyId,
+        company_id: user.company_id,
         start_date: dateRange?.from,
         end_date: dateRange?.to,
       };
@@ -42,7 +42,7 @@ export default function TopEmissionsFactors() {
     };
 
     fetchEmissions();
-  }, [dateRange, jwt, companyId, isLoading]);
+  }, [dateRange, jwt, user, isLoading]);
 
   if (isLoading) {
     return <div>Loading...</div>;
