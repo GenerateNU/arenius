@@ -39,12 +39,25 @@ const dateColumn: ColumnDef<LineItem> = {
   size: 75,
 };
 
+const scopeColumn: ColumnDef<LineItem> = {
+  accessorKey: "scope",
+  header: ({ column }) => {
+    return <ColumnHeader name="Scope" column={column} />;
+  },
+  size: 50,
+  cell: ({ row }) => {
+    return (
+      <div className="text-right font-medium pr-4">{row.getValue("scope")}</div>
+    );
+  },
+};
+
 const descriptionColumn: ColumnDef<LineItem> = {
   accessorKey: "description",
   header: ({ column }) => {
     return <ColumnHeader name="Description" column={column} />;
   },
-  size: 200,
+  size: 150,
 };
 
 const emissionFactorColumn: ColumnDef<LineItem> = {
@@ -133,7 +146,7 @@ export const unreconciledColumns: ColumnDef<LineItem>[] = [
   contactColumn,
   amountColumn,
 ];
-export const reconciledColumns: ColumnDef<LineItem>[] = [
+export const scopeReconciledColumns: ColumnDef<LineItem>[] = [
   dateColumn,
   descriptionColumn,
   emissionFactorColumn,
@@ -141,7 +154,10 @@ export const reconciledColumns: ColumnDef<LineItem>[] = [
   contactColumn,
   amountColumn,
 ];
-
+export const allReconciledColumns: ColumnDef<LineItem>[] = [
+  ...scopeReconciledColumns,
+  scopeColumn,
+];
 export const recommendationColumns: ColumnDef<LineItem>[] = [
   dateColumn,
   descriptionColumn,

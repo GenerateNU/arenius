@@ -8,7 +8,8 @@ import {
 import apiClient from "./apiClient";
 
 function buildQueryParams(filters: LineItemFilters) {
-  const params: Record<string, string | Date | number | undefined> = {};
+  const params: Record<string, string | Date | number | boolean | undefined> =
+    {};
 
   if (filters?.dates) {
     params.after_date = filters.dates.from;
@@ -46,6 +47,8 @@ function buildQueryParams(filters: LineItemFilters) {
     params.limit = filters.pageSize;
   }
 
+  params.unpaginated = true;
+
   return params;
 }
 
@@ -56,6 +59,7 @@ export async function fetchLineItems(
     const response = await apiClient.get("/line-item", {
       params: buildQueryParams(filters),
     });
+    
     return response.data;
   } catch (error) {
     console.error("Error fetching dashboard items", error);
@@ -73,11 +77,17 @@ export async function createLineItem(
     currency_code: item.currency_code,
     company_id: companyId,
     contact_id: item.contact_id,
-    emissions_factor_id: item.emission_factor_id,
+    emission_factor_id: item.emission_factor_id,
     scope: item.scope,
     date: item.date,
+    co2: item.co2,
+    co2_unit: item.co2_unit,
+    //transaction_type: item.transaction_type,
   };
 
+  if (item.transaction_type === "offset") {
+    new_item.scope = 0;
+  }
   await apiClient
     .post("/line-item", new_item)
     .then((response) => {
@@ -91,10 +101,10 @@ export async function createLineItem(
 export async function reconcileBatch(request: ReconcileBatchRequest) {
   try {
     await apiClient.patch("/line-item/batch", {
-      line_item_ids: request.lineItemIds,
-      scope: request.scope,
-      emissions_factor_id: request.emissionsFactorId,
-    });
+        line_item_ids: request.lineItemIds,
+        scope: request.scope,
+        emissions_factor_id: request.emissionsFactorId,
+      });
   } catch (error) {
     console.error("Error updating dashboard items", error);
   }
@@ -103,9 +113,10 @@ export async function reconcileBatch(request: ReconcileBatchRequest) {
 export async function reconcileBatchOffset(request: ReconcileBatchRequest) {
   try {
     // await apiClient.post("/carbon-offset/batch", request);
-    await apiClient.patch("/line-item/batch", {
+    await apiClient.patch("/line-item/batch/offset", {
       line_item_ids: request.lineItemIds,
       scope: 0,
+      co2: request.co2,
     });
   } catch (error) {
     console.error("Error reconciling carbon offsets", error);
@@ -114,19 +125,32 @@ export async function reconcileBatchOffset(request: ReconcileBatchRequest) {
 
 export async function reconcile(request: ReconcileRequest) {
   try {
-    await apiClient.patch(`line-item/${request.lineItemId}`, {
-      scope: request.scope,
-      emission_factor: request.emissionsFactorId,
-      contact_id: request.contactId,
-    });
+    if (request.scope === 0) {
+      await apiClient.patch(`line-item/offset/${request.lineItemId}`, {
+        co2: request.co2,
+        scope: request.scope,
+        contact_id: request.contactId,
+      });
+    } else {
+      await apiClient.patch(`line-item/${request.lineItemId}`, {
+        scope: request.scope,
+        emission_factor: request.emissionsFactorId,
+        contact_id: request.contactId,
+      });
+    }
   } catch (error) {
     console.error("Error updating dashboard items", error);
   }
 }
 
-export async function handleRecommendation(lineItemId: string, accept: boolean) {
+export async function handleRecommendation(
+  lineItemId: string,
+  accept: boolean
+) {
   try {
-    await apiClient.patch(`line-item/handle-recommendation/${lineItemId}?accept=${accept}`);
+    await apiClient.patch(
+      `line-item/handle-recommendation/${lineItemId}?accept=${accept}`
+    );
   } catch (error) {
     console.error("Error updating dashboard items", error);
   }

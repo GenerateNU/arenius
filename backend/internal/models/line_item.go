@@ -37,10 +37,12 @@ type GetLineItemsResponse struct {
 }
 
 type ReconcileLineItemRequest struct {
-	ID              string  `json:"id"`
-	EmissionsFactor string  `json:"emission_factor,omitempty"`
-	Scope           int     `json:"scope,omitempty"`
-	ContactID       *string `json:"contact_id,omitempty"`
+	ID              string   `json:"id"`
+	EmissionsFactor string   `json:"emission_factor,omitempty"`
+	Scope           int      `json:"scope,omitempty"`
+	ContactID       *string  `json:"contact_id,omitempty"`
+	CO2             *float64 `json:"co2,omitempty"`
+	CO2Unit         *string  `json:"co2_unit,omitempty"`
 }
 
 type LineItemEmissionsRequest struct {
@@ -53,18 +55,21 @@ type UpdateLineItemsRequest struct {
 	LineItemIDs       []uuid.UUID `json:"line_item_ids"`
 	Scope             *int        `json:"scope,omitempty"`
 	EmissionsFactorID *string     `json:"emissions_factor_id,omitempty"`
+	CO2               *float64    `json:"co2,omitempty"`
+	CO2Unit           *string     `json:"co2_unit,omitempty"`
 }
 
 type CreateLineItemRequest struct {
-	Description    string   `json:"description"`
-	TotalAmount    float64  `json:"total_amount"`
-	CompanyID      string   `json:"company_id"`
-	ContactID      string   `json:"contact_id"`
-	CurrencyCode   string   `json:"currency_code"`
-	EmissionFactor *string  `json:"emission_factor,omitempty"`
-	CO2            *float64 `json:"co2,omitempty"`
-	Scope          *int     `json:"scope,omitempty"`
-	CO2Unit        *string  `json:"co2_unit,omitempty"`
+	Description      string   `json:"description"`
+	TotalAmount      float64  `json:"total_amount"`
+	CompanyID        string   `json:"company_id"`
+	ContactID        string   `json:"contact_id"`
+	CurrencyCode     string   `json:"currency_code"`
+	EmissionFactorId *string  `json:"emission_factor_id,omitempty"`
+	CO2              *float64 `json:"co2,omitempty"`
+	Scope            *int     `json:"scope,omitempty"`
+	CO2Unit          *string  `json:"co2_unit,omitempty"`
+	Date             *string  `json:"date,omitempty"`
 }
 
 type GetLineItemsRequest struct {
@@ -78,6 +83,7 @@ type GetLineItemsRequest struct {
 	MinPrice             *float64   `query:"min_price"`
 	MaxPrice             *float64   `query:"max_price"`
 	ContactID            *string    `query:"contact_id"`
+	Unpaginated          *bool      `query:"unpaginated"`
 }
 
 type AddImportedLineItemRequest struct {

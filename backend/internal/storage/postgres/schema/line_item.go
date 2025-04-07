@@ -26,73 +26,84 @@ type LineItemRepository struct {
 }
 
 func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.Pagination, filterParams models.GetLineItemsRequest) (*models.GetLineItemsResponse, error) {
-	filterQuery := "WHERE 1=1"
-
-	if filterParams.ReconciliationStatus != nil {
-		if *filterParams.ReconciliationStatus == "reconciled" {
-			filterQuery += " AND (li.emission_factor_id IS NOT NULL)"
-		} else if *filterParams.ReconciliationStatus == "recommended" {
-			filterQuery += " AND (li.emission_factor_id IS NULL) AND (li.recommended_emission_factor_id IS NOT NULL)"
-		} else if *filterParams.ReconciliationStatus == "unreconciled" {
-			filterQuery += " AND (li.emission_factor_id IS NULL)"
-		}
-	}
-	if filterParams.SearchTerm != nil {
-		filterQuery += fmt.Sprintf(" AND (li.description ILIKE '%%%s%%')", *filterParams.SearchTerm)
-	}
-
-	filterColumns := []string{}
+	var filterQuery strings.Builder
+	filterQuery.WriteString("WHERE 1=1")
 	filterArgs := []interface{}{}
 
+	// Apply reconciliation status filtering
+	if filterParams.ReconciliationStatus != nil {
+		switch *filterParams.ReconciliationStatus {
+		case "reconciled":
+			filterQuery.WriteString(" AND (li.emission_factor_id IS NOT NULL AND (li.scope != 0 OR li.scope IS NULL))")
+		case "recommended":
+			filterQuery.WriteString(" AND (li.emission_factor_id IS NULL) AND (li.recommended_emission_factor_id IS NOT NULL)")
+		case "offsets":
+			filterQuery.WriteString(" AND (li.scope = 0)")
+		case "unreconciled":
+			filterQuery.WriteString(" AND (li.emission_factor_id IS NULL AND (li.scope != 0 OR li.scope IS NULL))")
+		}
+	}
+
+	// Apply search filtering
+	if filterParams.SearchTerm != nil {
+		filterQuery.WriteString(fmt.Sprintf(" AND (li.description ILIKE '%%%s%%')", *filterParams.SearchTerm))
+	}
+
+	// Apply dynamic filters
+	filterFields := map[string]interface{}{}
+
 	if filterParams.CompanyID != nil {
-		filterColumns = append(filterColumns, "li.company_id=")
-		filterArgs = append(filterArgs, *filterParams.CompanyID)
-	}
-	if filterParams.BeforeDate != nil {
-		filterColumns = append(filterColumns, "li.date<=")
-		filterArgs = append(filterArgs, filterParams.BeforeDate.UTC().Add(time.Hour*24))
-	}
-	if filterParams.AfterDate != nil {
-		filterColumns = append(filterColumns, "li.date>=")
-		filterArgs = append(filterArgs, filterParams.AfterDate.UTC())
+		filterFields["li.company_id="] = *filterParams.CompanyID
 	}
 	if filterParams.Scope != nil {
-		filterColumns = append(filterColumns, "li.scope=")
-		filterArgs = append(filterArgs, *filterParams.Scope)
+		filterFields["li.scope="] = *filterParams.Scope
 	}
 	if filterParams.EmissionFactor != nil {
-		filterColumns = append(filterColumns, "ef.activity_id=")
-		filterArgs = append(filterArgs, *filterParams.EmissionFactor)
+		filterFields["ef.activity_id="] = *filterParams.EmissionFactor
 	}
 	if filterParams.MinPrice != nil {
-		filterColumns = append(filterColumns, "li.total_amount >=")
-		filterArgs = append(filterArgs, *filterParams.MinPrice)
+		filterFields["li.total_amount>="] = *filterParams.MinPrice
 	}
 	if filterParams.MaxPrice != nil {
-		filterColumns = append(filterColumns, "li.total_amount <=")
-		filterArgs = append(filterArgs, *filterParams.MaxPrice)
+		filterFields["li.total_amount<="] = *filterParams.MaxPrice
 	}
 	if filterParams.ContactID != nil {
-		filterColumns = append(filterColumns, "li.contact_id=")
-		filterArgs = append(filterArgs, *filterParams.ContactID)
+		filterFields["li.contact_id="] = *filterParams.ContactID
+	}
+	if filterParams.BeforeDate != nil {
+		filterFields["li.date<="] = filterParams.BeforeDate.UTC().Add(24 * time.Hour)
+	}
+	if filterParams.AfterDate != nil {
+		filterFields["li.date>="] = filterParams.AfterDate.UTC()
 	}
 
-	for i := 0; i < len(filterColumns); i++ {
-		filterQuery += fmt.Sprintf(" AND (%s$%d)", filterColumns[i], i+3)
+	for col, val := range filterFields {
+		if val != nil {
+			filterQuery.WriteString(fmt.Sprintf(" AND (%s $%d)", col, len(filterArgs)+1))
+			filterArgs = append(filterArgs, val)
+		}
 	}
 
-	query := `
-	SELECT li.id, li.xero_line_item_id, li.description, li.total_amount, li.company_id, li.contact_id, c.name as contact_name, li.date, li.currency_code, li.emission_factor_id, ef.name as emission_factor_name, li.co2, li.co2_unit, li.scope, li.recommended_emission_factor_id, li.recommended_scope, rec_ef.name as recommended_emission_factor_name
+	// Apply pagination if needed
+	var paginationClause string
+	if filterParams.Unpaginated != nil && !*filterParams.Unpaginated {
+		paginationClause = fmt.Sprintf(" LIMIT %d OFFSET %d", pagination.Limit, pagination.GetOffset())
+	}
+
+	query := fmt.Sprintf(`
+	SELECT li.id, li.xero_line_item_id, li.description, li.total_amount, li.company_id, li.contact_id, 
+	       c.name as contact_name, li.date, li.currency_code, li.emission_factor_id, ef.name as emission_factor_name, 
+	       li.co2, li.co2_unit, li.scope, li.recommended_emission_factor_id, li.recommended_scope, 
+	       rec_ef.name as recommended_emission_factor_name
 	FROM line_item li 
 	LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id
 	LEFT JOIN emission_factor rec_ef ON li.recommended_emission_factor_id = rec_ef.activity_id
-	LEFT JOIN contact c on li.contact_id = c.id ` + filterQuery + `
+	LEFT JOIN contact c ON li.contact_id = c.id 
+	%s
 	ORDER BY li.date DESC
-	LIMIT $1 OFFSET $2
-	`
+	%s`, filterQuery.String(), paginationClause)
 
-	queryArgs := append([]interface{}{pagination.Limit, pagination.GetOffset()}, filterArgs...)
-	rows, err := r.db.Query(ctx, query, queryArgs...)
+	rows, err := r.db.Query(ctx, query, filterArgs...)
 	if err != nil {
 		return nil, err
 	}
@@ -103,17 +114,16 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		return nil, err
 	}
 
-	total_query := `
+	// Count total matching rows
+	totalQuery := fmt.Sprintf(`
 	SELECT count(*)
 	FROM line_item li
 	LEFT JOIN emission_factor ef ON li.emission_factor_id = ef.activity_id
-	LEFT JOIN contact c on li.contact_id = c.id ` + filterQuery + `
-	AND $1 AND $2
-	` // The $1 and $2 are because filterQuery starts at $3, just make them dummy values here
+	LEFT JOIN contact c ON li.contact_id = c.id 
+	%s`, filterQuery.String())
 
 	var total int
-	countArgs := append([]interface{}{"TRUE", "TRUE"}, filterArgs...)
-	err = r.db.QueryRow(ctx, total_query, countArgs...).Scan(&total)
+	err = r.db.QueryRow(ctx, totalQuery, filterArgs...).Scan(&total)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +131,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	return &models.GetLineItemsResponse{Total: total, Count: len(lineItems), LineItems: lineItems}, nil
 }
 
-func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, scope int, emissionsFactorId string, contactID *string) (*models.LineItem, error) {
+func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, scope int, emissionsFactorId string, contactID *string, co2 *float64, co2Unit *string) (*models.LineItem, error) {
 
 	query := `UPDATE line_item SET`
 	updates := []string{}
@@ -133,7 +143,7 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId s
 		args = append(args, emissionsFactorId)
 		argCount++
 	}
-	if scope != 0 {
+	if scope == 0 || scope == 1 || scope == 2 || scope == 3 {
 		updates = append(updates, fmt.Sprintf("scope = $%d", argCount))
 		args = append(args, scope)
 		argCount++
@@ -141,6 +151,16 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId s
 	if contactID != nil {
 		updates = append(updates, fmt.Sprintf("contact_id = $%d", argCount))
 		args = append(args, contactID)
+		argCount++
+	}
+	if co2 != nil {
+		updates = append(updates, fmt.Sprintf("co2 = $%d", argCount))
+		args = append(args, co2)
+		argCount++
+	}
+	if co2Unit != nil {
+		updates = append(updates, fmt.Sprintf("co2_unit = $%d", argCount))
+		args = append(args, co2Unit)
 		argCount++
 	}
 
@@ -216,7 +236,6 @@ func (r *LineItemRepository) CreateLineItem(ctx context.Context, req models.Crea
 	}
 
 	return &lineItem, nil
-
 }
 
 func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []models.AddImportedLineItemRequest) ([]models.LineItem, error) {
@@ -295,6 +314,13 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []interface{}, error) {
 	id := uuid.New().String()
 	createdAt := time.Now().UTC()
+	if req.Date != nil {
+		parsedDate, err := time.Parse(time.RFC3339, *req.Date)
+		if err != nil {
+			return nil, nil, errs.BadRequest("Invalid date format, must be RFC3339")
+		}
+		createdAt = parsedDate
+	}
 	columns := []string{"id", "description", "total_amount", "company_id", "contact_id", "date", "currency_code"}
 	// TODO: fix company id
 	queryArgs := []interface{}{id, req.Description, req.TotalAmount, req.CompanyID, req.ContactID, createdAt, req.CurrencyCode}
@@ -311,9 +337,9 @@ func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []in
 	}
 
 	// only include the optional columns if they exist
-	if req.EmissionFactor != nil {
-		columns = append(columns, "emission_factor")
-		queryArgs = append(queryArgs, *req.EmissionFactor)
+	if req.EmissionFactorId != nil && *req.EmissionFactorId != "" {
+		columns = append(columns, "emission_factor_id")
+		queryArgs = append(queryArgs, *req.EmissionFactorId)
 	}
 
 	if req.CO2 != nil {
@@ -335,7 +361,7 @@ func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []in
 	return columns, queryArgs, nil
 }
 
-func (r *LineItemRepository) BatchUpdateScopeEmissions(ctx context.Context, lineItemIDs []uuid.UUID, scope *int, emissionsFactorID *string) error {
+func (r *LineItemRepository) BatchUpdateLineItems(ctx context.Context, lineItemIDs []uuid.UUID, scope *int, emissionsFactorID *string, co2 *float64, co2Unit *string) error {
 	updates := []string{}
 	values := []interface{}{}
 	paramIndex := 1
@@ -349,6 +375,16 @@ func (r *LineItemRepository) BatchUpdateScopeEmissions(ctx context.Context, line
 	if emissionsFactorID != nil {
 		updates = append(updates, fmt.Sprintf("emission_factor_id = $%d", paramIndex))
 		values = append(values, emissionsFactorID)
+		paramIndex++
+	}
+	if co2 != nil {
+		updates = append(updates, fmt.Sprintf("co2 = $%d", paramIndex))
+		values = append(values, co2)
+		paramIndex++
+	}
+	if co2Unit != nil {
+		updates = append(updates, fmt.Sprintf("co2_unit = $%d", paramIndex))
+		values = append(values, co2Unit)
 		paramIndex++
 	}
 

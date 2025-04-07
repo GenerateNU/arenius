@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useContacts } from "@/context/ContactContext";
+import { cn } from "@/lib/utils";
 import { SimpleContact } from "@/types";
 import { ChevronDown } from "lucide-react";
 
@@ -23,26 +24,28 @@ interface ContactSelectorProps {
     | "ghost"
     | null
     | undefined;
+  className?: string;
 }
 
 export default function ContactSelector({
   contact,
   setContact,
   variant = "outline",
+  className,
 }: ContactSelectorProps) {
-  const { data: contactResponse } = useContacts();
+  const { data } = useContacts();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant={variant}>
-          {contact ? contact.name : "All Contacts"}
+        <Button variant={variant} className={cn(className)}>
+          {contact && contact.name ? contact.name : "All Contacts"}
           <ChevronDown className="ml-2" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-80">
-        {contactResponse?.contacts && contactResponse?.contacts.length > 0 ? (
-          contactResponse.contacts.map((c) => (
+      <DropdownMenuContent className="max-h-96 overflow-y-auto">
+        {data?.contacts && data?.contacts.length > 0 ? (
+          data.contacts.map((c) => (
             <DropdownMenuItem key={c.id} onClick={() => setContact(c)}>
               {c.name}
             </DropdownMenuItem>

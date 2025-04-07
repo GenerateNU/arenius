@@ -39,6 +39,7 @@ export interface LineItemFilters {
     | "reconciled"
     | "unreconciled"
     | "offsets";
+  unpaginated?: boolean;
 }
 
 export type CreateLineItemRequest = {
@@ -47,8 +48,11 @@ export type CreateLineItemRequest = {
   currency_code: string;
   contact_id: string;
   emission_factor_id: string;
-  scope?: string;
-  date: Date;
+  scope?: number;
+  date: string;
+  transaction_type: "transaction" | "offset";
+  co2?: number;
+  co2_unit?: string;
 };
 
 export type LoginRequest = {
@@ -67,6 +71,8 @@ export type ReconcileBatchRequest = {
   lineItemIds: string[];
   scope?: number;
   emissionsFactorId?: string;
+  co2?: number;
+  co2_unit?: string;
 };
 
 export type ReconcileRequest = {
@@ -74,6 +80,8 @@ export type ReconcileRequest = {
   scope?: number;
   emissionsFactorId?: string;
   contactId?: string;
+  co2?: number;
+  co2_unit?: string;
 };
 
 export type EmissionsFactor = {
@@ -152,10 +160,10 @@ export type ContactTreeEmissions = {
   end_date: Date;
 };
 
-export type GetGrossEmissionsRequest = {
+export type GetEmissionsRequest = {
   company_id: string;
-  start_date: Date;
-  end_date: Date;
+  start_date?: Date;
+  end_date?: Date;
 };
 
 export type ScopeSummary = {
@@ -167,25 +175,15 @@ export type ScopeSummary = {
 export type MonthSummary = {
   month_start: Date;
   scopes: ScopeSummary;
+  emissions: number;
+  offsets: number;
 };
 
-export type GrossSummary = {
+export type EmissionSummary = {
   total_co2: number;
   start_date: Date;
   end_date: Date;
   months: MonthSummary[];
-};
-
-export type NetSummary = {
-  start_date: Date;
-  end_date: Date;
-  months: MonthNetSummary[];
-};
-
-export type MonthNetSummary = {
-  month_start: Date;
-  emissions: number;
-  offsets: number;
 };
 
 export type ScopeBreakdown = {
@@ -223,6 +221,7 @@ export type User = {
   id?: string;
   first_name?: string;
   last_name?: string;
+  email?: string;
   company_id?: string;
   refresh_token?: string;
   tenant_id?: string;
@@ -231,16 +230,13 @@ export type User = {
   photo_url?: string;
 };
 
-
 export type GetUserProfileRequest = {
   id: string;
 };
-
 
 export type UpdateUserProfileRequest = {
   first_name?: string | null;
   last_name?: string | null;
   city?: string | null;
   state?: string | null;
-  photoUrl?: string | null;
 };

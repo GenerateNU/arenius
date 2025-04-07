@@ -15,14 +15,16 @@ func (h *Handler) GetLineItems(c *fiber.Ctx) error {
 		return errs.BadRequest(fmt.Sprint("invalid pagination query parameters: ", err))
 	}
 
-	if errors := pagination.Validate(); len(errors) > 0 {
-		return errs.BadRequest(fmt.Sprint("invalid pagination values: ", errors))
-	}
-
 	var filterParams models.GetLineItemsRequest
 
 	if err := c.QueryParser(&filterParams); err != nil {
 		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
+	}
+
+	if filterParams.Unpaginated != nil {
+		if errors := pagination.Validate(); len(errors) > 0 {
+			return errs.BadRequest(fmt.Sprint("invalid pagination values: ", errors))
+		}
 	}
 
 	if filterParams.Scope != nil {

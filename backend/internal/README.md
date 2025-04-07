@@ -111,10 +111,12 @@ Pagination defaults to page 1, limit 10.
 
 Also returns `total` and `count`, where total is the total number of line items that fit those query parameters, ignoring pagination, and count is the number of line items returned in this request.
 
+`reconcilation_status` should be one of: ["reconciled", "unreconciled", "recommended", "offset"]
+
 ```go
 Query Parameters:
 - `company_id` (string, optional)
-- `reconciliation_status` (bool, optional)
+- `reconciliation_status` (string, optional)
 - `before_date` (time.Time, optional)
 - `after_date` (time.Time, optional)
 - `scope` (int, optional)
@@ -190,6 +192,43 @@ Example:
     "line_item_ids": ["0651d33f-e9f5-4df4-a1b4-155c0e6cceff",        "2c67a94e-e665-46a9-86a0-907fb768b01d"],
     "scope": 2,
     "emissions_factor_id": "consumer_goods-type_footwear"
+}
+```
+
+Patch `/line-item/batch/offset`
+Updates the carbon offset on multiple line items
+
+```go
+Body Parameters:
+- `line_item_ids` ([]uuid.UUID)
+- `scope` (int, optional)
+- `co2` (string, optional)
+- `co2_unit` (string, optional)
+Example:
+- URL: `http://127.0.0.1:8080/line-item/batch/offset`
+- Parameters: {
+    "line_item_ids": ["0651d33f-e9f5-4df4-a1b4-155c0e6cceff",        "2c67a94e-e665-46a9-86a0-907fb768b01d"],
+    "scope": 0,
+    "co2": 500
+}
+```
+
+Patch `/line-item//offset/:id`
+Updates the carbon offset on multiple line items
+
+```go
+Path Parameters:
+- `id` (string)
+Body Parameters:
+- `scope` (int, optional)
+- `co2` (string, optional)
+- `co2_unit` (string, optional)
+- `contact_id` (string, optional)
+Example:
+- URL: `http://127.0.0.1:8080/line-item/offset/0651d33f-e9f5-4df4-a1b4-155c0e6cceff`
+- Parameters: {
+    "scope": 0,
+    "co2": 500
 }
 ```
 

@@ -111,6 +111,7 @@ export function ContactLineItemTable({ data }: ContactLineItemTableProps) {
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
           onReconcileSuccess={() => setIsDialogOpen(false)}
+          type="reconciled"
         />
       )}
     </>
@@ -141,7 +142,7 @@ export const contactDetailsColumns: ColumnDef<LineItem>[] = [
           column.toggleSorting(column.getIsSorted() ? undefined : true)
         }
       >
-        Name <ArrowUpDown className="ml-2 h-4 w-4" />
+        Description <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
   },

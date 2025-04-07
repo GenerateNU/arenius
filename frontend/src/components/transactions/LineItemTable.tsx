@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -9,6 +9,7 @@ import {
   getSortedRowModel,
   Row,
   ColumnDef,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -39,6 +40,7 @@ export type LineItemTableProps = {
     | "offsets";
   columns: ColumnDef<LineItem>[];
   paginated?: boolean;
+  tableLimit?: number;
 };
 
 export default function LineItemTable({
@@ -46,14 +48,11 @@ export default function LineItemTable({
   activePage,
   activeTableData,
   paginated = true,
+  tableLimit,
 }: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const { tableData, pageIndex, pageSize, setPage, setPageSize } =
-    useTransactionsContext();
-
-  console.log("Active page: ", activePage);
-  console.log("tableData: ", tableData);
+  const { tableData } = useTransactionsContext();
 
   // object and boolean to handle clicking a row's action button
   const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
@@ -61,14 +60,23 @@ export default function LineItemTable({
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Memoize the rows to avoid unnecessary recomputations
+  const rows = useMemo(() => {
+    const data = tableData[activeTableData] || [];
+    if (tableLimit) {
+      return data.slice(0, tableLimit); // Slice only when tableLimit is provided
+    }
+    return data;
+  }, [tableData, activeTableData, tableLimit]);
+
   const table = useReactTable({
-    data: tableData[activeTableData].line_items || [],
+    data: rows,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    manualPagination: true,
-    rowCount: tableData[activeTableData].total,
+    rowCount: rows.length,
     getRowId: (row: LineItem) => row.id,
     state: {
       sorting,
@@ -176,7 +184,7 @@ export default function LineItemTable({
                     </TableCell>
                   )}
 
-                  {row.original.emission_factor_id && (
+                  {activePage !== "unreconciled" && (
                     <TableCell>
                       <Image
                         src="/arrow.svg"
@@ -205,11 +213,11 @@ export default function LineItemTable({
       </div>
       {paginated && (
         <DataTablePagination
-          page={pageIndex[activePage]}
-          pageLimit={pageSize[activePage]}
-          total_count={tableData[activePage].total}
-          setPage={(newPage) => setPage(activePage, newPage)}
-          setPageLimit={(newLimit) => setPageSize(activePage, newLimit)}
+          page={table.getState().pagination.pageIndex}
+          pageLimit={table.getState().pagination.pageSize}
+          total_count={tableData[activePage].length}
+          setPage={(newPage) => table.setPageIndex(newPage)}
+          setPageLimit={(newLimit) => table.setPageSize(newLimit)}
         />
       )}
 
@@ -219,6 +227,7 @@ export default function LineItemTable({
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
           onReconcileSuccess={handleReconcileSuccess}
+          type={activePage}
         />
       )}
 

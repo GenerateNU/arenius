@@ -13,11 +13,12 @@ import { useDateRange } from "@/context/DateRangeContext";
 import { useAuth } from "@/context/AuthContext";
 import { ScopeBreakdown } from "@/types";
 import { fetchScopeBreakdown } from "@/services/dashboard";
+import { formatNumber } from "@/lib/utils";
 
 const ScopeBreakdownChart = () => {
   const [data, setData] = useState<ScopeBreakdown[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const { dateRange } = useDateRange();
+  const { dateRange, formattedDateRange } = useDateRange();
 
   const threeMonthsAgo = new Date();
   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
@@ -44,6 +45,7 @@ const ScopeBreakdownChart = () => {
   const totalEmissions = data.reduce((acc, cur) => acc + cur.total_co2, 0);
 
   const chartData = data.map((item) => ({
+    scope: item.scopes,
     name: `Scope ${item.scopes}`,
     value: item.total_co2,
     percentage: ((item.total_co2 / totalEmissions) * 100).toFixed(2),
@@ -68,9 +70,12 @@ const ScopeBreakdownChart = () => {
     <div className="flex flex-col items-center justify-center">
       <Card className="flex flex-col w-full max-w-screen-lg">
         <CardHeader className="pb-0 text-2xl">
-          <CardTitle>Scope Breakdown</CardTitle>
-          <CardDescription>
-            {startDate.toDateString()} - {endDate.toDateString()}
+          <CardTitle className="font-[Arimo] text-4xl">
+            Scope Breakdown
+          </CardTitle>
+          <CardDescription className="font-[Montserrat] py-2">
+            Total emissions (kg) for{" "}
+            <span className="font-bold">{formattedDateRange}</span>
           </CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center items-center w-full px-6 space-x-6">
@@ -80,18 +85,17 @@ const ScopeBreakdownChart = () => {
           >
             <ScopeChart chartData={chartData} />
           </ChartContainer>
-          <div className="flex flex-col justify-center space-y-4">
+          <div className="flex flex-col justify-center space-y-4 font-[Montserrat]">
             {chartData.map((item, index) => (
-              <div key={index} className="flex items-center space-x-2">
+              <div key={index} className="flex items-center space-x-4">
                 <div
                   className="w-2 h-2 rounded-full"
                   style={{ backgroundColor: item.fill }}
                 />
-                <div className="text-sm">{`${item.percentage}%`}</div>
+                <p className="text-sm">{`${item.percentage}%`}</p>
+
                 <div className="bg-[#F6F6F6] rounded-lg p-2 text-sm">
-                  {`${item.name} - ${item.value
-                    .toFixed()
-                    .toLocaleString()} kg CO2`}
+                  {`${item.name} - ${formatNumber(item.value)} kg CO2`}
                 </div>
               </div>
             ))}

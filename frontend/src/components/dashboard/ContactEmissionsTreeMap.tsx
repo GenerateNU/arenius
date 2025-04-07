@@ -29,34 +29,19 @@ const chartConfig = {
 
 export default function ContactEmissionsTreeMap() {
   const { treeMapData } = useContactsTree();
-  const { dateRange } = useDateRange();
-  const formattedStartMonth =
-    new Date(dateRange?.from ?? "").toLocaleDateString("en-US", {
-      month: "short",
-      timeZone: "UTC",
-    }) || "";
-  const formattedStartYear =
-    new Date(dateRange?.from ?? "").getFullYear() || "";
-  const formattedEndMonth =
-    new Date(dateRange?.to ?? "").toLocaleDateString("en-US", {
-      month: "short",
-      timeZone: "UTC",
-    }) || "";
-  const formattedEndYear = dateRange?.to
-    ? new Date(dateRange.to).getFullYear()
-    : "";
+  const { formattedDateRange } = useDateRange();
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle style={{ fontSize: "1.5rem" }}>Contact Emissions</CardTitle>
-        <br />
-        <CardDescription>
-          {formattedStartMonth} {formattedStartYear} - {formattedEndMonth}{" "}
-          {formattedEndYear}
+        <CardTitle className="text-4xl font-[Arimo]">
+          Contact Emissions
+        </CardTitle>
+        <CardDescription className="font-[Montserrat]">
+          {formattedDateRange}
         </CardDescription>
       </CardHeader>
-      <CardContent style={{ padding: "1rem" }}>
+      <CardContent className="font-[Montserrat]">
         <ChartContainer
           config={chartConfig}
           className="md:max-h-[400px] w-full"

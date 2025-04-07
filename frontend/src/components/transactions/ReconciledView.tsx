@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { HelpCircle, ArrowRight } from "lucide-react";
 
-import { useTransactionsContext } from "@/context/TransactionContext";
-import { reconciledColumns } from "./columns";
+import { scopeReconciledColumns, allReconciledColumns } from "./columns";
 import LineItemTable from "./LineItemTable";
 
 export type ReconciledViewProps = {
@@ -12,10 +11,6 @@ export type ReconciledViewProps = {
 const ReconciledView = ({ viewMode }: ReconciledViewProps) => {
   const [seeScope, setSeeScope] = useState<1 | 2 | 3 | undefined>();
 
-  const { tableData } = useTransactionsContext();
-
-  console.log("tableData: ", tableData);
-
   if (viewMode == "paginated") {
     return (
       <div>
@@ -23,7 +18,7 @@ const ReconciledView = ({ viewMode }: ReconciledViewProps) => {
         <LineItemTable
           activePage={"reconciled"}
           activeTableData="reconciled"
-          columns={reconciledColumns}
+          columns={allReconciledColumns}
         />
       </div>
     );
@@ -77,8 +72,9 @@ const ScopeTablePreview = ({
       <LineItemTable
         activePage="reconciled"
         activeTableData={`scope${scope}`}
-        columns={reconciledColumns}
+        columns={scopeReconciledColumns}
         paginated={false}
+        tableLimit={5}
       />
     </div>
   );
@@ -102,7 +98,7 @@ const ScopeReconciledView = ({
       <LineItemTable
         activePage="reconciled"
         activeTableData={`scope${scope}`}
-        columns={reconciledColumns}
+        columns={scopeReconciledColumns}
       />
     </div>
   );
