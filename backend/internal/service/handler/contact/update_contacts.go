@@ -16,7 +16,6 @@ func (h *Handler) UpdateContact(c *fiber.Ctx) error {
 		return errs.BadRequest(fmt.Sprintf("error parsing request body: %v", err))
 	}
 
-	// TODO: change t
 	contact, err := h.contactRepository.UpdateContact(c.Context(), contactId, req)
 	if err != nil {
 		return err

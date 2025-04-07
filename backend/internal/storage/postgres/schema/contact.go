@@ -335,8 +335,6 @@ func (r *ContactRepository) UpdateContact(ctx context.Context, contactId string,
 	updateQuery += fmt.Sprintf(" WHERE id='%s'", contactId)
 	updateQuery += ` RETURNING id, name, email, phone, city, state, xero_contact_id, company_id, created_at, updated_at;`
 
-	fmt.Println(updateQuery)
-
 	rows, err := r.db.Query(ctx, updateQuery)
 	if err != nil {
 		return nil, err
