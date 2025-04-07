@@ -1,7 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import apiClient from "@/services/apiClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,11 +15,6 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import apiClient from "@/services/apiClient";
-import { useForm } from "react-hook-form";
-import logo from "@/assets/onboarding-logo.png";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),

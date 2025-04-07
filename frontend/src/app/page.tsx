@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import LoginForm from "@/components/onboarding/login-form";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";

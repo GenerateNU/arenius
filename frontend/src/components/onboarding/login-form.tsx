@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -16,12 +19,6 @@ import {
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import Image from "next/image";
-import logo from "../../assets/onboarding-logo.png";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
-import Link from "next/link";
-import OnboardingLayout from "./OnboardingLayout";
 
 const formSchema = z.object({
   email: z.string(),
