@@ -49,13 +49,15 @@ func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*
 	}
 
 	const summaryQuery = `
-		SELECT 
-			COALESCE(SUM(total_amount), 0) AS total_spent,
-			COUNT(*) AS total_transactions,
-			COALESCE(SUM(co2), 0) AS total_emissions
-		FROM line_item
-		WHERE contact_id = $1;
-	`
+	SELECT 
+		COALESCE(SUM(CASE WHEN scope != 0 THEN total_amount ELSE 0 END), 0) AS total_spent,
+		COUNT(DISTINCT CASE WHEN scope != 0 THEN id END) AS total_transactions,
+		COUNT(DISTINCT CASE WHEN scope = 0 THEN id END) AS total_offset_transactions,
+		COALESCE(SUM(CASE WHEN scope != 0 THEN co2 ELSE 0 END), 0) AS total_emissions,
+		COALESCE(SUM(CASE WHEN scope = 0 THEN co2 ELSE 0 END), 0) AS total_offset
+	FROM line_item
+	WHERE contact_id = $1;
+`
 
 	summaryRows, err := r.db.Query(ctx, summaryQuery, contactId)
 	if err != nil {
