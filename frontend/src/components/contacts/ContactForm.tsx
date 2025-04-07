@@ -3,6 +3,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { createContact } from "@/services/contacts";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -69,7 +70,12 @@ export default function ContactForm() {
 
   return (
     <Form {...form}>
-      <label>Contacts / Add Contact </label>
+      <div className="flex items-center space-x-1 text-base">
+        <Link href="/contacts" className="text-green-600 hover:underline">
+          Contacts
+        </Link>
+        <span className="text-gray-600">/ Add Contact</span>
+      </div>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="py-4 flex flex-col space-y-4"
