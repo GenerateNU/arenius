@@ -11,7 +11,6 @@ export default function CustomForm() {
   const [useForm, setUseForm] = useState(true);
   const { signup } = useAuth();
 
-  
   async function onSubmit(values: SignupRequest) {
     if (!values.email || !values.password) {
       console.error("Email or password is missing!");
@@ -25,7 +24,10 @@ export default function CustomForm() {
         firstName: values.firstName,
         lastName: values.lastName,
       });
-      if (response.response && (response.response.status === 201 || response.response.status === 200)) {
+      if (
+        response.response &&
+        (response.response.status === 201 || response.response.status === 200)
+      ) {
         setUseForm(false);
       }
     } catch (err) {
