@@ -26,7 +26,7 @@ func (h *Handler) SignUp(c *fiber.Ctx) error {
 	}
 
 	// Set cookies with the JWT token
-	expiration := time.Now().Add(24 * time.Hour) // Set cookie expiration time
+	expiration := time.Now().Add(30 * 24 * time.Hour) // 30 days
 	c.Cookie(&fiber.Cookie{
 		Name:     "jwt",
 		Value:    response.AccessToken,
