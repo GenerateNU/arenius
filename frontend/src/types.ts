@@ -97,7 +97,6 @@ export type EmissionsFactorCategory = {
 export type EmissionsFactorCategories = {
   all: EmissionsFactorCategory[];
   favorites: EmissionsFactorCategory;
-  history: EmissionsFactorCategory;
 };
 
 export type SimpleContact = {
