@@ -1,24 +1,22 @@
 "use client";
 
-import React from "react";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useAuth } from "@/context/AuthContext";
 import { createContact } from "@/services/contacts";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "../ui/button";
 import {
+  Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
   FormMessage,
-  Form,
 } from "../ui/form";
-import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
 
 const formSchema = z.object({
   name: z.string().min(2).max(50),
@@ -175,7 +173,7 @@ export default function ContactForm() {
           </div>
         </div>
 
-        <div className="w-full flex justify-between items-center mt-6">
+        <div className="w-full flex justify-end items-center mt-6">
           <Button type="submit" className="w-[150px]">
             Save Changes
           </Button>
