@@ -8,5 +8,4 @@ type Category struct {
 type Categories struct {
 	All       []Category `json:"all"`
 	Favorites Category   `json:"favorites"`
-	History   Category   `json:"history"`
 }
