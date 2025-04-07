@@ -43,8 +43,8 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="w-full flex flex-col space-y-4">
-      <h2 className="text-2xl mb-4">Forgot Password</h2>
+    <div className={styles.container}>
+      <h2 className={styles.header}>Forgot Password</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className={styles.form}>
           <FormField
@@ -60,7 +60,7 @@ export default function ForgotPasswordPage() {
               </FormItem>
             )}
           />
-          <Button className="mt-4" type="submit" size="long">
+          <Button type="submit" size="long">
             Send Reset Link
           </Button>
           {message && <div className={styles.message}>{message}</div>}
@@ -74,11 +74,9 @@ export default function ForgotPasswordPage() {
 }
 
 const styles = {
-  form: "w-full",
+  container: "flex flex-col space-y-4",
+  header: "text-2xl font-header",
+  form: "w-full space-y-6",
   message: "mt-4 text-center text-green-500",
-  returnToLoginContainer: "mt-4 text-center",
-  link: "text-blue-500 hover:underline",
-  logo: "w-100 pb-20",
-  container:
-    "h-screen w-full bg-[url('/onboarding-bg.jpeg')] bg-cover bg-center flex",
+  link: "text-darkEvergreen hover:underline",
 };
