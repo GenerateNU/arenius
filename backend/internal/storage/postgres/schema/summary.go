@@ -4,6 +4,7 @@ import (
 	"arenius/internal/models"
 	"context"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -166,6 +167,8 @@ func (r *SummaryRepository) GetContactEmissions(ctx context.Context, req models.
 	defer rows.Close()
 
 	var contacts []models.ContactEmissionsSummary
+	var maxEmissionAmount float64
+	var sumAllEmissions float64 = 0
 
 	for rows.Next() {
 		values, err := rows.Values()
@@ -176,6 +179,9 @@ func (r *SummaryRepository) GetContactEmissions(ctx context.Context, req models.
 		id := fmt.Sprintf("%v", values[0])
 		name, _ := values[1].(string)
 		totalEmissions, _ := values[2].(float64)
+
+		maxEmissionAmount = max(maxEmissionAmount, totalEmissions)
+		sumAllEmissions += totalEmissions
 
 		contacts = append(contacts, models.ContactEmissionsSummary{
 			ContactID:   id,
@@ -191,6 +197,25 @@ func (r *SummaryRepository) GetContactEmissions(ctx context.Context, req models.
 	if len(contacts) == 0 || contacts == nil {
 		contacts = []models.ContactEmissionsSummary{} // Ensure it's an empty array
 	}
+
+	filteredContacts := []models.ContactEmissionsSummary{
+		{
+			ContactID:   "Other",
+			ContactName: "Other",
+			Carbon:      0,
+		},
+	}
+	
+	for _, contact := range contacts {
+		if contact.Carbon < max(maxEmissionAmount / 10, sumAllEmissions / 30) {
+			filteredContacts[0].Carbon += 100 * contact.Carbon / maxEmissionAmount
+		} else {
+			contact.Carbon = math.Round(100 * contact.Carbon / maxEmissionAmount)
+			filteredContacts = append(filteredContacts, contact)
+		}
+	}
+
+	filteredContacts[0].Carbon = math.Round(filteredContacts[0].Carbon)
 
 	return &models.GetContactEmissionsSummaryResponse{
 		ContactEmissions: contacts,
