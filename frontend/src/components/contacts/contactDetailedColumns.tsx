@@ -10,10 +10,12 @@ export const reconciledColumns: ColumnDef<LineItem>[] = [
     header: ({ column }) => (
       <Button
         variant="ghost"
+        size="sm"
+        className=""
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Date
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        <ArrowUpDown className="ml-1 h-4 w-4" />
       </Button>
     ),
     cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
@@ -23,24 +25,56 @@ export const reconciledColumns: ColumnDef<LineItem>[] = [
     header: ({ column }) => (
       <Button
         variant="ghost"
+        size="sm"
+        className=""
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Description
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        <ArrowUpDown className="ml-1 h-4 w-4" />
       </Button>
     ),
   },
   {
     accessorKey: "emission_factor_name",
-    header: "Emissions Factor",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        size="sm"
+        className=""
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Emissions Factor
+        <ArrowUpDown className="ml-1 h-4 w-4" />
+      </Button>
+    ),
   },
   {
     accessorKey: "scope",
-    header: "Scope",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        size="sm"
+        className=""
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Scope
+        <ArrowUpDown className="ml-1 h-4 w-4" />
+      </Button>
+    ),
   },
   {
     accessorKey: "co2",
-    header: "CO2",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        size="sm"
+        className=""
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        CO2
+        <ArrowUpDown className="ml-1 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ getValue }) => {
       const value = getValue();
       return value !== undefined && value !== null ? `${value} Kg` : "";
@@ -51,13 +85,15 @@ export const reconciledColumns: ColumnDef<LineItem>[] = [
     header: ({ column }) => (
       <Button
         variant="ghost"
+        size="sm"
+        className=""
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Amount
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        <ArrowUpDown className="ml-1 h-4 w-4" />
       </Button>
     ),
-    cell: ({ getValue }) => `$${(getValue() as number).toFixed(2)}`,
+    cell: ({ getValue }) => `${(getValue() as number).toFixed(2)}`,
   },
 ]
 
@@ -68,10 +104,12 @@ export const offsetColumns: ColumnDef<LineItem>[] = [
     header: ({ column }) => (
       <Button
         variant="ghost"
+        size="sm"
+        className=""
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Date
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        <ArrowUpDown className="ml-1 h-4 w-4" />
       </Button>
     ),
     cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
@@ -81,16 +119,28 @@ export const offsetColumns: ColumnDef<LineItem>[] = [
     header: ({ column }) => (
       <Button
         variant="ghost"
+        size="sm"
+        className=""
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Description
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        <ArrowUpDown className="ml-1 h-4 w-4" />
       </Button>
     ),
   },
   {
     accessorKey: "co2",
-    header: "CO2",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        size="sm"
+        className=""
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        CO2
+        <ArrowUpDown className="ml-1 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ getValue }) => {
       const value = getValue();
       return value !== undefined && value !== null ? `${value} Kg` : "";
@@ -101,13 +151,15 @@ export const offsetColumns: ColumnDef<LineItem>[] = [
     header: ({ column }) => (
       <Button
         variant="ghost"
+        size="sm"
+        className=""
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Amount
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        <ArrowUpDown className="ml-1 h-4 w-4" />
       </Button>
     ),
-    cell: ({ getValue }) => `$${(getValue() as number).toFixed(2)}`,
+    cell: ({ getValue }) => `${(getValue() as number).toFixed(2)}`,
   },
 ]
 
@@ -118,10 +170,12 @@ export const unreconciledColumns: ColumnDef<LineItem>[] = [
     header: ({ column }) => (
       <Button
         variant="ghost"
+        size="sm"
+        className=""
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Date
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        <ArrowUpDown className="ml-1 h-4 w-4" />
       </Button>
     ),
     cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
@@ -131,10 +185,12 @@ export const unreconciledColumns: ColumnDef<LineItem>[] = [
     header: ({ column }) => (
       <Button
         variant="ghost"
+        size="sm"
+        className=""
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Description
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        <ArrowUpDown className="ml-1 h-4 w-4" />
       </Button>
     ),
   },
@@ -143,12 +199,14 @@ export const unreconciledColumns: ColumnDef<LineItem>[] = [
     header: ({ column }) => (
       <Button
         variant="ghost"
+        size="sm"
+        className=""
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Amount
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        <ArrowUpDown className="ml-1 h-4 w-4" />
       </Button>
     ),
-    cell: ({ getValue }) => `$${(getValue() as number).toFixed(2)}`,
+    cell: ({ getValue }) => `${(getValue() as number).toFixed(2)}`,
   },
 ]
