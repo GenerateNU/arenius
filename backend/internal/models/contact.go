@@ -47,9 +47,11 @@ type CreateContactRequest struct {
 }
 
 type ContactSummary struct {
-	TotalSpent        float64 `json:"total_spent"`
-	TotalTransactions int     `json:"total_transactions"`
-	TotalEmissions    float64 `json:"total_emissions"`
+	TotalSpent              float64 `json:"total_spent"`
+	TotalTransactions       int     `json:"total_transactions"`
+	TotalOffsetTransactions int     `json:"total_offset_transactions"`
+	TotalEmissions          float64 `json:"total_emissions"`
+	TotalOffset             float64 `json:"total_offset"`
 }
 
 type ContactWithDetails struct {
