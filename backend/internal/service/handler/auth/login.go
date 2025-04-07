@@ -12,6 +12,7 @@ import (
 
 func (h *Handler) Login(c *fiber.Ctx) error {
 	var creds Credentials
+	var cookieExp time.Time
 
 	if err := c.BodyParser(&creds); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
@@ -24,11 +25,20 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
 	}
 
+	fmt.Println(creds.RememberMe)
+
+	if creds.RememberMe {
+		cookieExp = time.Now().Add(7 * 24 * time.Hour)
+	} else {
+		cookieExp = time.Time{}
+	}
+
+	fmt.Println(cookieExp)
 	// Set cookies
 	c.Cookie(&fiber.Cookie{
 		Name:     "userID",
 		Value:    signInResponse.User.ID.String(),
-		Expires:  time.Now().Add(24 * time.Hour),
+		Expires:  cookieExp,
 		Secure:   true,
 		SameSite: "Lax",
 	})
@@ -36,7 +46,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 	c.Cookie(&fiber.Cookie{
 		Name:     "jwt",
 		Value:    signInResponse.AccessToken,
-		Expires:  time.Now().Add(24 * time.Hour),
+		Expires:  cookieExp,
 		Secure:   true,
 		SameSite: "Lax",
 	})
@@ -51,21 +61,21 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		c.Cookie(&fiber.Cookie{
 			Name:     "refreshToken",
 			Value:    xeroCreds.RefreshToken,
-			Expires:  time.Now().Add(7 * 24 * time.Hour),
+			Expires:  cookieExp,
 			Secure:   true,
 			SameSite: "Lax",
 		})
 		c.Cookie(&fiber.Cookie{
 			Name:     "tenantID",
 			Value:    xeroCreds.TenantID.String(),
-			Expires:  time.Now().Add(24 * time.Hour),
+			Expires:  cookieExp,
 			Secure:   true,
 			SameSite: "Lax",
 		})
 		c.Cookie(&fiber.Cookie{
 			Name:     "companyID",
 			Value:    xeroCreds.CompanyID.String(),
-			Expires:  time.Now().Add(24 * time.Hour),
+			Expires:  cookieExp,
 			Secure:   true,
 			SameSite: "Lax",
 		})

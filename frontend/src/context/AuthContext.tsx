@@ -92,6 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(false);
   }, []);
 
+  
   useEffect(() => {
     if (userId && jwt && !user) {
       fetchUserData();
