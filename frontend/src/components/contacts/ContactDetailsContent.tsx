@@ -90,7 +90,7 @@ export default function ContactDetailsContent() {
 
         // Categorize line items by scope
         if (transactions.line_items) {
-          setTransactionItems(transactions.line_items.filter((item: LineItem) => item.scope === 1 || item.scope === 2 || item.scope === 3));
+          setTransactionItems(transactions.line_items.filter((item: LineItem) => item.scope > 0));
           setOffsetItems(transactions.line_items.filter((item: LineItem) => item.scope === 0));
           setUnreconciledItems(transactions.line_items.filter((item: LineItem) => item.scope === null || item.scope === undefined));
         }
