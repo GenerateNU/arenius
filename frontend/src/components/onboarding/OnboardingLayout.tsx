@@ -9,14 +9,14 @@ export default function OnboardingLayout({
 }>) {
   return (
     <div className={styles.container}>
-      <div className={styles.login}>
-        <div className={styles.formContainer}>
-          <div className="flex flex-col justify-between h-full pb-24">
-            <div className="flex flex-col space-y-4">
-              <h2 className="font-header text-2xl">Welcome to</h2>
+      <div className={styles.loginSection}>
+        <div className={styles.formWrapper}>
+          <div className={styles.formContent}>
+            <div className={styles.header}>
+              <h2 className={styles.welcomeText}>Welcome to</h2>
               <Image src={logo} alt="Onboarding Logo" className={styles.logo} />
             </div>
-            <div className="w-full">{children}</div>
+            <div className={styles.childrenContainer}>{children}</div>
           </div>
         </div>
       </div>
@@ -27,8 +27,12 @@ export default function OnboardingLayout({
 const styles = {
   container:
     "h-screen w-full bg-[url('/onboarding-bg.jpeg')] bg-cover bg-center flex",
-  login: "w-2/5 flex items-center pl-20",
-  formContainer:
+  loginSection: "w-2/5 flex items-center pl-20",
+  formWrapper:
     "h-[80vh] w-full flex flex-col items-center justify-center bg-white/100 px-16 pt-16 rounded-lg shadow-lg font-body",
+  formContent: "flex flex-col justify-between h-full pb-24",
+  header: "flex flex-col space-y-4",
+  welcomeText: "font-header text-2xl",
   logo: "w-100",
+  childrenContainer: "w-full",
 };

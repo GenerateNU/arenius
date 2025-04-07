@@ -145,5 +145,4 @@ const styles = {
   error: "text-red-500 text-center text-sm",
   signUp: "underline font-semibold",
   forgotPassword: "underline font-bold",
-  logo: "w-100",
 };
