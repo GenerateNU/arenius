@@ -2,15 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import LoginForm from "@/components/onboarding/login-form";
-import SignupForm from "@/components/onboarding/landing";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import OnboardingLayout from "@/components/onboarding/OnboardingLayout";
 
 export default function LoginPage() {
   const router = useRouter();
-
-  const [isLoginPage, setIsLoginPage] = useState(false);
-
   const jwt = Cookies.get("jwt");
   const userId = Cookies.get("userID");
 
@@ -21,20 +18,8 @@ export default function LoginPage() {
   }, [jwt, userId, router]);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.login}>
-        {isLoginPage ? (
-          <LoginForm />
-        ) : (
-          <SignupForm setIsLoginPage={setIsLoginPage} />
-        )}
-      </div>
-    </div>
+    <OnboardingLayout>
+      <LoginForm />
+    </OnboardingLayout>
   );
 }
-
-const styles = {
-  container:
-    "h-screen w-full bg-[url('/onboarding-bg.jpeg')] bg-cover bg-center flex",
-  login: "w-2/5 flex items-center justify-start pl-20",
-};

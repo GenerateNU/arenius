@@ -21,10 +21,11 @@ import logo from "../../assets/onboarding-logo.png";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import OnboardingLayout from "./OnboardingLayout";
 
 const formSchema = z.object({
   email: z.string(),
-  password: z.string()
+  password: z.string(),
 });
 
 export default function LoginForm() {
@@ -32,12 +33,12 @@ export default function LoginForm() {
   const { login, isLoginError } = useAuth();
   const [loading, setLoading] = useState(false);
   const [checked, setChecked] = useState(true);
-  
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      password: ""
+      password: "",
     },
   });
 
@@ -61,92 +62,84 @@ export default function LoginForm() {
   }
 
   return (
-    <div className={styles.formContainer}>
-      <div className="flex flex-col justify-start w-full">
-        <h2 className="font-header text-2xl mb-4">Welcome to</h2>
-        <Image src={logo} alt="Onboarding Logo" className={styles.logo} />
-      </div>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className={styles.form}>
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className={styles.formLabel}>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    className="rounded-sm"
-                    placeholder="Enter your company email"
-                    {...field}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className={styles.formLabel}>Password</FormLabel>
-                <FormControl>
-                  <Input
-                    className="rounded-sm"
-                    type="password"
-                    {...field}
-                    placeholder="Enter your password"
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          {isLoginError && (
-            <div className={styles.error}>
-              Your email or password is incorrect.
-            </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className={styles.form}>
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className={styles.formLabel}>Email</FormLabel>
+              <FormControl>
+                <Input
+                  className="rounded-sm"
+                  placeholder="Enter your company email"
+                  {...field}
+                />
+              </FormControl>
+            </FormItem>
           )}
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className={styles.formLabel}>Password</FormLabel>
+              <FormControl>
+                <Input
+                  className="rounded-sm"
+                  type="password"
+                  {...field}
+                  placeholder="Enter your password"
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
 
-          <div className={styles.actionContainer}>
-            <Label className={styles.checkboxContainer}>
+        {isLoginError && (
+          <div className={styles.error}>
+            Your email or password is incorrect.
+          </div>
+        )}
+
+        <div className={styles.actionContainer}>
+          <Label className={styles.checkboxContainer}>
             <Checkbox
-                checked={checked}
-                onCheckedChange={() => setChecked(!checked)}
-              />
-              Remember me
-            </Label>
-            <Link href="/forgot-password" className={styles.forgotPassword}>
-              Forgot password
-            </Link>
-          </div>
+              checked={checked}
+              onCheckedChange={() => setChecked(!checked)}
+            />
+            Remember me
+          </Label>
+          <Link href="/forgot-password" className={styles.forgotPassword}>
+            Forgot password
+          </Link>
+        </div>
 
-          <Button type="submit" size="long" disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Logging in...
-              </>
-            ) : (
-              "Log in"
-            )}
-          </Button>
+        <Button type="submit" size="long" disabled={loading}>
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Logging in...
+            </>
+          ) : (
+            "Log in"
+          )}
+        </Button>
 
-          <div className={styles.signUpContainer}>
-            Don&apos;t have an account?{" "}
-            <Link href="/onboarding" className={styles.signUp}>
-              Sign up!
-            </Link>
-          </div>
-        </form>
-      </Form>
-    </div>
+        <div className={styles.signUpContainer}>
+          Don&apos;t have an account?{" "}
+          <Link href="/onboarding" className={styles.signUp}>
+            Sign up!
+          </Link>
+        </div>
+      </form>
+    </Form>
   );
 }
 
 const styles = {
-  formContainer:
-    "h-[80vh] w-full flex flex-col items-center justify-center bg-white/100 px-16 py-10 rounded-lg shadow-lg font-body",
   form: "w-full flex flex-col gap-4 mt-10",
   formLabel: "font-header text-[20px]",
   actionContainer: "flex justify-between items-center font-body text-sm my-3",
