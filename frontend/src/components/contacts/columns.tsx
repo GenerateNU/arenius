@@ -1,5 +1,4 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnHeader } from "@/components/ui/columnHeader";
 import { Contact } from "@/types";
 import Image from "next/image";
