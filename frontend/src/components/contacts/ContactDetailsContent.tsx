@@ -254,7 +254,7 @@ export default function ContactDetailsContent() {
             <div className="mt-4 md:mt-0">
               <Button 
                 variant="ghost" 
-                className="flex items-center text-freshSage hover:text-freshSage"
+                className="flex items-center text-darkMoss hover:text-darkMoss"
                 onClick={() => console.log("Edit Contact")}
               >
                 Edit Contact
@@ -343,11 +343,11 @@ export default function ContactDetailsContent() {
               </div>
               <div className="p-4 flex justify-between items-center">
                 <h3 className="font-medium">Gross Emissions</h3>
-                <p className="font-bold">{summary.totalEmissions} Kg CO<sub>2</sub></p>
+                <p className="font-bold">{summary.totalEmissions.toFixed(2)} Kg CO<sub>2</sub></p>
               </div>
               <div className="p-4 flex justify-between items-center">
                 <h3 className="font-medium">Net Emissions</h3>
-                <p className="font-bold">{summary.totalEmissions - summary.totalOffset} Kg CO<sub>2</sub></p>
+                <p className="font-bold">{(summary.totalEmissions - summary.totalOffset).toFixed(2)} Kg CO<sub>2</sub></p>
               </div>
             </div>
           </div>
