@@ -263,10 +263,9 @@ export default function ContactDetailsContent() {
           </div>
         </div>
 
-        {/* Flexible Layout with Transaction Tables and Fixed-Width Summary */}
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Left side - Transactions (takes up remaining space) */}
-          <div className="flex-1">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+          {/* Left side - Transactions */}
+          <div className="md:col-span-3">
             <h2 className="text-xl font-bold mb-4">All Transactions</h2>
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               <Tabs defaultValue="transactions" className="w-full">
@@ -326,8 +325,8 @@ export default function ContactDetailsContent() {
             </div>
           </div>
 
-          {/* Right side - Summary (fixed width) */}
-          <div className="m:w-60 lg:w-90 xl:w-96">
+          {/* Right side - Summary */}
+          <div className="md:col-span-2">
             <h2 className="text-xl font-bold mb-4">Summary</h2>
             <div className="bg-white rounded-lg shadow-sm overflow-hidden divide-y">
               <div className="p-4 flex justify-between items-center">
