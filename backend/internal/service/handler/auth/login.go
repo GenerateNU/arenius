@@ -33,7 +33,6 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		cookieExp = time.Time{}
 	}
 
-	fmt.Println(cookieExp)
 	// Set cookies
 	c.Cookie(&fiber.Cookie{
 		Name:     "userID",
@@ -56,7 +55,6 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		xeroCreds, err := h.userRepository.GetCredentialsByUserID(c.Context(), signInResponse.User.ID.String())
 		if err != nil {
 			fmt.Println("Error getting credentials:", err)
-			fmt.Println("Failed to get credentials")
 		}
 		c.Cookie(&fiber.Cookie{
 			Name:     "refreshToken",
