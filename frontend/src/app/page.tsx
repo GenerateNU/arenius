@@ -1,25 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import LoginForm from "@/components/onboarding/login-form";
 import SignupForm from "@/components/onboarding/landing";
-import Cookies from "js-cookie";
 
 export default function LoginPage() {
-  const router = useRouter();
+  //   const router = useRouter();
 
   const [isLoginPage, setIsLoginPage] = useState(false);
 
-  const jwt = Cookies.get("jwt")
-  const userId = Cookies.get("userID")
+  // const jwt = Cookies.get("jwt");
+  // const userId = Cookies.get("userID");
 
-  useEffect(() => {
-    if (jwt && userId) {
-      router.push("/dashboard"); 
-    }
-  }, [jwt, userId, router]);
-
+  // useEffect(() => {
+  //   if (jwt && userId) {
+  //     router.push("/dashboard");
+  //   }
+  // }, [jwt, userId, router]);
 
   return (
     <div className={styles.container}>
