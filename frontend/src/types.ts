@@ -181,7 +181,8 @@ export type MonthSummary = {
 };
 
 export type EmissionSummary = {
-  total_co2: number;
+  gross_co2: number;
+  net_co2: number;
   start_date: Date;
   end_date: Date;
   months: MonthSummary[];

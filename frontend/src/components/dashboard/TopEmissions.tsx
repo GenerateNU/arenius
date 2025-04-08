@@ -45,7 +45,7 @@ export default function TopEmissionsFactors() {
   }, [dateRange, jwt, user, isLoading]);
 
   return (
-    <Card className="w-full px-6">
+    <Card className="px-6 h-full">
       <CardHeader className="px-0 pb-6">
         <CardTitle className="font-header text-4xl">
           Top Emissions Factors

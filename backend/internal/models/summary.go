@@ -11,7 +11,8 @@ type GetSummaryRequest struct {
 }
 
 type GetSummaryResponse struct {
-	TotalCO2  float64        `json:"total_co2"`
+	GrossCO2  float64        `json:"gross_co2"`
+	NetCO2    float64        `json:"net_co2"`
 	StartDate time.Time      `json:"start_date"`
 	EndDate   time.Time      `json:"end_date"`
 	Months    []MonthSummary `json:"months"`

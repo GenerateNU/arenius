@@ -89,7 +89,7 @@ const ScopeBreakdownChart = () => {
             {chartData.map((item, index) => (
               <div key={index} className="flex items-center space-x-4">
                 <div
-                  className="w-2 h-2 rounded-full"
+                  className="w-4 h-4 rounded-full"
                   style={{ backgroundColor: item.fill }}
                 />
                 <p className="text-sm">{`${item.percentage}%`}</p>

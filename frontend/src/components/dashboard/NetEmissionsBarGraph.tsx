@@ -86,21 +86,26 @@ export default function NetEmissionsBarGraph() {
       netEmissions: (month.emissions || 0) - (month.offsets || 0),
     })) ?? [];
 
+  const totalEmissions = formatNumber(summary.net_co2);
+
   return (
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
           <div>
-            <CardTitle className="font-[Arimo] text-4xl">
+            <CardTitle className="font-header text-4xl mb-2 font-semibold">
               Net Emissions
             </CardTitle>
-            <CardDescription className="font-[Montserrat] py-2">
-              Total emissions (kg) for{" "}
-              <p className="font-bold">{formattedDateRange}</p>
+            <CardDescription className="text-black text-4xl font-semibold font-[Arimo]">
+              {totalEmissions || 0} kg
             </CardDescription>
           </div>
           <CustomLegend />
         </div>
+        <CardDescription className="font-[Montserrat] py-2">
+          Total emissions (kg) for{" "}
+          <span className="font-bold">{formattedDateRange}</span>
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -157,7 +162,7 @@ const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
             <div key={entry} className="flex items-center gap-2">
               <span
                 className={
-                  entry === "netEmissions" ? "w-2 h-1" : "w-2 h-2 rounded-full"
+                  entry === "netEmissions" ? "w-4 h-1" : "w-4 h-4 rounded-full"
                 }
                 style={{ backgroundColor: config.color || "#C7CFCD" }}
               />
@@ -179,11 +184,11 @@ const CustomLegend = () => {
         <div key={key} className="flex items-center gap-2">
           <span
             className={
-              key === "netEmissions" ? "w-2 h-1" : "w-2 h-2 rounded-full"
+              key === "netEmissions" ? "w-4 h-1" : "w-4 h-4 rounded-full"
             }
             style={{ backgroundColor: color }}
           />
-          <span className="text-xs text-muted-foreground font-[Montserrat]">
+          <span className="text-md text-muted-foreground font-[Montserrat]">
             {label}
           </span>
         </div>

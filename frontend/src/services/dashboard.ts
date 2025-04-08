@@ -9,7 +9,8 @@ import {
 import apiClient from "./apiClient";
 
 const DEFAULT_GROSS_SUMMARY: EmissionSummary = {
-  total_co2: 0,
+  gross_co2: 0,
+  net_co2: 0,
   start_date: new Date(),
   end_date: new Date(),
   months: [],
