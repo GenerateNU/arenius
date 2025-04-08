@@ -172,7 +172,7 @@ func (r *ContactRepository) CreateContact(ctx context.Context, req models.Create
 		INSERT INTO contact
 		(` + strings.Join(columns, ", ") + `)
 		VALUES (` + strings.Join(numInputs, ", ") + `)
-		RETURNING id, name, email, phone, city, state, xero_contact_id, company_id, created_at, updated_at;
+		RETURNING id, name, email, phone, city, state, xero_contact_id, company_id, client_overview, notes, created_at, updated_at;
 	`
 
 	rows, err := r.db.Query(ctx, query, queryArgs...)
@@ -260,8 +260,8 @@ func (r *ContactRepository) AddImportedContacts(ctx context.Context, req []model
 
 func createContactValidations(req models.CreateContactRequest) ([]string, []interface{}, error) {
 	id := uuid.New().String()
-	columns := []string{"id", "name", "email", "phone", "city", "state", "company_id"}
-	queryArgs := []interface{}{id, req.Name, req.Email, req.Phone, req.City, req.State, req.CompanyID}
+	columns := []string{"id", "name", "email", "phone", "city", "state", "company_id", "client_overview", "notes"}
+	queryArgs := []interface{}{id, req.Name, req.Email, req.Phone, req.City, req.State, req.CompanyID, req.ClientOverview, req.Notes}
 
 	if _, err := uuid.Parse(req.CompanyID); err != nil {
 		return nil, nil, errs.BadRequest("Company ID must be a UUID")
@@ -328,11 +328,17 @@ func (r *ContactRepository) UpdateContact(ctx context.Context, contactId string,
 	if req.CompanyID != nil {
 		updateColumns = append(updateColumns, fmt.Sprintf("company_id='%s'", *req.CompanyID))
 	}
+	if req.ClientOverview != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("client_overview='%s'", *req.ClientOverview))
+	}
+	if req.Notes != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("notes='%s'", *req.Notes))
+	}
 
 	updateQuery += strings.Join(updateColumns, ",")
 
 	updateQuery += fmt.Sprintf(" WHERE id='%s'", contactId)
-	updateQuery += ` RETURNING id, name, email, phone, city, state, xero_contact_id, company_id, created_at, updated_at;`
+	updateQuery += ` RETURNING id, name, email, phone, city, state, xero_contact_id, company_id, client_overview, notes, created_at, updated_at;`
 
 	rows, err := r.db.Query(ctx, updateQuery)
 	if err != nil {
