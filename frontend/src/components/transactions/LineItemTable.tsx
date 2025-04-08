@@ -206,6 +206,8 @@ export default function LineItemTable({
           </TableBody>
         </Table>
       </div>
+      {rowIsSelected && <LineItemTableActions table={table} />}
+
       {paginated && (
         <DataTablePagination
           page={table.getState().pagination.pageIndex}
@@ -225,8 +227,6 @@ export default function LineItemTable({
           type={activePage}
         />
       )}
-
-      {rowIsSelected && <LineItemTableActions table={table} />}
     </>
   );
 }

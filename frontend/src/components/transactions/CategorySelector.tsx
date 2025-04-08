@@ -35,6 +35,7 @@ interface CategorySelectorProps {
     | "ghost"
     | null
     | undefined;
+  className?: string;
 }
 
 interface CategoryListProps {
@@ -81,6 +82,7 @@ export default function CategorySelector({
   emissionsFactor,
   setEmissionsFactor,
   variant = "outline",
+  className,
 }: CategorySelectorProps) {
   const { companyId } = useAuth();
   const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch("");
@@ -112,8 +114,8 @@ export default function CategorySelector({
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen} modal={true}>
       <PopoverTrigger asChild>
-        <Button className={styles.button} variant={variant}>
-          {emissionsFactor?.name || "Select emissions factor"}
+        <Button variant={variant} className={styles.button + " " + className}>
+          {emissionsFactor?.name || "Select category"}
           <ChevronDown className={styles.chevronDown} />
         </Button>
       </PopoverTrigger>
@@ -134,7 +136,7 @@ export default function CategorySelector({
           />
         </div>
 
-        <div className="relative px-2 mt-2 flex border-b">
+        <div className="relative px-2 my-2 flex border-b">
           {["All", "Favorites", "History"].map((tab) => (
             <Button
               key={tab}
@@ -248,7 +250,7 @@ function EmissionsFactorList({
   setCategories,
 }: EmissionsFactorListProps) {
   return (
-    <div>
+    <div className="flex flex-col gap-2">
       {emissionsFactors.length > 0 ? (
         emissionsFactors.map((emissionsFactor) => (
           <EmissionsFactorItem
@@ -275,7 +277,10 @@ function EmissionsFactorItem({
   setCategories,
 }: EmissionsFactorProps) {
   return (
-    <span key={emissionsFactor.id} className="flex items-center">
+    <span
+      key={emissionsFactor.id}
+      className="flex items-center justify-between"
+    >
       <Button
         variant="ghost"
         className={styles.dropdownButton}
@@ -366,7 +371,7 @@ function FavoriteStar({
 }
 
 const styles = {
-  button: "flex gap-8 text-wrap text-left h-auto",
+  button: "flex gap-8 text-wrap h-full text-left",
   chevronDown: "h-4 w-4 opacity-50",
   popoverContent: "w-96 p-2 max-h-[400px] overflow-y-auto",
   searchIcon:
@@ -374,6 +379,6 @@ const styles = {
   input: "pl-10 border-none focus:ring-0",
   categoryList: "py-2 max-h-60 overflow-y-auto",
   dropdownButton:
-    "flex justify-between items-center px-3 py-2 text-left text-wrap",
+    "flex justify-between items-center px-3 py-2 text-left text-wrap w-full",
   noResults: "px-2 text-gray-500 text-sm",
 };

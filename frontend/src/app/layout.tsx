@@ -14,9 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <AuthProvider>
-      <html lang="en" className="h-dvh">
-        <body className="font-[Montserrat] antialiased flex min-h-full flex-col">
-          <main className="flex flex-1">{children}</main>
+      <html lang="en" className="h-full">
+        <body className="font-[Montserrat] antialiased flex h-full overflow-hidden">
+          <main className="flex flex-1 w-full">{children}</main>
         </body>
       </html>
     </AuthProvider>

@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   ];
 
   return (
-    <div className="relative overflow-x-hidden flex-1">
+    <div className="min-h-full w-full overflow-y-auto">
       <div
         key="val1"
         className="flex items-center w-full px-4 py-2 space-x-8 bg-white"
@@ -60,7 +60,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <ProfileDropdown />
         </div>
       </div>
-      <div className="px-4 md:px-20 bg-grayBackground h-full">{children}</div>{" "}
+      <div className="px-4 md:px-20 bg-grayBackground">{children}</div>
     </div>
   );
 };

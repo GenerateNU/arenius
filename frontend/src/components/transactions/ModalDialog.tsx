@@ -1,7 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { reconcile } from "@/services/lineItems";
 import {
   EmissionsFactor,
@@ -81,18 +86,20 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent className="sm:max-w-xl max-w-4xl p-8">
-        <DialogHeader className="flex-row justify-between items-center">
-          <div className="text-lg text-gray-500">{formattedDate}</div>
-          <div>{contact.name}</div>
-          {contact?.id && (
-            <Button
-              variant="ghost"
-              onClick={handleContactNavigation}
-              className="flex items-center gap-2"
-            >
-              View contact history
-            </Button>
-          )}
+        <DialogHeader>
+          <DialogTitle className="flex justify-between items-center">
+            <div className="text-lg text-gray-500">{formattedDate}</div>
+            <div>{contact.name}</div>
+            {contact?.id && (
+              <Button
+                variant="ghost"
+                onClick={handleContactNavigation}
+                className="flex items-center gap-2"
+              >
+                View contact history
+              </Button>
+            )}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="flex mt-4 w-full gap-8">
