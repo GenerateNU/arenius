@@ -46,20 +46,23 @@ export default function ContactForm() {
     },
   });
 
-  const { companyId } = useAuth();
+  const { user } = useAuth();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!companyId) {
+    if (!user) {
       console.error("Company ID is null");
       return;
     }
 
     try {
-      const response = await createContact({
-        ...values,
-        company_id: "",
-      }, companyId);
-  
+      const response = await createContact(
+        {
+          ...values,
+          company_id: "",
+        },
+        user.company_id
+      );
+
       if (response) {
         form.reset();
         router.push("/contacts");
