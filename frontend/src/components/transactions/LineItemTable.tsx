@@ -109,7 +109,7 @@ export default function LineItemTable({
     <>
       <div className="rounded-md  bg-white">
         <Table>
-          <TableHeader>
+          <TableHeader className="h-14" >
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {

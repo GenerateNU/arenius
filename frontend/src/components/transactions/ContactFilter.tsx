@@ -26,8 +26,8 @@ export default function ContactFilter({
 
   return (
     <ContactsSelector
-      contact={contact}
-      setContact={setContact}
+      filters={filters}
+      setFilters={setFilters}
       variant="ghost"
       className={className}
     />

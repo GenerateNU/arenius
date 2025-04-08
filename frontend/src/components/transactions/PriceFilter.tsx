@@ -33,6 +33,14 @@ export default function PriceFilter({
     });
   };
 
+  const handleClear = () => {
+    setFilters({
+      ...filters,
+      minPrice: undefined,
+      maxPrice: undefined
+    })
+  }
+
   useEffect(() => {
     if (!filters.minPrice && !filters.maxPrice) {
       setLocalValues([undefined, undefined]);
@@ -60,7 +68,7 @@ export default function PriceFilter({
           max={10_000}
           min={0}
           step={1}
-          onValueChange={(newValues) =>
+          onValueChange={(newValues: (number | undefined)[]) =>
             setLocalValues([
               newValues[0] === 0 ? undefined : newValues[0],
               newValues[1] === 10_000 ? undefined : newValues[1],
@@ -80,8 +88,9 @@ export default function PriceFilter({
             onChange={(value) => setLocalValues((prev) => [prev[0], value])}
           />
         </div>
-        <div className="flex justify-end">
-          <Button onClick={handleApply}>Apply</Button>
+        <div className="flex justify-between">
+          <Button onClick={handleClear} variant="ghost" className="text-xs underline text-gray-500">Clear Filter</Button>
+          <Button onClick={handleApply} className="text-xs">Apply</Button>
         </div>
       </PopoverContent>
     </Popover>

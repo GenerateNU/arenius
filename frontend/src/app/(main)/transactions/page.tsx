@@ -125,13 +125,12 @@ function Header({
           )}
         </div>
       </div>
-      {hasFilter && (
+      
         <div className="flex justify-end mt-2">
           <Button variant="ghost" onClick={() => setFilters({})}>
             Clear filters
           </Button>
         </div>
-      )}
     </div>
   );
 }
