@@ -1,5 +1,4 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnHeader } from "@/components/ui/columnHeader";
 import { Contact } from "@/types";
 import Image from "next/image";
@@ -12,34 +11,8 @@ const handleCopyClick = (text: string) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const columns = (router: any): ColumnDef<Contact>[] => [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        className="ml-2"
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-  },
-  {
     accessorKey: "name",
     header: ({ column }) => <ColumnHeader name="Contact" column={column} />,
-  },
-  {
-    accessorKey: "industry",
-    header: ({ column }) => <ColumnHeader name="Title" column={column} />,
-    cell: () => <div className="font-medium">Industry/Title</div>,
   },
   {
     accessorKey: "phone",
@@ -69,23 +42,41 @@ export const columns = (router: any): ColumnDef<Contact>[] => [
     header: ({ column }) => <ColumnHeader name="Email" column={column} />,
     cell: ({ row }) => {
       const email = String(row.getValue("email"));
+      if(email !== ""){
+        return (
+          <div className="font-medium">
+            <span>{email}</span>
+            <button
+              onClick={() => handleCopyClick(email)}
+              className="ml-1"
+              title="Copy email to clipboard"
+            >
+              <Image src="/copy.svg" alt="" width={12} height={12} />
+            </button>
+          </div>
+        );
+    } else{
+      <div></div>
+    }
+    },
+  },
+  {
+    accessorKey: "created_at",
+    header: ({ column }) => <ColumnHeader name="Created At" column={column} />,
+    cell: ({ row }) => {
+      const createdAt = new Date(row.getValue("created_at"));
       return (
         <div className="font-medium">
-          <span>{email}</span>
-          <button
-            onClick={() => handleCopyClick(email)}
-            className="ml-1"
-            title="Copy email to clipboard"
-          >
-            <Image src="/copy.svg" alt="" width={12} height={12} />
-          </button>
+          {`${(createdAt.getMonth() + 1).toString().padStart(2, '0')}/${
+            createdAt.getDate().toString().padStart(2, '0')}/${
+            createdAt.getFullYear()}`}
         </div>
       );
     },
   },
   {
     accessorKey: "view",
-    header: ({ column }) => <ColumnHeader name="" column={column} />,
+    header: () => <></>,
     cell: ({ row }) => (
       <Image
         src="/arrow.svg"
