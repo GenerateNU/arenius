@@ -207,10 +207,10 @@ func (r *SummaryRepository) GetContactEmissions(ctx context.Context, req models.
 	}
 	
 	for _, contact := range contacts {
-		if contact.Carbon < max(maxEmissionAmount / 10, sumAllEmissions / 30) {
-			filteredContacts[0].Carbon += 100 * contact.Carbon / maxEmissionAmount
+		if contact.Carbon < min(maxEmissionAmount / 10, sumAllEmissions / 30) {
+			filteredContacts[0].Carbon += 100 * contact.Carbon / sumAllEmissions
 		} else {
-			contact.Carbon = math.Round(100 * contact.Carbon / maxEmissionAmount)
+			contact.Carbon = math.Round(100 * contact.Carbon / sumAllEmissions)
 			filteredContacts = append(filteredContacts, contact)
 		}
 	}
@@ -218,7 +218,7 @@ func (r *SummaryRepository) GetContactEmissions(ctx context.Context, req models.
 	filteredContacts[0].Carbon = math.Round(filteredContacts[0].Carbon)
 
 	return &models.GetContactEmissionsSummaryResponse{
-		ContactEmissions: contacts,
+		ContactEmissions: filteredContacts,
 		StartDate:        req.StartDate,
 		EndDate:          req.EndDate,
 	}, nil
