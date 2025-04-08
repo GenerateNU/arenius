@@ -457,7 +457,7 @@ export default function TransactionForm() {
                     <FormItem>
                       <FormLabel>Emissions Factor</FormLabel>
                       <FormControl>
-                        <div className="space-y-2">
+                        <div className="space-y-2 w-3/5">
                           <EmissionsFactorSelector
                             emissionsFactor={emissionsFactor}
                             setEmissionsFactor={(value) => {
