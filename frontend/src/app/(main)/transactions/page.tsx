@@ -124,11 +124,11 @@ function Header({
         </div>
       </div>
       
-        <div className="flex justify-end mt-2">
-          <Button variant="ghost" onClick={() => setFilters({})}>
-            Clear filters
-          </Button>
-        </div>
+      <div className="flex justify-end mt-2">
+        <Button variant="ghost" onClick={() => setFilters({})}>
+          Clear filters
+        </Button>
+      </div>
     </div>
   );
 }
