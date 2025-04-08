@@ -2,6 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { LineItem } from "@/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnHeader } from "../ui/columnHeader";
+import { textConstants } from "@/lib/utils";
 
 const selectColumn: ColumnDef<LineItem> = {
   id: "select",
@@ -42,7 +43,7 @@ const dateColumn: ColumnDef<LineItem> = {
 const scopeColumn: ColumnDef<LineItem> = {
   accessorKey: "scope",
   header: ({ column }) => {
-    return <ColumnHeader name="Scope" column={column} />;
+    return <ColumnHeader name="Scope" column={column} tooltipContent={textConstants.scope} />;
   },
   size: 50,
   cell: ({ row }) => {
@@ -63,7 +64,7 @@ const descriptionColumn: ColumnDef<LineItem> = {
 const emissionFactorColumn: ColumnDef<LineItem> = {
   accessorKey: "emission_factor_name",
   header: ({ column }) => {
-    return <ColumnHeader name="Emissions Factor" column={column} />;
+    return <ColumnHeader name="Emissions Factor" column={column} tooltipContent={textConstants.emissionsFactor} />;
   },
   size: 200,
 };
@@ -103,14 +104,14 @@ const recommendedScope: ColumnDef<LineItem> = {
 const contactColumn: ColumnDef<LineItem> = {
   accessorKey: "contact_name",
   header: ({ column }) => {
-    return <ColumnHeader name="Contact" column={column} />;
+    return <ColumnHeader name="Contact" column={column} tooltipContent={textConstants.contact} />;
   },
   size: 150,
 };
 const co2Column: ColumnDef<LineItem> = {
   accessorKey: "co2",
   header: ({ column }) => {
-    return <ColumnHeader name="CO2" column={column} />;
+    return <ColumnHeader name="CO2e" column={column}  tooltipContent={textConstants.carbonOffset} />;
   },
   cell: ({ row }) => {
     const co2 = parseFloat(row.getValue("co2"));
