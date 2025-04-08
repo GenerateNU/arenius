@@ -45,40 +45,43 @@ export default function TopEmissionsFactors() {
   }, [dateRange, jwt, user, isLoading]);
 
   return (
-    <Card className="px-6 h-full">
-      <CardHeader className="px-0 pb-6">
+    <Card className="px-6 h-full flex flex-col">
+      <CardHeader className="px-0 pb-0">
         <CardTitle className="font-header text-4xl">
           Top Emissions Factors
         </CardTitle>
-        <CardDescription className="font-body py-2">
+        <CardDescription className="font-body text-sm">
           Total emissions (kg) for{" "}
           <span className="font-bold">{formattedDateRange}</span>
         </CardDescription>
       </CardHeader>
-      <CardContent className="px-0">
-        <div className="space-y-2 font-body">
-          {emissions &&
-            emissions.map((factor, index) => (
-              <div
-                key={factor.rank}
-                className={`flex justify-between items-center p-4 rounded-lg ${
-                  index % 2 === 0 ? "bg-green-50" : "bg-white"
-                }`}
-              >
-                <div className="flex items-center">
-                  <span className="text-2xl font-bold text-gray-800 pr-4">
-                    {factor.rank}
-                  </span>
-                  <span className="text-md text-gray-700 text-wrap">
-                    {factor.emission_factor}
-                  </span>
-                </div>
-                <div className="text-lg font-medium w-1/4 text-right">
-                  {formatNumber(factor.total_co2)} kg
-                </div>
+      <CardContent className="px-0 py-4 lg:py-12 flex-grow flex flex-col justify-between">
+        {emissions && emissions.length > 0 ? (
+          emissions.map((factor, index) => (
+            <div
+              key={factor.rank}
+              className={`flex justify-between items-center px-4 py-2 rounded-lg ${
+                index % 2 === 0 ? "bg-green-50" : "bg-white"
+              }`}
+            >
+              <div className="flex items-center">
+                <span className="text-2xl font-bold text-gray-800 pr-6">
+                  {factor.rank}
+                </span>
+                <span className="text-md text-gray-700">
+                  {factor.emission_factor}
+                </span>
               </div>
-            ))}
-        </div>
+              <div className="text-lg lg:text-md font-medium w-1/4 text-right">
+                {formatNumber(factor.total_co2)} kg
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="flex h-32 items-center justify-center">
+            <p className="text-gray-500">No emissions data available</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

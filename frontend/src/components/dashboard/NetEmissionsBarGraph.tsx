@@ -90,7 +90,7 @@ export default function NetEmissionsBarGraph() {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="px-6 pt-6 pb-2">
         <div className="flex justify-between items-center">
           <div>
             <CardTitle className="font-header text-4xl mb-2 font-semibold">
