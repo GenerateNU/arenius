@@ -61,9 +61,7 @@ export function ProfileDropdown() {
                         Member Profile
                       </button>
                     </Link>
-                    <Link href="/user-profile">
-                      <SignOutButton />
-                    </Link>
+                    <SignOutButton />
                   </div>
                 </div>
               </div>
