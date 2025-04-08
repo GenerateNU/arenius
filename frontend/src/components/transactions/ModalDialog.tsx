@@ -89,23 +89,21 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
         <DialogHeader className="flex-row justify-between items-center">
           <div className="text-lg text-gray-500">{formattedDate}</div>
           <div>{contact.name}</div>
-          {/* <DialogTitle className="text-lg text-gray-500"></DialogTitle> */}
           {contact?.id && (
             <Button
               variant="ghost"
-              size="sm"
               onClick={handleContactNavigation}
               className="flex items-center gap-2"
             >
-              View History
+              View contact history
             </Button>
           )}
         </DialogHeader>
 
         <div className="flex mt-4 w-full gap-8">
           <div className="flex flex-col space-y-2 w-1/4">
-            <p className="text-3xl font-bold">{formattedAmount}</p>
-            <p className="text-lg font-medium text-gray-500">
+            <p className="text-xl font-bold">{formattedAmount}</p>
+            <p className="text-xl font-medium text-gray-500">
               {selectedRowData.description}
             </p>
           </div>
