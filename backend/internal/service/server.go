@@ -148,6 +148,7 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 	app.Route("/contact", func(r fiber.Router) {
 		r.Get("/company/:companyId", contactHandler.GetContacts)
 		r.Get("/:contactId", contactHandler.GetContact)
+		r.Patch("/:contactId", contactHandler.UpdateContact)
 		r.Post("", contactHandler.PostContact)
 	})
 

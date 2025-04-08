@@ -68,7 +68,7 @@ const formSchema = z.object({
 });
 
 export default function TransactionForm() {
-  const { companyId } = useAuth();
+  const { user } = useAuth();
   const { data: contactResponse } = useContacts();
   const { fetchTableData } = useTransactionsContext();
   const dialogCloseRef = useRef<HTMLButtonElement>(null);
@@ -122,7 +122,7 @@ export default function TransactionForm() {
       return;
     }
 
-    if (companyId) {
+    if (user) {
       try {
         console.log("date", values.date);
         await createLineItem(
@@ -147,7 +147,7 @@ export default function TransactionForm() {
                 : undefined,
             co2_unit: values.transactionType === "offset" ? "kg" : undefined,
           },
-          companyId
+          user.company_id
         );
 
         // add 2 sec timeout to allow for carbon estimates to be made

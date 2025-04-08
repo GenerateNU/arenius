@@ -299,6 +299,56 @@ func (r *ContactRepository) GetOrCreateXeroContact(ctx context.Context, xeroCont
 	return contactID, nil
 }
 
+func (r *ContactRepository) UpdateContact(ctx context.Context, contactId string, req models.UpdateContactRequest) (*models.Contact, error) {
+	updateQuery := "UPDATE contact SET "
+
+	updateColumns := []string{"id=id"}
+
+	if req.Name != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("name='%s'", *req.Name))
+	}
+	if req.Email != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("email='%s'", *req.Email))
+	}
+	if req.Phone != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("phone='%s'", *req.Phone))
+	}
+	if req.Phone != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("name='%s'", *req.Name))
+	}
+	if req.City != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("city='%s'", *req.City))
+	}
+	if req.State != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("state='%s'", *req.State))
+	}
+	if req.XeroContactID != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("xero_contact_id='%s'", *req.XeroContactID))
+	}
+	if req.CompanyID != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("company_id='%s'", *req.CompanyID))
+	}
+
+	updateQuery += strings.Join(updateColumns, ",")
+
+	updateQuery += fmt.Sprintf(" WHERE id='%s'", contactId)
+	updateQuery += ` RETURNING id, name, email, phone, city, state, xero_contact_id, company_id, created_at, updated_at;`
+
+	rows, err := r.db.Query(ctx, updateQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	contact, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.Contact])
+
+	if err != nil {
+		return nil, fmt.Errorf("error querying database for contact: %w", err)
+	}
+
+	return &contact, nil
+}
+
 func NewContactRepository(db *pgxpool.Pool) *ContactRepository {
 	return &ContactRepository{
 		db,

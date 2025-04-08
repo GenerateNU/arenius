@@ -265,6 +265,27 @@ Example:
 - URL: `http://127.0.0.1:8080/contact/company/1339d26e-8e6b-43e6-aa56-470b3985f3b1?page=2&search_term=abc`
 ```
 
+PATCH `/contact/:contactId`
+Update fields of a contact manually
+
+```go
+Body Parameters:
+- `name` (string, optional)
+- `email` (string, optional)
+- `phone` (string, optional)
+- `city` (string, optional)
+- `state` (string, optional)
+- `xero_contact_id` (string, optional)
+- `company_id` (string, optional)
+Example:
+- URL: `http://127.0.0.1:8080/contact/06769be2-7a0b-4640-aa6d-9fcecfbc988c`
+- Parameters: {
+    "name": "Zachie Croft",
+    "email": "croft.z@husky.neu.edu",
+    "phone": "123-456-7890"
+}
+
+
 POST `/contact`
 Create a new contact manually
 
