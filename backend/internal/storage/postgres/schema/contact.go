@@ -28,6 +28,8 @@ func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*
 			city,
 			state,
 			xero_contact_id,
+			client_overview,
+			notes,
 			company_id,
 			created_at,
 			updated_at
@@ -95,6 +97,8 @@ func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pa
 			city,
 			state,
 			xero_contact_id,
+			client_overview,
+			notes,
 			company_id,
 			created_at,
 			updated_at
@@ -122,6 +126,8 @@ func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pa
 			state,
 			xero_contact_id,
 			company_id,
+			client_overview,
+			notes,
 			created_at,
 			updated_at
 		FROM contact
