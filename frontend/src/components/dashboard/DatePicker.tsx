@@ -97,7 +97,7 @@ export type DatePickerProps = {
   setDateRange: (range: DateRange | undefined) => void;
   className?: string;
   showClearAndApply?: boolean;
-  filters: LineItemFilters;
+  filters?: LineItemFilters;
 };
 
 export function DatePicker({
@@ -126,7 +126,7 @@ export function DatePicker({
   }
 
   useEffect(() => {
-    if (!filters.dates) {
+    if (!filters?.dates) {
       setLocalDateRange(undefined);
     }
   }, [filters]);
