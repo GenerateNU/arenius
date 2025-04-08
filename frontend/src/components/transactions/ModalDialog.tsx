@@ -88,8 +88,8 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
       <DialogContent className="sm:max-w-xl max-w-4xl p-8">
         <DialogHeader className="flex-row justify-between items-center">
           <div className="text-lg text-gray-500">{formattedDate}</div>
-          <DialogTitle className="text-lg text-gray-500">
-          </DialogTitle>
+          <div>{contact.name}</div>
+          {/* <DialogTitle className="text-lg text-gray-500"></DialogTitle> */}
           {contact?.id && (
             <Button
               variant="ghost"
@@ -102,39 +102,41 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
           )}
         </DialogHeader>
 
-        <div className="flex mt-4 w-full">
-          <div className="flex flex-col space-y-2 w-1/3">
-            <p className="text-md font-medium">{contact?.name}</p>
+        <div className="flex mt-4 w-full gap-8">
+          <div className="flex flex-col space-y-2 w-1/4">
             <p className="text-3xl font-bold">{formattedAmount}</p>
-            <p className="text-sm font-medium text-gray-500">
+            <p className="text-lg font-medium text-gray-500">
               {selectedRowData.description}
             </p>
           </div>
-          <div className="flex-1 space-y-4">
-          {type === "reconciled" && (
-            <><div className="space-y-2">
-                <p className="text-md font-small text-gray-500">
-                  Emissions Scope
-                </p>
-                <Select onValueChange={(value) => setScope(value)}>
-                  <SelectTrigger className="w-full">
-                    {scope ? `Scope ${scope}` : "Select scope"}
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">Scope 1</SelectItem>
-                    <SelectItem value="2">Scope 2</SelectItem>
-                    <SelectItem value="3">Scope 3</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          <div className="space-y-4 w-full">
+            {type === "reconciled" && (
+              <>
+                <div className="space-y-2">
+                  <p className="text-md font-small text-gray-500">
+                    Emissions Scope
+                  </p>
+                  <Select onValueChange={(value) => setScope(value)}>
+                    <SelectTrigger>
+                      {scope ? `Scope ${scope}` : "Select scope"}
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">Scope 1</SelectItem>
+                      <SelectItem value="2">Scope 2</SelectItem>
+                      <SelectItem value="3">Scope 3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="space-y-2">
                   <p className="text-md font-small text-gray-500">
                     Emissions Factor
                   </p>
                   <EmissionsFactorSelector
                     emissionsFactor={emissionsFactor}
-                    setEmissionsFactor={setEmissionsFactor} />
-                </div></>
+                    setEmissionsFactor={setEmissionsFactor}
+                  />
+                </div>
+              </>
             )}
 
             <div className="space-y-2">
@@ -150,16 +152,18 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
 
             {type === "offsets" && (
               <div className="flex flex-col items-center">
-              <label className="text-sm font-medium w-full">Carbon offset (kg)</label>
-              <Input
-                type="number"
-                className="bg-white"
-                value={carbon ?? "0"}
-                onChange={(e) => setCarbon(parseFloat(e.target.value))}
-                placeholder="10 kg"
-                min="0"
-              />
-            </div>
+                <label className="text-sm font-medium w-full">
+                  Carbon offset (kg)
+                </label>
+                <Input
+                  type="number"
+                  className="bg-white"
+                  value={carbon ?? "0"}
+                  onChange={(e) => setCarbon(parseFloat(e.target.value))}
+                  placeholder="10 kg"
+                  min="0"
+                />
+              </div>
             )}
 
             <div className="mt-4">

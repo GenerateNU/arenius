@@ -220,7 +220,7 @@ function CategoryItem({
         className={styles.dropdownButton}
         onClick={() => setExpanded(!expanded)}
       >
-        {category.name}
+        <p className="text-wrap">{category.name}</p>
         {expanded ? (
           <ChevronDown className="w-4 h-4" />
         ) : (
@@ -293,7 +293,7 @@ function EmissionsFactorItem({
         setCategories={setCategories}
       />
     </span>
-  )
+  );
 }
 
 function FavoriteStar({
@@ -366,7 +366,7 @@ function FavoriteStar({
 }
 
 const styles = {
-  button: "flex gap-8",
+  button: "flex gap-8 text-wrap text-left h-auto",
   chevronDown: "h-4 w-4 opacity-50",
   popoverContent: "w-96 p-2 max-h-[400px] overflow-y-auto",
   searchIcon:
@@ -374,6 +374,6 @@ const styles = {
   input: "pl-10 border-none focus:ring-0",
   categoryList: "py-2 max-h-60 overflow-y-auto",
   dropdownButton:
-    "w-full flex justify-between items-center px-3 py-2 text-left text-wrap",
+    "flex justify-between items-center px-3 py-2 text-left text-wrap",
   noResults: "px-2 text-gray-500 text-sm",
 };
