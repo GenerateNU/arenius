@@ -1,24 +1,23 @@
 "use client";
 
-import React from "react";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useAuth } from "@/context/AuthContext";
 import { createContact } from "@/services/contacts";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "../ui/button";
 import {
+  Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
   FormMessage,
-  Form,
 } from "../ui/form";
-import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
 
 const formSchema = z.object({
   name: z.string().min(2).max(50),
@@ -74,35 +73,24 @@ export default function ContactForm() {
 
   return (
     <Form {...form}>
+      <div className="flex items-center space-x-1 text-base">
+        <Link href="/contacts" className="text-green-600 hover:underline">
+          Contacts
+        </Link>
+        <span className="text-gray-600">/ Add Contact</span>
+      </div>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="py-4 flex flex-col space-y-4"
       >
-        <div className="flex items-center space-x-12">
-          <div className="relative">
-            <Image
-              src="/profile.png"
-              alt="Profile"
-              width={180}
-              height={180}
-              className="rounded-full border border-gray-300 shadow-md"
-            />
-            <button title="Edit Profile" className="w-10 h-10 absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md border border-gray-300 flex items-center justify-center">
-              <Image
-                src="/edit.svg"
-                alt="Edit"
-                width={20}
-                height={20}
-              />
-            </button>
-          </div>
-          <div className="flex flex-col space-y-4">
+        <div className="flex flex-row space-x-8">
+          <div className="flex flex-col space-y-4 w-1/2">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem className="w-[400px]">
-                  <FormLabel className="text-green-600">Client Name</FormLabel>
+                <FormItem className="w-full">
+                  <FormLabel className="text-black-600">Client Name</FormLabel>
                   <FormControl>
                     <Input placeholder="John Smith" {...field} />
                   </FormControl>
@@ -110,91 +98,97 @@ export default function ContactForm() {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="johnsmith@gmail.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Phone</FormLabel>
+                  <FormControl>
+                    <Input placeholder="123-456-7890" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="city"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>City</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Boston" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="state"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>State</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Massachusetts" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="flex flex-col space-y-4 w-1/2">
+            <FormField
+              control={form.control}
+              name="client_overview"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Client Overview</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Notes</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         </div>
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem className="w-1/4">
-              <FormLabel>Email</FormLabel>
-              <FormMessage />
-              <FormControl>
-                <Input placeholder="johnsmith@gmail.com" {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem className="w-1/4">
-              <FormLabel>Phone</FormLabel>
-              <FormControl>
-                <Input placeholder="123-456-7890" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="city"
-          render={({ field }) => (
-            <FormItem className="w-1/4">
-              <FormLabel>City</FormLabel>
-              <FormControl>
-                <Input placeholder="Boston" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="state"
-          render={({ field }) => (
-            <FormItem className="w-1/4">
-              <FormLabel>State</FormLabel>
-              <FormControl>
-                <Input placeholder="Massachusetts" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="client_overview"
-          render={({ field }) => (
-            <FormItem className="w-1/2">
-              <FormLabel>Client Overview</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Overview" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="notes"
-          render={({ field }) => (
-            <FormItem className="w-1/2">
-              <FormLabel>Notes (Optional)</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Notes" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="w-1/2 flex justify-between items-center mt-4">
-          <label className="text-sm font-medium text-muted-foreground">Last Updated: Now</label>
-          <Button type="submit" className="w-[150px]">Save Changes</Button>
+
+        <div className="w-full flex justify-end items-center mt-6">
+          <Button type="submit" className="w-[150px]">
+            Save Changes
+          </Button>
         </div>
       </form>
     </Form>
+
   );
 }

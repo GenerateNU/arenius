@@ -61,6 +61,7 @@ type ContactRepository interface {
 	CreateContact(ctx context.Context, req models.CreateContactRequest) (*models.Contact, error)
 	AddImportedContacts(ctx context.Context, req []models.AddImportedContactRequest) ([]models.Contact, error)
 	GetOrCreateXeroContact(ctx context.Context, xeroContactID, name, email, phone, city, state string, companyID string) (string, error)
+	UpdateContact(ctx context.Context, contactId string, req models.UpdateContactRequest) (*models.Contact, error)
 }
 
 type OffsetRepository interface {
