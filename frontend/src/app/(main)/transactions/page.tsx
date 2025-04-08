@@ -96,9 +96,7 @@ function Header({
   viewMode: "scoped" | "paginated";
   setViewMode: (mode: "scoped" | "paginated") => void;
 }) {
-  const { filters, setFilters } = useTransactionsContext();
-  const hasFilter =
-    filters.contact_id || filters.minPrice || filters.maxPrice || filters.dates;
+  const { setFilters } = useTransactionsContext();
   return (
     <div>
       <div className={styles.header}>
