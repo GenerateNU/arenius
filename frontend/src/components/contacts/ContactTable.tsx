@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -21,16 +21,30 @@ import { Contact } from "@/types";
 import { useContacts } from "@/context/ContactContext";
 import { columns } from "./columns";
 import { DataTablePagination } from "../ui/DataTablePagination";
-import { useRouter } from "next/navigation"; // Use useRouter here
+import { useRouter } from "next/navigation";
+import LoadingSpinner from "../ui/loading-spinner";
 
 export default function ContactTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const { data } = useContacts();
-  const router = useRouter(); // Get router here
+  const router = useRouter();
+  
+  // Track if we've ever successfully loaded data
+  const [hasLoadedData, setHasLoadedData] = useState(false);
+  
+  // Determine if we're in a loading state
+  const isLoading = !data.contacts || data.contacts.length === 0 && !hasLoadedData;
+  
+  // Set hasLoadedData to true when we successfully get data
+  useEffect(() => {
+    if (data.contacts && data.contacts.length > 0) {
+      setHasLoadedData(true);
+    }
+  }, [data.contacts]);
 
   const table = useReactTable({
     data: data.contacts || [],
-    columns: columns(router), // Pass router as a prop to columns
+    columns: columns(router),
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
@@ -41,6 +55,9 @@ export default function ContactTable() {
       sorting,
     },
   });
+
+  // Create an array of empty rows for the skeleton when loading
+  const emptyRows = Array(3).fill(null);
 
   return (
     <>
@@ -65,11 +82,28 @@ export default function ContactTable() {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+              // Skeleton loading rows
+              emptyRows.map((_, index) => (
+                <TableRow key={`loading-${index}`}  className="border-none">
+                  <TableCell 
+                    colSpan={table.getAllColumns().length}
+                    className="h-16 text-center"
+                  >
+                    {index === 1 && (
+                      <div className="flex justify-center items-center">
+                        <LoadingSpinner size={40} className="opacity-70" />
+                      </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="border-none"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -84,7 +118,7 @@ export default function ContactTable() {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={table.getAllColumns().length}
                   className="h-24 text-center"
                 >
                   No results.
@@ -94,13 +128,16 @@ export default function ContactTable() {
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination
-        page={table.getState().pagination.pageIndex}
-        pageLimit={table.getState().pagination.pageSize}
-        total_count={data.contacts?.length}
-        setPage={(newPage) => table.setPageIndex(newPage)}
-        setPageLimit={(newLimit) => table.setPageSize(newLimit)}
-      />
+      
+      {!isLoading && table.getRowModel().rows?.length > 0 && (
+        <DataTablePagination
+          page={table.getState().pagination.pageIndex}
+          pageLimit={table.getState().pagination.pageSize}
+          total_count={data.contacts?.length}
+          setPage={(newPage) => table.setPageIndex(newPage)}
+          setPageLimit={(newLimit) => table.setPageSize(newLimit)}
+        />
+      )}
       <br />
     </>
   );
