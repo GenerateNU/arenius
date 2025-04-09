@@ -31,7 +31,7 @@ import { useTransactionsContext } from "@/context/TransactionContext";
 import EmissionsFactorSelector from "./CategorySelector";
 import { EmissionsFactor } from "@/types";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { cn } from "@/lib/utils";
+import { capitalizeFirstLetter, cn } from "@/lib/utils";
 import {
   Popover,
   PopoverTrigger,
@@ -40,7 +40,8 @@ import {
 import { Calendar as CalendarIcon } from "lucide-react"; // Icon, not component
 import { Calendar } from "@/components/ui/calendar"; // The actual calendar component
 
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
+import LoadingSpinner from "../ui/loading-spinner";
 
 const formSchema = z.object({
   transactionType: z.enum(["transaction", "offset"], {
@@ -81,7 +82,7 @@ export default function TransactionForm() {
       description: "",
       amount: undefined,
       currency_code: "USD",
-      date: undefined,
+      date: format(new Date(), "yyyy-MM-dd"), // Today's date without adjustment
       contact_id: "",
       emissions_category: undefined,
       scope: undefined,
@@ -260,18 +261,15 @@ export default function TransactionForm() {
 
         <Tabs value={tab} onValueChange={setTab} className="w-full">
           <TabsList className="flex border-b">
-            <TabsTrigger
-              value="general"
-              className="pb-2 px-4 border-b-2 border-transparent data-[state=active]:border-green-500 data-[state=active]:#59C295"
-            >
-              General
-            </TabsTrigger>
-            <TabsTrigger
-              value="emissions"
-              className="pb-2 px-4 border-b-2 border-transparent data-[state=active]:border-green-500 data-[state=active]:#59C295"
-            >
-              Emissions
-            </TabsTrigger>
+            {["general", "emissions"].map((value) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                className="pb-2 px-4 border-b-2 border-transparent data-[state=active]:border-freshSage data-[state=active]:#59C295"
+              >
+                {capitalizeFirstLetter(value)}
+              </TabsTrigger>
+            ))}
           </TabsList>
 
           {/* General Tab */}
@@ -342,7 +340,7 @@ export default function TransactionForm() {
                             )}
                           >
                             {field.value ? (
-                              format(new Date(field.value), "LLL dd, y")
+                              format(parseISO(field.value), "LLL dd, y")
                             ) : (
                               <span>Select date</span>
                             )}
@@ -356,13 +354,17 @@ export default function TransactionForm() {
                           <Calendar
                             mode="single"
                             selected={
-                              field.value ? new Date(field.value) : undefined
+                              field.value ? parseISO(field.value) : undefined
                             }
-                            onSelect={(date) =>
-                              field.onChange(
-                                date ? format(date, "yyyy-MM-dd") : ""
-                              )
-                            }
+                            defaultMonth={new Date()}
+                            onSelect={(date) => {
+                              if (date) {
+                                // Format the date directly without adjustment
+                                field.onChange(format(date, "yyyy-MM-dd"));
+                              } else {
+                                field.onChange("");
+                              }
+                            }}
                             initialFocus
                           />
                         </PopoverContent>
@@ -516,26 +518,11 @@ export default function TransactionForm() {
               >
                 {loading ? (
                   <>
-                    <svg
-                      className="animate-spin h-5 w-5 mr-2 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 018 8h-4l3.5 3.5L20 12h-4a8 8 0 01-8 8v-4l-3.5 3.5L4 12z"
-                      ></path>
-                    </svg>
+                    <LoadingSpinner
+                      size={10}
+                      className="mr-1"
+                      color="#FFFFFF"
+                    />
                     Processing...
                   </>
                 ) : (

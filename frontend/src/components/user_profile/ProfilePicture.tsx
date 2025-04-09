@@ -6,22 +6,25 @@ interface UserProfilePictureProps {
   size: number;
 }
 
-export const UserProfilePicture = ({ photoUrl = "", size }: UserProfilePictureProps) => {
-    return (
-      <div
-        className="relative rounded-full overflow-hidden"
-        style={{
-          width: `${size}px`,
-          height: `${size}px`,
-        }}
-      >
-        <Image
-          src={photoUrl || pickle}
-          alt="User Profile"
-          fill
-          className="object-cover scale-110"
-          sizes={`${size}px`}
-        />
-      </div>
-    );
-  };
+export const UserProfilePicture = ({
+  photoUrl = "",
+  size,
+}: UserProfilePictureProps) => {
+  return (
+    <div
+      className="relative rounded-full overflow-hidden"
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+      }}
+    >
+      <Image
+        src={photoUrl || pickle}
+        alt="User Profile"
+        fill
+        className="object-cover"
+        sizes={`${size}px`}
+      />
+    </div>
+  );
+};

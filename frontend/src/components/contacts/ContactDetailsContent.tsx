@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import ExportContactSummaryButton from "./ExportContactSummaryButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDistanceToNow } from "date-fns";
+import LoadingSpinner from "../ui/loading-spinner";
 import Link from "next/link";
 
 interface ContactDetails {
@@ -135,8 +136,8 @@ export default function ContactDetailsContent() {
 
   if (loading)
     return (
-      <div className="flex justify-center items-center h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-freshSage"></div>
+      <div className="fixed inset-0 flex justify-center items-center bg-white bg-opacity-80 z-50">
+        <LoadingSpinner className="mx-auto mt-20" size={60} />
       </div>
     );
 

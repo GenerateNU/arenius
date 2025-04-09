@@ -27,6 +27,7 @@ import { DataTablePagination } from "../ui/DataTablePagination";
 import { useTransactionsContext } from "@/context/TransactionContext";
 import { Check, X } from "lucide-react";
 import { handleRecommendation } from "@/services/lineItems";
+import LoadingSpinner from "../ui/loading-spinner";
 
 export type LineItemTableProps = {
   activePage: "reconciled" | "unreconciled" | "offsets";
@@ -52,7 +53,7 @@ export default function LineItemTable({
 }: LineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const { tableData } = useTransactionsContext();
+  const { tableData, loading } = useTransactionsContext();
 
   // object and boolean to handle clicking a row's action button
   const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
@@ -105,11 +106,14 @@ export default function LineItemTable({
     fetchAllData();
   };
 
+  // Create an array of empty rows for the skeleton when loading
+  const emptyRows = Array(3).fill(null);
+
   return (
     <>
-      <div className="rounded-md  bg-white">
+      <div className="rounded-md bg-white">
         <Table>
-          <TableHeader>
+          <TableHeader className="h-14" >
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -130,11 +134,31 @@ export default function LineItemTable({
                     </TableHead>
                   );
                 })}
+                {/* Add extra header cell for action button column */}
+                {(activePage !== "unreconciled" || activeTableData === "recommended") && (
+                  <TableHead style={{ width: "50px" }}></TableHead>
+                )}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {loading ? (
+              // Skeleton loading rows
+              emptyRows.map((_, index) => (
+                <TableRow key={`loading-${index}`} className="border-none">
+                  <TableCell 
+                    colSpan={columns.length + (activePage !== "unreconciled" || activeTableData === "recommended" ? 1 : 0)}
+                    className="h-16 text-center"
+                  >
+                    {index === 1 && (
+                      <div className="flex justify-center items-center">
+                        <LoadingSpinner size={40} className="opacity-70" />
+                      </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -155,7 +179,7 @@ export default function LineItemTable({
                       )}
                     </TableCell>
                   ))}
-                  {activeTableData == "recommended" && (
+                  {activeTableData === "recommended" && (
                     <TableCell
                       style={{
                         minWidth: 100,
@@ -179,7 +203,7 @@ export default function LineItemTable({
                     </TableCell>
                   )}
 
-                  {activePage !== "unreconciled" && (
+                  {activePage !== "unreconciled" && activeTableData !== "recommended" && (
                     <TableCell>
                       <Image
                         src="/arrow.svg"
@@ -196,7 +220,7 @@ export default function LineItemTable({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={columns.length + (activePage !== "unreconciled" || activeTableData === "recommended" ? 1 : 0)}
                   className="h-24 text-center"
                 >
                   No results.
@@ -208,7 +232,7 @@ export default function LineItemTable({
       </div>
       {rowIsSelected && <LineItemTableActions table={table} />}
 
-      {paginated && (
+      {paginated && !loading && table.getRowModel().rows?.length > 0 && (
         <DataTablePagination
           page={table.getState().pagination.pageIndex}
           pageLimit={table.getState().pagination.pageSize}

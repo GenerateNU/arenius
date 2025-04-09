@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
+import { useEffect, useState } from "react";
+import { LineItemFilters } from "@/types";
 
 const quickSelectOptions = [
   {
@@ -94,17 +96,40 @@ export type DatePickerProps = {
   dateRange: DateRange;
   setDateRange: (range: DateRange | undefined) => void;
   className?: string;
+  showClearAndApply?: boolean;
+  filters?: LineItemFilters;
 };
 
 export function DatePicker({
   dateRange,
   setDateRange,
   className,
+  showClearAndApply = false,
+  filters
 }: DatePickerProps) {
   const handleQuickSelect = (getRange: () => { from: Date; to: Date }) => {
     const range = getRange();
-    setDateRange(range);
+    setLocalDateRange(range);
   };
+  
+  const [localDateRange, setLocalDateRange] = useState<DateRange | undefined>(dateRange)
+
+  const handleApply = () => {
+    if (localDateRange) {
+      setDateRange(localDateRange)
+    }
+  }
+
+  const handleClear = () => {
+    setLocalDateRange(undefined);
+    setDateRange(undefined)
+  }
+
+  useEffect(() => {
+    if (!filters?.dates) {
+      setLocalDateRange(undefined);
+    }
+  }, [filters]);
 
   return (
     <div className={cn("grid gap-2 font-[Montserrat]", className)}>
@@ -113,13 +138,13 @@ export function DatePicker({
           <div className="flex items-center space-x-3">
             <DateButton
               id="date-from"
-              date={dateRange?.from}
+              date={localDateRange?.from}
               placeholder="Start date"
             />
             <span className="text-sm text-muted-foreground">–</span>
             <DateButton
               id="date-to"
-              date={dateRange?.to}
+              date={localDateRange?.to}
               placeholder="End date"
             />
           </div>
@@ -146,9 +171,9 @@ export function DatePicker({
             <Calendar
               initialFocus
               mode="range"
-              defaultMonth={dateRange?.from || new Date()}
-              selected={dateRange}
-              onSelect={setDateRange}
+              defaultMonth={localDateRange?.from || new Date()}
+              selected={localDateRange}
+              onSelect={setLocalDateRange}
               numberOfMonths={2}
               classNames={{
                 month: "space-y-4 font-[Arimo]",
@@ -166,6 +191,12 @@ export function DatePicker({
               }}
             />
           </div>
+          {showClearAndApply &&
+              <div className="flex justify-end">
+                <Button onClick={handleClear} variant="ghost" className="text-xs underline text-gray-500 mb-4">Clear Filter</Button>
+                <Button onClick={handleApply} className="text-xs mr-4 ml-4 mb-4">Apply</Button>
+              </div>
+            }
         </PopoverContent>
       </Popover>
     </div>

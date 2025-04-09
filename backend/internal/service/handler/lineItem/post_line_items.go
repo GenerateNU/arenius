@@ -31,11 +31,11 @@ func (h *Handler) PostLineItem(c *fiber.Ctx) error {
 	}
 
 	if req.Date != nil {
-		parsedDate, err := time.Parse("2006-01-02", *req.Date)
-
+		parsedDate, err := time.Parse(time.RFC3339, *req.Date)
 		if err != nil {
 			return errs.BadRequest(fmt.Sprintf("Invalid date format: %v", err))
 		}
+
 		utcDate := parsedDate.UTC().Format(time.RFC3339)
 		req.Date = &utcDate
 	}

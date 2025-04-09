@@ -313,17 +313,9 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 
 func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []interface{}, error) {
 	id := uuid.New().String()
-	createdAt := time.Now().UTC()
-	if req.Date != nil {
-		parsedDate, err := time.Parse(time.RFC3339, *req.Date)
-		if err != nil {
-			return nil, nil, errs.BadRequest("Invalid date format, must be RFC3339")
-		}
-		createdAt = parsedDate
-	}
 	columns := []string{"id", "description", "total_amount", "company_id", "contact_id", "date", "currency_code"}
 	// TODO: fix company id
-	queryArgs := []interface{}{id, req.Description, req.TotalAmount, req.CompanyID, req.ContactID, createdAt, req.CurrencyCode}
+	queryArgs := []interface{}{id, req.Description, req.TotalAmount, req.CompanyID, req.ContactID, req.Date, req.CurrencyCode}
 
 	// validate values in existing columns
 	if _, err := uuid.Parse(req.ContactID); err != nil {
