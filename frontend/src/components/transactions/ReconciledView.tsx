@@ -3,6 +3,8 @@ import { HelpCircle, ArrowRight } from "lucide-react";
 
 import { scopeReconciledColumns, allReconciledColumns } from "./columns";
 import LineItemTable from "./LineItemTable";
+import { Tooltip } from "../ui/tooltip";
+import { textConstants } from "@/lib/utils";
 
 export type ReconciledViewProps = {
   viewMode: "paginated" | "scoped";
@@ -14,7 +16,13 @@ const ReconciledView = ({ viewMode }: ReconciledViewProps) => {
   if (viewMode == "paginated") {
     return (
       <div>
-        <p className="font-bold text-lg py-4">All reconciled transactions</p>
+        <div className="flex items-center">
+          <p className="font-bold text-lg py-4 mr-2">All Reconciled Transactions</p>
+              <Tooltip textContent={textConstants.reconciled}>
+                <HelpCircle className="w-4" />
+              </Tooltip>
+            </div>
+        
         <LineItemTable
           activePage={"reconciled"}
           activeTableData="reconciled"
@@ -45,6 +53,15 @@ const ReconciledView = ({ viewMode }: ReconciledViewProps) => {
   );
 };
 
+const getScopeText = (scope: 1 | 2 | 3) => {
+  switch(scope) {
+    case 1: return textConstants.scope1;
+    case 2: return textConstants.scope2;
+    case 3: return textConstants.scope3;
+    default: return textConstants.scope;
+  }
+};
+
 const ScopeTablePreview = ({
   scope,
   handleClick,
@@ -56,9 +73,11 @@ const ScopeTablePreview = ({
     <div className="mt-4 mb-8">
       {scope && (
         <div className="flex justify-between ">
-          <div className="flex items-center space-x-2 mb-2">
-            <p className="font-bold text-lg">Scope {scope}</p>
-            <HelpCircle className="w-4" />
+          <div className="flex items-center mb-2">
+            <p className="font-bold text-lg mr-2">Scope {scope}</p>
+            <Tooltip textContent={getScopeText(scope)}>
+              <HelpCircle className="w-4" />
+            </Tooltip>
           </div>
           <div
             className="flex items-center space-x-2 cursor-pointer"
