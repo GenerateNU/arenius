@@ -36,7 +36,9 @@ export default function ExportContactSummaryButton({contactId} : ExportContactSu
             { Metric: "Contact:", Value: contact.name },
             { Metric: "Total Spend", Value: summary.total_spent },
             { Metric: "Total Transactions", Value: summary.total_transactions },
-            { Metric: "Total Emissions", Value: summary.total_emissions },
+            { Metric: "Total Offset Transactions", Value: summary.total_offset_transactions },
+            { Metric: "Total Reconciled Emissions", Value: summary.total_emissions },
+            { Metric: "Total Offset Emissions", Value: summary.total_offset },
             { Metric: "Export Timestamp", Value: new Date().toISOString()}
         ];
 
