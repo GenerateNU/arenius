@@ -92,7 +92,7 @@ const ScopeBreakdownChart = () => {
               <div key={index} className={styles.legend.item}>
                 <div
                   className={styles.legend.dot}
-                  style={{ backgroundColor: item.fill }}
+                  style={{ backgroundImage: item.fill }}
                 />
                 <p
                   className={styles.legend.percentage}
@@ -113,9 +113,9 @@ export default ScopeBreakdownChart;
 
 const styles = {
   colors: {
-    scope1: "#A1F4A4",
-    scope2: "#05C569",
-    scope3: "#156641",
+    scope1: "linear-gradient(to bottom, #D0F5BC, #C3DCB5)",
+    scope2: "linear-gradient(to bottom, #ACC99B, #276E0B)",
+    scope3: "linear-gradient(to bottom, #426227, #0A0F06)",
     background: "#F6F6F6",
   },
   card: {
