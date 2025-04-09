@@ -27,7 +27,7 @@ interface TableContextType {
   activePage: TableKey;
   setActiveTable: (table: TableKey) => void;
   tableData: Record<TableKey | ScopeKey, LineItem[]>;
-  fetchTableData: (table: TableKey, filters: LineItemFilters) => Promise<boolean>;
+  fetchTableData: (table: TableKey, filters: LineItemFilters) => Promise<void>;
   fetchAllData: () => Promise<void>;
   loading: boolean;
   error: string | null;
@@ -75,69 +75,60 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
   }
 
   // Fetch data for the active table only
-const fetchTableData = useCallback(
-  async (table: TableKey) => {
+  const fetchTableData = useCallback(
+    async (table: TableKey) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const data = await fetchLineItems({
+          ...filters,
+          reconciliationStatus: table,
+          company_id: user?.company_id,
+        });
+
+        if (table === "reconciled") {
+          const { scope1, scope2, scope3 } = filterByScope(data);
+          setTableData((prev) => ({
+            ...prev,
+            [table]: data.line_items,
+            scope1,
+            scope2,
+            scope3,
+          }));
+        } else {
+          setTableData((prev) => ({
+            ...prev,
+            [table]: data.line_items,
+          }));
+        }
+      } catch (err) {
+        setError(`Failed to load data: ${err}`);
+      }
+
+      setLoading(false);
+    },
+    [user, filters]
+  );
+
+  // Fetch all data for all tables and scopes
+  const fetchAllData = useCallback(async () => {
+    if (!user) return;
+
+    setLoading(true);
     setError(null);
 
     try {
-      const data = await fetchLineItems({
-        ...filters,
-        reconciliationStatus: table,
-        company_id: user?.company_id,
-      });
+      console.log("Fetching all data...");
 
-      if (table === "reconciled") {
-        const { scope1, scope2, scope3 } = filterByScope(data);
-        setTableData((prev) => ({
-          ...prev,
-          [table]: data.line_items,
-          scope1,
-          scope2,
-          scope3,
-        }));
-      } else {
-        setTableData((prev) => ({
-          ...prev,
-          [table]: data.line_items,
-        }));
-      }
-      
-      return true; // Signal successful completion
+      await Promise.all(TABLES.map((table) => fetchTableData(table)));
     } catch (err) {
       setError(`Failed to load data: ${err}`);
-      return false; // Signal failure
     }
-  },
-  [user, filters]
-);
 
-// Fetch all data for all tables and scopes
-const fetchAllData = useCallback(async () => {
-  if (!user) return;
-
-  setLoading(true);
-  setError(null);
-
-  try {
-    console.log("Fetching all data...");
-
-    // Use Promise.all to fetch data for all tables in parallel
-    // But only set loading to false after all data is loaded
-    const results = await Promise.all(TABLES.map((table) => fetchTableData(table)));
-    
-    // Check if any fetch operations failed
-    const hasErrors = results.some(result => result === false);
-    if (hasErrors) {
-      console.warn("Some data fetching operations failed");
-    }
-  } catch (err) {
-    setError(`Failed to load data: ${err}`);
-  } finally {
-    // Set loading to false only after all operations are complete
     setLoading(false);
-  }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   // // Fetch all data on mount when companyId becomes available
   useEffect(() => {
