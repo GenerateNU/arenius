@@ -213,7 +213,7 @@ export default function ContactDetailsContent() {
       </div>
 
       <div className="p-4 mx-auto w-full max-w-7xl">
-        {/* Contact Header Card with Overview and Notes */}
+        {/* Contact Header Card with Overview and Notes - This is the white box */}
         <div className="bg-white rounded-lg shadow-sm mb-6">
           <div className="p-6 flex flex-col md:flex-row md:items-center">
             {/* Logo */}
@@ -312,107 +312,109 @@ export default function ContactDetailsContent() {
               </div>
             </div>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-7 gap-6">
-            {/* Left side - Transactions */}
-            <div className="md:col-span-5">
-              <h2 className="text-xl font-bold mb-4">All Transactions</h2>
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                <Tabs defaultValue="transactions" className="w-full">
-                  <div className="border-b">
-                    <TabsList className="p-0 bg-transparent w-full flex rounded-none border-b">
-                      <TabsTrigger
-                        value="transactions"
-                        className="data-[state=active]:border-b-2 data-[state=active]:border-freshSage data-[state=active]:shadow-none rounded-none flex-1"
-                      >
-                        Reconciled ({transactionItems.length})
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="offsets"
-                        className="data-[state=active]:border-b-2 data-[state=active]:border-freshSage data-[state=active]:shadow-none rounded-none flex-1"
-                      >
-                        Offsets ({offsetItems.length})
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="unreconciled"
-                        className="data-[state=active]:border-b-2 data-[state=active]:border-freshSage data-[state=active]:shadow-none rounded-none flex-1"
-                      >
-                        Unreconciled ({unreconciledItems.length})
-                      </TabsTrigger>
-                    </TabsList>
-                  </div>
+        </div>
+        
+        {/* Transactions and Summary section - Outside the white contact details box */}
+        <div className="grid grid-cols-1 md:grid-cols-7 gap-6">
+          {/* Left side - Transactions */}
+          <div className="md:col-span-5">
+            <h2 className="text-xl font-bold ml-7 mb-4">All Transactions</h2>
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <Tabs defaultValue="transactions" className="w-full">
+                <div className="border-b">
+                  <TabsList className="p-0 bg-transparent w-full flex rounded-none border-b">
+                    <TabsTrigger
+                      value="transactions"
+                      className="data-[state=active]:border-b-2 data-[state=active]:border-freshSage data-[state=active]:shadow-none rounded-none flex-1"
+                    >
+                      Reconciled ({transactionItems.length})
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="offsets"
+                      className="data-[state=active]:border-b-2 data-[state=active]:border-freshSage data-[state=active]:shadow-none rounded-none flex-1"
+                    >
+                      Offsets ({offsetItems.length})
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="unreconciled"
+                      className="data-[state=active]:border-b-2 data-[state=active]:border-freshSage data-[state=active]:shadow-none rounded-none flex-1"
+                    >
+                      Unreconciled ({unreconciledItems.length})
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
 
-                  <TabsContent value="transactions" className="p-0 m-0">
-                    {transactionItems.length > 0 ? (
-                      <ContactLineItemTable
-                        data={transactionItems}
-                        tableType="reconciled"
-                      />
-                    ) : (
-                      <div className="text-center text-gray-500 py-8">
-                        No transaction data.
-                      </div>
-                    )}
-                  </TabsContent>
+                <TabsContent value="transactions" className="p-0 m-0">
+                  {transactionItems.length > 0 ? (
+                    <ContactLineItemTable
+                      data={transactionItems}
+                      tableType="reconciled"
+                    />
+                  ) : (
+                    <div className="text-center text-gray-500 py-8">
+                      No transaction data.
+                    </div>
+                  )}
+                </TabsContent>
 
-                  <TabsContent value="offsets" className="p-0 m-0">
-                    {offsetItems.length > 0 ? (
-                      <ContactLineItemTable
-                        data={offsetItems}
-                        tableType="offsets"
-                      />
-                    ) : (
-                      <div className="text-center text-gray-500 py-8">
-                        No offset data.
-                      </div>
-                    )}
-                  </TabsContent>
+                <TabsContent value="offsets" className="p-0 m-0">
+                  {offsetItems.length > 0 ? (
+                    <ContactLineItemTable
+                      data={offsetItems}
+                      tableType="offsets"
+                    />
+                  ) : (
+                    <div className="text-center text-gray-500 py-8">
+                      No offset data.
+                    </div>
+                  )}
+                </TabsContent>
 
-                  <TabsContent value="unreconciled" className="p-0 m-0">
-                    {unreconciledItems.length > 0 ? (
-                      <ContactLineItemTable
-                        data={unreconciledItems}
-                        tableType="unreconciled"
-                      />
-                    ) : (
-                      <div className="text-center text-gray-500 py-8">
-                        No unreconciled data.
-                      </div>
-                    )}
-                  </TabsContent>
-                </Tabs>
-              </div>
+                <TabsContent value="unreconciled" className="p-0 m-0">
+                  {unreconciledItems.length > 0 ? (
+                    <ContactLineItemTable
+                      data={unreconciledItems}
+                      tableType="unreconciled"
+                    />
+                  ) : (
+                    <div className="text-center text-gray-500 py-8">
+                      No unreconciled data.
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
             </div>
+          </div>
 
-            {/* Right side - Summary */}
-            <div className="md:col-span-2">
-              <h2 className="text-xl font-bold mb-4">Summary</h2>
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden divide-y">
-                <div className="p-4 flex justify-between items-center">
-                  <h3 className="font-medium">Total Spent</h3>
-                  <p className="font-bold">
-                    ${summary?.totalSpent?.toLocaleString() || "0"}
-                  </p>
-                </div>
-                <div className="p-4 flex justify-between items-center">
-                  <h3 className="font-medium">Total Transactions</h3>
-                  <p className="font-bold">{summary.totalTransactions}</p>
-                </div>
-                <div className="p-4 flex justify-between items-center">
-                  <h3 className="font-medium">Total Offsets</h3>
-                  <p className="font-bold">{summary.totalOffsetTransactions}</p>
-                </div>
-                <div className="p-4 flex justify-between items-center">
-                  <h3 className="font-medium">Reconciled Emissions</h3>
-                  <p className="font-bold">
-                    {summary.totalEmissions.toFixed(0)} Kg CO<sub>2</sub>
-                  </p>
-                </div>
-                <div className="p-4 flex justify-between items-center">
-                  <h3 className="font-medium">Offset Emissions</h3>
-                  <p className="font-bold">
-                    {summary.totalOffset.toFixed(0)} Kg CO<sub>2</sub>
-                  </p>
-                </div>
+          {/* Right side - Summary */}
+          <div className="md:col-span-2">
+            <h2 className="text-xl font-bold mb-4">Summary</h2>
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden divide-y">
+              <div className="p-4 flex justify-between items-center">
+                <h3 className="font-medium">Total Spent</h3>
+                <p className="font-bold">
+                  ${summary?.totalSpent?.toLocaleString() || "0"}
+                </p>
+              </div>
+              <div className="p-4 flex justify-between items-center">
+                <h3 className="font-medium">Total Transactions</h3>
+                <p className="font-bold">{summary.totalTransactions}</p>
+              </div>
+              <div className="p-4 flex justify-between items-center">
+                <h3 className="font-medium">Total Offsets</h3>
+                <p className="font-bold">{summary.totalOffsetTransactions}</p>
+              </div>
+              <div className="p-4 flex justify-between items-center">
+                <h3 className="font-medium">Reconciled Emissions</h3>
+                <p className="font-bold">
+                  {summary.totalEmissions.toFixed(0)} Kg CO<sub>2</sub>
+                </p>
+              </div>
+              <div className="p-4 flex justify-between items-center">
+                <h3 className="font-medium">Offset Emissions</h3>
+                <p className="font-bold">
+                  {summary.totalOffset.toFixed(0)} Kg CO<sub>2</sub>
+                </p>
               </div>
             </div>
           </div>

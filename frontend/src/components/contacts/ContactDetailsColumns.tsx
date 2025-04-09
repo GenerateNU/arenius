@@ -19,8 +19,8 @@ const dateColumn: ColumnDef<LineItem> = {
   cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
 }
 
-const contactNameColumn: ColumnDef<LineItem> = {
-  accessorKey: "contact_name",
+const descriptionColumn: ColumnDef<LineItem> = {
+  accessorKey: "description",
   header: ({ column }) => (
     <Button
       variant="ghost"
@@ -102,7 +102,7 @@ const totalAmountColumn: ColumnDef<LineItem> = {
 // Reconciled transaction columns (scope 1-3)
 export const reconciledColumns: ColumnDef<LineItem>[] = [
   dateColumn,
-  contactNameColumn,
+  descriptionColumn,
   emissionFactorColumn,
   scopeColumn,
   co2Column,
@@ -112,7 +112,7 @@ export const reconciledColumns: ColumnDef<LineItem>[] = [
 // Offset columns (scope 0)
 export const offsetColumns: ColumnDef<LineItem>[] = [
   dateColumn,
-  contactNameColumn,
+  descriptionColumn,
   co2Column,
   totalAmountColumn,
 ]
@@ -120,6 +120,6 @@ export const offsetColumns: ColumnDef<LineItem>[] = [
 // Unreconciled columns (no scope)
 export const unreconciledColumns: ColumnDef<LineItem>[] = [
   dateColumn,
-  contactNameColumn,
+  descriptionColumn,
   totalAmountColumn,
 ]
