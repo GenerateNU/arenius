@@ -2,6 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ColumnHeader } from "@/components/ui/columnHeader";
 import { Contact } from "@/types";
 import Image from "next/image";
+import { ChevronRight } from "lucide-react";
 
 // handler to copy the email to clipboard
 const handleCopyClick = (text: string) => {
@@ -25,8 +26,17 @@ const getAvatarBgColor = (seed: string) => {
     hash = seed.charCodeAt(i) + ((hash << 5) - hash);
   }
   const colorOptions = [
-    "77B257", "1B3520", "2B3E1B", "B9E89E", "2D7A14",
-    "145C3E", "48894B", "152D1A", "578240", "AADDAA", "8ACB65",
+    "77B257",
+    "1B3520",
+    "2B3E1B",
+    "B9E89E",
+    "2D7A14",
+    "145C3E",
+    "48894B",
+    "152D1A",
+    "578240",
+    "AADDAA",
+    "8ACB65",
   ];
   const colorIndex = Math.abs(hash) % colorOptions.length;
   return colorOptions[colorIndex];
@@ -35,15 +45,15 @@ const getAvatarBgColor = (seed: string) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const columns = (router: any): ColumnDef<Contact>[] => [
   {
-  accessorKey: "initials",
+    accessorKey: "initials",
     header: () => <></>,
     cell: ({ row }) => {
       const contact = row.original;
       const initials = getInitials(contact.name);
       const bgColor = getAvatarBgColor(contact.id || contact.name);
-      
+
       return (
-        <div 
+        <div
           className="h-9 w-9 rounded-full flex items-center justify-center text-white text-xs font-bold"
           style={{ backgroundColor: `#${bgColor}` }}
         >
@@ -84,7 +94,7 @@ export const columns = (router: any): ColumnDef<Contact>[] => [
     header: ({ column }) => <ColumnHeader name="Email" column={column} />,
     cell: ({ row }) => {
       const email = String(row.getValue("email"));
-      if(email !== ""){
+      if (email !== "") {
         return (
           <div className="font-medium">
             <span>{email}</span>
@@ -97,9 +107,9 @@ export const columns = (router: any): ColumnDef<Contact>[] => [
             </button>
           </div>
         );
-    } else{
-      <div></div>
-    }
+      } else {
+        <div></div>;
+      }
     },
   },
   {
@@ -109,9 +119,12 @@ export const columns = (router: any): ColumnDef<Contact>[] => [
       const createdAt = new Date(row.getValue("created_at"));
       return (
         <div className="font-medium">
-          {`${(createdAt.getMonth() + 1).toString().padStart(2, '0')}/${
-            createdAt.getDate().toString().padStart(2, '0')}/${
-            createdAt.getFullYear()}`}
+          {`${(createdAt.getMonth() + 1)
+            .toString()
+            .padStart(2, "0")}/${createdAt
+            .getDate()
+            .toString()
+            .padStart(2, "0")}/${createdAt.getFullYear()}`}
         </div>
       );
     },
@@ -120,13 +133,11 @@ export const columns = (router: any): ColumnDef<Contact>[] => [
     accessorKey: "view",
     header: () => <></>,
     cell: ({ row }) => (
-      <Image
-        src="/arrow.svg"
-        alt="View Contact"
-        width={24}
-        height={24}
-        onClick={() => router.push(`/contacts/details?contactId=${row.original.id}`)}
-        style={{ cursor: "pointer" }}
+      <ChevronRight
+        className="cursor-pointer"
+        onClick={() =>
+          router.push(`/contacts/details?contactId=${row.original.id}`)
+        }
       />
     ),
   },
