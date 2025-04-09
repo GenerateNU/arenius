@@ -400,29 +400,32 @@ export default function TransactionForm() {
                         <SelectValue placeholder="Search or select contact" />
                       </SelectTrigger>
                       <SelectContent>
-                      <div className="p-2 sticky top-0 bg-white z-10 border-b">
-                        <input
-                          type="text"
-                          placeholder="Search contacts..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          onKeyDownCapture={(e) => e.stopPropagation()} 
-                          className="w-full px-2 py-1 border rounded text-sm"
-                        />
-                      </div>
-
-                      {(searchTerm ? filteredContacts : contactResponse.contacts).map((contact) => (
-                        <SelectItem key={contact.id} value={contact.id}>
-                          {contact.name}
-                        </SelectItem>
-                      ))}
-
-                      {searchTerm && filteredContacts.length === 0 && (
-                        <div className="px-3 py-2 text-sm text-gray-500">
-                          No contacts found.
+                        <div className="p-2 sticky top-0 bg-white z-10 border-b">
+                          <input
+                            type="text"
+                            placeholder="Search contacts..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onKeyDownCapture={(e) => e.stopPropagation()}
+                            className="w-full px-2 py-1 border rounded text-sm"
+                          />
                         </div>
-                      )}
-                    </SelectContent>
+
+                        {(searchTerm
+                          ? filteredContacts
+                          : contactResponse.contacts
+                        ).map((contact) => (
+                          <SelectItem key={contact.id} value={contact.id}>
+                            {contact.name}
+                          </SelectItem>
+                        ))}
+
+                        {searchTerm && filteredContacts.length === 0 && (
+                          <div className="px-3 py-2 text-sm text-gray-500">
+                            No contacts found.
+                          </div>
+                        )}
+                      </SelectContent>
                     </Select>
                   </FormControl>
                   <FormMessage />
@@ -508,7 +511,7 @@ export default function TransactionForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      CO2 Amount (kg) <span className="text-red-500">*</span>
+                      CO2e Amount (kg) <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <Input
