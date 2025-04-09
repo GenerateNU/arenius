@@ -175,7 +175,7 @@ function ModalCell({
   type,
 }: {
   row: Row<LineItem>;
-  type: "offsets" | "reconciled";
+  type: "offsets" | "reconciled" | "unreconciled";
 }) {
   const { fetchAllData } = useTransactionsContext();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -198,7 +198,7 @@ function ModalCell({
   );
 }
 
-function getModalColumn(type: "offsets" | "reconciled") {
+function getModalColumn(type: "offsets" | "reconciled" | "unreconciled") {
   const modalColumn: ColumnDef<LineItem> = {
     id: "actions",
     cell: ({ row }) => <ModalCell row={row} type={type} />,
@@ -213,6 +213,7 @@ export const unreconciledColumns: ColumnDef<LineItem>[] = [
   descriptionColumn,
   contactColumn,
   amountColumn,
+  getModalColumn("unreconciled"),
 ];
 
 export const baseColumns: ColumnDef<LineItem>[] = [

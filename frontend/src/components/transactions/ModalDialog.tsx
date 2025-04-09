@@ -122,7 +122,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
             </p>
           </div>
           <div className="space-y-4 w-full">
-            {type === "reconciled" && (
+            {type != "offsets" && (
               <>
                 <div className="space-y-2">
                   <p className="text-md font-small text-gray-500">
