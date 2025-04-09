@@ -64,7 +64,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
   const { user } = useAuth();
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   function filterByScope(reconciledData: GetLineItemResponse) {
