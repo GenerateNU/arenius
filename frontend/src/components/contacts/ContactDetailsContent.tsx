@@ -6,26 +6,12 @@ import { useAuth } from "@/context/AuthContext";
 import apiClient from "@/services/apiClient";
 import { ContactLineItemTable } from "@/components/contacts/ContactLineItemTable";
 import { MapPin, Mail, Phone } from "lucide-react";
-import { GetLineItemResponse, LineItem } from "@/types";
+import { Contact, GetLineItemResponse, LineItem } from "@/types";
 import ExportContactSummaryButton from "./ExportContactSummaryButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoadingSpinner from "../ui/loading-spinner";
 import Link from "next/link";
 import EditContactModal from "./EditContactModal";
-
-interface ContactDetails {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  city: string;
-  state: string;
-  created_at?: string;
-  updated_at?: string;
-  scope?: number;
-  client_overview?: string;
-  notes?: string;
-}
 
 interface ContactSummary {
   totalSpent: number;
@@ -35,8 +21,8 @@ interface ContactSummary {
   totalOffset: number;
 }
 
-interface ContactWithDetails {
-  contact: ContactDetails;
+export interface ContactWithDetails {
+  contact: Contact;
   summary: ContactSummary;
   transactions: GetLineItemResponse;
 }
@@ -44,8 +30,7 @@ interface ContactWithDetails {
 export default function ContactDetailsContent() {
   const searchParams = useSearchParams();
   const contactId = searchParams.get("contactId");
-  const [contactDetails, setContactDetails] =
-    useState<ContactWithDetails | null>(null);
+  const [contactDetails, setContactDetails] = useState<ContactWithDetails>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { jwt } = useAuth();
@@ -66,7 +51,7 @@ export default function ContactDetailsContent() {
           },
         });
 
-        const trasactionsResponse = await apiClient.get(`/line-item/`, {
+        const transactionsResponse = await apiClient.get(`/line-item/`, {
           headers: {
             Authorization: `Bearer ${jwt}`,
           },
@@ -74,10 +59,9 @@ export default function ContactDetailsContent() {
             contact_id: contactId,
           },
         });
-        console.log(response);
 
         const { contact, summary } = response.data;
-        const transactions = trasactionsResponse.data;
+        const transactions = transactionsResponse.data;
 
         setContactDetails({
           contact,
@@ -88,7 +72,7 @@ export default function ContactDetailsContent() {
             totalOffset: summary.total_offset,
             totalOffsetTransactions: summary.total_offset_transactions,
           },
-          transactions: transactions,
+          transactions: transactionsResponse.data,
         });
         // Categorize line items by scope
         if (transactions.line_items) {
@@ -199,6 +183,13 @@ export default function ContactDetailsContent() {
     }
   };
 
+  const setContact = (contact: Contact) => {
+    setContactDetails((prev) => ({
+      ...prev!,
+      contact,
+    }));
+  };
+
   return (
     <div className="flex flex-col h-full bg-gray-50">
       {/* Top navigation bar */}
@@ -230,11 +221,6 @@ export default function ContactDetailsContent() {
               <div className="flex flex-col">
                 <div className="flex items-center mb-1">
                   <h2 className="text-2xl font-bold">{contact.name}</h2>
-                  {contact.scope && (
-                    <span className="ml-2 px-2 py-0.5 bg-gray-100 text-gray-800 text-xs rounded-full">
-                      Scope {contact.scope}
-                    </span>
-                  )}
                 </div>
                 <p className="text-sm text-gray-500">
                   Created {formatDate(contact.created_at || "")}
@@ -270,7 +256,7 @@ export default function ContactDetailsContent() {
               </div>
             </div>
 
-            <EditContactModal contactId={contactId} />
+            <EditContactModal contact={contact} setContact={setContact} />
           </div>
 
           {/* Only show additional information section if either overview or notes exist */}
@@ -313,7 +299,7 @@ export default function ContactDetailsContent() {
             </div>
           )}
         </div>
-        
+
         {/* Transactions and Summary section - Outside the white contact details box */}
         <div className="grid grid-cols-1 md:grid-cols-7 gap-6">
           {/* Left side - Transactions */}
