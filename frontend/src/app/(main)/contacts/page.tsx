@@ -1,14 +1,16 @@
 "use client";
 
-import ContactTable from "@/components/contacts/ContactTable";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { ContactProvider, useContacts } from "@/context/ContactContext";
-import Link from "next/link";
 import { useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Search } from "lucide-react";
+
+import { ContactProvider, useContacts } from "@/context/ContactContext";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import ExportContactsButton from "@/components/contacts/ExportContacts";
-import Image from "next/image";
+import ContactTable from "@/components/contacts/ContactTable";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function Contacts() {
   return (
@@ -34,8 +36,8 @@ function ContactsContent() {
   return (
     <div className={styles.container}>
       <div className="flex items-center mb-4">
-        <p className={styles.formTitle}>Contacts</p>
-        <div className="relative w-80 justify-start mb-4">
+        <p className={styles.pageTitle}>Contacts</p>
+        <div className="relative w-80 justify-start mb-4 ml-6">
           <Search className={styles.searchIcon} />
           <Input
             placeholder="Search your contacts..."
@@ -46,7 +48,7 @@ function ContactsContent() {
         </div>
         <div className="flex space-x-4 mb-4 ml-auto">
           <Link href="/contacts/new" className="mr-4">
-            <button className="w-56 h-10 bg-moss text-white text-sm font-semibold rounded-md flex items-center space-x-2 justify-center">
+            <Button size="lg" className="font-semibold space-x-2">
               <Image
                 src="/plus_1.svg"
                 alt=""
@@ -55,7 +57,7 @@ function ContactsContent() {
                 className="mr-1"
               />
               <span>Add Contact</span>
-            </button>
+            </Button>
           </Link>
           <ExportContactsButton />
         </div>
@@ -67,11 +69,10 @@ function ContactsContent() {
 
 const styles = {
   container:
-    "p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-montserrat)] flex-1",
-  formTitle: "font-bold text-3xl mb-4 mr-4",
+    "pt-8 pb-20 gap-16 font-[family-name:var(--font-montserrat)] flex-1",
+  pageTitle: "font-header font-bold text-4xl mb-4 mr-4",
   searchIcon:
     "absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500",
-  spacer: "mb-4 border border-black-100",
   input:
-    "pl-10 py-2 rounded-full bg-gray-100 border-none focus:ring-0 w-full shadow-sm",
+    "pl-10 py-2 rounded-md bg-gray-100 border-none focus:ring-0 w-full shadow-md bg-white",
 };

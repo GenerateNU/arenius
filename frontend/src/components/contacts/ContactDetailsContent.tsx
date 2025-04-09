@@ -5,14 +5,13 @@ import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import apiClient from "@/services/apiClient";
 import { ContactLineItemTable } from "@/components/contacts/ContactLineItemTable";
-import { ArrowLeft, MapPin, Mail, Phone } from "lucide-react";
+import { MapPin, Mail, Phone } from "lucide-react";
 import { GetLineItemResponse, LineItem } from "@/types";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 import ExportContactSummaryButton from "./ExportContactSummaryButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatDistanceToNow } from "date-fns";
 import LoadingSpinner from "../ui/loading-spinner";
+import Link from "next/link";
 import EditContactModal from "./EditContactModal";
 
 interface ContactDetails {
@@ -23,7 +22,10 @@ interface ContactDetails {
   city: string;
   state: string;
   created_at?: string;
+  updated_at?: string;
   scope?: number;
+  client_overview?: string;
+  notes?: string;
 }
 
 interface ContactSummary {
@@ -49,7 +51,7 @@ export default function ContactDetailsContent() {
   const [error, setError] = useState<string | null>(null);
   const { jwt } = useAuth();
   const router = useRouter();
-  
+
   // New state for categorized transactions
   const [transactionItems, setTransactionItems] = useState<LineItem[]>([]);
   const [offsetItems, setOffsetItems] = useState<LineItem[]>([]);
@@ -74,6 +76,7 @@ export default function ContactDetailsContent() {
             contact_id: contactId,
           },
         });
+        console.log(response);
 
         const { contact, summary } = response.data;
         const transactions = trasactionsResponse.data;
@@ -91,9 +94,20 @@ export default function ContactDetailsContent() {
         });
         // Categorize line items by scope
         if (transactions.line_items) {
-          setTransactionItems(transactions.line_items.filter((item: LineItem) => (item.scope ?? -1) > 0));
-          setOffsetItems(transactions.line_items.filter((item: LineItem) => item.scope === 0));
-          setUnreconciledItems(transactions.line_items.filter((item: LineItem) => item.scope === null || item.scope === undefined));
+          setTransactionItems(
+            transactions.line_items.filter(
+              (item: LineItem) => (item.scope ?? -1) > 0
+            )
+          );
+          setOffsetItems(
+            transactions.line_items.filter((item: LineItem) => item.scope === 0)
+          );
+          setUnreconciledItems(
+            transactions.line_items.filter(
+              (item: LineItem) =>
+                item.scope === null || item.scope === undefined
+            )
+          );
         }
 
         setLoading(false);
@@ -117,15 +131,24 @@ export default function ContactDetailsContent() {
   }, [contactDetails]);
 
   const avatarBgColor = useMemo(() => {
-    if (!contactDetails) return "dc2626"; // Default color
+    if (!contactDetails) return "77B257"; // Default color
     const seed = contactDetails.contact.id || contactDetails.contact.name;
     let hash = 0;
     for (let i = 0; i < seed.length; i++) {
       hash = seed.charCodeAt(i) + ((hash << 5) - hash);
     }
     const colorOptions = [
-      "dc2626", "ea580c", "65a30d", "16a34a", "0d9488",
-      "0284c7", "4f46e5", "7c3aed", "c026d3", "db2777", "475569",
+      "77B257",
+      "1B3520",
+      "2B3E1B",
+      "B9E89E",
+      "2D7A14",
+      "145C3E",
+      "48894B",
+      "152D1A",
+      "578240",
+      "AADDAA",
+      "8ACB65",
     ];
     const colorIndex = Math.abs(hash) % colorOptions.length;
     return colorOptions[colorIndex];
@@ -167,52 +190,37 @@ export default function ContactDetailsContent() {
 
   const { contact, summary } = contactDetails;
 
-  // Format date distance
-  const getTimeAgo = () => {
-    if (!contact.created_at) return "Recently added";
+  const formatDate = (timestamp: string | number | Date) => {
+    if (!timestamp) return "";
     try {
-      return `Added ${formatDistanceToNow(new Date(contact.created_at))} ago`;
+      const date = new Date(timestamp);
+      return date.toLocaleDateString();
     } catch (e) {
-      console.error("Error formatting date:", e);
-      return "Recently added";
+      console.error("Error formatting last updated:", e);
+      return timestamp.toString();
     }
   };
 
   return (
     <div className="flex flex-col h-full bg-gray-50">
       {/* Top navigation bar */}
-      <div className="bg-white p-4 flex items-center justify-between border-b sticky top-0 z-10">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.back()}
-            className="rounded-full"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center">
-              <div 
-                className="h-8 w-8 rounded-full mr-3 flex items-center justify-center text-white text-xs font-bold"
-                style={{ backgroundColor: `#${avatarBgColor}` }}
-              >
-                {initials}
-              </div>
-              <span className="text-xl font-bold">{contact.name}</span>
-            </div>
-          </div>
+      <div className="p-4 flex items-center justify-between top-0 z-10">
+        <div className="flex items-center space-x-1 text-base">
+          <Link href="/contacts" className="text-green-600 hover:underline">
+            Contacts
+          </Link>
+          <span className="text-gray-600">/ {contact.name}</span>
         </div>
         <ExportContactSummaryButton contactId={contactId} />
       </div>
 
       <div className="p-4 mx-auto w-full max-w-7xl">
-        {/* Contact Header Card */}
+        {/* Contact Header Card with Overview and Notes */}
         <div className="bg-white rounded-lg shadow-sm mb-6">
           <div className="p-6 flex flex-col md:flex-row md:items-center">
             {/* Logo */}
             <div className="mr-6 mb-4 md:mb-0">
-              <div 
+              <div
                 className="h-24 w-24 rounded-full flex items-center justify-center text-white text-3xl font-bold border border-gray-200"
                 style={{ backgroundColor: `#${avatarBgColor}` }}
               >
@@ -230,28 +238,81 @@ export default function ContactDetailsContent() {
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-gray-500 mb-4">{getTimeAgo()}</p>
-              </div>
-              
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                <div className="flex items-center gap-2 text-gray-600">
-                  <MapPin className="h-4 w-4 text-gray-400" />
-                  <span>
-                    {contact.city || "Boston"}, {contact.state || "MA"}
+                <p className="text-sm text-gray-500">
+                  Created {formatDate(contact.created_at || "")}
+                </p>
+                {contact.updated_at && (
+                  <span className="text-xs text-gray-500 mb-4">
+                    Last Updated: {formatDate(contact.updated_at)}
                   </span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Mail className="h-4 w-4 text-gray-400" />
-                  <span>{contact.email}</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Phone className="h-4 w-4 text-gray-400" />
-                  <span>{contact.phone || "999-999-9999"}</span>
-                </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                {(contact.city || contact.state) && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <MapPin className="h-4 w-4 text-gray-400" />
+                    <span>
+                      {contact.city}, {contact.state}
+                    </span>
+                  </div>
+                )}
+                {contact.email && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Mail className="h-4 w-4 text-gray-400" />
+                    <span>{contact.email}</span>
+                  </div>
+                )}
+                {contact.phone && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Phone className="h-4 w-4 text-gray-400" />
+                    <span>{contact.phone}</span>
+                  </div>
+                )}
               </div>
             </div>
-            
+
             <EditContactModal contactId={contactId} />
+          </div>
+
+          {/* Only show additional information section if either overview or notes exist */}
+          {(contact.client_overview || contact.notes) && (
+            <div className="border-t border-gray-100 relative">
+              {/* Vertical divider that extends to the edges */}
+              {contact.client_overview && contact.notes && (
+                <div className="hidden md:block absolute w-px bg-gray-100 left-1/2 top-0 bottom-0"></div>
+              )}
+
+              <div className="px-6 py-4 grid grid-cols-1 md:grid-cols-2">
+                {/* Client Overview Section */}
+                {contact.client_overview && (
+                  <div className="p-3 pr-6">
+                    <div className="mb-1">
+                      <h3 className="text-sm font-medium text-gray-700">
+                        Client Overview
+                      </h3>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      {contact.client_overview}
+                    </p>
+                  </div>
+                )}
+
+                {/* Notes Section */}
+                {contact.notes && (
+                  <div className="p-3 md:pl-6">
+                    <div className="flex justify-between items-center mb-1">
+                      <h3 className="text-sm font-medium text-gray-700">
+                        Notes
+                      </h3>
+                    </div>
+                    <p className="text-sm text-gray-600 whitespace-pre-line">
+                      {contact.notes}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -263,20 +324,20 @@ export default function ContactDetailsContent() {
               <Tabs defaultValue="transactions" className="w-full">
                 <div className="border-b">
                   <TabsList className="p-0 bg-transparent w-full flex rounded-none border-b">
-                    <TabsTrigger 
-                      value="transactions" 
+                    <TabsTrigger
+                      value="transactions"
                       className="data-[state=active]:border-b-2 data-[state=active]:border-freshSage data-[state=active]:shadow-none rounded-none flex-1"
                     >
                       Reconciled ({transactionItems.length})
                     </TabsTrigger>
-                    <TabsTrigger 
-                      value="offsets" 
+                    <TabsTrigger
+                      value="offsets"
                       className="data-[state=active]:border-b-2 data-[state=active]:border-freshSage data-[state=active]:shadow-none rounded-none flex-1"
                     >
                       Offsets ({offsetItems.length})
                     </TabsTrigger>
-                    <TabsTrigger 
-                      value="unreconciled" 
+                    <TabsTrigger
+                      value="unreconciled"
                       className="data-[state=active]:border-b-2 data-[state=active]:border-freshSage data-[state=active]:shadow-none rounded-none flex-1"
                     >
                       Unreconciled ({unreconciledItems.length})
@@ -286,30 +347,39 @@ export default function ContactDetailsContent() {
 
                 <TabsContent value="transactions" className="p-0 m-0">
                   {transactionItems.length > 0 ? (
-                    <ContactLineItemTable data={transactionItems} tableType="reconciled" />
+                    <ContactLineItemTable
+                      data={transactionItems}
+                      tableType="reconciled"
+                    />
                   ) : (
                     <div className="text-center text-gray-500 py-8">
-                      No transaction data available.
+                      No transaction data.
                     </div>
                   )}
                 </TabsContent>
 
                 <TabsContent value="offsets" className="p-0 m-0">
                   {offsetItems.length > 0 ? (
-                    <ContactLineItemTable data={offsetItems} tableType="offsets" />
+                    <ContactLineItemTable
+                      data={offsetItems}
+                      tableType="offsets"
+                    />
                   ) : (
                     <div className="text-center text-gray-500 py-8">
-                      No offset data available.
+                      No offset data.
                     </div>
                   )}
                 </TabsContent>
 
                 <TabsContent value="unreconciled" className="p-0 m-0">
                   {unreconciledItems.length > 0 ? (
-                    <ContactLineItemTable data={unreconciledItems} tableType="unreconciled" />
+                    <ContactLineItemTable
+                      data={unreconciledItems}
+                      tableType="unreconciled"
+                    />
                   ) : (
                     <div className="text-center text-gray-500 py-8">
-                      No unreconciled data available.
+                      No unreconciled data.
                     </div>
                   )}
                 </TabsContent>
@@ -323,7 +393,9 @@ export default function ContactDetailsContent() {
             <div className="bg-white rounded-lg shadow-sm overflow-hidden divide-y">
               <div className="p-4 flex justify-between items-center">
                 <h3 className="font-medium">Total Spent</h3>
-                <p className="font-bold">${summary?.totalSpent?.toLocaleString() || "0"}</p>
+                <p className="font-bold">
+                  ${summary?.totalSpent?.toLocaleString() || "0"}
+                </p>
               </div>
               <div className="p-4 flex justify-between items-center">
                 <h3 className="font-medium">Total Transactions</h3>
@@ -334,19 +406,21 @@ export default function ContactDetailsContent() {
                 <p className="font-bold">{summary.totalOffsetTransactions}</p>
               </div>
               <div className="p-4 flex justify-between items-center">
-                <h3 className="font-medium">Gross Emissions</h3>
-                <p className="font-bold">{summary.totalEmissions.toFixed(2)} Kg CO<sub>2</sub></p>
+                <h3 className="font-medium">Reconciled Emissions</h3>
+                <p className="font-bold">
+                  {summary.totalEmissions.toFixed(0)} Kg CO<sub>2</sub>
+                </p>
               </div>
               <div className="p-4 flex justify-between items-center">
-                <h3 className="font-medium">Net Emissions</h3>
-                <p className="font-bold">{(summary.totalEmissions - summary.totalOffset).toFixed(2)} Kg CO<sub>2</sub></p>
+                <h3 className="font-medium">Offset Emissions</h3>
+                <p className="font-bold">
+                  {summary.totalOffset.toFixed(0)} Kg CO<sub>2</sub>
+                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-
   );
 }
