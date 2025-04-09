@@ -41,7 +41,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
     }
 
     resetState();
-    fetchTableData("unreconciled", {});
+    setTimeout(() => fetchTableData("unreconciled", {}), 1500);
   }
 
   async function handleCarbonOffsetReconciliation() {
@@ -56,7 +56,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
     console.log("Reconcile request:", request);
 
     await reconcileBatchOffset(request);
-    fetchTableData("offsets", {});
+    setTimeout(() => fetchTableData("offsets", {}), 1500);
   }
 
   async function handleLineItemReconciliation() {
@@ -71,7 +71,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
     };
 
     await reconcileBatch(request);
-    fetchTableData("reconciled", {});
+    setTimeout(() => fetchTableData("reconciled", {}), 1500);
   }
 
   function resetState() {

@@ -97,13 +97,13 @@ export default function LineItemTable({
   };
 
   const handleReconcileSuccess = () => {
-    fetchAllData();
+    setTimeout(() => fetchAllData(), 1500);
     setIsDialogOpen(false);
   };
 
   const handleAction = async (lineItem: LineItem, approved: boolean) => {
     await handleRecommendation(lineItem.id, approved);
-    fetchAllData();
+    setTimeout(() => fetchAllData(), 1500);
   };
 
   // Create an array of empty rows for the skeleton when loading
