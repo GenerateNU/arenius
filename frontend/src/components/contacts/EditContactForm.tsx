@@ -28,7 +28,6 @@ const contactSchema = z.object({
 type ContactFormData = z.infer<typeof contactSchema>;
 
 const EditContactForm = ({ contactId, closeModal }: { contactId: string, closeModal: () => void }) => {
-    const [contactData, setContactData] = useState<ContactFormData | null>(null);
     const form = useForm<ContactFormData>({
       resolver: zodResolver(contactSchema),
       defaultValues: {
@@ -49,9 +48,6 @@ const EditContactForm = ({ contactId, closeModal }: { contactId: string, closeMo
         try {
           const response = await apiClient.get(`/contact/${contactId}`);
           const contact = response.data.contact;
-  
-          // Set the fetched data to the state
-          setContactData(contact);
   
           // Once the data is fetched, reset the form with the contact data
           reset({
