@@ -10,6 +10,7 @@ import {
   TooltipProps,
 } from "recharts";
 
+import { useDateRange } from "@/context/DateRangeContext";
 import {
   Card,
   CardContent,
@@ -21,7 +22,6 @@ import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import useEmissionSummary from "@/hooks/useEmissionSummary";
 import { MonthSummary } from "@/types";
 import { formatDate, formatNumber } from "@/lib/utils";
-import { useDateRange } from "@/context/DateRangeContext";
 
 export const chartConfig = {
   scope3: {
@@ -44,6 +44,8 @@ export const chartConfig = {
 export default function GrossEmissionsBarGraph() {
   const { summary } = useEmissionSummary();
   const { formattedDateRange } = useDateRange();
+
+  if (!summary) return null;
 
   const chartData = summary.months?.map((month: MonthSummary) => ({
     month: formatDate(month.month_start, "shortMonth"),
