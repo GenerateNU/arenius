@@ -21,6 +21,7 @@ import { ContactProvider } from "@/context/ContactContext";
 import ContactsSelector from "./ContactsSelector";
 import { useRouter } from "next/navigation";
 import { Input } from "../ui/input";
+import LoadingSpinner from "../ui/loading-spinner";
 
 interface ModalDialogProps {
   selectedRowData: LineItem;
@@ -48,6 +49,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
     id: selectedRowData.contact_id,
   } as SimpleContact);
   const [carbon, setCarbon] = useState<number>(selectedRowData.co2 ?? 0);
+  const [isReconciling, setIsReconciling] = useState(false);
 
   const date = new Date(selectedRowData.date);
   const formattedDate =
@@ -60,21 +62,30 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
   }).format(amount);
 
   async function reconcileItems() {
-    const request: ReconcileRequest = {
-      lineItemId: selectedRowData.id,
-      ...(scope && { scope: Number(scope) }),
-      ...(emissionsFactor && {
-        emissionsFactorId: emissionsFactor.activity_id,
-      }),
-      ...(contact?.id && { contactId: contact.id }),
-      ...(carbon && { co2: carbon }),
-      co2_unit: "kg",
-    };
-    console.log("Reconcile request:", request);
+    setIsReconciling(true);
+    
+    try {
+      const request: ReconcileRequest = {
+        lineItemId: selectedRowData.id,
+        ...(scope && { scope: Number(scope) }),
+        ...(emissionsFactor && {
+          emissionsFactorId: emissionsFactor.activity_id,
+        }),
+        ...(contact?.id && { contactId: contact.id }),
+        ...(carbon && { co2: carbon }),
+        co2_unit: "kg",
+      };
+      console.log("Reconcile request:", request);
 
-    await reconcile(request);
-    setIsDialogOpen(false);
-    onReconcileSuccess();
+      await reconcile(request);
+      setIsDialogOpen(false);
+      onReconcileSuccess();
+    } catch (error) {
+      console.error("Error reconciling:", error);
+      // You could add error handling here, such as showing an error message
+    } finally {
+      setIsReconciling(false);
+    }
   }
 
   const handleContactNavigation = () => {
@@ -167,8 +178,19 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
             )}
 
             <div className="mt-4">
-              <Button onClick={reconcileItems} className="w-full">
-                Reconcile
+              <Button 
+                onClick={reconcileItems} 
+                className="w-full" 
+                disabled={isReconciling}
+              >
+                {isReconciling ? (
+                  <div className="flex items-center justify-center">
+                    <LoadingSpinner size={10} className="mr-2" color="#FFFFFF"  />
+                    <span>Reconciling...</span>
+                  </div>
+                ) : (
+                  "Reconcile"
+                )}
               </Button>
             </div>
           </div>

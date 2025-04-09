@@ -8,20 +8,51 @@ import {
 import { UserProfilePicture } from "@/components/user_profile/ProfilePicture";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import SignOutButton from "../auth/signOut";
+import { useEffect, useState } from "react";
+import LoadingSpinner from "../ui/loading-spinner";
 
 export function ProfileDropdown() {
   const router = useRouter();
-
-  const handleClick = () => {
-    router.push(`/profile`);
-  };
+  const pathname = usePathname();
+  const [loading, setLoading] = useState(false);
+  const [targetPath, setTargetPath] = useState<string | null>(null);
 
   const { user } = useAuth();
 
+  // Monitor path changes to detect when navigation completes
+  useEffect(() => {
+    if (targetPath && pathname === targetPath) {
+      setLoading(false);
+      setTargetPath(null);
+    }
+  }, [pathname, targetPath]);
+
+  const handleClick = () => {
+    const profilePath = "/user-profile";
+    if (pathname !== profilePath) {
+      setLoading(true);
+      setTargetPath(profilePath);
+      router.push(profilePath);
+      
+      // Fallback timeout in case navigation takes too long
+      const fallbackTimer = setTimeout(() => {
+        setLoading(false);
+      }, 5000);
+      
+      return () => clearTimeout(fallbackTimer);
+    }
+  };
+
   return (
     <div className="z-1 relative">
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-50 z-50">
+          <LoadingSpinner size={60} className="opacity-80" />
+        </div>
+      )}
+      
       <DropdownMenu>
         {user && (
           <>

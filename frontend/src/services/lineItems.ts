@@ -79,10 +79,9 @@ export async function createLineItem(
     contact_id: item.contact_id,
     emission_factor_id: item.emission_factor_id,
     scope: item.scope,
-    date: item.date,
+    date: new Date(item.date).toISOString(),
     co2: item.co2,
     co2_unit: item.co2_unit,
-    //transaction_type: item.transaction_type,
   };
 
   if (item.transaction_type === "offset") {
