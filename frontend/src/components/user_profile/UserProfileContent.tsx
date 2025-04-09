@@ -254,7 +254,7 @@ export default function UserProfileContent() {
 }
 
 interface ProfileFormFieldProps {
-  control: Control<any>;
+  control: Control<z.infer<typeof formSchema>>;
   name: "first_name" | "last_name" | "city" | "state";
   label: string;
 }
