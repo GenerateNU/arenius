@@ -33,11 +33,11 @@ export default function ContactTable() {
   const [hasLoadedData, setHasLoadedData] = useState(false);
   
   // Determine if we're in a loading state
-  const isLoading = !data.contacts || data.contacts.length === 0 && !hasLoadedData;
+  const isLoading = !data.contacts || !hasLoadedData;
   
   // Set hasLoadedData to true when we successfully get data
   useEffect(() => {
-    if (data.contacts && data.contacts.length > 0) {
+    if (data.contacts) {
       setHasLoadedData(true);
     }
   }, [data.contacts]);
