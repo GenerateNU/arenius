@@ -13,8 +13,6 @@ const ScopeChart: React.FC<{
 }> = ({ chartData }) => {
   const totalEmissions = chartData.reduce((acc, cur) => acc + cur.value, 0);
 
-  console.log("Chart Data: ", chartData);
-
   return (
     <PieChart width={300} height={300}>
       <defs>

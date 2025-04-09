@@ -53,7 +53,7 @@ export default function ExportTransactionsButton() {
           "Emissions Factor": line_item.emission_factor_name,
           Scope: line_item.scope,
           Contact: line_item.contact_name,
-          CO2: line_item.co2,
+          CO2e: line_item.co2,
           Date: new Date(line_item.date).toISOString(),
         })
       );
@@ -77,7 +77,7 @@ export default function ExportTransactionsButton() {
           "Currency Code": line_item.currency_code,
           "Emissions Factor": line_item.emission_factor_name,
           Contact: line_item.contact_name,
-          CO2: line_item.co2,
+          CO2e: line_item.co2,
           Date: new Date(line_item.date).toISOString(),
         })
       );
