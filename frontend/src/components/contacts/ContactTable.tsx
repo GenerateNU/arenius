@@ -28,13 +28,13 @@ export default function ContactTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const { data, isLoading } = useContacts();
   const router = useRouter();
-  
+
   // Track if we've ever successfully loaded data
   const [hasLoadedData, setHasLoadedData] = useState(false);
-  
+
   // Determine if we're in a loading state
   const Loading = !data.contacts || !hasLoadedData;
-  
+
   // Set hasLoadedData to true when we successfully get data
   useEffect(() => {
     if (data.contacts || !isLoading) {
@@ -61,7 +61,7 @@ export default function ContactTable() {
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="rounded-md border bg-white">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -85,8 +85,8 @@ export default function ContactTable() {
             {Loading ? (
               // Skeleton loading rows
               emptyRows.map((_, index) => (
-                <TableRow key={`loading-${index}`}  className="border-none">
-                  <TableCell 
+                <TableRow key={`loading-${index}`} className="border-none">
+                  <TableCell
                     colSpan={table.getAllColumns().length}
                     className="h-16 text-center"
                   >
@@ -128,7 +128,7 @@ export default function ContactTable() {
           </TableBody>
         </Table>
       </div>
-      
+
       {!isLoading && table.getRowModel().rows?.length > 0 && (
         <DataTablePagination
           page={table.getState().pagination.pageIndex}

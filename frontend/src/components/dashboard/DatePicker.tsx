@@ -105,28 +105,31 @@ export function DatePicker({
   setDateRange,
   className,
   showClearAndApply = false,
-  filters
+  filters,
 }: DatePickerProps) {
   const handleQuickSelect = (getRange: () => { from: Date; to: Date }) => {
     const range = getRange();
     setLocalDateRange(range);
+    setDateRange(range);
   };
-  
-  const [localDateRange, setLocalDateRange] = useState<DateRange | undefined>(dateRange)
+
+  const [localDateRange, setLocalDateRange] = useState<DateRange | undefined>(
+    dateRange
+  );
 
   const handleApply = () => {
     if (localDateRange) {
-      setDateRange(localDateRange)
+      setDateRange(localDateRange);
     }
-  }
+  };
 
   const handleClear = () => {
     setLocalDateRange(undefined);
-    setDateRange(undefined)
-  }
+    setDateRange(undefined);
+  };
 
   useEffect(() => {
-    if (!filters?.dates) {
+    if (showClearAndApply && !filters?.dates) {
       setLocalDateRange(undefined);
     }
   }, [filters]);
@@ -191,12 +194,20 @@ export function DatePicker({
               }}
             />
           </div>
-          {showClearAndApply &&
-              <div className="flex justify-end">
-                <Button onClick={handleClear} variant="ghost" className="text-xs underline text-gray-500 mb-4">Clear Filter</Button>
-                <Button onClick={handleApply} className="text-xs mr-4 ml-4 mb-4">Apply</Button>
-              </div>
-            }
+          {showClearAndApply && (
+            <div className="flex justify-end">
+              <Button
+                onClick={handleClear}
+                variant="ghost"
+                className="text-xs underline text-gray-500 mb-4"
+              >
+                Clear Filter
+              </Button>
+              <Button onClick={handleApply} className="text-xs mr-4 ml-4 mb-4">
+                Apply
+              </Button>
+            </div>
+          )}
         </PopoverContent>
       </Popover>
     </div>
