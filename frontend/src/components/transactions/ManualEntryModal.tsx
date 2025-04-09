@@ -6,15 +6,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+import Image from "next/image";
 import ItemForm from "./ItemForm";
-import { buttonVariants } from "../ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "../ui/button";
 
 const ManualEntryModal = () => {
   return (
     <Dialog>
-      <DialogTrigger className={cn(buttonVariants({ variant: "default" }))}>
-        Add Manual Upload
+      <DialogTrigger>
+        <Button size="lg" className="font-semibold space-x-2">
+          <Image
+            src="/plus_1.svg"
+            alt=""
+            width={13}
+            height={13}
+            className="mr-1"
+          />
+          <span>Add Manual Upload</span>
+        </Button>
       </DialogTrigger>
       <DialogContent className="w-[600px]">
         <DialogHeader>

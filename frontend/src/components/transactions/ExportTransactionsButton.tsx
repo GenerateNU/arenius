@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import apiClient from "@/services/authApiClient";
 import { LineItem } from "@/types";
+import { Button } from "../ui/button";
 
 export default function ExportTransactionsButton() {
   const { jwt, user } = useAuth();
@@ -111,8 +112,9 @@ export default function ExportTransactionsButton() {
   };
 
   return (
-    <button
-      className="w-20 bg-moss text-white text-sm font-semibold rounded-md flex items-center justify-center"
+    <Button
+      size="lg"
+      className="font-semibold space-x-2"
       onClick={exportToXLSX}
     >
       <Image
@@ -120,9 +122,9 @@ export default function ExportTransactionsButton() {
         alt=""
         width={15}
         height={15}
-        className="mr-0.5"
+        className="mr-1"
       />
       <span>Export</span>
-    </button>
+    </Button>
   );
 }
