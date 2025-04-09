@@ -8,7 +8,7 @@ import { EmissionSummary, GetEmissionsRequest } from "@/types";
 export default function useEmissionSummary() {
   const [summary, setSummary] = useState<EmissionSummary>();
   const [isSummaryLoading, setIsSummaryLoading] = useState(true);
-  const { user, isLoading } = useAuth();
+  const { user } = useAuth();
   const { dateRange } = useDateRange();
 
   const fetchData = useCallback(async () => {
