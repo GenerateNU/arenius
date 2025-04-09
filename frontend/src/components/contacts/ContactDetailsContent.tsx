@@ -10,7 +10,6 @@ import { GetLineItemResponse, LineItem } from "@/types";
 import { Button } from "@/components/ui/button";
 import ExportContactSummaryButton from "./ExportContactSummaryButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatDistanceToNow } from "date-fns";
 import LoadingSpinner from "../ui/loading-spinner";
 import Link from "next/link";
 
@@ -170,22 +169,11 @@ export default function ContactDetailsContent() {
 
   const { contact, summary } = contactDetails;
 
-  // Format date distance
-  const getTimeAgo = () => {
-    if (!contact.created_at) return "Recently added";
-    try {
-      return `Added ${formatDistanceToNow(new Date(contact.created_at))} ago`;
-    } catch (e) {
-      console.error("Error formatting date:", e);
-      return "Recently added";
-    }
-  };
-
-  const formatLastUpdated = (timestamp: string | number | Date) => {
+  const formatDate = (timestamp: string | number | Date) => {
     if (!timestamp) return "";
     try {
       const date = new Date(timestamp);
-      return date.toLocaleDateString() + " " + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      return date.toLocaleDateString();
     } catch (e) {
       console.error("Error formatting last updated:", e);
       return timestamp.toString();
@@ -230,7 +218,7 @@ export default function ContactDetailsContent() {
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-gray-500 mb-4">{getTimeAgo()}</p>
+                <p className="text-sm text-gray-500 mb-4">Created {formatDate(contact.created_at || "")}</p>
               </div>
               
               <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -294,7 +282,7 @@ export default function ContactDetailsContent() {
                     <h3 className="text-sm font-medium text-gray-700">Notes</h3>
                     {contact.updated_at && (
                       <span className="text-xs text-gray-500">
-                        Last Updated: {formatLastUpdated(contact.updated_at)}
+                        Last Updated: {formatDate(contact.updated_at)}
                       </span>
                     )}
                   </div>
