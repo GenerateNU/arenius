@@ -1,13 +1,9 @@
 import { mkConfig, generateCsv, download } from "export-to-csv";
-import { GetContactsRequest } from "@/types";
 import { useContacts } from "@/context/ContactContext";
 import Image from "next/image";
-import { fetchContacts } from "@/services/contacts";
-import { useAuth } from "@/context/AuthContext";
 
 export default function ExportContactsButton() {
-  const { filters } = useContacts();
-  const { companyId } = useAuth();
+  const { data } = useContacts();
 
   const csvConfig = mkConfig({
     useKeysAsHeaders: true,
@@ -15,16 +11,8 @@ export default function ExportContactsButton() {
 
   const exportToCSV = async () => {
     try {
-      // fetch all unpaginated filtered contacts
-      const contactResponse = await fetchContacts({
-        ...filters,
-        unpaginated: true,
-        company_id: companyId
-      } as GetContactsRequest) || [];
-
-      const csvData = contactResponse.contacts.map((contact) => ({
+      const csvData = data.contacts.map((contact) => ({
         Name: contact.name,
-        Title: "Industry/Title",
         Phone: contact.phone,
         Email: contact.email,
         City: contact.city,

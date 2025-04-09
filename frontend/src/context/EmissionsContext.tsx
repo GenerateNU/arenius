@@ -7,20 +7,23 @@ const EmissionsContext = createContext<EmissionsFactorCategory[]>([]);
 
 export function EmissionsProvider({ children }: { children: React.ReactNode }) {
   const [categories, setCategories] = useState<EmissionsFactorCategory[]>([]);
-  const { companyId } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     async function fetchCategories() {
-      const response = await fetchEmissionsFactors("", companyId);
+      const response = await fetchEmissionsFactors("", user?.company_id);
       if (Array.isArray(response)) {
         setCategories(response.sort((a, b) => a.name.localeCompare(b.name)));
       }
     }
+
     fetchCategories();
-  }, [companyId]);
+  }, [user]);
 
   return (
-    <EmissionsContext.Provider value={categories}>{children}</EmissionsContext.Provider>
+    <EmissionsContext.Provider value={categories}>
+      {children}
+    </EmissionsContext.Provider>
   );
 }
 

@@ -16,7 +16,6 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const activeTab = usePathname();
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const links = [
@@ -39,14 +38,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const handleNavigation = (href: string) => {
     if (href !== activeTab) {
       setLoading(true);
-      setTargetPath(href);
-      router.push(href);
-      
+      // setTargetPath(href);
+      // router.push(href);
+
       // Fallback timeout in case navigation takes too long
       const fallbackTimer = setTimeout(() => {
         setLoading(false);
       }, 5000); // 5-second fallback
-      
+
       return () => clearTimeout(fallbackTimer);
     }
   };
@@ -59,7 +58,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <LoadingSpinner size={60} className="opacity-80" />
         </div>
       )}
-      
+
       <div
         key="val1"
         className="flex items-center w-full px-4 py-2 space-x-8 bg-white"
@@ -77,8 +76,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           className="flex items-center justify-end w-full max-w-full p-4 space-x-4"
         >
           {links.map((val) => (
-            <div
+            <Link
               key={val.href}
+              href={val.href}
               className={`relative items-center px-4 py-2 rounded-md font-[Montserrat] font-medium ${
                 activeTab === val.href && "bg-[#77B25733]"
               }`}
@@ -91,7 +91,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <val.icon active={false} />
                 <p>{val.label}</p>
               </button>
-            </div>
+            </Link>
           ))}
           <ProfileDropdown />
         </div>
