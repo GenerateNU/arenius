@@ -5,8 +5,9 @@ import { DateRange } from "react-day-picker";
 import { useTransactionsContext } from "@/context/TransactionContext";
 import { DatePicker } from "../dashboard/DatePicker";
 
-interface DatePickerWithRangeProps extends React.HTMLAttributes<HTMLDivElement> {
+interface DatePickerWithRangeProps {
   showClearAndApply?: boolean;
+  className?: string
 }
 
 export function DatePickerWithRange({
