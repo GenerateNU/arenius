@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { LogOut } from 'lucide-react';
-import apiClient from '@/services/apiClient';
-import Cookies from 'js-cookie';
+import React, { useState } from "react";
+import { LogOut } from "lucide-react";
+import apiClient from "@/services/apiClient";
 import { useAuth } from "@/context/AuthContext";
 
 const SignOutButton = () => {
@@ -31,18 +30,10 @@ const SignOutButton = () => {
       if (response.status !== 200) {
         throw new Error(data.error || "Failed to sign out");
       }
-      
-      setSuccess(data.message || 'Successfully signed out');
-      
-      // After successful logout, you might want to redirect to login page
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 1500);
 
+      setSuccess(data.message || "Successfully signed out");
 
-      Cookies.remove("userID")
-      localStorage.clear()
-      
+      window.location.href = "/"; // redirect to login page
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message || "An error occurred during sign out");

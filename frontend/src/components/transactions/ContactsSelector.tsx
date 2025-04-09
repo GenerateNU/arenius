@@ -11,7 +11,8 @@ import {
 import { useContacts } from "@/context/ContactContext";
 import { cn } from "@/lib/utils";
 import { SimpleContact } from "@/types";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
+import { Input } from "../ui/input";
 
 interface ContactSelectorProps {
   contact?: SimpleContact;
@@ -50,15 +51,16 @@ export default function ContactSelector({
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="max-h-96 overflow-y-auto p-0">
-        <div className="p-2 sticky top-0 bg-white z-10 border-b">
-          <input
+      <DropdownMenuContent className="max-h-[300px] overflow-y-auto p-0">
+        <div className="px-2 py-1 bg-white z-10 flex space-x-2 items-center border-b">
+          <Search />
+          <Input
             type="text"
             placeholder="Search contacts..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDownCapture={(e) => e.stopPropagation()} 
-            className="w-full px-2 py-1 border rounded text-sm"
+            onKeyDownCapture={(e) => e.stopPropagation()}
+            className="w-full border-none shadow-none px-2 py-1 rounded text-sm"
           />
         </div>
 
