@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import OnboardingLayout from "@/components/onboarding/OnboardingLayout";
 import LoginForm from "@/components/onboarding/login-form";
-import SignupForm from "@/components/onboarding/landing";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
@@ -26,20 +26,8 @@ export default function LoginPage() {
   }, []);
   
   return (
-    <div className={styles.container}>
-      <div className={styles.login}>
-        {isLoginPage ? (
-          <LoginForm />
-        ) : (
-          <SignupForm setIsLoginPage={setIsLoginPage} />
-        )}
-      </div>
-    </div>
+    <OnboardingLayout>
+      <LoginForm />
+    </OnboardingLayout>
   );
 }
-
-const styles = {
-  container:
-    "h-screen w-full bg-[url('/onboarding-bg.jpeg')] bg-cover bg-center flex",
-  login: "w-2/5 flex items-center justify-start pl-20",
-};

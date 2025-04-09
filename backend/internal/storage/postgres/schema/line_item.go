@@ -131,7 +131,7 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 	return &models.GetLineItemsResponse{Total: total, Count: len(lineItems), LineItems: lineItems}, nil
 }
 
-func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, scope int, emissionsFactorId string, contactID *string) (*models.LineItem, error) {
+func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId string, scope int, emissionsFactorId string, contactID *string, co2 *float64, co2Unit *string) (*models.LineItem, error) {
 
 	query := `UPDATE line_item SET`
 	updates := []string{}
@@ -143,7 +143,7 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId s
 		args = append(args, emissionsFactorId)
 		argCount++
 	}
-	if scope != 0 {
+	if scope == 0 || scope == 1 || scope == 2 || scope == 3 {
 		updates = append(updates, fmt.Sprintf("scope = $%d", argCount))
 		args = append(args, scope)
 		argCount++
@@ -151,6 +151,16 @@ func (r *LineItemRepository) ReconcileLineItem(ctx context.Context, lineItemId s
 	if contactID != nil {
 		updates = append(updates, fmt.Sprintf("contact_id = $%d", argCount))
 		args = append(args, contactID)
+		argCount++
+	}
+	if co2 != nil {
+		updates = append(updates, fmt.Sprintf("co2 = $%d", argCount))
+		args = append(args, co2)
+		argCount++
+	}
+	if co2Unit != nil {
+		updates = append(updates, fmt.Sprintf("co2_unit = $%d", argCount))
+		args = append(args, co2Unit)
 		argCount++
 	}
 
@@ -303,17 +313,9 @@ func (r *LineItemRepository) AddImportedLineItems(ctx context.Context, req []mod
 
 func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []interface{}, error) {
 	id := uuid.New().String()
-	createdAt := time.Now().UTC()
-	if req.Date != nil {
-		parsedDate, err := time.Parse(time.RFC3339, *req.Date)
-		if err != nil {
-			return nil, nil, errs.BadRequest("Invalid date format, must be RFC3339")
-		}
-		createdAt = parsedDate
-	}
 	columns := []string{"id", "description", "total_amount", "company_id", "contact_id", "date", "currency_code"}
 	// TODO: fix company id
-	queryArgs := []interface{}{id, req.Description, req.TotalAmount, req.CompanyID, req.ContactID, createdAt, req.CurrencyCode}
+	queryArgs := []interface{}{id, req.Description, req.TotalAmount, req.CompanyID, req.ContactID, req.Date, req.CurrencyCode}
 
 	// validate values in existing columns
 	if _, err := uuid.Parse(req.ContactID); err != nil {
@@ -351,7 +353,7 @@ func createLineItemValidations(req models.CreateLineItemRequest) ([]string, []in
 	return columns, queryArgs, nil
 }
 
-func (r *LineItemRepository) BatchUpdateScopeEmissions(ctx context.Context, lineItemIDs []uuid.UUID, scope *int, emissionsFactorID *string) error {
+func (r *LineItemRepository) BatchUpdateLineItems(ctx context.Context, lineItemIDs []uuid.UUID, scope *int, emissionsFactorID *string, co2 *float64, co2Unit *string) error {
 	updates := []string{}
 	values := []interface{}{}
 	paramIndex := 1
@@ -365,6 +367,16 @@ func (r *LineItemRepository) BatchUpdateScopeEmissions(ctx context.Context, line
 	if emissionsFactorID != nil {
 		updates = append(updates, fmt.Sprintf("emission_factor_id = $%d", paramIndex))
 		values = append(values, emissionsFactorID)
+		paramIndex++
+	}
+	if co2 != nil {
+		updates = append(updates, fmt.Sprintf("co2 = $%d", paramIndex))
+		values = append(values, co2)
+		paramIndex++
+	}
+	if co2Unit != nil {
+		updates = append(updates, fmt.Sprintf("co2_unit = $%d", paramIndex))
+		values = append(values, co2Unit)
 		paramIndex++
 	}
 
@@ -465,7 +477,7 @@ func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, company
 		return nil, err
 	}
 
-	req, err := http.NewRequest("GET", "https://reconciliation-recommendation-production.up.railway.app/reconciliation/get-recommendation", bytes.NewBuffer(jsonBody))
+	req, err := http.NewRequest("GET", "https://reconciliation-recommendation.onrender.com/reconciliation/get-recommendation", bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return nil, err
 	}

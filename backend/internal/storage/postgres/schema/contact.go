@@ -28,6 +28,8 @@ func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*
 			city,
 			state,
 			xero_contact_id,
+			client_overview,
+			notes,
 			company_id,
 			created_at,
 			updated_at
@@ -49,13 +51,14 @@ func (r *ContactRepository) GetContact(ctx context.Context, contactId string) (*
 	}
 
 	const summaryQuery = `
-		SELECT 
-			COALESCE(SUM(total_amount), 0) AS total_spent,
-			COUNT(*) AS total_transactions,
-			COALESCE(SUM(co2), 0) AS total_emissions
-		FROM line_item
-		WHERE contact_id = $1;
-	`
+	SELECT 
+		COALESCE(SUM(CASE WHEN scope != 0 THEN total_amount ELSE 0 END), 0) AS total_spent,
+		COUNT(DISTINCT CASE WHEN scope != 0 THEN id END) AS total_transactions,
+		COUNT(DISTINCT CASE WHEN scope = 0 THEN id END) AS total_offset_transactions,
+		COALESCE(SUM(CASE WHEN scope != 0 THEN co2 ELSE 0 END), 0) AS total_emissions,
+		COALESCE(SUM(CASE WHEN scope = 0 THEN co2 ELSE 0 END), 0) AS total_offset
+	FROM line_item
+	WHERE contact_id = $1;`
 
 	summaryRows, err := r.db.Query(ctx, summaryQuery, contactId)
 	if err != nil {
@@ -94,6 +97,8 @@ func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pa
 			city,
 			state,
 			xero_contact_id,
+			client_overview,
+			notes,
 			company_id,
 			created_at,
 			updated_at
@@ -121,6 +126,8 @@ func (r *ContactRepository) GetContacts(ctx context.Context, pagination utils.Pa
 			state,
 			xero_contact_id,
 			company_id,
+			client_overview,
+			notes,
 			created_at,
 			updated_at
 		FROM contact
@@ -171,7 +178,7 @@ func (r *ContactRepository) CreateContact(ctx context.Context, req models.Create
 		INSERT INTO contact
 		(` + strings.Join(columns, ", ") + `)
 		VALUES (` + strings.Join(numInputs, ", ") + `)
-		RETURNING id, name, email, phone, city, state, xero_contact_id, company_id, created_at, updated_at;
+		RETURNING id, name, email, phone, city, state, xero_contact_id, company_id, client_overview, notes, created_at, updated_at;
 	`
 
 	rows, err := r.db.Query(ctx, query, queryArgs...)
@@ -259,8 +266,8 @@ func (r *ContactRepository) AddImportedContacts(ctx context.Context, req []model
 
 func createContactValidations(req models.CreateContactRequest) ([]string, []interface{}, error) {
 	id := uuid.New().String()
-	columns := []string{"id", "name", "email", "phone", "city", "state", "company_id"}
-	queryArgs := []interface{}{id, req.Name, req.Email, req.Phone, req.City, req.State, req.CompanyID}
+	columns := []string{"id", "name", "email", "phone", "city", "state", "company_id", "client_overview", "notes"}
+	queryArgs := []interface{}{id, req.Name, req.Email, req.Phone, req.City, req.State, req.CompanyID, req.ClientOverview, req.Notes}
 
 	if _, err := uuid.Parse(req.CompanyID); err != nil {
 		return nil, nil, errs.BadRequest("Company ID must be a UUID")
@@ -296,6 +303,62 @@ func (r *ContactRepository) GetOrCreateXeroContact(ctx context.Context, xeroCont
 	}
 
 	return contactID, nil
+}
+
+func (r *ContactRepository) UpdateContact(ctx context.Context, contactId string, req models.UpdateContactRequest) (*models.Contact, error) {
+	updateQuery := "UPDATE contact SET "
+
+	updateColumns := []string{"id=id"}
+
+	if req.Name != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("name='%s'", *req.Name))
+	}
+	if req.Email != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("email='%s'", *req.Email))
+	}
+	if req.Phone != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("phone='%s'", *req.Phone))
+	}
+	if req.Phone != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("name='%s'", *req.Name))
+	}
+	if req.City != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("city='%s'", *req.City))
+	}
+	if req.State != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("state='%s'", *req.State))
+	}
+	if req.XeroContactID != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("xero_contact_id='%s'", *req.XeroContactID))
+	}
+	if req.CompanyID != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("company_id='%s'", *req.CompanyID))
+	}
+	if req.ClientOverview != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("client_overview='%s'", *req.ClientOverview))
+	}
+	if req.Notes != nil {
+		updateColumns = append(updateColumns, fmt.Sprintf("notes='%s'", *req.Notes))
+	}
+
+	updateQuery += strings.Join(updateColumns, ",")
+
+	updateQuery += fmt.Sprintf(" WHERE id='%s'", contactId)
+	updateQuery += ` RETURNING id, name, email, phone, city, state, xero_contact_id, company_id, client_overview, notes, created_at, updated_at;`
+
+	rows, err := r.db.Query(ctx, updateQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	contact, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[models.Contact])
+
+	if err != nil {
+		return nil, fmt.Errorf("error querying database for contact: %w", err)
+	}
+
+	return &contact, nil
 }
 
 func NewContactRepository(db *pgxpool.Pool) *ContactRepository {

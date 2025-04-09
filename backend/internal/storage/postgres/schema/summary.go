@@ -4,6 +4,7 @@ import (
 	"arenius/internal/models"
 	"context"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -75,16 +76,15 @@ func (r *SummaryRepository) GetEmissionSummary(ctx context.Context, req models.G
 	}
 
 	const totalQuery = `
-		SELECT
-			COALESCE(SUM(co2), 0) AS total_co2
+		SELECT 
+			COALESCE(SUM(CASE WHEN scope > 0 THEN co2 ELSE 0 END), 0) AS gross_co2,
+			COALESCE(SUM(CASE WHEN scope = 0 THEN co2 ELSE 0 END), 0) AS offsets
 		FROM
 			line_item
 		WHERE
 			company_id = $1
-			AND
-			date BETWEEN $2 AND $3
-			AND
-			scope IS NOT NULL;
+			AND date BETWEEN $2 AND $3
+			AND scope IS NOT NULL;
 	`
 
 	rowsTotal, errTotal := r.db.Query(ctx, totalQuery, req.CompanyID, req.StartDate.UTC(), req.EndDate.UTC())
@@ -93,13 +93,15 @@ func (r *SummaryRepository) GetEmissionSummary(ctx context.Context, req models.G
 	}
 	defer rowsTotal.Close()
 
-	var co2Total float64
+	var grossCO2, netCO2 float64
 	if rowsTotal.Next() {
-		if err := rowsTotal.Scan(&co2Total); err != nil {
+		if err := rowsTotal.Scan(&grossCO2, &netCO2); err != nil {
 			return nil, err
 		}
+		netCO2 = grossCO2 - netCO2
 	} else {
-		co2Total = 0
+		grossCO2 = 0
+		netCO2 = 0
 	}
 
 	if errTotalRows := rowsTotal.Err(); errTotalRows != nil {
@@ -107,7 +109,8 @@ func (r *SummaryRepository) GetEmissionSummary(ctx context.Context, req models.G
 	}
 
 	return &models.GetSummaryResponse{
-		TotalCO2:  co2Total,
+		GrossCO2:  grossCO2,
+		NetCO2:    netCO2,
 		StartDate: req.StartDate,
 		EndDate:   req.EndDate,
 		Months:    monthSummaries,
@@ -166,6 +169,8 @@ func (r *SummaryRepository) GetContactEmissions(ctx context.Context, req models.
 	defer rows.Close()
 
 	var contacts []models.ContactEmissionsSummary
+	var maxEmissionAmount float64
+	var sumAllEmissions float64 = 0
 
 	for rows.Next() {
 		values, err := rows.Values()
@@ -176,6 +181,9 @@ func (r *SummaryRepository) GetContactEmissions(ctx context.Context, req models.
 		id := fmt.Sprintf("%v", values[0])
 		name, _ := values[1].(string)
 		totalEmissions, _ := values[2].(float64)
+
+		maxEmissionAmount = max(maxEmissionAmount, totalEmissions)
+		sumAllEmissions += totalEmissions
 
 		contacts = append(contacts, models.ContactEmissionsSummary{
 			ContactID:   id,
@@ -192,8 +200,27 @@ func (r *SummaryRepository) GetContactEmissions(ctx context.Context, req models.
 		contacts = []models.ContactEmissionsSummary{} // Ensure it's an empty array
 	}
 
+	filteredContacts := []models.ContactEmissionsSummary{
+		{
+			ContactID:   "Other",
+			ContactName: "Other",
+			Carbon:      0,
+		},
+	}
+
+	for _, contact := range contacts {
+		if contact.Carbon < min(maxEmissionAmount/10, sumAllEmissions/30) {
+			filteredContacts[0].Carbon += 100 * contact.Carbon / sumAllEmissions
+		} else {
+			contact.Carbon = math.Round(100 * contact.Carbon / sumAllEmissions)
+			filteredContacts = append(filteredContacts, contact)
+		}
+	}
+
+	filteredContacts[0].Carbon = math.Round(filteredContacts[0].Carbon)
+
 	return &models.GetContactEmissionsSummaryResponse{
-		ContactEmissions: contacts,
+		ContactEmissions: filteredContacts,
 		StartDate:        req.StartDate,
 		EndDate:          req.EndDate,
 	}, nil

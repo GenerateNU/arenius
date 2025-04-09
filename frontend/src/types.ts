@@ -58,6 +58,7 @@ export type CreateLineItemRequest = {
 export type LoginRequest = {
   email: string;
   password: string;
+  rememberMe: boolean;
 };
 
 export type SignupRequest = {
@@ -71,6 +72,8 @@ export type ReconcileBatchRequest = {
   lineItemIds: string[];
   scope?: number;
   emissionsFactorId?: string;
+  co2?: number;
+  co2_unit?: string;
 };
 
 export type ReconcileRequest = {
@@ -78,6 +81,8 @@ export type ReconcileRequest = {
   scope?: number;
   emissionsFactorId?: string;
   contactId?: string;
+  co2?: number;
+  co2_unit?: string;
 };
 
 export type EmissionsFactor = {
@@ -101,7 +106,6 @@ export type EmissionsFactorCategory = {
 export type EmissionsFactorCategories = {
   all: EmissionsFactorCategory[];
   favorites: EmissionsFactorCategory;
-  history: EmissionsFactorCategory;
 };
 
 export type SimpleContact = {
@@ -177,7 +181,8 @@ export type MonthSummary = {
 };
 
 export type EmissionSummary = {
-  total_co2: number;
+  gross_co2: number;
+  net_co2: number;
   start_date: Date;
   end_date: Date;
   months: MonthSummary[];
@@ -219,7 +224,7 @@ export type User = {
   first_name?: string;
   last_name?: string;
   email?: string;
-  company_id?: string;
+  company_id: string;
   refresh_token?: string;
   tenant_id?: string;
   city?: string;

@@ -62,7 +62,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
   const [filters, setFilters] = useState<LineItemFilters>({});
 
-  const { companyId } = useAuth();
+  const { user } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,7 +84,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         const data = await fetchLineItems({
           ...filters,
           reconciliationStatus: table,
-          company_id: companyId,
+          company_id: user?.company_id,
         });
 
         if (table === "reconciled") {
@@ -108,12 +108,12 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
       setLoading(false);
     },
-    [companyId, filters]
+    [user, filters]
   );
 
   // Fetch all data for all tables and scopes
   const fetchAllData = useCallback(async () => {
-    if (!companyId) return;
+    if (!user) return;
 
     setLoading(true);
     setError(null);
@@ -128,23 +128,23 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
     setLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId]);
+  }, [user]);
 
   // // Fetch all data on mount when companyId becomes available
   useEffect(() => {
-    if (companyId) {
+    if (user) {
       fetchAllData();
     }
-  }, [companyId, fetchAllData]);
+  }, [user, fetchAllData]);
 
   // Fetch data for the current table when the filters change
   useEffect(() => {
-    if (companyId && Object.keys(filters).length > 0) {
+    if (user && Object.keys(filters).length > 0) {
       fetchTableData(activePage);
     }
     // ignoring activePage in this dependency array since we don't need to refetch on page change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId, filters, fetchTableData]);
+  }, [user, filters, fetchTableData]);
 
   return (
     <TransactionContext.Provider

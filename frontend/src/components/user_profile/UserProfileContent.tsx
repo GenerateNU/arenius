@@ -22,6 +22,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import { UserProfilePicture } from "./ProfilePicture";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -160,14 +161,7 @@ export default function UserProfileContent() {
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex items-start">
           <div className="relative mr-6">
-            <Image
-              src={user.photo_url || "/profile.png"}
-              alt="User Profile"
-              width={60}
-              height={60}
-              className="rounded-full border border-gray-300 shadow-md"
-            />
-
+            <UserProfilePicture photoUrl={user?.photo_url} size={80}/>
             <button
               type="button"
               title="Edit Photo"

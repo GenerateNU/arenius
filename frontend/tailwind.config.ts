@@ -24,6 +24,7 @@ export default {
         deepEvergreen: "var(--deep-evergreen)",
         darkMoss: "var(--dark-moss)",
         moss: "var(--moss)",
+        deepwood: "var(--deepwood)",
         grayBackground: "var(--gray-bg)",
         card: {
           DEFAULT: "var(--card)",

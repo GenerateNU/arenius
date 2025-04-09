@@ -1,8 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import { z } from "zod";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -16,11 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import Image from "next/image";
-import logo from "../../assets/onboarding-logo.png";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
-import Link from "next/link";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 const formSchema = z.object({
   email: z.string(),
@@ -29,8 +27,11 @@ const formSchema = z.object({
 
 export default function LoginForm() {
   const router = useRouter();
+  const pathname = usePathname();
   const { login, isLoginError } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [checked, setChecked] = useState(true);
+  const [redirecting, setRedirecting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,30 +41,53 @@ export default function LoginForm() {
     },
   });
 
+  // Monitor path changes to detect when redirect completes
+  useEffect(() => {
+    if (redirecting && pathname === "/dashboard") {
+      // We've arrived at the dashboard, clear the loading state
+      setRedirecting(false);
+      setLoading(false);
+    }
+  }, [pathname, redirecting]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setLoading(true);
       const response = await login({
         email: values.email,
         password: values.password,
+        rememberMe: checked,
       });
 
       if (response?.response?.status === 200) {
+        setRedirecting(true); // Set redirecting flag
         router.push("/dashboard");
+        
+        // Fallback timeout in case navigation takes too long
+        const fallbackTimer = setTimeout(() => {
+          setLoading(false);
+          setRedirecting(false);
+        }, 5000);
+        
+        return () => clearTimeout(fallbackTimer);
+      } else {
+        setLoading(false);
       }
     } catch (err) {
       console.error("An error occured: ", err);
-    } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className={styles.formContainer}>
-      <div className="flex flex-col justify-start w-full">
-        <h2 className="font-header text-2xl mb-4">Welcome to</h2>
-        <Image src={logo} alt="Onboarding Logo" className={styles.logo} />
-      </div>
+    <>
+      {/* Full-screen loading overlay shown when redirecting */}
+      {redirecting && (
+        <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50">
+          <LoadingSpinner size={60} className="opacity-80" />
+        </div>
+      )}
+      
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className={styles.form}>
           <FormField
@@ -108,7 +132,10 @@ export default function LoginForm() {
 
           <div className={styles.actionContainer}>
             <Label className={styles.checkboxContainer}>
-              <Checkbox />
+              <Checkbox
+                checked={checked}
+                onCheckedChange={() => setChecked(!checked)}
+              />
               Remember me
             </Label>
             <Link href="/forgot-password" className={styles.forgotPassword}>
@@ -117,11 +144,11 @@ export default function LoginForm() {
           </div>
 
           <Button type="submit" size="long" disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Logging in...
-              </>
+            {loading && !redirecting ? (
+              <div className="flex items-center justify-center">
+                <LoadingSpinner size={20} color="#FFFFFF" className="mr-2" />
+                <span>Logging in...</span>
+              </div>
             ) : (
               "Log in"
             )}
@@ -135,13 +162,11 @@ export default function LoginForm() {
           </div>
         </form>
       </Form>
-    </div>
+    </>
   );
 }
 
 const styles = {
-  formContainer:
-    "h-[80vh] w-full flex flex-col items-center justify-center bg-white/100 px-16 py-10 rounded-lg shadow-lg font-body",
   form: "w-full flex flex-col gap-4 mt-10",
   formLabel: "font-header text-[20px]",
   actionContainer: "flex justify-between items-center font-body text-sm my-3",
@@ -150,5 +175,4 @@ const styles = {
   error: "text-red-500 text-center text-sm",
   signUp: "underline font-semibold",
   forgotPassword: "underline font-bold",
-  logo: "w-100",
 };

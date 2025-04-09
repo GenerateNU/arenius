@@ -52,7 +52,7 @@ export default function GrossEmissionsBarGraph() {
     scope3: month.scopes.scope_three,
   }));
 
-  const totalEmissions = formatNumber(summary.total_co2);
+  const totalEmissions = formatNumber(summary.gross_co2);
 
   return (
     <Card>

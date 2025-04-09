@@ -3,6 +3,7 @@ package auth
 import (
 	"arenius/internal/auth"
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,17 +16,25 @@ func (h *Handler) SignOut(c *fiber.Ctx) error {
 	fmt.Println("Access Token:", accessToken)
 
 	// Call SupabaseRevokeSession to invalidate the session
-	err := auth.SupabaseRevokeSession(&h.config, accessToken)
-	if err != nil {
-		fmt.Println("Error revoking session:", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Failed to revoke session: %v", err)})
+	_ = auth.SupabaseRevokeSession(&h.config, accessToken)
+
+	clearCookie := func(name string) {
+		c.Cookie(&fiber.Cookie{
+			Name:     name,
+			Value:    "",
+			Path:     "/",
+			Expires:  time.Unix(0, 0),
+			MaxAge:   -1,
+			Secure:   true,
+			SameSite: "Lax",
+		})
 	}
 
-	c.ClearCookie("jwt")
-	c.ClearCookie("userID")
-	c.ClearCookie("refreshToken")
-	c.ClearCookie("tenantID")
-	c.ClearCookie("companyID")
+	clearCookie("jwt")
+	clearCookie("userID")
+	clearCookie("refreshToken")
+	clearCookie("tenantID")
+	clearCookie("companyID")
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Successfully signed out",

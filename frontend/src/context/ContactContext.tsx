@@ -14,13 +14,14 @@ import { GetContactsRequest, GetContactsResponse } from "@/types";
 
 interface ContactContextValue {
   data: GetContactsResponse;
-  fetchData: () => void;
+  fetchData: () => Promise<void>;
   filters: GetContactsRequest;
   setFilters: (
     update:
       | GetContactsRequest
       | ((prevFilters: GetContactsRequest) => GetContactsRequest)
   ) => void;
+  isLoading: boolean; // Add loading state
 }
 
 const ContactContext = createContext<ContactContextValue | undefined>(
@@ -36,40 +37,41 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({
   const [filters, setFilters] = useState<GetContactsRequest>(
     {} as GetContactsRequest
   );
-  const { companyId, isLoading } = useAuth();
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
+  const { user, isLoading: authLoading } = useAuth();
 
   const fetchData = useCallback(async () => {
-    if (isLoading) {
+    if (authLoading) {
       console.log("Authentication is still in progress. Please wait...");
       return;
     }
 
-    if (!companyId) {
+    if (!user) {
       console.log("Company ID is not available yet");
       return;
     }
+
+    setIsLoading(true); // Start loading
 
     try {
       console.log("Fetching contacts...");
       const result = await fetchContacts({
         ...filters,
-        company_id: companyId,
+        company_id: user.company_id,
       });
       setData(result);
     } catch (error) {
       console.error("Error fetching contacts:", error);
+    } finally {
+      setIsLoading(false); // End loading regardless of success/failure
     }
-  }, [filters, companyId, isLoading]);
+  }, [filters, user, authLoading]);
 
   useEffect(() => {
-    if (!isLoading && companyId) {
+    if (!authLoading && user) {
       fetchData();
     }
-  }, [companyId, fetchData, filters, isLoading]);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  }, [user, fetchData, filters, authLoading]);
 
   return (
     <ContactContext.Provider
@@ -78,6 +80,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({
         fetchData,
         filters,
         setFilters,
+        isLoading,
       }}
     >
       {children}

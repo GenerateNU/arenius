@@ -7,7 +7,6 @@ import {
   useReactTable,
   getSortedRowModel,
   SortingState,
-  ColumnDef,
   Row,
 } from "@tanstack/react-table";
 import {
@@ -18,17 +17,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { LineItem } from "@/types";
-import Image from "next/image";
 import { ModalDialog } from "@/components/transactions/ModalDialog";
+import { reconciledColumns, offsetColumns, unreconciledColumns } from "./ContactDetailsColumns";
 
 interface ContactLineItemTableProps {
   data: LineItem[];
+  tableType: "reconciled" | "unreconciled" | "offsets";
 }
 
-export function ContactLineItemTable({ data }: ContactLineItemTableProps) {
+export function ContactLineItemTable({ data, tableType }: ContactLineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [selectedRow, setSelectedRow] = useState<Row<LineItem> | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -38,9 +37,23 @@ export function ContactLineItemTable({ data }: ContactLineItemTableProps) {
     setIsDialogOpen(true);
   };
 
+  // Get columns based on tableType
+  const getColumns = () => {
+    switch (tableType) {
+      case "reconciled":
+        return reconciledColumns;
+      case "offsets":
+        return offsetColumns;
+      case "unreconciled":
+        return unreconciledColumns;
+      default:
+        return reconciledColumns;
+    }
+  };
+
   const table = useReactTable({
     data,
-    columns: contactDetailsColumns,
+    columns: getColumns(),
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
@@ -64,13 +77,14 @@ export function ContactLineItemTable({ data }: ContactLineItemTableProps) {
                         )}
                   </TableHead>
                 ))}
+                <TableHead key="actions"></TableHead>{/* Empty header for action column */}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow key={row.id} className="cursor-pointer hover:bg-gray-50">
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
@@ -79,14 +93,10 @@ export function ContactLineItemTable({ data }: ContactLineItemTableProps) {
                       )}
                     </TableCell>
                   ))}
-                  <TableCell>
-                    <Image
-                      src="/arrow.svg"
-                      alt="Edit"
-                      width={20}
-                      height={20}
+                  <TableCell key={`${row.id}-actions`} className="text-right">
+                    <ChevronRight
+                      className="h-5 w-5 text-gray-400 inline-block cursor-pointer"
                       onClick={() => openEditDialog(row)}
-                      style={{ cursor: "pointer" }}
                     />
                   </TableCell>
                 </TableRow>
@@ -94,7 +104,7 @@ export function ContactLineItemTable({ data }: ContactLineItemTableProps) {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={contactDetailsColumns.length}
+                  colSpan={getColumns().length + 1}
                   className="h-24 text-center"
                 >
                   No results.
@@ -111,60 +121,9 @@ export function ContactLineItemTable({ data }: ContactLineItemTableProps) {
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
           onReconcileSuccess={() => setIsDialogOpen(false)}
+          type={tableType}
         />
       )}
     </>
   );
 }
-
-export const contactDetailsColumns: ColumnDef<LineItem>[] = [
-  {
-    accessorKey: "date",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() =>
-          column.toggleSorting(column.getIsSorted() ? undefined : true)
-        }
-      >
-        Date <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
-  },
-  {
-    accessorKey: "contact_name",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() =>
-          column.toggleSorting(column.getIsSorted() ? undefined : true)
-        }
-      >
-        Description <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-  },
-  {
-    accessorKey: "emission_factor_name",
-    header: "Emissions Factor",
-  },
-  {
-    accessorKey: "co2",
-    header: "CO2",
-  },
-  {
-    accessorKey: "total_amount",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() =>
-          column.toggleSorting(column.getIsSorted() ? undefined : true)
-        }
-      >
-        Amount <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ getValue }) => `$${(getValue() as number).toFixed(2)}`,
-  },
-];
