@@ -1,23 +1,20 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import Link from "next/link";
+
+import { useAuth } from "@/context/AuthContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { UserProfilePicture } from "@/components/user_profile/ProfilePicture";
-import { useAuth } from "@/context/AuthContext";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import SignOutButton from "../auth/signOut";
-import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 
 export function ProfileDropdown() {
-  const router = useRouter();
-  const pathname = usePathname();
   const [loading, setLoading] = useState(true);
-  const [setTargetPath] = useState<string | null>(null);
 
   const { user } = useAuth();
 
@@ -27,71 +24,43 @@ export function ProfileDropdown() {
     }
   }, [user]);
 
-  // // Monitor path changes to detect when navigation completes
-  // useEffect(() => {
-  //   if (targetPath && pathname === targetPath) {
-  //     setLoading(false);
-  //     setTargetPath(null);
-  //   }
-  // }, [pathname, targetPath]);
-
-  // const handleClick = () => {
-  //   const profilePath = "/user-profile";
-  //   if (pathname !== profilePath) {
-  //     setLoading(true);
-  //     setTargetPath(profilePath);
-  //     router.push(profilePath);
-
-  //     // Fallback timeout in case navigation takes too long
-  //     const fallbackTimer = setTimeout(() => {
-  //       setLoading(false);
-  //     }, 5000);
-
-  //     return () => clearTimeout(fallbackTimer);
-  //   }
-  // };
-
-  if (loading) {
-    return <div className="z-1 relative w-9 h-9 z-50" />;
-  }
   return (
-    <div className="z-1 relative">
+    <div className="flex items-center">
       <DropdownMenu>
-        {user && (
-          <>
-            <DropdownMenuTrigger>
-              <UserProfilePicture photoUrl={user?.photo_url} size={36} />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-48 bg-white border shadow-lg rounded-lg">
-              <div className="bg-gray-100 p-6 rounded-lg shadow-md max-w-xs mx-auto">
-                <div className="text-center mt-4">
-                  <div className="mt-4">
-                    <p className="font-medium break-words whitespace-normal">
-                      {user.first_name} {user.last_name}
-                    </p>
-                    <p className="text-gray-600 break-words whitespace-normal">
-                      {user.email}
-                    </p>
-                  </div>
-                  <div className="mt-4 flex justify-center">
-                    <UserProfilePicture photoUrl={user?.photo_url} size={120} />
-                  </div>
-                  <div className="mt-4 flex flex-col space-y-4">
-                    <Link href="/user-profile">
-                      <Button
-                        // onClick={handleClick}
-                        className="w-full h-8 border border-gray-700 text-gray-800 text-sm font-semibold rounded-full flex items-center justify-center bg-white mx-auto"
-                      >
-                        User Profile
-                      </Button>
-                    </Link>
-                    <SignOutButton />
-                  </div>
+        <DropdownMenuTrigger className="flex items-center justify-center">
+          {loading ? (
+            <div className="w-9 h-9" />
+          ) : (
+            <UserProfilePicture photoUrl={user?.photo_url} size={36} />
+          )}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-48 bg-white border shadow-lg rounded-lg">
+          {user && (
+            <div className="bg-gray-100 p-6 rounded-lg shadow-md max-w-xs mx-auto">
+              <div className="text-center mt-4">
+                <div className="mt-4">
+                  <p className="font-medium break-words whitespace-normal">
+                    {user.first_name} {user.last_name}
+                  </p>
+                  <p className="text-gray-600 break-words whitespace-normal">
+                    {user.email}
+                  </p>
+                </div>
+                <div className="mt-4 flex justify-center">
+                  <UserProfilePicture photoUrl={user?.photo_url} size={120} />
+                </div>
+                <div className="mt-4 flex flex-col space-y-4">
+                  <Link href="/user-profile">
+                    <Button className="w-full h-8 border border-gray-700 text-gray-800 text-sm font-semibold rounded-full flex items-center justify-center bg-white mx-auto">
+                      User Profile
+                    </Button>
+                  </Link>
+                  <SignOutButton />
                 </div>
               </div>
-            </DropdownMenuContent>
-          </>
-        )}
+            </div>
+          )}
+        </DropdownMenuContent>
       </DropdownMenu>
     </div>
   );

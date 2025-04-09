@@ -51,8 +51,6 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({
       return;
     }
 
-    setIsLoading(true); // Start loading
-
     try {
       console.log("Fetching contacts...", user.company_id);
       const result = await fetchContacts({
