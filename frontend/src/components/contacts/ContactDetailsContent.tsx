@@ -187,7 +187,7 @@ export default function ContactDetailsContent() {
       return date.toLocaleDateString() + " " + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     } catch (e) {
       console.error("Error formatting last updated:", e);
-      return timestamp;
+      return timestamp.toString();
     }
   };
 
