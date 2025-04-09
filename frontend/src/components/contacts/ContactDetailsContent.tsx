@@ -127,7 +127,7 @@ export default function ContactDetailsContent() {
     }
     const colorOptions = [
       "77B257", "1B3520", "2B3E1B", "B9E89E", "2D7A14",
-      "145C3E", "48894B", "0A1F0A", "578240", "AADDAA", "8ACB65",
+      "145C3E", "48894B", "152D1A", "578240", "AADDAA", "8ACB65",
     ];
     const colorIndex = Math.abs(hash) % colorOptions.length;
     return colorOptions[colorIndex];
@@ -205,7 +205,7 @@ export default function ContactDetailsContent() {
       </div>
 
       <div className="p-4 mx-auto w-full max-w-7xl">
-        {/* Contact Header Card */}
+        {/* Contact Header Card with Overview and Notes */}
         <div className="bg-white rounded-lg shadow-sm mb-6">
           <div className="p-6 flex flex-col md:flex-row md:items-center">
             {/* Logo */}
@@ -234,24 +234,24 @@ export default function ContactDetailsContent() {
               
               <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                 {contact.city || contact.state && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <MapPin className="h-4 w-4 text-gray-400" />
-                  <span>
-                    {contact.city}, {contact.state}
-                  </span>
-                </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <MapPin className="h-4 w-4 text-gray-400" />
+                    <span>
+                      {contact.city}, {contact.state}
+                    </span>
+                  </div>
                 )}
                 {contact.email && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Mail className="h-4 w-4 text-gray-400" />
-                  <span>{contact.email}</span>
-                </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Mail className="h-4 w-4 text-gray-400" />
+                    <span>{contact.email}</span>
+                  </div>
                 )}
                 {contact.phone && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Phone className="h-4 w-4 text-gray-400" />
-                  <span>{contact.phone}</span>
-                </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Phone className="h-4 w-4 text-gray-400" />
+                    <span>{contact.phone}</span>
+                  </div>
                 )}
               </div>
             </div>
@@ -266,31 +266,44 @@ export default function ContactDetailsContent() {
               </Button>
             </div>
           </div>
-        </div>
 
-        {contact.client_overview && (
-          <div className="bg-white rounded-lg shadow-sm mb-6 p-6">
-            <h2 className="text-xl font-bold mb-4">Client Overview</h2>
-            <p className="text-gray-700">{contact.client_overview}</p>
-          </div>
-        )}
-
-        {/* Notes Section - Only show if notes exist */}
-        {contact.notes && (
-          <div className="bg-white rounded-lg shadow-sm mb-6">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Notes</h2>
-                {contact.updated_at && (
-                  <span className="text-sm text-gray-500">
-                    Last Updated: {formatLastUpdated(contact.updated_at)}
-                  </span>
-                )}
-              </div>
-              <p className="text-gray-700 whitespace-pre-line">{contact.notes}</p>
+          {/* Only show additional information section if either overview or notes exist */}
+          {(contact.client_overview || contact.notes) && (
+            <div className="border-t border-gray-100 relative">
+            {/* Vertical divider that extends to the edges */}
+            {contact.client_overview && contact.notes && (
+              <div className="hidden md:block absolute w-px bg-gray-100 left-1/2 top-0 bottom-0"></div>
+            )}
+            
+            <div className="px-6 py-4 grid grid-cols-1 md:grid-cols-2">
+              {/* Client Overview Section */}
+              {contact.client_overview && (
+                <div className="p-3 pr-6">
+                  <div className="mb-1">
+                    <h3 className="text-sm font-medium text-gray-700">Client Overview</h3>
+                  </div>
+                  <p className="text-sm text-gray-600">{contact.client_overview}</p>
+                </div>
+              )}
+        
+              {/* Notes Section */}
+              {contact.notes && (
+                <div className="p-3 md:pl-6">
+                  <div className="flex justify-between items-center mb-1">
+                    <h3 className="text-sm font-medium text-gray-700">Notes</h3>
+                    {contact.updated_at && (
+                      <span className="text-xs text-gray-500">
+                        Last Updated: {formatLastUpdated(contact.updated_at)}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600 whitespace-pre-line">{contact.notes}</p>
+                </div>
+              )}
             </div>
           </div>
-        )}
+          )}
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-7 gap-6">
           {/* Left side - Transactions */}
