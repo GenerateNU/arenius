@@ -51,7 +51,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-full w-full overflow-y-auto">
+    <div className="min-h-screen w-full overflow-y-auto">
       {/* Full-screen loading overlay */}
       {loading && (
         <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-50 z-50">
@@ -94,7 +94,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <ProfileDropdown />
         </div>
       </div>
-      <div className="px-4 md:px-20 bg-grayBackground">{children}</div>
+      <div className="flex-grow px-4 md:px-20 bg-grayBackground">
+        {children}
+      </div>
     </div>
   );
 };
