@@ -113,7 +113,7 @@ export default function LineItemTable({
     <>
       <div className="rounded-md bg-white">
         <Table>
-          <TableHeader className="h-14" >
+          <TableHeader className="h-14">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -134,10 +134,6 @@ export default function LineItemTable({
                     </TableHead>
                   );
                 })}
-                {/* Add extra header cell for action button column */}
-                {(activePage !== "unreconciled" || activeTableData === "recommended") && (
-                  <TableHead style={{ width: "50px" }}></TableHead>
-                )}
               </TableRow>
             ))}
           </TableHeader>
@@ -146,8 +142,8 @@ export default function LineItemTable({
               // Skeleton loading rows
               emptyRows.map((_, index) => (
                 <TableRow key={`loading-${index}`} className="border-none">
-                  <TableCell 
-                    colSpan={columns.length + (activePage !== "unreconciled" || activeTableData === "recommended" ? 1 : 0)}
+                  <TableCell
+                    colSpan={columns.length}
                     className="h-16 text-center"
                   >
                     {index === 1 && (
@@ -202,25 +198,12 @@ export default function LineItemTable({
                       </div>
                     </TableCell>
                   )}
-
-                  {activePage !== "unreconciled" && activeTableData !== "recommended" && (
-                    <TableCell>
-                      <Image
-                        src="/arrow.svg"
-                        alt="Reconcile"
-                        width={24}
-                        height={24}
-                        onClick={() => openEditDialog(row)}
-                        style={{ cursor: "pointer" }}
-                      />
-                    </TableCell>
-                  )}
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length + (activePage !== "unreconciled" || activeTableData === "recommended" ? 1 : 0)}
+                  colSpan={columns.length}
                   className="h-24 text-center"
                 >
                   No results.
@@ -239,16 +222,6 @@ export default function LineItemTable({
           total_count={tableData[activePage].length}
           setPage={(newPage) => table.setPageIndex(newPage)}
           setPageLimit={(newLimit) => table.setPageSize(newLimit)}
-        />
-      )}
-
-      {isDialogOpen && clickedRowData && (
-        <ModalDialog
-          selectedRowData={clickedRowData.original}
-          isDialogOpen={isDialogOpen}
-          setIsDialogOpen={setIsDialogOpen}
-          onReconcileSuccess={handleReconcileSuccess}
-          type={activePage}
         />
       )}
     </>
