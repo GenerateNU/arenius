@@ -37,9 +37,9 @@ export default function PriceFilter({
     setFilters({
       ...filters,
       minPrice: undefined,
-      maxPrice: undefined
-    })
-  }
+      maxPrice: undefined,
+    });
+  };
 
   useEffect(() => {
     if (!filters.minPrice && !filters.maxPrice) {
@@ -61,7 +61,7 @@ export default function PriceFilter({
           <ChevronDown className={styles.chevronDown} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80">
+      <PopoverContent className="w-60">
         <Slider
           defaultValue={[minPrice || 0, maxPrice || 10_000]}
           minStepsBetweenThumbs={100}
@@ -89,8 +89,16 @@ export default function PriceFilter({
           />
         </div>
         <div className="flex justify-between">
-          <Button onClick={handleClear} variant="ghost" className="text-xs underline text-gray-500">Clear Filter</Button>
-          <Button onClick={handleApply} className="text-xs">Apply</Button>
+          <Button
+            onClick={handleClear}
+            variant="ghost"
+            className="text-xs underline text-gray-500"
+          >
+            Clear Filter
+          </Button>
+          <Button onClick={handleApply} className="text-xs">
+            Apply
+          </Button>
         </div>
       </PopoverContent>
     </Popover>
