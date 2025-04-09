@@ -11,6 +11,12 @@ import {
   ColumnDef,
   getPaginationRowModel,
 } from "@tanstack/react-table";
+import { Check, X } from "lucide-react";
+import { useTransactionsContext } from "@/context/TransactionContext";
+import { handleRecommendation } from "@/services/lineItems";
+import LineItemTableActions from "./LineItemTableActions";
+import { DataTablePagination } from "../ui/DataTablePagination";
+import LoadingSpinner from "../ui/loading-spinner";
 import {
   Table,
   TableBody,
@@ -20,14 +26,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { LineItem } from "@/types";
-import LineItemTableActions from "./LineItemTableActions";
-import { ModalDialog } from "./ModalDialog";
-import Image from "next/image";
-import { DataTablePagination } from "../ui/DataTablePagination";
-import { useTransactionsContext } from "@/context/TransactionContext";
-import { Check, X } from "lucide-react";
-import { handleRecommendation } from "@/services/lineItems";
-import LoadingSpinner from "../ui/loading-spinner";
 
 export type LineItemTableProps = {
   activePage: "reconciled" | "unreconciled" | "offsets";
@@ -55,12 +53,6 @@ export default function LineItemTable({
 
   const { tableData, loading } = useTransactionsContext();
 
-  // object and boolean to handle clicking a row's action button
-  const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
-    null
-  );
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
   // Memoize the rows to avoid unnecessary recomputations
   const rows = useMemo(() => {
     const data = tableData[activeTableData] || [];
@@ -86,28 +78,16 @@ export default function LineItemTable({
 
   const { fetchAllData } = useTransactionsContext();
 
-  // boolean determining if any row is selected
   const rowIsSelected = table
     .getRowModel()
     .rows.some((row) => row.getIsSelected());
-
-  const openEditDialog = (row: Row<LineItem>) => {
-    setClickedRowData(row);
-    setIsDialogOpen(true);
-  };
-
-  const handleReconcileSuccess = () => {
-    fetchAllData();
-    setIsDialogOpen(false);
-  };
 
   const handleAction = async (lineItem: LineItem, approved: boolean) => {
     await handleRecommendation(lineItem.id, approved);
     fetchAllData();
   };
 
-  // Create an array of empty rows for the skeleton when loading
-  const emptyRows = Array(3).fill(null);
+  const emptyRows = Array(3).fill(null); // array of empty rows for the skeleton when loading
 
   return (
     <>

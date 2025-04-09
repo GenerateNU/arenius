@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import { ChevronRight } from "lucide-react";
 
 import { useTransactionsContext } from "@/context/TransactionContext";
@@ -170,34 +170,43 @@ const amountColumn: ColumnDef<LineItem> = {
   size: 80,
 };
 
+function ModalCell({
+  row,
+  type,
+}: {
+  row: Row<LineItem>;
+  type: "offsets" | "reconciled";
+}) {
+  const { fetchAllData } = useTransactionsContext();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const dataRow = row.original;
+
+  return (
+    <div className="flex justify-end">
+      <ChevronRight
+        className="cursor-pointer"
+        onClick={() => setIsDialogOpen(true)}
+      />
+      <ModalDialog
+        selectedRowData={dataRow}
+        isDialogOpen={isDialogOpen}
+        setIsDialogOpen={setIsDialogOpen}
+        onReconcileSuccess={fetchAllData}
+        type={type}
+      />
+    </div>
+  );
+}
+
 function getModalColumn(type: "offsets" | "reconciled") {
   const modalColumn: ColumnDef<LineItem> = {
     id: "actions",
-    cell: ({ row }) => {
-      const dataRow = row.original;
-      const { fetchAllData } = useTransactionsContext();
-      const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-      return (
-        <div className="flex justify-end">
-          <ChevronRight
-            className="cursor-pointer"
-            onClick={() => setIsDialogOpen(true)}
-          />
-          <ModalDialog
-            selectedRowData={dataRow}
-            isDialogOpen={isDialogOpen}
-            setIsDialogOpen={setIsDialogOpen}
-            onReconcileSuccess={fetchAllData}
-            type={type}
-          />
-        </div>
-      );
-    },
+    cell: ({ row }) => <ModalCell row={row} type={type} />,
     size: 40,
   };
   return modalColumn;
 }
+
 export const unreconciledColumns: ColumnDef<LineItem>[] = [
   selectColumn,
   dateColumn,
