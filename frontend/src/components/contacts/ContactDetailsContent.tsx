@@ -13,6 +13,7 @@ import ExportContactSummaryButton from "./ExportContactSummaryButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDistanceToNow } from "date-fns";
 import LoadingSpinner from "../ui/loading-spinner";
+import EditContactModal from "./EditContactModal";
 
 interface ContactDetails {
   id: string;
@@ -48,7 +49,7 @@ export default function ContactDetailsContent() {
   const [error, setError] = useState<string | null>(null);
   const { jwt } = useAuth();
   const router = useRouter();
-
+  
   // New state for categorized transactions
   const [transactionItems, setTransactionItems] = useState<LineItem[]>([]);
   const [offsetItems, setOffsetItems] = useState<LineItem[]>([]);
@@ -88,7 +89,6 @@ export default function ContactDetailsContent() {
           },
           transactions: transactions,
         });
-
         // Categorize line items by scope
         if (transactions.line_items) {
           setTransactionItems(transactions.line_items.filter((item: LineItem) => (item.scope ?? -1) > 0));
@@ -220,7 +220,6 @@ export default function ContactDetailsContent() {
               </div>
             </div>
 
-            {/* Contact Details */}
             <div className="flex-1">
               <div className="flex flex-col">
                 <div className="flex items-center mb-1">
@@ -252,15 +251,7 @@ export default function ContactDetailsContent() {
               </div>
             </div>
             
-            <div className="mt-4 md:mt-0">
-              <Button 
-                variant="ghost" 
-                className="flex items-center text-darkMoss hover:text-darkMoss"
-                onClick={() => console.log("Edit Contact")}
-              >
-                Edit Contact
-              </Button>
-            </div>
+            <EditContactModal contactId={contactId} />
           </div>
         </div>
 
@@ -355,5 +346,7 @@ export default function ContactDetailsContent() {
         </div>
       </div>
     </div>
+
+
   );
 }
