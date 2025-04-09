@@ -155,6 +155,15 @@ export type ContactEmissions = {
   carbon: number;
 };
 
+export type ContactPageFormData = {
+  name: string;
+  email: string;
+  phone: string;
+  city: string;
+  state: string;
+}
+
+
 export type ContactTreeEmissions = {
   contact_emissions: ContactEmissions;
   start_date: Date;

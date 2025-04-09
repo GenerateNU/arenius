@@ -8,8 +8,50 @@ const handleCopyClick = (text: string) => {
   navigator.clipboard.writeText(text);
 };
 
+// Function to get initials from name
+const getInitials = (name: string) => {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .substring(0, 2)
+    .toUpperCase();
+};
+
+// Function to get avatar background color based on id or name
+const getAvatarBgColor = (seed: string) => {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const colorOptions = [
+    "77B257", "1B3520", "2B3E1B", "B9E89E", "2D7A14",
+    "145C3E", "48894B", "152D1A", "578240", "AADDAA", "8ACB65",
+  ];
+  const colorIndex = Math.abs(hash) % colorOptions.length;
+  return colorOptions[colorIndex];
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const columns = (router: any): ColumnDef<Contact>[] => [
+  {
+  accessorKey: "initials",
+    header: () => <></>,
+    cell: ({ row }) => {
+      const contact = row.original;
+      const initials = getInitials(contact.name);
+      const bgColor = getAvatarBgColor(contact.id || contact.name);
+      
+      return (
+        <div 
+          className="h-9 w-9 rounded-full flex items-center justify-center text-white text-xs font-bold"
+          style={{ backgroundColor: `#${bgColor}` }}
+        >
+          {initials}
+        </div>
+      );
+    },
+  },
   {
     accessorKey: "name",
     header: ({ column }) => <ColumnHeader name="Contact" column={column} />,
