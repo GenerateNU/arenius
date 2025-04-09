@@ -71,10 +71,10 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		filterFields["li.contact_id="] = *filterParams.ContactID
 	}
 	if filterParams.BeforeDate != nil {
-		filterFields["li.date<="] = filterParams.BeforeDate.UTC().Add(24 * time.Hour)
+		filterFields["li.date<="] = filterParams.BeforeDate.UTC().Truncate(24 * time.Hour).Add(23*time.Hour + 59*time.Minute + 59*time.Second)
 	}
 	if filterParams.AfterDate != nil {
-		filterFields["li.date>="] = filterParams.AfterDate.UTC()
+		filterFields["li.date>="] = filterParams.AfterDate.UTC().Truncate(24 * time.Hour)
 	}
 
 	for col, val := range filterFields {
