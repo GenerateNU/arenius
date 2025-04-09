@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useMemo } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -74,6 +74,13 @@ export default function TransactionForm() {
   const { fetchTableData } = useTransactionsContext();
   const dialogCloseRef = useRef<HTMLButtonElement>(null);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredContacts = useMemo(() => {
+    return contactResponse.contacts.filter((contact) =>
+      contact.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm, contactResponse.contacts]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -393,12 +400,29 @@ export default function TransactionForm() {
                         <SelectValue placeholder="Search or select contact" />
                       </SelectTrigger>
                       <SelectContent>
-                        {contactResponse.contacts.map((contact) => (
-                          <SelectItem key={contact.id} value={contact.id}>
-                            {contact.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
+                      <div className="p-2 sticky top-0 bg-white z-10 border-b">
+                        <input
+                          type="text"
+                          placeholder="Search contacts..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          onKeyDownCapture={(e) => e.stopPropagation()} 
+                          className="w-full px-2 py-1 border rounded text-sm"
+                        />
+                      </div>
+
+                      {(searchTerm ? filteredContacts : contactResponse.contacts).map((contact) => (
+                        <SelectItem key={contact.id} value={contact.id}>
+                          {contact.name}
+                        </SelectItem>
+                      ))}
+
+                      {searchTerm && filteredContacts.length === 0 && (
+                        <div className="px-3 py-2 text-sm text-gray-500">
+                          No contacts found.
+                        </div>
+                      )}
+                    </SelectContent>
                     </Select>
                   </FormControl>
                   <FormMessage />
