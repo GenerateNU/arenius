@@ -26,18 +26,18 @@ import LoadingSpinner from "../ui/loading-spinner";
 
 export default function ContactTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { data } = useContacts();
+  const { data, isLoading } = useContacts();
   const router = useRouter();
   
   // Track if we've ever successfully loaded data
   const [hasLoadedData, setHasLoadedData] = useState(false);
   
   // Determine if we're in a loading state
-  const isLoading = !data.contacts || !hasLoadedData;
+  const Loading = !data.contacts || !hasLoadedData;
   
   // Set hasLoadedData to true when we successfully get data
   useEffect(() => {
-    if (data.contacts) {
+    if (data.contacts || !isLoading) {
       setHasLoadedData(true);
     }
   }, [data.contacts]);
@@ -82,7 +82,7 @@ export default function ContactTable() {
             ))}
           </TableHeader>
           <TableBody>
-            {isLoading ? (
+            {Loading ? (
               // Skeleton loading rows
               emptyRows.map((_, index) => (
                 <TableRow key={`loading-${index}`}  className="border-none">

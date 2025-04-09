@@ -62,6 +62,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({
       setData(result);
     } catch (error) {
       console.error("Error fetching contacts:", error);
+      setIsLoading(false);
     } finally {
       setIsLoading(false); // End loading regardless of success/failure
     }
