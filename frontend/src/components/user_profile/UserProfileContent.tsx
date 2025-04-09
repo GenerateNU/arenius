@@ -1,16 +1,18 @@
 "use client";
 
+import { useRef } from "react";
+import Image from "next/image";
+
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Control, useForm } from "react-hook-form";
+import { Mail, MapPin } from "lucide-react";
+import { toast } from "sonner";
+
 import { useAuth } from "@/context/AuthContext";
+import { useProfilePhotoUpload } from "@/hooks/useProfilePhotoUpload";
 import apiClient from "@/services/apiClient";
 import { updateUserProfile } from "@/services/user";
-import { UpdateUserProfileRequest, User } from "@/types";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { createClient } from "@supabase/supabase-js";
-import { Mail, MapPin } from "lucide-react";
-import Image from "next/image";
-import { useRef, useState } from "react";
-import { Control, useForm } from "react-hook-form";
-import { z } from "zod";
 import DeleteAccountButton from "../auth/deleteAccount";
 import { Button } from "../ui/button";
 import {
@@ -24,29 +26,8 @@ import {
 import { Input } from "../ui/input";
 import { UserProfilePicture } from "./ProfilePicture";
 import LoadingSpinner from "../ui/loading-spinner";
-import { toast } from "sonner";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-// Add error handling to prevent build failures
-if (!supabaseUrl) {
-  // During static build, provide a fallback for prerendering
-  if (process.env.NODE_ENV === "production" && typeof window === "undefined") {
-    console.warn(
-      "Supabase URL not found during build. Using placeholder for static generation."
-    );
-  } else {
-    console.error(
-      "Supabase URL is required. Please set NEXT_PUBLIC_SUPABASE_URL environment variable."
-    );
-  }
-}
-
-const supabase = createClient(
-  supabaseUrl || "https://placeholder-for-static-build.supabase.co",
-  supabaseAnonKey || "placeholder-key-for-static-build"
-);
+import CustomAlert from "../ui/CustomAlert";
+import { UpdateUserProfileRequest } from "@/types";
 
 const formSchema = z.object({
   first_name: z.string(),
@@ -65,7 +46,11 @@ const formFields = [
 export default function UserProfileContent() {
   const { user, setUser, userId } = useAuth();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [loading, setLoading] = useState(false);
+  const { uploadPhoto, loading, error, setError } = useProfilePhotoUpload(
+    user,
+    setUser
+  );
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     values: {
@@ -85,7 +70,7 @@ export default function UserProfileContent() {
       await apiClient.post("/auth/forgot-password", { email: user?.email });
       toast("Password reset email sent! Please check your inbox.");
     } catch (error) {
-      toast.error("Failed to send reset email. Please try again.");
+      setError("Failed to send reset email. Please try again.");
       console.error(error);
     }
   };
@@ -115,55 +100,29 @@ export default function UserProfileContent() {
     }
   }
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoading(true);
     const file = e.target.files?.[0];
-    if (!file) {
-      return;
+    if (file) {
+      await uploadPhoto(file);
     }
-
-    try {
-      const { data, error } = await supabase.storage
-        .from("profile-photos") // bucket name in Supabase
-        .upload(`profile-photo-${Date.now()}`, file);
-
-      if (error) {
-        console.error("Supabase upload error:", error);
-        throw error;
-      }
-
-      const publicUrl = supabase.storage
-        .from("profile-photos")
-        .getPublicUrl(data.path).data.publicUrl;
-
-      await apiClient.patch(`/user/${userId}`, {
-        photo_url: publicUrl,
-      });
-
-      const updatedUser: User = {
-        ...user,
-        photo_url: publicUrl,
-      };
-      setUser(updatedUser);
-    } catch (error: unknown) {
-      toast.error("Error uploading photo. Please try again.");
-      console.error("Error during upload:", error);
-    }
-
-    setLoading(false);
   };
 
   return (
     <div className={styles.container}>
+      {error && (
+        <CustomAlert
+          variant="destructive"
+          title="Error uploading photo"
+          description="Please try re-uploading."
+          onClose={() => setError("")}
+        />
+      )}
+
       <div className={styles.profileCard.wrapper}>
         <div className="flex items-start">
           <div
             className={styles.profileCard.photoSection}
-            onClick={handleUploadClick}
+            onClick={() => fileInputRef.current?.click()}
           >
             {loading && (
               <div className={styles.profileCard.loadingOverlay}>
@@ -286,7 +245,7 @@ export function ProfileFormField({
 }
 
 const styles = {
-  container: "sm:p-20 w-4/5 mx-auto flex-1",
+  container: "sm:px-20 py-6 w-4/5 mx-auto flex-1 space-y-4",
   message: "mt-4 text-center text-green-500",
   profileCard: {
     wrapper: "bg-white rounded-lg shadow-sm p-6",
