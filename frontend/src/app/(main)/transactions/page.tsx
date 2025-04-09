@@ -96,7 +96,10 @@ function Header({
   viewMode: "scoped" | "paginated";
   setViewMode: (mode: "scoped" | "paginated") => void;
 }) {
-  const { setFilters } = useTransactionsContext();
+  const { filters, setFilters } = useTransactionsContext();
+  const hasFilter =
+    filters.contact_id || filters.minPrice || filters.maxPrice || filters.dates;
+
   return (
     <div>
       <div className={styles.header}>
@@ -123,11 +126,13 @@ function Header({
           )}
         </div>
       </div>
-      
-      <div className="flex justify-end mt-2">
-        <Button variant="ghost" onClick={() => setFilters({})}>
-          Clear filters
-        </Button>
+
+      <div className="flex justify-end mt-2 h-4">
+        {hasFilter && (
+          <Button variant="ghost" onClick={() => setFilters({})}>
+            Clear filters
+          </Button>
+        )}
       </div>
     </div>
   );
