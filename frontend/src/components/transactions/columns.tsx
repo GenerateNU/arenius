@@ -32,9 +32,10 @@ const dateColumn: ColumnDef<LineItem> = {
     return <ColumnHeader name="Date" column={column} />;
   },
   cell: ({ row }) => {
-    const date = new Date(row.getValue("date"));
-    const formattedDate = date.getMonth() + 1 + "/" + date.getDate();
-    return <div className="font-medium">{formattedDate}</div>;
+    const date: string = row.getValue("date");
+    const dateStr = date.split("T")[0];
+    const [_, month, day] = dateStr.split("-");
+    return <div className="font-medium">{`${month}/${day}`}</div>;
   },
   size: 75,
 };

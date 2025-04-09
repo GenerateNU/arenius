@@ -31,7 +31,7 @@ import { useTransactionsContext } from "@/context/TransactionContext";
 import EmissionsFactorSelector from "./CategorySelector";
 import { EmissionsFactor } from "@/types";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { cn } from "@/lib/utils";
+import { capitalizeFirstLetter, cn } from "@/lib/utils";
 import {
   Popover,
   PopoverTrigger,
@@ -40,7 +40,7 @@ import {
 import { Calendar as CalendarIcon } from "lucide-react"; // Icon, not component
 import { Calendar } from "@/components/ui/calendar"; // The actual calendar component
 
-import { format } from "date-fns";
+import { addDays, format, parseISO } from "date-fns";
 
 const formSchema = z.object({
   transactionType: z.enum(["transaction", "offset"], {
@@ -81,7 +81,7 @@ export default function TransactionForm() {
       description: "",
       amount: undefined,
       currency_code: "USD",
-      date: undefined,
+      date: format(new Date(), "yyyy-MM-dd"), // Today's date without adjustment
       contact_id: "",
       emissions_category: undefined,
       scope: undefined,
@@ -260,18 +260,15 @@ export default function TransactionForm() {
 
         <Tabs value={tab} onValueChange={setTab} className="w-full">
           <TabsList className="flex border-b">
-            <TabsTrigger
-              value="general"
-              className="pb-2 px-4 border-b-2 border-transparent data-[state=active]:border-green-500 data-[state=active]:#59C295"
-            >
-              General
-            </TabsTrigger>
-            <TabsTrigger
-              value="emissions"
-              className="pb-2 px-4 border-b-2 border-transparent data-[state=active]:border-green-500 data-[state=active]:#59C295"
-            >
-              Emissions
-            </TabsTrigger>
+            {["general", "emissions"].map((value) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                className="pb-2 px-4 border-b-2 border-transparent data-[state=active]:border-freshSage data-[state=active]:#59C295"
+              >
+                {capitalizeFirstLetter(value)}
+              </TabsTrigger>
+            ))}
           </TabsList>
 
           {/* General Tab */}
@@ -342,7 +339,7 @@ export default function TransactionForm() {
                             )}
                           >
                             {field.value ? (
-                              format(new Date(field.value), "LLL dd, y")
+                              format(parseISO(field.value), "LLL dd, y")
                             ) : (
                               <span>Select date</span>
                             )}
@@ -356,13 +353,17 @@ export default function TransactionForm() {
                           <Calendar
                             mode="single"
                             selected={
-                              field.value ? new Date(field.value) : undefined
+                              field.value ? parseISO(field.value) : undefined
                             }
-                            onSelect={(date) =>
-                              field.onChange(
-                                date ? format(date, "yyyy-MM-dd") : ""
-                              )
-                            }
+                            defaultMonth={new Date()}
+                            onSelect={(date) => {
+                              if (date) {
+                                // Format the date directly without adjustment
+                                field.onChange(format(date, "yyyy-MM-dd"));
+                              } else {
+                                field.onChange("");
+                              }
+                            }}
                             initialFocus
                           />
                         </PopoverContent>
