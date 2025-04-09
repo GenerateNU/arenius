@@ -21,7 +21,10 @@ interface ContactDetails {
   city: string;
   state: string;
   created_at?: string;
+  updated_at?: string;
   scope?: number;
+  client_overview?: string;
+  notes?: string;
 }
 
 interface ContactSummary {
@@ -71,6 +74,7 @@ export default function ContactDetailsContent() {
             contact_id: contactId,
           },
         });
+        console.log(response)
 
         const { contact, summary } = response.data;
         const transactions = trasactionsResponse.data;
@@ -176,6 +180,17 @@ export default function ContactDetailsContent() {
     }
   };
 
+  const formatLastUpdated = (timestamp: string | number | Date) => {
+    if (!timestamp) return "";
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleDateString() + " " + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    } catch (e) {
+      console.error("Error formatting last updated:", e);
+      return timestamp;
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-gray-50">
       {/* Top navigation bar */}
@@ -252,6 +267,30 @@ export default function ContactDetailsContent() {
             </div>
           </div>
         </div>
+
+        {contact.client_overview && (
+          <div className="bg-white rounded-lg shadow-sm mb-6 p-6">
+            <h2 className="text-xl font-bold mb-4">Client Overview</h2>
+            <p className="text-gray-700">{contact.client_overview}</p>
+          </div>
+        )}
+
+        {/* Notes Section - Only show if notes exist */}
+        {contact.notes && (
+          <div className="bg-white rounded-lg shadow-sm mb-6">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">Notes</h2>
+                {contact.updated_at && (
+                  <span className="text-sm text-gray-500">
+                    Last Updated: {formatLastUpdated(contact.updated_at)}
+                  </span>
+                )}
+              </div>
+              <p className="text-gray-700 whitespace-pre-line">{contact.notes}</p>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-7 gap-6">
           {/* Left side - Transactions */}
