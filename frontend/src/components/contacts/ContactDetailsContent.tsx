@@ -40,64 +40,65 @@ export default function ContactDetailsContent() {
   const [offsetItems, setOffsetItems] = useState<LineItem[]>([]);
   const [unreconciledItems, setUnreconciledItems] = useState<LineItem[]>([]);
 
-  async function fetchContactDetails() {
-    if (!contactId) return;
-
-    try {
-      const response = await apiClient.get(`/contact/${contactId}`, {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-        },
-      });
-
-      const transactionsResponse = await apiClient.get(`/line-item/`, {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-        },
-        params: {
-          contact_id: contactId,
-        },
-      });
-
-      const { contact, summary } = response.data;
-      const transactions = transactionsResponse.data;
-
-      setContactDetails({
-        contact,
-        summary: {
-          totalSpent: summary.total_spent,
-          totalTransactions: summary.total_transactions,
-          totalEmissions: summary.total_emissions,
-          totalOffset: summary.total_offset,
-          totalOffsetTransactions: summary.total_offset_transactions,
-        },
-        transactions: transactionsResponse.data,
-      });
-      // Categorize line items by scope
-      if (transactions.line_items) {
-        setTransactionItems(
-          transactions.line_items.filter(
-            (item: LineItem) => (item.scope ?? -1) > 0
-          )
-        );
-        setOffsetItems(
-          transactions.line_items.filter((item: LineItem) => item.scope === 0)
-        );
-        setUnreconciledItems(
-          transactions.line_items.filter(
-            (item: LineItem) => item.scope === null || item.scope === undefined
-          )
-        );
-      }
-
-      setLoading(false);
-    } catch (err) {
-      setError(`Failed to load contact details: ${err}`);
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
+    async function fetchContactDetails() {
+      if (!contactId) return;
+
+      try {
+        const response = await apiClient.get(`/contact/${contactId}`, {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+        });
+
+        const transactionsResponse = await apiClient.get(`/line-item/`, {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+          params: {
+            contact_id: contactId,
+          },
+        });
+
+        const { contact, summary } = response.data;
+        const transactions = transactionsResponse.data;
+
+        setContactDetails({
+          contact,
+          summary: {
+            totalSpent: summary.total_spent,
+            totalTransactions: summary.total_transactions,
+            totalEmissions: summary.total_emissions,
+            totalOffset: summary.total_offset,
+            totalOffsetTransactions: summary.total_offset_transactions,
+          },
+          transactions: transactionsResponse.data,
+        });
+        // Categorize line items by scope
+        if (transactions.line_items) {
+          setTransactionItems(
+            transactions.line_items.filter(
+              (item: LineItem) => (item.scope ?? -1) > 0
+            )
+          );
+          setOffsetItems(
+            transactions.line_items.filter((item: LineItem) => item.scope === 0)
+          );
+          setUnreconciledItems(
+            transactions.line_items.filter(
+              (item: LineItem) =>
+                item.scope === null || item.scope === undefined
+            )
+          );
+        }
+
+        setLoading(false);
+      } catch (err) {
+        setError(`Failed to load contact details: ${err}`);
+        setLoading(false);
+      }
+    }
+
     fetchContactDetails();
   }, [contactId, jwt]);
 
