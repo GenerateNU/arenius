@@ -1,6 +1,6 @@
 "use client";
 
-import ContactsSelector from "./ContactsSelector";
+import ContactsFilterSelector from "./ContactsFilterSelector";
 import { useEffect, useState } from "react";
 import { SimpleContact } from "@/types";
 import { useTransactionsContext } from "@/context/TransactionContext";
@@ -25,9 +25,9 @@ export default function ContactFilter({
   }, [filters]);
 
   return (
-    <ContactsSelector
-      contact={contact}
-      setContact={setContact}
+    <ContactsFilterSelector
+      filters={filters}
+      setFilters={setFilters}
       variant="ghost"
       className={className}
     />

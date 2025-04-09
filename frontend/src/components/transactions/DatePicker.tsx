@@ -5,9 +5,15 @@ import { DateRange } from "react-day-picker";
 import { useTransactionsContext } from "@/context/TransactionContext";
 import { DatePicker } from "../dashboard/DatePicker";
 
+interface DatePickerWithRangeProps {
+  showClearAndApply?: boolean;
+  className?: string
+}
+
 export function DatePickerWithRange({
   className,
-}: React.HTMLAttributes<HTMLDivElement>) {
+  showClearAndApply = false
+}: DatePickerWithRangeProps) {
   const { filters, setFilters } = useTransactionsContext();
   const dates = filters.dates;
 
@@ -20,6 +26,8 @@ export function DatePickerWithRange({
       dateRange={dates ?? { from: undefined, to: undefined }}
       setDateRange={handleFilterChange}
       className={className}
+      showClearAndApply={showClearAndApply}
+      filters={filters}
     />
   );
 }
