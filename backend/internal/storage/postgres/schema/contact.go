@@ -319,9 +319,6 @@ func (r *ContactRepository) UpdateContact(ctx context.Context, contactId string,
 	if req.Phone != nil {
 		updateColumns = append(updateColumns, fmt.Sprintf("phone='%s'", *req.Phone))
 	}
-	if req.Phone != nil {
-		updateColumns = append(updateColumns, fmt.Sprintf("name='%s'", *req.Name))
-	}
 	if req.City != nil {
 		updateColumns = append(updateColumns, fmt.Sprintf("city='%s'", *req.City))
 	}
