@@ -61,21 +61,24 @@ export const columns = (router: any): ColumnDef<Contact>[] => [
         </div>
       );
     },
+    size: 50,
   },
   {
     accessorKey: "name",
     header: ({ column }) => <ColumnHeader name="Contact" column={column} />,
+    size: 200,
   },
   {
     accessorKey: "phone",
     header: ({ column }) => <ColumnHeader name="Phone" column={column} />,
+    size: 150,
   },
   {
     accessorKey: "city",
     header: ({ column }) => <ColumnHeader name="Location" column={column} />,
     cell: ({ row }) => {
       const city = String(row.getValue("city"));
-      const state = row.getValue("state");
+      const state = row.original.state;
       return (
         <div className="font-medium">
           {city}
@@ -83,11 +86,7 @@ export const columns = (router: any): ColumnDef<Contact>[] => [
         </div>
       );
     },
-  },
-  {
-    accessorKey: "state",
-    header: () => <></>,
-    cell: () => <></>,
+    size: 200,
   },
   {
     accessorKey: "email",
@@ -111,6 +110,7 @@ export const columns = (router: any): ColumnDef<Contact>[] => [
         <div></div>;
       }
     },
+    size: 250,
   },
   {
     accessorKey: "created_at",
@@ -128,17 +128,24 @@ export const columns = (router: any): ColumnDef<Contact>[] => [
         </div>
       );
     },
+    size: 100,
   },
   {
     accessorKey: "view",
     header: () => <></>,
     cell: ({ row }) => (
-      <ChevronRight
-        className="cursor-pointer"
-        onClick={() =>
-          router.push(`/contacts/details?contactId=${row.original.id}`)
-        }
-      />
+      <div className="flex justify-end w-full">
+        <ChevronRight
+          className="cursor-pointer"
+          onClick={() =>
+            router.push(`/contacts/details?contactId=${row.original.id}`)
+          }
+        />
+      </div>
     ),
+    size: 50,
+    meta: {
+      align: "right",
+    },
   },
 ];
