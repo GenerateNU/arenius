@@ -161,9 +161,9 @@ export default function TransactionForm() {
         );
 
         await Promise.all([
-          fetchTableData("unreconciled", {}),
-          fetchTableData("reconciled", {}),
-          fetchTableData("offsets", {}),
+          fetchTableData("unreconciled"),
+          fetchTableData("reconciled"),
+          fetchTableData("offsets"),
         ]);
 
         if (dialogCloseRef.current) {
