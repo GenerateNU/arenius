@@ -25,7 +25,7 @@ const contactSchema = z.object({
   phone: z.string().min(1, "Phone number is required"),
   city: z.string().optional(),
   state: z.string().optional(),
-  clientOverview: z.string().optional(),
+  client_overview: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -46,11 +46,11 @@ const EditContactForm = ({
     resolver: zodResolver(contactSchema),
     defaultValues: {
       name: contact.name,
-      phone: contact.phone,
-      city: contact.city,
-      state: contact.state,
-      clientOverview: contact.client_overview,
-      notes: contact.notes,
+      phone: contact.phone || "",
+      city: contact.city || "",
+      state: contact.state || "",
+      client_overview: contact.client_overview || "",
+      notes: contact.notes || "",
     },
   });
 
@@ -129,7 +129,7 @@ const EditContactForm = ({
 
         <FormField
           control={form.control}
-          name="clientOverview"
+          name="client_overview"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Client Overview</FormLabel>

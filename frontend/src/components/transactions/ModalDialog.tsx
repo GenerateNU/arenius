@@ -76,7 +76,6 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
         ...(carbon && { co2: carbon }),
         co2_unit: "kg",
       };
-      console.log("Reconcile request:", request);
 
       await reconcile(request);
       setIsDialogOpen(false);

@@ -53,7 +53,6 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
       co2: carbon ?? 0,
       co2_unit: "kg",
     };
-    console.log("Reconcile request:", request);
 
     await reconcileBatchOffset(request);
     fetchTableData("offsets");

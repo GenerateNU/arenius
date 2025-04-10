@@ -28,14 +28,6 @@ export function DataTablePagination({
   setPage,
   setPageLimit,
 }: DataTablePaginationProps) {
-  console.log("DataTablePagination: ", {
-    page,
-    pageLimit,
-    total_count,
-    setPage,
-    setPageLimit,
-  });
-
   return (
     <div className="flex items-center justify-end px-2 mt-4">
       <div className="flex items-center space-x-6 lg:space-x-8">

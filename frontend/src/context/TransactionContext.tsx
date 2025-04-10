@@ -119,8 +119,6 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      console.log("Fetching all data...");
-
       await Promise.all(TABLES.map((table) => fetchTableData(table)));
     } catch (err) {
       setError(`Failed to load data: ${err}`);
