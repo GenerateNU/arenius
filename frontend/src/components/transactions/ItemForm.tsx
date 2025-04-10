@@ -132,7 +132,6 @@ export default function TransactionForm() {
 
     if (user) {
       try {
-        console.log("date", values.date);
         await createLineItem(
           {
             description: values.description,
@@ -169,8 +168,6 @@ export default function TransactionForm() {
         }
 
         setLoading(false);
-        // }, 1500);
-
         form.reset();
       } catch (error) {
         console.error("Error creating line item:", error);
@@ -281,7 +278,7 @@ export default function TransactionForm() {
           </TabsList>
 
           {/* General Tab */}
-          <div className={cn("pt-4", { hidden: tab !== "general" })}>
+          <TabsContent value="general" className="space-y-6 pt-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
@@ -442,10 +439,11 @@ export default function TransactionForm() {
                 Next
               </Button>
             </div>
-          </div>
+          </TabsContent>
 
           {/* Emissions Tab */}
-          <div className={cn("pt-4", { hidden: tab !== "emissions" })}>
+          <TabsContent value="emissions" className="space-y-6 pt-4">
+            {" "}
             {transactionType === "transaction" ? (
               <>
                 {/* Scope Selection for Standard Transactions */}
@@ -529,7 +527,6 @@ export default function TransactionForm() {
                 )}
               />
             )}
-
             <div className="flex justify-between">
               <Button className="" variant="outline" onClick={handleBackClick}>
                 Back
@@ -554,7 +551,7 @@ export default function TransactionForm() {
                 )}
               </DialogClose>
             </div>
-          </div>
+          </TabsContent>
         </Tabs>
       </form>
     </Form>
