@@ -23,6 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { formatISOString } from "@/lib/utils";
 
 interface ModalDialogProps {
   selectedRowData: LineItem;
@@ -52,9 +53,8 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
   const [carbon, setCarbon] = useState<number>(selectedRowData.co2 ?? 0);
   const [isReconciling, setIsReconciling] = useState(false);
 
-  const date = new Date(selectedRowData.date);
-  const formattedDate =
-    date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
+  const date = selectedRowData.date;
+  const formattedDate = formatISOString(date.toString());
 
   const amount = selectedRowData.total_amount;
   const formattedAmount = new Intl.NumberFormat("en-US", {
@@ -83,7 +83,6 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
       onReconcileSuccess();
     } catch (error) {
       console.error("Error reconciling:", error);
-      // You could add error handling here, such as showing an error message
     } finally {
       setIsReconciling(false);
     }

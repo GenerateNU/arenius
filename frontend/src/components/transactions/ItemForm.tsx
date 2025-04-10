@@ -52,7 +52,7 @@ const formSchema = z.object({
     .min(2, { message: "Description is required (min 2 characters)" })
     .max(50),
   amount: z.coerce
-    .number()
+    .number({ invalid_type_error: "Amount is required" })
     .min(0.01, { message: "Amount must be greater than 0" }),
   currency_code: z.enum(["USD", "EUR", "GBP", "JPY", "AUD"]),
   date: z.string().min(1, { message: "Date is required" }),
@@ -158,17 +158,18 @@ export default function TransactionForm() {
           user.company_id
         );
 
-        // add 2 sec timeout to allow for carbon estimates to be made
-        setTimeout(async () => {
-          await fetchTableData("unreconciled", {});
-          await fetchTableData("reconciled", {});
-          await fetchTableData("offsets", {});
-          if (dialogCloseRef.current) {
-            dialogCloseRef.current.click();
-          }
+        await Promise.all([
+          fetchTableData("unreconciled", {}),
+          fetchTableData("reconciled", {}),
+          fetchTableData("offsets", {}),
+        ]);
 
-          setLoading(false);
-        }, 1500);
+        if (dialogCloseRef.current) {
+          dialogCloseRef.current.click();
+        }
+
+        setLoading(false);
+        // }, 1500);
 
         form.reset();
       } catch (error) {
@@ -280,7 +281,7 @@ export default function TransactionForm() {
           </TabsList>
 
           {/* General Tab */}
-          <TabsContent value="general" className="space-y-6 pt-4">
+          <div className={cn("pt-4", { hidden: tab !== "general" })}>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
@@ -366,7 +367,6 @@ export default function TransactionForm() {
                             defaultMonth={new Date()}
                             onSelect={(date) => {
                               if (date) {
-                                // Format the date directly without adjustment
                                 field.onChange(format(date, "yyyy-MM-dd"));
                               } else {
                                 field.onChange("");
@@ -407,7 +407,7 @@ export default function TransactionForm() {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             onKeyDownCapture={(e) => e.stopPropagation()}
-                            className="w-full px-2 py-1 border rounded text-sm"
+                            className="w-full px-2 py-1 rounded text-sm"
                           />
                         </div>
 
@@ -435,17 +435,17 @@ export default function TransactionForm() {
 
             <div className="flex justify-end">
               <Button
-                className="g-[#225244] hover:bg-[#1a3f35] text-white"
-                type="button"
+                className=" hover:bg-deepEvergreen "
+                variant={"default"}
                 onClick={handleNextClick}
               >
                 Next
               </Button>
             </div>
-          </TabsContent>
+          </div>
 
           {/* Emissions Tab */}
-          <TabsContent value="emissions" className="space-y-6 pt-4">
+          <div className={cn("pt-4", { hidden: tab !== "emissions" })}>
             {transactionType === "transaction" ? (
               <>
                 {/* Scope Selection for Standard Transactions */}
@@ -461,7 +461,7 @@ export default function TransactionForm() {
                             <button
                               key={value}
                               type="button"
-                              className={`text-center py-3 border rounded-md ${
+                              className={`text-center py-2 border rounded-md ${
                                 field.value === value
                                   ? "border-[#225244] bg-[#f1f8f6] text-[#225244] font-medium"
                                   : "border-gray-300 hover:bg-gray-50"
@@ -531,15 +531,12 @@ export default function TransactionForm() {
             )}
 
             <div className="flex justify-between">
-              <Button
-                className="bg-gray-500 hover:bg-gray-600 text-white"
-                type="button"
-                onClick={handleBackClick}
-              >
+              <Button className="" variant="outline" onClick={handleBackClick}>
                 Back
               </Button>
-              <Button
-                className="bg-[#225244] hover:bg-[#1a3f35] text-white flex items-center"
+              <DialogClose
+                ref={dialogCloseRef}
+                className="bg-moss text-primary-foreground shadow hover:bg-primary/90 px-2 rounded-md text-sm font-medium"
                 type="submit"
                 disabled={loading}
               >
@@ -555,10 +552,9 @@ export default function TransactionForm() {
                 ) : (
                   "Post Transaction"
                 )}
-              </Button>
+              </DialogClose>
             </div>
-            <DialogClose ref={dialogCloseRef} />
-          </TabsContent>
+          </div>
         </Tabs>
       </form>
     </Form>
