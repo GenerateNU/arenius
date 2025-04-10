@@ -6,7 +6,7 @@ import { useTransactionsContext } from "@/context/TransactionContext";
 import { ModalDialog } from "./ModalDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnHeader } from "../ui/columnHeader";
-import { textConstants } from "@/lib/utils";
+import { formatISOString, textConstants } from "@/lib/utils";
 import { LineItem } from "@/types";
 
 const selectColumn: ColumnDef<LineItem> = {
@@ -39,9 +39,7 @@ const dateColumn: ColumnDef<LineItem> = {
   },
   cell: ({ row }) => {
     const date: string = row.getValue("date");
-    const dateStr = date.split("T")[0];
-    const [, month, day] = dateStr.split("-");
-    return <div className="font-medium">{`${month}/${day}`}</div>;
+    return <div className="font-medium">{formatISOString(date)}</div>;
   },
   size: 75,
 };

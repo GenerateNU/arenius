@@ -41,7 +41,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
     }
 
     resetState();
-    setTimeout(() => fetchTableData("unreconciled", {}), 1500);
+    fetchTableData("unreconciled");
   }
 
   async function handleCarbonOffsetReconciliation() {
@@ -56,7 +56,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
     console.log("Reconcile request:", request);
 
     await reconcileBatchOffset(request);
-    setTimeout(() => fetchTableData("offsets", {}), 1500);
+    fetchTableData("offsets");
   }
 
   async function handleLineItemReconciliation() {
@@ -71,7 +71,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
     };
 
     await reconcileBatch(request);
-    setTimeout(() => fetchTableData("reconciled", {}), 1500);
+    fetchTableData("reconciled");
   }
 
   function resetState() {
@@ -102,7 +102,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
           <Input
             type="number"
             className="bg-white max-w-48"
-            value={Number(carbon) ?? "0"}
+            value={Number(carbon) ?? 0}
             onChange={(e) => setCarbon(parseFloat(e.target.value))}
             placeholder="Carbon offset (kg)"
             min="0"

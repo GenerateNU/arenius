@@ -135,7 +135,6 @@ export default function TransactionForm() {
 
     if (user) {
       try {
-        console.log("date", values.date);
         await createLineItem(
           {
             description: values.description,
@@ -161,18 +160,17 @@ export default function TransactionForm() {
           user.company_id
         );
 
-        // add 2 sec timeout to allow for carbon estimates to be made
-        setTimeout(async () => {
-          await fetchTableData("unreconciled", {});
-          await fetchTableData("reconciled", {});
-          await fetchTableData("offsets", {});
-          if (dialogCloseRef.current) {
-            dialogCloseRef.current.click();
-          }
+        await Promise.all([
+          fetchTableData("unreconciled"),
+          fetchTableData("reconciled"),
+          fetchTableData("offsets"),
+        ]);
 
-          setLoading(false);
-        }, 1500);
+        if (dialogCloseRef.current) {
+          dialogCloseRef.current.click();
+        }
 
+        setLoading(false);
         form.reset();
       } catch (error) {
         console.error("Error creating line item:", error);
@@ -366,7 +364,6 @@ export default function TransactionForm() {
                             defaultMonth={new Date()}
                             onSelect={(date) => {
                               if (date) {
-                                // Format the date directly without adjustment
                                 field.onChange(format(date, "yyyy-MM-dd"));
                               } else {
                                 field.onChange("");
@@ -444,8 +441,8 @@ export default function TransactionForm() {
 
             <div className="flex justify-end">
               <Button
-                className="g-[#225244] hover:bg-[#1a3f35] text-white"
-                type="button"
+                className=" hover:bg-deepEvergreen "
+                variant={"default"}
                 onClick={handleNextClick}
               >
                 Next
@@ -454,7 +451,7 @@ export default function TransactionForm() {
           </TabsContent>
 
           {/* Emissions Tab */}
-          <TabsContent value="emissions" className="space-y-6 pt-4">
+          <TabsContent value="emissions" className="space-y-6 pt-4 px-0">
             {transactionType === "transaction" ? (
               <>
                 {/* Scope Selection for Standard Transactions */}
@@ -542,13 +539,13 @@ export default function TransactionForm() {
             <div className="flex justify-between">
               <Button
                 className="bg-gray-100"
-                variant={"outline"}
+                variant="outline"
                 onClick={handleBackClick}
               >
                 Back
               </Button>
               <Button
-                className="bg-[#225244] hover:bg-[#1a3f35] text-white flex items-center"
+                className="bg-moss hover:bg-[#1a3f35] text-white flex items-center"
                 type="submit"
                 disabled={loading}
               >
