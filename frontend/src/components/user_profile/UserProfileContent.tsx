@@ -66,6 +66,16 @@ export default function UserProfileContent() {
     return <div>Loading...</div>;
   }
 
+  const checkpointAccount = async () => {
+    try {
+      await apiClient.patch(
+        `line-item/checkpoint/${user?.company_id}`
+      );
+    } catch (error) {
+      console.error("Error updating dashboard items", error);
+    }
+  }
+
   const handleEditPasswordClick = async () => {
     try {
       await apiClient.post("/auth/forgot-password", { email: user?.email });
@@ -185,7 +195,7 @@ export default function UserProfileContent() {
                 Edit Password
               </span>
               <span className={styles.form.sidebar.link}>Notifications</span>
-              <span className={styles.form.sidebar.link}>Billing</span>
+              <span className={styles.form.sidebar.link}  onClick={checkpointAccount}>Billing</span>
               <hr className={styles.form.sidebar.divider} />
               <div className="w-full">
                 <div className="p-0 flex justify-start items-start" style={{ padding: '0 !important' }}>

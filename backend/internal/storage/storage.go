@@ -21,6 +21,7 @@ type LineItemRepository interface {
 	GetLineItemsByIds(ctx context.Context, lineItemIDs []uuid.UUID) ([]models.LineItem, error)
 	AutoReconcileLineItems(ctx context.Context, companyId uuid.UUID) ([]models.LineItem, error)
 	HandleRecommendation(ctx context.Context, lineItemId uuid.UUID, accept bool) (*models.LineItem, error)
+	Checkpoint(ctx context.Context, companyId uuid.UUID) error
 }
 
 type EmissionsFactorRepository interface {
