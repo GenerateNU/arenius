@@ -50,6 +50,8 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		SameSite: "Lax",
 	})
 
+	tenantID := ""
+
 	// Retrieve and store additional credentials if needed
 	if c.Cookies("tenantID") == "" || c.Cookies("accessToken") == "" || c.Cookies("refreshToken") == "" || c.Cookies("expiry") == "" {
 		xeroCreds, err := h.userRepository.GetCredentialsByUserID(c.Context(), signInResponse.User.ID.String())
@@ -77,33 +79,42 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			Secure:   true,
 			SameSite: "Lax",
 		})
+
+		tenantID = xeroCreds.TenantID.String()
 	}
 
 	// Get tenant ID from cookies
-	tenantID := c.Cookies("tenantID")
-
-	// Create an HTTP request with tenant ID as a query parameter
-	syncURL := fmt.Sprintf("http://localhost:8080/sync-transactions?tenantId=%s", url.QueryEscape(tenantID))
-
-	req, err := http.NewRequest("POST", syncURL, nil)
-	if err != nil {
-		return fmt.Errorf("error creating request: %w", err)
-	}
-
-	// Manually attach the jwt token as a Cookie
+	tID := tenantID
 	jwtToken := signInResponse.AccessToken
-	req.Header.Set("Cookie", fmt.Sprintf("jwt=%s", jwtToken)) // Pass the jwt cookie
 
-	// Make the HTTP request to sync transactions
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("error making request: %w", err)
-	}
-	defer resp.Body.Close()
+	go func() {
+		// Create an HTTP request with tenant ID as a query parameter
+		syncURL := fmt.Sprintf("http://localhost:8080/sync-transactions?tenantId=%s", url.QueryEscape(tID))
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("error syncing transactions, status code: %d", resp.StatusCode)
-	}
+		req, err := http.NewRequest("POST", syncURL, nil)
+		if err != nil {
+			fmt.Printf("Error creating sync request: %v\n", err)
+			return
+		}
+
+		// Manually attach the jwt token as a Cookie
+		req.Header.Set("Cookie", fmt.Sprintf("jwt=%s", jwtToken)) // Pass the jwt cookie
+
+		// Make the HTTP request to sync transactions
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			fmt.Printf("Error making sync request: %v\n", err)
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			fmt.Printf("Error syncing transactions, status code: %d\n", resp.StatusCode)
+			return
+		}
+
+		fmt.Println("Background transaction sync completed successfully")
+	}()
 
 	return c.Status(fiber.StatusOK).JSON(signInResponse)
 }

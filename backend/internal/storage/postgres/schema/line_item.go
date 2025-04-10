@@ -72,10 +72,10 @@ func (r *LineItemRepository) GetLineItems(ctx context.Context, pagination utils.
 		filterFields["li.contact_id="] = *filterParams.ContactID
 	}
 	if filterParams.BeforeDate != nil {
-		filterFields["li.date<="] = filterParams.BeforeDate.UTC().Add(24 * time.Hour)
+		filterFields["li.date<="] = filterParams.BeforeDate.UTC().Truncate(24 * time.Hour).Add(23*time.Hour + 59*time.Minute + 59*time.Second)
 	}
 	if filterParams.AfterDate != nil {
-		filterFields["li.date>="] = filterParams.AfterDate.UTC()
+		filterFields["li.date>="] = filterParams.AfterDate.UTC().Truncate(24 * time.Hour)
 	}
 
 	for col, val := range filterFields {
@@ -449,7 +449,7 @@ func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, company
 		SELECT line_item.description, emission_factor.name AS emissions_factor, emission_factor.activity_id AS emissions_factor_id, line_item.scope
 		FROM line_item
 		JOIN emission_factor ON line_item.emission_factor_id = emission_factor.activity_id
-		WHERE line_item.company_id = $1
+		WHERE line_item.company_id = $1 AND line_item.emission_factor_id IS NOT NULL AND line_item.scope IS NOT NULL
 		ORDER BY line_item.date DESC
 		LIMIT 100;
 	`

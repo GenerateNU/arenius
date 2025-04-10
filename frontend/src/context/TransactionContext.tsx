@@ -27,7 +27,7 @@ interface TableContextType {
   activePage: TableKey;
   setActiveTable: (table: TableKey) => void;
   tableData: Record<TableKey | ScopeKey, LineItem[]>;
-  fetchTableData: (table: TableKey, filters: LineItemFilters) => Promise<void>;
+  fetchTableData: (table: TableKey) => Promise<void>;
   fetchAllData: () => Promise<void>;
   loading: boolean;
   error: string | null;

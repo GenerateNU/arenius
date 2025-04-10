@@ -7,10 +7,15 @@ import {
   SortingState,
   useReactTable,
   getSortedRowModel,
-  Row,
   ColumnDef,
   getPaginationRowModel,
 } from "@tanstack/react-table";
+import { Check, X } from "lucide-react";
+import { useTransactionsContext } from "@/context/TransactionContext";
+import { handleRecommendation } from "@/services/lineItems";
+import LineItemTableActions from "./LineItemTableActions";
+import { DataTablePagination } from "../ui/DataTablePagination";
+import LoadingSpinner from "../ui/loading-spinner";
 import {
   Table,
   TableBody,
@@ -20,14 +25,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { LineItem } from "@/types";
-import LineItemTableActions from "./LineItemTableActions";
-import { ModalDialog } from "./ModalDialog";
-import Image from "next/image";
-import { DataTablePagination } from "../ui/DataTablePagination";
-import { useTransactionsContext } from "@/context/TransactionContext";
-import { Check, X } from "lucide-react";
-import { handleRecommendation } from "@/services/lineItems";
-import LoadingSpinner from "../ui/loading-spinner";
 
 export type LineItemTableProps = {
   activePage: "reconciled" | "unreconciled" | "offsets";
@@ -55,12 +52,6 @@ export default function LineItemTable({
 
   const { tableData, loading } = useTransactionsContext();
 
-  // object and boolean to handle clicking a row's action button
-  const [clickedRowData, setClickedRowData] = useState<Row<LineItem> | null>(
-    null
-  );
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
   // Memoize the rows to avoid unnecessary recomputations
   const rows = useMemo(() => {
     const data = tableData[activeTableData] || [];
@@ -86,34 +77,22 @@ export default function LineItemTable({
 
   const { fetchAllData } = useTransactionsContext();
 
-  // boolean determining if any row is selected
   const rowIsSelected = table
     .getRowModel()
     .rows.some((row) => row.getIsSelected());
-
-  const openEditDialog = (row: Row<LineItem>) => {
-    setClickedRowData(row);
-    setIsDialogOpen(true);
-  };
-
-  const handleReconcileSuccess = () => {
-    fetchAllData();
-    setIsDialogOpen(false);
-  };
 
   const handleAction = async (lineItem: LineItem, approved: boolean) => {
     await handleRecommendation(lineItem.id, approved);
     fetchAllData();
   };
 
-  // Create an array of empty rows for the skeleton when loading
-  const emptyRows = Array(3).fill(null);
+  const emptyRows = Array(3).fill(null); // array of empty rows for the skeleton when loading
 
   return (
     <>
       <div className="rounded-md bg-white">
         <Table>
-          <TableHeader className="h-14" >
+          <TableHeader className="h-14">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -134,10 +113,6 @@ export default function LineItemTable({
                     </TableHead>
                   );
                 })}
-                {/* Add extra header cell for action button column */}
-                {(activePage !== "unreconciled" || activeTableData === "recommended") && (
-                  <TableHead style={{ width: "50px" }}></TableHead>
-                )}
               </TableRow>
             ))}
           </TableHeader>
@@ -146,8 +121,8 @@ export default function LineItemTable({
               // Skeleton loading rows
               emptyRows.map((_, index) => (
                 <TableRow key={`loading-${index}`} className="border-none">
-                  <TableCell 
-                    colSpan={columns.length + (activePage !== "unreconciled" || activeTableData === "recommended" ? 1 : 0)}
+                  <TableCell
+                    colSpan={columns.length}
                     className="h-16 text-center"
                   >
                     {index === 1 && (
@@ -202,25 +177,12 @@ export default function LineItemTable({
                       </div>
                     </TableCell>
                   )}
-
-                  {activePage !== "unreconciled" && activeTableData !== "recommended" && (
-                    <TableCell>
-                      <Image
-                        src="/arrow.svg"
-                        alt="Reconcile"
-                        width={24}
-                        height={24}
-                        onClick={() => openEditDialog(row)}
-                        style={{ cursor: "pointer" }}
-                      />
-                    </TableCell>
-                  )}
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length + (activePage !== "unreconciled" || activeTableData === "recommended" ? 1 : 0)}
+                  colSpan={columns.length}
                   className="h-24 text-center"
                 >
                   No results.
@@ -239,16 +201,6 @@ export default function LineItemTable({
           total_count={tableData[activePage].length}
           setPage={(newPage) => table.setPageIndex(newPage)}
           setPageLimit={(newLimit) => table.setPageSize(newLimit)}
-        />
-      )}
-
-      {isDialogOpen && clickedRowData && (
-        <ModalDialog
-          selectedRowData={clickedRowData.original}
-          isDialogOpen={isDialogOpen}
-          setIsDialogOpen={setIsDialogOpen}
-          onReconcileSuccess={handleReconcileSuccess}
-          type={activePage}
         />
       )}
     </>

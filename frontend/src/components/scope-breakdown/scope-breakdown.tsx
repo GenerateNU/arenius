@@ -50,12 +50,16 @@ const ScopeBreakdownChart = () => {
     value: item.total_co2,
     percentage: ((item.total_co2 / totalEmissions) * 100).toFixed(2),
     fill:
-      item.scopes === 1 ? "#A1F4A4" : item.scopes === 2 ? "#05C569" : "#156641",
+      item.scopes === 1
+        ? styles.colors.scope1
+        : item.scopes === 2
+        ? styles.colors.scope2
+        : styles.colors.scope3,
   }));
 
   const chartConfig = {
     visitors: {
-      label: "CO2 Emissions",
+      label: "CO2e Emissions",
     },
     ...chartData.reduce((acc, item, index) => {
       acc[`Scope${index}`] = {
@@ -67,35 +71,34 @@ const ScopeBreakdownChart = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <Card className="flex flex-col w-full max-w-screen-lg">
-        <CardHeader className="pb-0 text-2xl">
-          <CardTitle className="font-[Arimo] text-4xl">
-            Scope Breakdown
-          </CardTitle>
-          <CardDescription className="font-[Montserrat] py-2">
+    <div className={styles.container}>
+      <Card className={styles.card.container}>
+        <CardHeader className={styles.card.header}>
+          <CardTitle className={styles.card.title}>Scope Breakdown</CardTitle>
+          <CardDescription className={styles.card.description}>
             Total emissions (kg) for{" "}
-            <span className="font-bold">{formattedDateRange}</span>
+            <span className={styles.bold}>{formattedDateRange}</span>
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex justify-center items-center w-full px-6 space-x-6">
+        <CardContent className={styles.card.content}>
           <ChartContainer
-            className="flex justify-center items-center w-[300px] h-[300px] max-w-full"
+            className={styles.card.chartContainer}
             config={chartConfig}
           >
             <ScopeChart chartData={chartData} />
           </ChartContainer>
-          <div className="flex flex-col justify-center space-y-4 font-[Montserrat]">
+          <div className={styles.legend.container}>
             {chartData.map((item, index) => (
-              <div key={index} className="flex items-center space-x-4">
+              <div key={index} className={styles.legend.item}>
                 <div
-                  className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: item.fill }}
+                  className={styles.legend.dot}
+                  style={{ backgroundImage: item.fill }}
                 />
-                <p className="text-sm">{`${item.percentage}%`}</p>
-
-                <div className="bg-[#F6F6F6] rounded-lg p-2 text-sm">
-                  {`${item.name} - ${formatNumber(item.value)} kg CO2`}
+                <p
+                  className={styles.legend.percentage}
+                >{`${item.percentage}%`}</p>
+                <div className={styles.legend.label}>
+                  {`${item.name} - ${formatNumber(item.value)} kg CO2e`}
                 </div>
               </div>
             ))}
@@ -107,3 +110,31 @@ const ScopeBreakdownChart = () => {
 };
 
 export default ScopeBreakdownChart;
+
+const styles = {
+  colors: {
+    scope1: "linear-gradient(to bottom, #D0F5BC, #C3DCB5)",
+    scope2: "linear-gradient(to bottom, #ACC99B, #276E0B)",
+    scope3: "linear-gradient(to bottom, #426227, #0A0F06)",
+    background: "#F6F6F6",
+  },
+  card: {
+    container: "flex flex-col w-full max-w-screen-lg",
+    header: "pb-0 text-2xl",
+    title: "font-[Arimo] text-4xl",
+    description: "font-[Montserrat] py-2",
+    content:
+      "flex flex-col md:flex-row justify-center items-center w-full px-6 space-x-6",
+    chartContainer:
+      "flex justify-center items-center w-[300px] h-[300px] max-w-full",
+  },
+  legend: {
+    container: "flex flex-col justify-center space-y-4 font-[Montserrat]",
+    item: "flex items-center space-x-4",
+    dot: "w-5 h-5 rounded-full",
+    percentage: "text-sm",
+    label: "bg-[#F6F6F6] rounded-lg p-2 text-sm",
+  },
+  container: "flex flex-col items-center justify-center",
+  bold: "font-bold",
+};

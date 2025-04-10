@@ -64,7 +64,7 @@ export default function TopEmissionsFactors() {
                 index % 2 === 0 ? "bg-green-50" : "bg-white"
               }`}
             >
-              <div className="flex items-center">
+              <div className="flex items-center w-2/3">
                 <span className="text-2xl font-bold text-gray-800 pr-6">
                   {factor.rank}
                 </span>
@@ -72,15 +72,30 @@ export default function TopEmissionsFactors() {
                   {factor.emission_factor}
                 </span>
               </div>
-              <div className="text-lg lg:text-md font-medium w-1/4 text-right">
+              <div className="text-lg lg:text-md font-medium w-1/3 text-right">
                 {formatNumber(factor.total_co2)} kg
               </div>
             </div>
           ))
         ) : (
-          <div className="flex h-32 items-center justify-center">
-            <p className="text-gray-500">No emissions data available</p>
-          </div>
+          [1, 2, 3, 4, 5].map((index) => (
+            <div
+              key={"skeleton" + index}
+              className={`flex justify-between items-center px-4 py-2 rounded-lg ${
+                index % 2 === 0 ? "bg-green-50" : "bg-white"
+              }`}
+            >
+              <div className="flex items-center w-2/3 py-5">
+                <div className="pr-6">
+                  <div className="h-6 w-6 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                <div>
+                  <div className="h-5 w-24 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+              <div className="h-5 w-20 ml-auto bg-gray-200 rounded animate-pulse w-1/3 justify-end"></div>
+            </div>
+          ))
         )}
       </CardContent>
     </Card>

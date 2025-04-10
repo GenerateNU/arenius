@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 
-const XeroSSOButton: React.FC<{ onGoBack: () => void }> = ({ onGoBack }) => {
+const XeroSSOButton: React.FC<{ onGoBack?: () => void }> = ({ onGoBack }) => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -25,18 +25,28 @@ const XeroSSOButton: React.FC<{ onGoBack: () => void }> = ({ onGoBack }) => {
 
   return (
     <div className="text-1xl font-extrabold p-12 flex flex-col items-center">
-      <h2 className="text-3xl font-extrabold p-12">Connect with Xero</h2>
+      {onGoBack ? (
+      <>
+        <h2 className="text-3xl font-extrabold p-12">Connect with Xero</h2>
+        <span
+          data-xero-sso
+          data-href={process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/xero"}
+          data-label="Sign In with Xero" 
+        />
+        <button
+          onClick={onGoBack}
+          className="mt-6 bg-gray-300 hover:bg-gray-400 text-black font-semibold px-6 py-2 rounded-md"
+        >
+          Go Back
+        </button>
+      </>
+    ) : (
       <span
         data-xero-sso
         data-href={process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/xero"}
-        data-label="Sign In with Xero"
+        data-label="Re Auth Xero" 
       />
-      <button
-        onClick={onGoBack}
-        className="mt-6 bg-gray-300 hover:bg-gray-400 text-black font-semibold px-6 py-2 rounded-md"
-      >
-        Go Back
-      </button>
+    )}
     </div>
   );
 };

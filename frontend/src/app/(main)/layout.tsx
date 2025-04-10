@@ -11,6 +11,7 @@ import TransactionsIcon from "@/components/icons/transactions";
 import { ProfileDropdown } from "@/components/user_profile/ProfileDropdown";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import onboardingLogo from "@/assets/onboarding-logo.png";
+import { Toaster } from "@/components/ui/sonner";
 
 interface LayoutProps {
   children: ReactNode;
@@ -95,6 +96,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </div>
       <div className="flex-grow px-4 md:px-20 bg-grayBackground">
+        <Toaster />
         {children}
       </div>
     </div>

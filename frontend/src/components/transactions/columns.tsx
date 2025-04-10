@@ -1,8 +1,13 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { LineItem } from "@/types";
+import { useState } from "react";
+import { ColumnDef, Row } from "@tanstack/react-table";
+import { ChevronRight } from "lucide-react";
+
+import { useTransactionsContext } from "@/context/TransactionContext";
+import { ModalDialog } from "./ModalDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnHeader } from "../ui/columnHeader";
-import { textConstants } from "@/lib/utils";
+import { formatISOString, textConstants } from "@/lib/utils";
+import { LineItem } from "@/types";
 
 const selectColumn: ColumnDef<LineItem> = {
   id: "select",
@@ -34,9 +39,7 @@ const dateColumn: ColumnDef<LineItem> = {
   },
   cell: ({ row }) => {
     const date: string = row.getValue("date");
-    const dateStr = date.split("T")[0];
-    const [, month, day] = dateStr.split("-");
-    return <div className="font-medium">{`${month}/${day}`}</div>;
+    return <div className="font-medium">{formatISOString(date)}</div>;
   },
   size: 75,
 };
@@ -52,10 +55,12 @@ const scopeColumn: ColumnDef<LineItem> = {
       />
     );
   },
-  size: 50,
+  size: 80,
   cell: ({ row }) => {
     return (
-      <div className="text-right font-medium pr-4">{row.getValue("scope")}</div>
+      <div className="text-center font-medium pr-4">
+        {row.getValue("scope")}
+      </div>
     );
   },
 };
@@ -140,11 +145,11 @@ const co2Column: ColumnDef<LineItem> = {
   },
   cell: ({ row }) => {
     const co2 = parseFloat(row.getValue("co2"));
-    const formatted = !Number.isNaN(co2) ? `${co2} kg` : "";
+    const formatted = !Number.isNaN(co2) ? `${co2.toFixed(0)} kg` : "";
 
     return <div className="font-medium">{formatted}</div>;
   },
-  size: 75,
+  size: 100,
 };
 const amountColumn: ColumnDef<LineItem> = {
   accessorKey: "total_amount",
@@ -162,8 +167,45 @@ const amountColumn: ColumnDef<LineItem> = {
 
     return <div className="text-right font-medium pr-4">{formatted}</div>;
   },
-  size: 80,
+  size: 100,
 };
+
+function ModalCell({
+  row,
+  type,
+}: {
+  row: Row<LineItem>;
+  type: "offsets" | "reconciled" | "unreconciled";
+}) {
+  const { fetchAllData } = useTransactionsContext();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const dataRow = row.original;
+
+  return (
+    <div className="flex justify-end">
+      <ChevronRight
+        className="cursor-pointer"
+        onClick={() => setIsDialogOpen(true)}
+      />
+      <ModalDialog
+        selectedRowData={dataRow}
+        isDialogOpen={isDialogOpen}
+        setIsDialogOpen={setIsDialogOpen}
+        onReconcileSuccess={fetchAllData}
+        type={type}
+      />
+    </div>
+  );
+}
+
+function getModalColumn(type: "offsets" | "reconciled" | "unreconciled") {
+  const modalColumn: ColumnDef<LineItem> = {
+    id: "actions",
+    cell: ({ row }) => <ModalCell row={row} type={type} />,
+    size: 60,
+  };
+  return modalColumn;
+}
 
 export const unreconciledColumns: ColumnDef<LineItem>[] = [
   selectColumn,
@@ -171,8 +213,10 @@ export const unreconciledColumns: ColumnDef<LineItem>[] = [
   descriptionColumn,
   contactColumn,
   amountColumn,
+  getModalColumn("unreconciled"),
 ];
-export const scopeReconciledColumns: ColumnDef<LineItem>[] = [
+
+export const baseColumns: ColumnDef<LineItem>[] = [
   dateColumn,
   descriptionColumn,
   emissionFactorColumn,
@@ -180,10 +224,18 @@ export const scopeReconciledColumns: ColumnDef<LineItem>[] = [
   contactColumn,
   amountColumn,
 ];
-export const allReconciledColumns: ColumnDef<LineItem>[] = [
-  ...scopeReconciledColumns,
-  scopeColumn,
+
+export const scopeReconciledColumns: ColumnDef<LineItem>[] = [
+  ...baseColumns,
+  getModalColumn("reconciled"),
 ];
+
+export const allReconciledColumns: ColumnDef<LineItem>[] = [
+  ...baseColumns,
+  scopeColumn,
+  getModalColumn("reconciled"),
+];
+
 export const recommendationColumns: ColumnDef<LineItem>[] = [
   dateColumn,
   descriptionColumn,
@@ -195,8 +247,9 @@ export const recommendationColumns: ColumnDef<LineItem>[] = [
 
 export const offsetColumns: ColumnDef<LineItem>[] = [
   dateColumn,
-  descriptionColumn, // Not on carbon offsets table
-  co2Column, // We have a total_amount_kg field instead, this needs its own column
-  contactColumn, // Not on carbon offsets table (there is a source field though)
-  amountColumn, // Not on carbon offets table
+  descriptionColumn,
+  co2Column,
+  contactColumn,
+  amountColumn,
+  getModalColumn("offsets"),
 ];
