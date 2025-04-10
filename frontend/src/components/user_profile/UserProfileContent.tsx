@@ -28,6 +28,7 @@ import { UserProfilePicture } from "./ProfilePicture";
 import LoadingSpinner from "../ui/loading-spinner";
 import CustomAlert from "../ui/CustomAlert";
 import { UpdateUserProfileRequest } from "@/types";
+import XeroSSOButton from "../onboarding/xero-button";
 
 const formSchema = z.object({
   first_name: z.string(),
@@ -187,6 +188,7 @@ export default function UserProfileContent() {
               <span className={styles.form.sidebar.link}>Billing</span>
               <hr className={styles.form.sidebar.divider} />
               <DeleteAccountButton />
+              <XeroSSOButton />
             </div>
           </div>
 
