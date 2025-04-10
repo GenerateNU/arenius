@@ -28,6 +28,7 @@ import { UserProfilePicture } from "./ProfilePicture";
 import LoadingSpinner from "../ui/loading-spinner";
 import CustomAlert from "../ui/CustomAlert";
 import { UpdateUserProfileRequest } from "@/types";
+import XeroSSOButton from "../onboarding/xero-button";
 
 const formSchema = z.object({
   first_name: z.string(),
@@ -186,6 +187,11 @@ export default function UserProfileContent() {
               <span className={styles.form.sidebar.link}>Notifications</span>
               <span className={styles.form.sidebar.link}>Billing</span>
               <hr className={styles.form.sidebar.divider} />
+              <div className="w-full">
+                <div className="p-0 flex justify-start items-start" style={{ padding: '0 !important' }}>
+                    <XeroSSOButton />
+                </div>
+                </div>
               <DeleteAccountButton />
             </div>
           </div>

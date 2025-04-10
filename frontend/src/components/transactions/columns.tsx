@@ -145,7 +145,7 @@ const co2Column: ColumnDef<LineItem> = {
   },
   cell: ({ row }) => {
     const co2 = parseFloat(row.getValue("co2"));
-    const formatted = !Number.isNaN(co2) ? `${co2} kg` : "";
+    const formatted = !Number.isNaN(co2) ? `${co2.toFixed(0)} kg` : "";
 
     return <div className="font-medium">{formatted}</div>;
   },

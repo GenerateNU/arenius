@@ -25,6 +25,8 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 		RefreshToken: refreshToken,
 	}
 
+	fmt.Println("token", token)
+
 	tenantId := company.XeroTenantID
 	url := "https://api.xero.com/api.xro/2.0/BankTransactions"
 
@@ -32,12 +34,16 @@ func (h *Handler) syncCompanyTransactions(ctx *fiber.Ctx, company models.Tenant)
 	newToken, err := tokenSource.Token()
 	if err != nil {
 		fmt.Println(err)
+		fmt.Println("failed to refresh access token")
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to refresh access token")
 	}
 
 	accessToken := newToken.AccessToken
+	fmt.Println("new token", newToken)
+	fmt.Println("access", accessToken)
 	e := h.UserRepository.SetUserCredentials(ctx.Context(), *company.UserID, company.ID, newToken.RefreshToken, *company.XeroTenantID)
 	if e != nil {
+		fmt.Println("error updating user credentials", e)
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Failed to update user credentials")
 	}
 

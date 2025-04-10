@@ -83,7 +83,7 @@ export default function LineItemTable({
 
   const handleAction = async (lineItem: LineItem, approved: boolean) => {
     await handleRecommendation(lineItem.id, approved);
-    fetchAllData();
+    setTimeout(() => fetchAllData(), 1500);
   };
 
   const emptyRows = Array(3).fill(null); // array of empty rows for the skeleton when loading
