@@ -37,7 +37,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@radix-ui/react-popover";
-import { Calendar as CalendarIcon } from "lucide-react"; // Icon, not component
+import { Calendar as CalendarIcon, Search } from "lucide-react"; // Icon, not component
 import { Calendar } from "@/components/ui/calendar"; // The actual calendar component
 
 import { format, parseISO } from "date-fns";
@@ -52,7 +52,7 @@ const formSchema = z.object({
     .min(2, { message: "Description is required (min 2 characters)" })
     .max(50),
   amount: z.coerce
-    .number()
+    .number({ message: "Amount is required" })
     .min(0.01, { message: "Amount must be greater than 0" }),
   currency_code: z.enum(["USD", "EUR", "GBP", "JPY", "AUD"]),
   date: z.string().min(1, { message: "Date is required" }),
@@ -72,7 +72,10 @@ export default function TransactionForm() {
   const { user } = useAuth();
   const { data: contactResponse } = useContacts();
   const { fetchTableData } = useTransactionsContext();
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const dialogCloseRef = useRef<HTMLButtonElement>(null);
+
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -280,7 +283,7 @@ export default function TransactionForm() {
           </TabsList>
 
           {/* General Tab */}
-          <TabsContent value="general" className="space-y-6 pt-4">
+          <TabsContent value="general" className="space-y-6 pt-4 px-0">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
@@ -291,10 +294,7 @@ export default function TransactionForm() {
                       Description <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="e.g. January electricity"
-                        {...field}
-                      />
+                      <Input placeholder="January electricity" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -395,19 +395,28 @@ export default function TransactionForm() {
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
+                      onOpenChange={(isOpen) => {
+                        if (isOpen) {
+                          setTimeout(() => {
+                            searchInputRef.current?.focus();
+                          }, 0); // Delay to ensure Input is mounted before focusing
+                        }
+                      }}
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Search or select contact" />
                       </SelectTrigger>
                       <SelectContent>
-                        <div className="p-2 sticky top-0 bg-white z-10 border-b">
-                          <input
+                        <div className="px-2 py-1 bg-white z-10 flex space-x-2 items-center border-b">
+                          <Search />
+                          <Input
+                            ref={searchInputRef}
                             type="text"
                             placeholder="Search contacts..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             onKeyDownCapture={(e) => e.stopPropagation()}
-                            className="w-full px-2 py-1 border rounded text-sm"
+                            className="w-full border-none shadow-none px-2 py-1 rounded text-sm"
                           />
                         </div>
 
@@ -461,7 +470,7 @@ export default function TransactionForm() {
                             <button
                               key={value}
                               type="button"
-                              className={`text-center py-3 border rounded-md ${
+                              className={`text-center py-2 border rounded-md ${
                                 field.value === value
                                   ? "border-[#225244] bg-[#f1f8f6] text-[#225244] font-medium"
                                   : "border-gray-300 hover:bg-gray-50"
@@ -532,8 +541,8 @@ export default function TransactionForm() {
 
             <div className="flex justify-between">
               <Button
-                className="bg-gray-500 hover:bg-gray-600 text-white"
-                type="button"
+                className="bg-gray-100"
+                variant={"outline"}
                 onClick={handleBackClick}
               >
                 Back
@@ -557,7 +566,7 @@ export default function TransactionForm() {
                 )}
               </Button>
             </div>
-            <DialogClose ref={dialogCloseRef} />
+            <DialogClose hidden ref={dialogCloseRef} />
           </TabsContent>
         </Tabs>
       </form>
