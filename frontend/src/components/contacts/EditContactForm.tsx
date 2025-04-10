@@ -25,6 +25,8 @@ const contactSchema = z.object({
   phone: z.string().min(1, "Phone number is required"),
   city: z.string().optional(),
   state: z.string().optional(),
+  clientOverview: z.string().optional(),
+  notes: z.string().optional(),
 });
 
 export type ContactFormData = z.infer<typeof contactSchema>;
@@ -47,6 +49,8 @@ const EditContactForm = ({
       phone: contact.phone,
       city: contact.city,
       state: contact.state,
+      clientOverview: contact.client_overview,
+      notes: contact.notes,
     },
   });
 
@@ -117,6 +121,34 @@ const EditContactForm = ({
               <FormLabel>State</FormLabel>
               <FormControl>
                 <Input placeholder="CA" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="clientOverview"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Client Overview</FormLabel>
+              <FormControl>
+                <Input placeholder="" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="notes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Notes</FormLabel>
+              <FormControl>
+                <Input placeholder="" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
