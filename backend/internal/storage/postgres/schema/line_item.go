@@ -660,7 +660,7 @@ func (r *LineItemRepository) Checkpoint(ctx context.Context, companyId uuid.UUID
 		`)
 
 	if err != nil {
-		tx.Rollback(ctx)
+		err := tx.Rollback(ctx)
 		if err != nil && err != sql.ErrTxDone {
 			log.Fatalf("rollback failed: %v", err)
 		}
