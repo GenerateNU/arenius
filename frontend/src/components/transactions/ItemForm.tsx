@@ -511,7 +511,8 @@ export default function TransactionForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      CO2e Amount (kg) <span className="text-red-500">*</span>
+                      CO<sub>2</sub>e Amount (kg){" "}
+                      <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <Input

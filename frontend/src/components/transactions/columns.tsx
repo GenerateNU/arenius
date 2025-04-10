@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ColumnDef, Row } from "@tanstack/react-table";
-import { ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronUp, HelpCircle } from "lucide-react";
 
 import { useTransactionsContext } from "@/context/TransactionContext";
 import { ModalDialog } from "./ModalDialog";
@@ -8,6 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnHeader } from "../ui/columnHeader";
 import { textConstants } from "@/lib/utils";
 import { LineItem } from "@/types";
+import { Button } from "../ui/button";
+import { Tooltip } from "../ui/tooltip";
 
 const selectColumn: ColumnDef<LineItem> = {
   id: "select",
@@ -136,11 +138,21 @@ const co2Column: ColumnDef<LineItem> = {
   accessorKey: "co2",
   header: ({ column }) => {
     return (
-      <ColumnHeader
-        name="CO2e"
-        column={column}
-        tooltipContent={textConstants.carbonOffset}
-      />
+      <Button
+        className="font-bold font-[Arimo]"
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        <p>
+          CO<sub>2</sub>e
+        </p>
+
+        <Tooltip textContent={textConstants.carbonOffset}>
+          <HelpCircle className="w-2 h-2 text-gray-500" />
+        </Tooltip>
+
+        {column.getIsSorted() == "asc" ? <ChevronUp /> : <ChevronDown />}
+      </Button>
     );
   },
   cell: ({ row }) => {

@@ -393,13 +393,13 @@ export default function ContactDetailsContent() {
               <div className="p-4 flex justify-between items-center">
                 <h3 className="font-medium">Reconciled Emissions</h3>
                 <p className="font-bold">
-                  {summary.totalEmissions.toFixed(0)} Kg CO<sub>2</sub>
+                  {summary.totalEmissions.toFixed(0)} kg CO<sub>2</sub>e
                 </p>
               </div>
               <div className="p-4 flex justify-between items-center">
                 <h3 className="font-medium">Offset Emissions</h3>
                 <p className="font-bold">
-                  {summary.totalOffset.toFixed(0)} Kg CO<sub>2</sub>
+                  {summary.totalOffset.toFixed(0)} kg CO<sub>2</sub>e
                 </p>
               </div>
             </div>

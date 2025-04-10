@@ -98,7 +98,8 @@ const ScopeBreakdownChart = () => {
                   className={styles.legend.percentage}
                 >{`${item.percentage}%`}</p>
                 <div className={styles.legend.label}>
-                  {`${item.name} - ${formatNumber(item.value)} kg CO2e`}
+                  {`${item.name} - ${formatNumber(item.value)} kg CO`}
+                  <sub>2</sub>e
                 </div>
               </div>
             ))}
