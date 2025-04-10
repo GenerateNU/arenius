@@ -117,9 +117,9 @@ function Header({
         viewMode={viewMode}
         setViewMode={setViewMode}
       />
-      <div className="flex justify-between items-center mt-4">
+      <div className="flex flex-col lg:flex-row justify-between gap-4 mt-4">
         <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
           <LineItemTableFilters />
           {activePage === "reconciled" && (
             <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
@@ -250,6 +250,6 @@ const styles = {
   reconciliationToggle: "flex mt-4 bg-gray-100 rounded-lg w-full",
   header: "flex items-center justify-between mb-4",
   searchContainer: "flex space-x-8",
-  searchWrapper: "relative w-1/3",
+  searchWrapper: "relative w-full lg:w-1/3",
   button: "rounded-md w-full",
 };

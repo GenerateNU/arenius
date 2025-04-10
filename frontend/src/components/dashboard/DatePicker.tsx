@@ -230,7 +230,7 @@ function DateButton({
       id={id}
       variant={"ghost"}
       className={cn(
-        "bg-white justify-center text-left font-medium w-40 rounded-lg shadow-md"
+        "bg-white justify-center text-left font-medium px-4 rounded-lg shadow-md"
       )}
       onClick={onClick}
     >

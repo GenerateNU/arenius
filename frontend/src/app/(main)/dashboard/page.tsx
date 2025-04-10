@@ -77,13 +77,12 @@ const DashboardContent: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full py-0">
-      <div className="w-[calc(100%+64px)] p-8 pt-18 overflow-hidden relative rounded-b-2xl -mx-8">
+      <div className="w-[calc(100%+64px] p-8 pt-24 overflow-hidden relative rounded-b-2xl -mx-8">
         <Image
           src={headerImage}
           fill
-          className="object-cover z-0"
-          quality={100}
-          alt={""}
+          className="object-cover object-[center_10%] z-0"
+          alt={"Forest"}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 to-transparent" />
         <div className="relative z-30 flex flex-row w-full justify-between items-end">

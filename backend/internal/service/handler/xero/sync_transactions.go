@@ -54,6 +54,13 @@ func (h *Handler) SyncTransactions(ctx *fiber.Ctx) error {
 			log.Printf("Successfully synced transactions for company %s\n", company.ID)
 		}
 
+		err = h.getRecommendationsForCompany(ctx, company.ID)
+		if err != nil {
+			log.Printf("Error getting recommendations for company %s: %v\n", company.ID, err)
+		} else {
+			log.Printf("Successfully retrieved recommendations for company %s\n", company.ID)
+		}
+
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{

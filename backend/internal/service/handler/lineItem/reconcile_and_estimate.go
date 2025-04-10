@@ -1,10 +1,10 @@
 package lineItem
 
 import (
+	"arenius/internal/errs"
 	"arenius/internal/models"
 	"arenius/internal/service/climatiq"
 	"arenius/internal/service/ctxt"
-	"context"
 	"fmt"
 	"strings"
 
@@ -57,7 +57,6 @@ func (h *Handler) ReconcileAndEstimate(ctx *fiber.Ctx, lineItemIDs []uuid.UUID, 
 		return nil
 	}
 
-	// Get Climatiq Client outside the goroutine
 	climatiqClient, err := ctxt.GetClimatiqClient(ctx)
 	if err != nil || climatiqClient == nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to get Climatiq client"})
@@ -67,33 +66,31 @@ func (h *Handler) ReconcileAndEstimate(ctx *fiber.Ctx, lineItemIDs []uuid.UUID, 
 	bgCtx := ctx.Context()
 
 	// Step 4: Estimate emissions concurrently
-	go func(client *climatiq.Client, bgCtx context.Context) {
-		response, err := client.BatchEstimate(bgCtx, &estimates)
-		if err != nil {
-			fmt.Println("Error estimating carbon emissions:", err)
-			return
-		}
+	response, err := climatiqClient.BatchEstimate(bgCtx, &estimates)
+	if err != nil {
+		fmt.Println("Error estimating carbon emissions:", err)
+		return errs.InternalServerError()
+	}
 
-		// Step 5: Update Line Items with Emissions Data
-		var eg errgroup.Group
-		for i, result := range response.Results {
-			i, result := i, result // Capture loop variable
-			eg.Go(func() error {
-				updateReq := models.LineItemEmissionsRequest{
-					LineItemId: lineItems[i].ID,
-					CO2:        result.CO2e,
-					CO2Unit:    result.CO2eUnit,
-				}
-				_, err := h.lineItemRepository.AddLineItemEmissions(bgCtx, updateReq)
-				return err
-			})
-		}
+	// Step 5: Update Line Items with Emissions Data
+	var eg errgroup.Group
+	for i, result := range response.Results {
+		i, result := i, result // Capture loop variable
+		eg.Go(func() error {
+			updateReq := models.LineItemEmissionsRequest{
+				LineItemId: lineItems[i].ID,
+				CO2:        result.CO2e,
+				CO2Unit:    result.CO2eUnit,
+			}
+			_, err := h.lineItemRepository.AddLineItemEmissions(bgCtx, updateReq)
+			return err
+		})
+	}
 
-		// Wait for all updates to complete
-		if err := eg.Wait(); err != nil {
-			fmt.Println("Error updating line item emissions:", err)
-		}
-	}(climatiqClient, bgCtx) // Pass copied context
+	// Wait for all updates to complete
+	if err := eg.Wait(); err != nil {
+		fmt.Println("Error updating line item emissions:", err)
+	}
 
 	return nil
 }

@@ -78,3 +78,20 @@ body {
     ry: 12px;
   }
 }
+
+
+[data-xero-sso] button {
+  width: 100% !important;
+  display: block !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+}
+
+/* Target the div that wraps the XeroSSOButton to remove padding */
+.text-1xl.font-extrabold.p-12.flex.flex-col.items-center {
+  padding: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+}
