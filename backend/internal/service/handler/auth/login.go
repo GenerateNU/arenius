@@ -50,6 +50,8 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		SameSite: "Lax",
 	})
 
+	tenantID := ""
+
 	// Retrieve and store additional credentials if needed
 	if c.Cookies("tenantID") == "" || c.Cookies("accessToken") == "" || c.Cookies("refreshToken") == "" || c.Cookies("expiry") == "" {
 		xeroCreds, err := h.userRepository.GetCredentialsByUserID(c.Context(), signInResponse.User.ID.String())
@@ -77,15 +79,17 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			Secure:   true,
 			SameSite: "Lax",
 		})
+
+		tenantID = xeroCreds.TenantID.String()
 	}
 
 	// Get tenant ID from cookies
-	tenantID := c.Cookies("tenantID")
+	tID := tenantID
 	jwtToken := signInResponse.AccessToken
 
 	go func() {
 		// Create an HTTP request with tenant ID as a query parameter
-		syncURL := fmt.Sprintf("http://localhost:8080/sync-transactions?tenantId=%s", url.QueryEscape(tenantID))
+		syncURL := fmt.Sprintf("http://localhost:8080/sync-transactions?tenantId=%s", url.QueryEscape(tID))
 
 		req, err := http.NewRequest("POST", syncURL, nil)
 		if err != nil {

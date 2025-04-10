@@ -448,7 +448,7 @@ func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, company
 		SELECT line_item.description, emission_factor.name AS emissions_factor, emission_factor.activity_id AS emissions_factor_id, line_item.scope
 		FROM line_item
 		JOIN emission_factor ON line_item.emission_factor_id = emission_factor.activity_id
-		WHERE line_item.company_id = $1
+		WHERE line_item.company_id = $1 and line_item.scope != null
 		ORDER BY line_item.date DESC
 		LIMIT 100;
 	`
