@@ -59,7 +59,7 @@ const ScopeBreakdownChart = () => {
 
   const chartConfig = {
     visitors: {
-      label: "CO2e Emissions",
+      label: "CO₂e Emissions",
     },
     ...chartData.reduce((acc, item, index) => {
       acc[`Scope${index}`] = {

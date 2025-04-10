@@ -39,7 +39,7 @@ const ScopeChart: React.FC<{
           <Cell key={`cell-${index}`} fill={`url(#${index + 1})`} />
         ))}
         <Label
-          value={`${formatNumber(totalEmissions)} kg CO2e`}
+          value={`${formatNumber(totalEmissions)} kg CO₂e`}
           position="center"
           fontSize={24}
           fill="#333"

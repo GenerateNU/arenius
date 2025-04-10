@@ -98,8 +98,8 @@ export default function NetEmissionsBarGraph() {
             <CardTitle className="font-header text-4xl mb-2 font-semibold">
               Net Emissions
             </CardTitle>
-            <CardDescription className="text-black text-4xl font-semibold font-[Arimo]">
-              {totalEmissions || 0} kg
+            <CardDescription className="text-black text-3xl font-semibold font-[Arimo]">
+              {totalEmissions || 0} kg CO₂e
             </CardDescription>
           </div>
           <CustomLegend />
