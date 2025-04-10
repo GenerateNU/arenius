@@ -222,12 +222,14 @@ function CategoryItem({
         className={styles.dropdownButton}
         onClick={() => setExpanded(!expanded)}
       >
-        <p className="text-wrap">{category.name}</p>
-        {expanded ? (
-          <ChevronDown className="w-4 h-4" />
-        ) : (
-          <ChevronRight className="w-4 h-4" />
-        )}
+        <div>{category.name}</div>
+        <div className="ml-3">
+          {expanded ? (
+            <ChevronDown className="w-4 h-4" />
+          ) : (
+            <ChevronRight className="w-4 h-4" />
+          )}
+        </div>
       </Button>
       {expanded && (
         <EmissionsFactorList
@@ -250,7 +252,7 @@ function EmissionsFactorList({
   setCategories,
 }: EmissionsFactorListProps) {
   return (
-    <div className="flex flex-col gap-2">
+    <div>
       {emissionsFactors.length > 0 ? (
         emissionsFactors.map((emissionsFactor) => (
           <EmissionsFactorItem
@@ -359,7 +361,7 @@ function FavoriteStar({
   };
 
   return (
-    <Button variant="ghost" onClick={toggleFavorite}>
+    <Button variant="ghost" onClick={toggleFavorite} className="pr-3">
       <Image
         src={isFavorite ? "/filled_star.svg" : "/Star.svg"}
         alt={isFavorite ? "Remove from favorites" : "Add to favorites"}
@@ -377,8 +379,8 @@ const styles = {
   searchIcon:
     "absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500",
   input: "pl-10 border-none focus:ring-0",
-  categoryList: "py-2 max-h-60 overflow-y-auto",
+  categoryList: "py-2 px-2 max-h-60 overflow-y-auto",
   dropdownButton:
-    "flex justify-between items-center px-3 py-2 text-left text-wrap w-full",
+    "flex justify-between items-center px-3 py-2 text-left text-wrap w-full h-full",
   noResults: "px-2 text-gray-500 text-sm",
 };
