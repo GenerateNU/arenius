@@ -1,8 +1,13 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { LineItem } from "@/types";
+import { useState } from "react";
+import { ColumnDef, Row } from "@tanstack/react-table";
+import { ChevronRight } from "lucide-react";
+
+import { useTransactionsContext } from "@/context/TransactionContext";
+import { ModalDialog } from "./ModalDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnHeader } from "../ui/columnHeader";
 import { textConstants } from "@/lib/utils";
+import { LineItem } from "@/types";
 
 const selectColumn: ColumnDef<LineItem> = {
   id: "select",
@@ -52,7 +57,7 @@ const scopeColumn: ColumnDef<LineItem> = {
       />
     );
   },
-  size: 50,
+  size: 60,
   cell: ({ row }) => {
     return (
       <div className="text-right font-medium pr-4">{row.getValue("scope")}</div>
@@ -165,14 +170,53 @@ const amountColumn: ColumnDef<LineItem> = {
   size: 80,
 };
 
+function ModalCell({
+  row,
+  type,
+}: {
+  row: Row<LineItem>;
+  type: "offsets" | "reconciled" | "unreconciled";
+}) {
+  const { fetchAllData } = useTransactionsContext();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const dataRow = row.original;
+
+  return (
+    <div className="flex justify-end">
+      <ChevronRight
+        className="cursor-pointer"
+        onClick={() => setIsDialogOpen(true)}
+      />
+      <ModalDialog
+        selectedRowData={dataRow}
+        isDialogOpen={isDialogOpen}
+        setIsDialogOpen={setIsDialogOpen}
+        onReconcileSuccess={fetchAllData}
+        type={type}
+      />
+    </div>
+  );
+}
+
+function getModalColumn(type: "offsets" | "reconciled" | "unreconciled") {
+  const modalColumn: ColumnDef<LineItem> = {
+    id: "actions",
+    cell: ({ row }) => <ModalCell row={row} type={type} />,
+    size: 40,
+  };
+  return modalColumn;
+}
+
 export const unreconciledColumns: ColumnDef<LineItem>[] = [
   selectColumn,
   dateColumn,
   descriptionColumn,
   contactColumn,
   amountColumn,
+  getModalColumn("unreconciled"),
 ];
-export const scopeReconciledColumns: ColumnDef<LineItem>[] = [
+
+export const baseColumns: ColumnDef<LineItem>[] = [
   dateColumn,
   descriptionColumn,
   emissionFactorColumn,
@@ -180,10 +224,18 @@ export const scopeReconciledColumns: ColumnDef<LineItem>[] = [
   contactColumn,
   amountColumn,
 ];
-export const allReconciledColumns: ColumnDef<LineItem>[] = [
-  ...scopeReconciledColumns,
-  scopeColumn,
+
+export const scopeReconciledColumns: ColumnDef<LineItem>[] = [
+  ...baseColumns,
+  getModalColumn("reconciled"),
 ];
+
+export const allReconciledColumns: ColumnDef<LineItem>[] = [
+  ...baseColumns,
+  scopeColumn,
+  getModalColumn("reconciled"),
+];
+
 export const recommendationColumns: ColumnDef<LineItem>[] = [
   dateColumn,
   descriptionColumn,
@@ -199,4 +251,5 @@ export const offsetColumns: ColumnDef<LineItem>[] = [
   co2Column, // We have a total_amount_kg field instead, this needs its own column
   contactColumn, // Not on carbon offsets table (there is a source field though)
   amountColumn, // Not on carbon offets table
+  getModalColumn("offsets"),
 ];

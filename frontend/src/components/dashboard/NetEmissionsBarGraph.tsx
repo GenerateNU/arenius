@@ -78,6 +78,8 @@ export default function NetEmissionsBarGraph() {
   const { summary } = useEmissionSummary();
   const { formattedDateRange } = useDateRange();
 
+  if (!summary) return null;
+
   const chartData =
     summary.months?.map((month: MonthSummary) => ({
       month: formatDate(month.month_start, "shortMonth"),

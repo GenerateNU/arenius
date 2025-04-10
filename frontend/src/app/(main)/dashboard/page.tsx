@@ -11,7 +11,9 @@ import ContactEmissionsTreeMap from "@/components/dashboard/ContactEmissionsTree
 import TopEmissionsFactors from "@/components/dashboard/TopEmissions";
 import ScopeBreakdownChart from "@/components/scope-breakdown/scope-breakdown";
 import NetEmissionsBarGraph from "@/components/dashboard/NetEmissionsBarGraph";
-
+import useEmissionSummary from "@/hooks/useEmissionSummary";
+import EmptyDashboard from "@/components/dashboard/EmptyDashboard";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 const DashboardContent: React.FC = () => {
   const { dateRange, setDateRange } = useDateRange();
 
@@ -71,9 +73,11 @@ const DashboardContent: React.FC = () => {
     };
   }, []);
 
+  const { summary, isSummaryLoading } = useEmissionSummary();
+
   return (
-    <div>
-      <div className="w-[calc(100%+64px)] pt-24 p-8 overflow-hidden relative rounded-2xl -mx-8">
+    <div className="flex flex-col h-full py-0">
+      <div className="w-[calc(100%+64px)] p-8 pt-18 overflow-hidden relative rounded-b-2xl -mx-8">
         <Image
           src={headerImage}
           fill
@@ -83,7 +87,7 @@ const DashboardContent: React.FC = () => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 to-transparent" />
         <div className="relative z-30 flex flex-row w-full justify-between items-end">
-          <h1 className="text-3xl text-primary-foreground font-bold">
+          <h1 className="text-header text-3xl text-primary-foreground font-bold">
             Carbon Management Dashboard
           </h1>
           <div>
@@ -95,32 +99,42 @@ const DashboardContent: React.FC = () => {
         </div>
       </div>
 
-      {/* Main dashboard grid */}
-      <div className="mt-14 grid grid-cols-1 lg:grid-cols-12 gap-2">
-        {/* Left column */}
-        <div className="lg:col-span-7 col-span-1 flex flex-col gap-2">
-          <div ref={topLeftRef} className="rounded-lg p-2">
-            <GrossSummary />
+      <div className="flex-grow flex flex-col">
+        {isSummaryLoading || !summary ? (
+          <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-50 z-50">
+            <LoadingSpinner size={60} className="opacity-80" />
           </div>
-          <div ref={bottomLeftRef} className="rounded-lg p-2">
-            <ScopeBreakdownChart />
+        ) : summary.gross_co2 === 0 ? (
+          <div className="flex-grow flex items-center justify-center">
+            <EmptyDashboard />
           </div>
-        </div>
+        ) : (
+          <div className="flex-grow flex flex-col">
+            <div className="mt-14 grid grid-cols-1 lg:grid-cols-12 gap-2">
+              <div className="lg:col-span-7 col-span-1 flex flex-col gap-2">
+                <div ref={topLeftRef} className="rounded-lg p-2">
+                  <GrossSummary />
+                </div>
+                <div ref={bottomLeftRef} className="rounded-lg p-2">
+                  <ScopeBreakdownChart />
+                </div>
+              </div>
 
-        {/* Right column */}
-        <div className="lg:col-span-5 col-span-1 flex flex-col gap-2">
-          <div ref={topRightRef} className="rounded-lg p-2">
-            <TopEmissionsFactors />
-          </div>
-          <div ref={bottomRightRef} className="rounded-lg p-2">
-            <NetEmissionsBarGraph />
-          </div>
-        </div>
-      </div>
+              <div className="lg:col-span-5 col-span-1 flex flex-col gap-2">
+                <div ref={topRightRef} className="rounded-lg p-2">
+                  <TopEmissionsFactors />
+                </div>
+                <div ref={bottomRightRef} className="rounded-lg p-2">
+                  <NetEmissionsBarGraph />
+                </div>
+              </div>
+            </div>
 
-      {/* Bottom section with responsive margin */}
-      <div className="mt-12 sm:mt-10 lg:mt-6 rounded-lg p-2">
-        <ContactEmissionsTreeMap />
+            <div className="mt-12 sm:mt-10 lg:mt-6 rounded-lg p-2">
+              <ContactEmissionsTreeMap />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -129,7 +143,9 @@ const DashboardContent: React.FC = () => {
 export default function DashboardPage() {
   return (
     <DateRangeProvider>
-      <DashboardContent />
+      <div className="flex flex-col min-h-[calc(100vh-6rem)]">
+        <DashboardContent />
+      </div>
     </DateRangeProvider>
   );
 }

@@ -102,7 +102,7 @@ export function LineItemTableActions({ table }: LineItemTableActionsProps) {
           <Input
             type="number"
             className="bg-white max-w-48"
-            value={carbon ?? "0"}
+            value={Number(carbon) ?? "0"}
             onChange={(e) => setCarbon(parseFloat(e.target.value))}
             placeholder="Carbon offset (kg)"
             min="0"

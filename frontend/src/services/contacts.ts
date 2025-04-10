@@ -1,3 +1,4 @@
+import { ContactFormData } from "@/components/contacts/EditContactForm";
 import {
   Contact,
   CreateContactRequest,
@@ -53,5 +54,19 @@ export async function fetchContacts(
   } catch (error) {
     console.error("Error fetching contacts", error);
     return {} as GetContactsResponse;
+  }
+}
+
+export async function updateContact(
+  contactId: string,
+  data: ContactFormData
+): Promise<Contact> {
+  try {
+    const response = await apiClient.patch(`/contact/${contactId}`, data);
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching contacts", error);
+    return {} as Contact;
   }
 }

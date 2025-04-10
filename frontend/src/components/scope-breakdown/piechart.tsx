@@ -13,8 +13,6 @@ const ScopeChart: React.FC<{
 }> = ({ chartData }) => {
   const totalEmissions = chartData.reduce((acc, cur) => acc + cur.value, 0);
 
-  console.log("Chart Data: ", chartData);
-
   return (
     <PieChart width={300} height={300}>
       <defs>
@@ -29,12 +27,12 @@ const ScopeChart: React.FC<{
         data={chartData}
         dataKey="value"
         nameKey="name"
-        innerRadius={90} // Creates donut effect
+        innerRadius={95} // Creates donut effect
         outerRadius={120}
-        paddingAngle={3}
+        paddingAngle={2}
         stroke="#fff"
         strokeWidth={2}
-        cornerRadius={36}
+        cornerRadius={6}
         labelLine={false}
       >
         {chartData.map((_, index) => (

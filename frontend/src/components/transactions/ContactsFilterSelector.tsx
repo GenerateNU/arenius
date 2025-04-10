@@ -79,7 +79,7 @@ export default function ContactFilterSelector({
           <ChevronDown className="ml-2" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="max-h-96 overflow-y-auto">
+      <DropdownMenuContent>
         <div className="px-2 py-1 bg-white z-10 flex space-x-2 items-center border-b">
           <Search />
           <Input
@@ -92,21 +92,23 @@ export default function ContactFilterSelector({
           />
         </div>
 
-        {filteredContacts && filteredContacts.length > 0 ? (
-          filteredContacts.map((c) => (
-            <DropdownMenuItem
-              key={c.id}
-              onSelect={(e) => {
-                e.preventDefault();
-                setLocalContact(c);
-              }}
-            >
-              {c.name}
-            </DropdownMenuItem>
-          ))
-        ) : (
-          <DropdownMenuItem disabled>No contacts available</DropdownMenuItem>
-        )}
+        <div className="max-h-60 overflow-y-auto">
+          {filteredContacts && filteredContacts.length > 0 ? (
+            filteredContacts.map((c) => (
+              <DropdownMenuItem
+                key={c.id}
+                onSelect={(e) => {
+                  e.preventDefault();
+                  setLocalContact(c);
+                }}
+              >
+                {c.name}
+              </DropdownMenuItem>
+            ))
+          ) : (
+            <DropdownMenuItem disabled>No contacts available</DropdownMenuItem>
+          )}
+        </div>
         <div className="flex justify-between">
           <Button
             onClick={handleClear}

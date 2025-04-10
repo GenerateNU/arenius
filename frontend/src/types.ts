@@ -120,6 +120,8 @@ export type Contact = {
   phone: string;
   city: string;
   state: string;
+  client_overview?: string;
+  notes?: string;
   xero_contact_id?: string;
   company_id: string;
   created_at: Date;
@@ -161,8 +163,7 @@ export type ContactPageFormData = {
   phone: string;
   city: string;
   state: string;
-}
-
+};
 
 export type ContactTreeEmissions = {
   contact_emissions: ContactEmissions;

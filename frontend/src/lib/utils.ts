@@ -58,11 +58,11 @@ export const textConstants = {
   },
   carbonOffset: {
     title: "CO2 Emissions",
-    body: "The actual amount of Co2e emissions produced by a particular transaction, measured in kilograms."
+    body: "The actual amount of CO2e emissions produced by a particular transaction, measured in kilograms."
   },
   emissionsFactor: {
     title: "Emissions Factor",
-    body: "The category of the emission which correlates with a particular conversion calculation that helps turn a financial transaction ($$) into an amount of carbon pollution (Co2e kg)."
+    body: "The category of the emission which correlates with a particular conversion calculation that helps turn a financial transaction ($$) into an amount of carbon pollution (CO2e kg)."
   },
   contact: {
     title: "Contact",

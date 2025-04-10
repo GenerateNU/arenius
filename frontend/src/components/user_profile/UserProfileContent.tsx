@@ -1,16 +1,18 @@
 "use client";
 
+import { useRef } from "react";
+import Image from "next/image";
+
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Control, useForm } from "react-hook-form";
+import { Mail, MapPin } from "lucide-react";
+import { toast } from "sonner";
+
 import { useAuth } from "@/context/AuthContext";
+import { useProfilePhotoUpload } from "@/hooks/useProfilePhotoUpload";
 import apiClient from "@/services/apiClient";
 import { updateUserProfile } from "@/services/user";
-import { UpdateUserProfileRequest, User } from "@/types";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { createClient } from '@supabase/supabase-js';
-import { Mail, MapPin } from "lucide-react";
-import Image from "next/image";
-import { useRef, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import DeleteAccountButton from "../auth/deleteAccount";
 import { Button } from "../ui/button";
 import {
@@ -23,24 +25,9 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { UserProfilePicture } from "./ProfilePicture";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-// Add error handling to prevent build failures
-if (!supabaseUrl) {
-  // During static build, provide a fallback for prerendering
-  if (process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
-    console.warn('Supabase URL not found during build. Using placeholder for static generation.');
-  } else {
-    console.error('Supabase URL is required. Please set NEXT_PUBLIC_SUPABASE_URL environment variable.');
-  }
-}
-
-const supabase = createClient(
-  supabaseUrl || 'https://placeholder-for-static-build.supabase.co',
-  supabaseAnonKey || 'placeholder-key-for-static-build'
-);
+import LoadingSpinner from "../ui/loading-spinner";
+import CustomAlert from "../ui/CustomAlert";
+import { UpdateUserProfileRequest } from "@/types";
 
 const formSchema = z.object({
   first_name: z.string(),
@@ -49,19 +36,28 @@ const formSchema = z.object({
   state: z.string(),
 });
 
-export default function UserProfileContent() {
+const formFields = [
+  { name: "first_name" as const, label: "First Name" },
+  { name: "last_name" as const, label: "Last Name" },
+  { name: "city" as const, label: "City" },
+  { name: "state" as const, label: "State" },
+];
 
-  const [message, setMessage] = useState<string | null>(null);
+export default function UserProfileContent() {
   const { user, setUser, userId } = useAuth();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const { uploadPhoto, loading, error, setError } = useProfilePhotoUpload(
+    user,
+    setUser
+  );
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      first_name: user?.first_name ?? "",
-      last_name: user?.last_name ?? "",
-      city: user?.city ?? "",
-      state: user?.state ?? "",
+    values: {
+      first_name: user?.first_name || "",
+      last_name: user?.last_name || "",
+      city: user?.city || "",
+      state: user?.state || "",
     },
   });
 
@@ -71,133 +67,101 @@ export default function UserProfileContent() {
 
   const handleEditPasswordClick = async () => {
     try {
-      await apiClient.post('/auth/forgot-password', { email: user?.email });
-      setMessage("Password reset email sent! Please check your inbox.");
+      await apiClient.post("/auth/forgot-password", { email: user?.email });
+      toast("Password reset email sent! Please check your inbox.");
     } catch (error) {
-      setMessage("Failed to send reset email. Please try again.");
+      setError("Failed to send reset email. Please try again.");
       console.error(error);
     }
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-
     if (!userId) {
       console.error("UserID is null.");
       return;
     }
 
-    const getFallbackValue = (
-      value: string | undefined | null,
-      fallback: string | undefined | null
-    ): string | null => {
-      return value && value.trim() !== "" ? value : fallback ?? null;
-    };
-
     const req: UpdateUserProfileRequest = {
-      first_name: getFallbackValue(values.first_name, user?.first_name),
-      last_name: getFallbackValue(values.last_name, user?.last_name),
-      city: getFallbackValue(values.city, user?.city),
-      state: getFallbackValue(values.state, user?.state),
+      first_name: values.first_name,
+      last_name: values.last_name,
+      city: values.city,
+      state: values.state,
     };
 
     try {
       const response = await updateUserProfile(userId, req);
       if (response) {
         setUser(response);
+        toast("Profile updated successfully!");
       }
     } catch (error) {
       console.error("Error updating user profile:", error);
+      toast.error("Error updating user profile: " + error);
     }
-  
   }
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-  
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-
     const file = e.target.files?.[0];
-  
-    if (!file) {
-      return;
+    if (file) {
+      await uploadPhoto(file);
     }
-  
-    try {
-      const { data, error } = await supabase.storage
-        .from('profile-photos') // The bucket name in Supabase
-        .upload(`profile-photo-${Date.now()}`, file); // Use `file` instead of `imageFile`
-  
-      if (error) {
-        console.error('Supabase upload error:', error);
-        throw error;
-      }
-    
-      const publicUrl = supabase
-        .storage
-        .from('profile-photos')
-        .getPublicUrl(data.path).data.publicUrl;
-  
-      await apiClient.patch(`/user/${userId}`, {
-        photo_url: publicUrl,
-      });
-  
-      const updatedUser: User = {
-        ...user,
-        photo_url: publicUrl,
-      };
-      setUser(updatedUser);
-      console.log("we are here and why are we redirecting")
-  
-    } catch (error: unknown) {
-      console.error('Error during upload:', error);
-    }
-
   };
 
   return (
-    <div className="sm:p-20 w-4/5 mx-auto flex-1">
-      {message && <div className={styles.message}>{message}</div>}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className={styles.container}>
+      {error && (
+        <CustomAlert
+          variant="destructive"
+          title="Error uploading photo"
+          description="Please try re-uploading."
+          onClose={() => setError("")}
+        />
+      )}
+
+      <div className={styles.profileCard.wrapper}>
         <div className="flex items-start">
-          <div className="relative mr-6">
-            <UserProfilePicture photoUrl={user?.photo_url} size={80}/>
-            <button
-              type="button"
+          <div
+            className={styles.profileCard.photoSection}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {loading && (
+              <div className={styles.profileCard.loadingOverlay}>
+                <LoadingSpinner size={30} className="opacity-80" />
+              </div>
+            )}
+            <UserProfilePicture photoUrl={user?.photo_url} size={80} />
+            <Button
               title="Edit Photo"
-              className="w-6 h-6 absolute bottom-0 right-0 bg-white rounded-full shadow-md border border-gray-300 flex items-center justify-center"
-              onClick={handleUploadClick}
+              className={styles.profileCard.editButton}
             >
-              <Image
-                src="/edit.svg"
-                alt="Edit"
-                width={10}
-                height={10}
-              />
-            </button>
+              <Image src="/edit.svg" alt="Edit" width={10} height={10} />
+            </Button>
 
             <input
               type="file"
               ref={fileInputRef}
               onChange={handleFileChange}
               accept="image/*"
-              style={{ display: "none" }}
+              style={styles.profileCard.hiddenInput}
             />
           </div>
 
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold mb-4">
+          <div className={styles.userInfo.container}>
+            <h2 className={styles.userInfo.name}>
               {user.first_name} {user.last_name}
             </h2>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-              <div className="flex items-center gap-2 text-gray-600">
-                <MapPin className="h-4 w-4 text-gray-400" />
-                <span>
-                  {user.city}, {user.state}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-600">
-                <Mail className="h-4 w-4 text-gray-400" />
+            <div className={styles.userInfo.detailsGrid}>
+              {(user.city || user.state) && (
+                <div className={styles.userInfo.detailItem}>
+                  <MapPin className={styles.userInfo.icon} />
+                  <span>
+                    {user.city}
+                    {user.city && user.state && ", "} {user.state}
+                  </span>
+                </div>
+              )}
+              <div className={styles.userInfo.detailItem}>
+                <Mail className={styles.userInfo.icon} />
                 <span>{user.email}</span>
               </div>
             </div>
@@ -208,93 +172,36 @@ export default function UserProfileContent() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="py-4 flex space-x-8"
+          className={styles.form.container}
         >
-          <div className="w-1/4">
-            <h2 className="text-xl font-semibold mb-4">General</h2>
-            <div className="flex flex-col space-y-4">
+          <div className={styles.form.sidebar.wrapper}>
+            <h2 className={styles.form.sidebar.heading}>General</h2>
+            <div className={styles.form.sidebar.linksList}>
               <span
-                className="text-gray-800 font-semibold cursor-pointer"
+                className={styles.form.sidebar.link}
                 onClick={handleEditPasswordClick}
               >
                 Edit Password
               </span>
-              <span className="text-gray-800 font-semibold cursor-pointer">
-                Notifications
-              </span>
-              <span className="text-gray-800 font-semibold cursor-pointer">
-                Billing
-              </span>
-              <hr className="border-t border-gray-300 my-4" />
+              <span className={styles.form.sidebar.link}>Notifications</span>
+              <span className={styles.form.sidebar.link}>Billing</span>
+              <hr className={styles.form.sidebar.divider} />
               <DeleteAccountButton />
             </div>
           </div>
 
-          <div className="w-2/3 flex flex-col space-y-4">
-            <FormField
-              control={form.control}
-              name="first_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>First Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={user?.first_name ?? "First Name"}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <div className={styles.form.main.wrapper}>
+            {formFields.map((field) => (
+              <ProfileFormField
+                key={field.name}
+                control={form.control}
+                name={field.name}
+                label={field.label}
+              />
+            ))}
 
-            <FormField
-              control={form.control}
-              name="last_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Last Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={user?.last_name ?? "Last Name"}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="city"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>City</FormLabel>
-                  <FormControl>
-                    <Input placeholder={user?.city ?? "City"} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="state"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>State</FormLabel>
-                  <FormControl>
-                    <Input placeholder={user?.state ?? "State"} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-between items-center mt-4">
-              <Button type="submit" className="w-[150px]">
+            <div className={styles.form.main.buttonContainer}>
+              <Button type="submit" className={styles.form.main.submitButton}>
                 Save Changes
               </Button>
             </div>
@@ -305,6 +212,70 @@ export default function UserProfileContent() {
   );
 }
 
+interface ProfileFormFieldProps {
+  control: Control<z.infer<typeof formSchema>>;
+  name: "first_name" | "last_name" | "city" | "state";
+  label: string;
+}
+
+export function ProfileFormField({
+  control,
+  name,
+  label,
+}: ProfileFormFieldProps) {
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>{label}</FormLabel>
+          <FormControl>
+            <Input
+              {...field}
+              value={field.value || ""}
+              onChange={(e) => field.onChange(e.target.value || "")}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
 const styles = {
+  container: "sm:px-20 py-6 w-4/5 mx-auto flex-1 space-y-4",
   message: "mt-4 text-center text-green-500",
+  profileCard: {
+    wrapper: "bg-white rounded-lg shadow-sm p-6",
+    photoSection: "relative mr-6 cursor-pointer",
+    loadingOverlay:
+      "absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10 rounded-full",
+    editButton:
+      "w-6 h-6 absolute bottom-0 right-0 bg-white rounded-full shadow-md border border-gray-300 flex items-center justify-center z-20",
+    hiddenInput: { display: "none" },
+  },
+  userInfo: {
+    container: "flex-1",
+    name: "text-2xl font-bold mb-4",
+    detailsGrid: "grid grid-cols-1 gap-3 md:grid-cols-3",
+    detailItem: "flex items-center gap-2 text-gray-600",
+    icon: "h-4 w-4 text-gray-400",
+  },
+  form: {
+    container: "py-4 flex space-x-8",
+    sidebar: {
+      wrapper: "w-1/4",
+      heading: "text-xl font-semibold mb-4",
+      linksList: "flex flex-col space-y-4",
+      link: "text-gray-800 font-semibold cursor-pointer",
+      divider: "border-t border-gray-300 my-4",
+    },
+    main: {
+      wrapper: "w-2/3 flex flex-col space-y-4",
+      buttonContainer: "flex justify-between items-center mt-4",
+      submitButton: "w-[150px]",
+    },
+  },
 };

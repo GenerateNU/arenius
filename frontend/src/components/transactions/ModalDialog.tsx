@@ -1,12 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+
 import { reconcile } from "@/services/lineItems";
 import {
   EmissionsFactor,
@@ -14,14 +10,19 @@ import {
   ReconcileRequest,
   SimpleContact,
 } from "@/types";
-import React, { useState } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui/select";
-import EmissionsFactorSelector from "./CategorySelector";
 import { ContactProvider } from "@/context/ContactContext";
+import EmissionsFactorSelector from "./CategorySelector";
 import ContactsSelector from "./ContactsSelector";
-import { useRouter } from "next/navigation";
-import { Input } from "../ui/input";
 import LoadingSpinner from "../ui/loading-spinner";
+import { Input } from "../ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui/select";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface ModalDialogProps {
   selectedRowData: LineItem;
@@ -63,7 +64,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
 
   async function reconcileItems() {
     setIsReconciling(true);
-    
+
     try {
       const request: ReconcileRequest = {
         lineItemId: selectedRowData.id,
@@ -121,7 +122,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
             </p>
           </div>
           <div className="space-y-4 w-full">
-            {type === "reconciled" && (
+            {type != "offsets" && (
               <>
                 <div className="space-y-2">
                   <p className="text-md font-small text-gray-500">
@@ -169,7 +170,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
                 <Input
                   type="number"
                   className="bg-white"
-                  value={carbon ?? "0"}
+                  value={Number(carbon) ?? "0"}
                   onChange={(e) => setCarbon(parseFloat(e.target.value))}
                   placeholder="10 kg"
                   min="0"
@@ -178,14 +179,18 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
             )}
 
             <div className="mt-4">
-              <Button 
-                onClick={reconcileItems} 
-                className="w-full" 
+              <Button
+                onClick={reconcileItems}
+                className="w-full"
                 disabled={isReconciling}
               >
                 {isReconciling ? (
                   <div className="flex items-center justify-center">
-                    <LoadingSpinner size={10} className="mr-2" color="#FFFFFF"  />
+                    <LoadingSpinner
+                      size={10}
+                      className="mr-2"
+                      color="#FFFFFF"
+                    />
                     <span>Reconciling...</span>
                   </div>
                 ) : (
