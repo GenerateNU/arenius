@@ -44,7 +44,7 @@ const XeroSSOButton: React.FC<{ onGoBack?: () => void }> = ({ onGoBack }) => {
       <span
         data-xero-sso
         data-href={process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/xero"}
-        data-label="Re Auth with Xero" 
+        data-label="Re Auth Xero" 
       />
     )}
     </div>
