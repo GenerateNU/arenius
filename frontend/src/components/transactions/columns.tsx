@@ -55,10 +55,12 @@ const scopeColumn: ColumnDef<LineItem> = {
       />
     );
   },
-  size: 60,
+  size: 80,
   cell: ({ row }) => {
     return (
-      <div className="text-right font-medium pr-4">{row.getValue("scope")}</div>
+      <div className="text-center font-medium pr-4">
+        {row.getValue("scope")}
+      </div>
     );
   },
 };
@@ -147,7 +149,7 @@ const co2Column: ColumnDef<LineItem> = {
 
     return <div className="font-medium">{formatted}</div>;
   },
-  size: 75,
+  size: 100,
 };
 const amountColumn: ColumnDef<LineItem> = {
   accessorKey: "total_amount",
@@ -165,7 +167,7 @@ const amountColumn: ColumnDef<LineItem> = {
 
     return <div className="text-right font-medium pr-4">{formatted}</div>;
   },
-  size: 80,
+  size: 100,
 };
 
 function ModalCell({
@@ -200,7 +202,7 @@ function getModalColumn(type: "offsets" | "reconciled" | "unreconciled") {
   const modalColumn: ColumnDef<LineItem> = {
     id: "actions",
     cell: ({ row }) => <ModalCell row={row} type={type} />,
-    size: 40,
+    size: 60,
   };
   return modalColumn;
 }
@@ -245,9 +247,9 @@ export const recommendationColumns: ColumnDef<LineItem>[] = [
 
 export const offsetColumns: ColumnDef<LineItem>[] = [
   dateColumn,
-  descriptionColumn, // Not on carbon offsets table
-  co2Column, // We have a total_amount_kg field instead, this needs its own column
-  contactColumn, // Not on carbon offsets table (there is a source field though)
-  amountColumn, // Not on carbon offets table
+  descriptionColumn,
+  co2Column,
+  contactColumn,
+  amountColumn,
   getModalColumn("offsets"),
 ];
