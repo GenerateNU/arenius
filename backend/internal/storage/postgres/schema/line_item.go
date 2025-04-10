@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -646,7 +647,10 @@ func (r *LineItemRepository) Checkpoint(ctx context.Context, companyId uuid.UUID
 		DELETE FROM public.line_item 
 		WHERE company_id = $1`, companyId)
 	if err != nil {
-		tx.Rollback(ctx)
+		err := tx.Rollback(ctx)
+		if err != nil && err != sql.ErrTxDone {
+			log.Fatalf("rollback failed: %v", err)
+		}
 		return fmt.Errorf("failed to delete line items: %w", err)
 	}
 
@@ -657,6 +661,9 @@ func (r *LineItemRepository) Checkpoint(ctx context.Context, companyId uuid.UUID
 
 	if err != nil {
 		tx.Rollback(ctx)
+		if err != nil && err != sql.ErrTxDone {
+			log.Fatalf("rollback failed: %v", err)
+		}
 		return fmt.Errorf("failed to insert line items: %w", err)
 	}
 
