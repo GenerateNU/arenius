@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoadingSpinner from "../ui/loading-spinner";
 import Link from "next/link";
 import EditContactModal from "./EditContactModal";
+import { formatNumber } from "@/lib/utils";
 
 interface ContactSummary {
   totalSpent: number;
@@ -393,7 +394,7 @@ export default function ContactDetailsContent() {
               <div className="p-4 flex justify-between items-center">
                 <h3 className="font-medium">Reconciled Emissions</h3>
                 <p className="font-bold">
-                  {summary.totalEmissions.toFixed(0)} Kg CO<sub>2</sub>
+                  {formatNumber(summary.totalEmissions)} Kg CO<sub>2</sub>
                 </p>
               </div>
               <div className="p-4 flex justify-between items-center">
