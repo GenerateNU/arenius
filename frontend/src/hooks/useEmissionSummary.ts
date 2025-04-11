@@ -19,6 +19,7 @@ export default function useEmissionSummary() {
 
     try {
       setIsSummaryLoading(true);
+      console.log("user: ", user);
       let req = { company_id: user.company_id } as GetEmissionsRequest;
       if (dateRange?.from) {
         req = { ...req, start_date: dateRange?.from };
