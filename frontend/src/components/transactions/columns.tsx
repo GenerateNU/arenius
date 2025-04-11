@@ -98,9 +98,11 @@ const recommendedEmissionFactorColumn: ColumnDef<LineItem> = {
   cell: ({ row }) => {
     const value = row.getValue("recommended_emission_factor_name") as string;
     return (
-      <span className="px-2 py-1 rounded-md bg-green-100 text-green-900 text-sm font-medium">
-        {value}
-      </span>
+      <div className="max-w-md">
+        <span className="inline box-decoration-clone bg-green-100 text-green-900 text-sm font-medium px-2 py-1 rounded-md leading-relaxed">
+          {value}
+        </span>
+      </div>
     );
   },
 };
