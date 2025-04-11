@@ -424,8 +424,6 @@ func (r *LineItemRepository) GetLineItemsByIds(ctx context.Context, lineItemIDs 
 
 func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, companyId uuid.UUID) ([]models.LineItem, error) {
 
-	fmt.Println("Autoreconciling")
-
 	const unreconciledTransactionsQuery = `
         SELECT id, description
         FROM line_item
@@ -586,9 +584,6 @@ func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, company
 	if err != nil {
 		return nil, fmt.Errorf("parsing updated line_items failed: %w", err)
 	}
-
-	fmt.Println("Autoreconcile complete")
-	fmt.Println("Updated line items:", updatedLineItems)
 
 	return updatedLineItems, nil
 }
