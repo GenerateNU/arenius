@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Search } from "lucide-react";
 
@@ -11,6 +10,8 @@ import ExportContactsButton from "@/components/contacts/ExportContacts";
 import ContactTable from "@/components/contacts/ContactTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import LoadingSpinner from "@/components/ui/loading-spinner";
+import Link from "next/link";
 
 export default function Contacts() {
   return (
@@ -25,6 +26,8 @@ function ContactsContent() {
   const { searchTerm, setSearchTerm, debouncedTerm } = useDebouncedSearch(
     filters.search_term
   );
+  const [isNavigating, setIsNavigating] = useState(false);
+
 
   useEffect(() => {
     setFilters((prevFilters) => ({
@@ -35,6 +38,14 @@ function ContactsContent() {
 
   return (
     <div className={styles.container}>
+      {isNavigating && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="rounded-full p-6">
+            <LoadingSpinner size={60} className="text-white" />
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center mb-4">
         <p className={styles.pageTitle}>Contacts</p>
         <div className="relative w-80 justify-start mb-4 ml-6">
@@ -47,8 +58,16 @@ function ContactsContent() {
           />
         </div>
         <div className="flex space-x-4 mb-4 ml-auto">
-          <Link href="/contacts/new" className="mr-4">
-            <Button size="lg" className="font-semibold space-x-2">
+          <Link 
+            href="/contacts/new" 
+            className="mr-4"
+            onClick={() => setIsNavigating(true)}
+          >
+            <Button 
+              size="lg" 
+              className="font-semibold space-x-2"
+              disabled={isNavigating}
+            >
               <Image
                 src="/plus_1.svg"
                 alt=""
@@ -56,7 +75,7 @@ function ContactsContent() {
                 height={13}
                 className="mr-1"
               />
-              <span>Add Contact</span>
+              <span>{isNavigating ? "Loading..." : "Add Contact"}</span>
             </Button>
           </Link>
           <ExportContactsButton />

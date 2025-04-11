@@ -143,6 +143,9 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       fetchTableData(activePage);
     }
     // ignoring activePage in this dependency array since we don't need to refetch on page change
+    if (activePage === "unreconciled") {
+      fetchTableData("recommended");
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, filters, fetchTableData]);
 

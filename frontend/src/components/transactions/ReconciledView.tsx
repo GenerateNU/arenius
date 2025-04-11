@@ -17,14 +17,15 @@ const ReconciledView = ({ viewMode }: ReconciledViewProps) => {
     return (
       <div>
         <div className="flex items-center">
-          <p className="font-bold text-lg py-4 mr-2">All Reconciled Transactions</p>
-              <Tooltip textContent={textConstants.reconciled}>
-                <HelpCircle className="w-4" />
-              </Tooltip>
-            </div>
-        
+          <p className="font-bold text-lg py-4 mr-2">
+            All Reconciled Transactions
+          </p>
+          <Tooltip textContent={textConstants.reconciled}>
+            <HelpCircle className="w-4" />
+          </Tooltip>
+        </div>
+
         <LineItemTable
-          activePage={"reconciled"}
           activeTableData="reconciled"
           columns={allReconciledColumns}
         />
@@ -54,11 +55,15 @@ const ReconciledView = ({ viewMode }: ReconciledViewProps) => {
 };
 
 const getScopeText = (scope: 1 | 2 | 3) => {
-  switch(scope) {
-    case 1: return textConstants.scope1;
-    case 2: return textConstants.scope2;
-    case 3: return textConstants.scope3;
-    default: return textConstants.scope;
+  switch (scope) {
+    case 1:
+      return textConstants.scope1;
+    case 2:
+      return textConstants.scope2;
+    case 3:
+      return textConstants.scope3;
+    default:
+      return textConstants.scope;
   }
 };
 
@@ -89,7 +94,6 @@ const ScopeTablePreview = ({
         </div>
       )}
       <LineItemTable
-        activePage="reconciled"
         activeTableData={`scope${scope}`}
         columns={scopeReconciledColumns}
         paginated={false}
@@ -115,7 +119,6 @@ const ScopeReconciledView = ({
         </p>
       </div>
       <LineItemTable
-        activePage="reconciled"
         activeTableData={`scope${scope}`}
         columns={scopeReconciledColumns}
       />

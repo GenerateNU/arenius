@@ -3,6 +3,7 @@ package lineItem
 import (
 	"arenius/internal/errs"
 	"arenius/internal/models"
+	"context"
 	"fmt"
 	"time"
 
@@ -57,6 +58,20 @@ func (h *Handler) PostLineItem(c *fiber.Ctx) error {
 			fmt.Println("Error reconciling and estimating:", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to reconcile line item"})
 		}
+	}
+
+	companyId, err := uuid.Parse(req.CompanyID)
+	if err != nil {
+		fmt.Println("Error parsing company ID for auto reconciliation:", err)
+	} else {
+		ctx := c.UserContext()
+
+		go func(ctx context.Context, companyId uuid.UUID) {
+			_, autoReconcileErr := h.lineItemRepository.AutoReconcileLineItems(ctx, companyId)
+			if autoReconcileErr != nil {
+				fmt.Println("Async auto-reconciliation error:", autoReconcileErr)
+			}
+		}(ctx, companyId)
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(createdItem)

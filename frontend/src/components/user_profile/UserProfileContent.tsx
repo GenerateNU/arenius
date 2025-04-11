@@ -66,6 +66,14 @@ export default function UserProfileContent() {
     return <div>Loading...</div>;
   }
 
+  const checkpointAccount = async () => {
+    try {
+      await apiClient.patch(`line-item/checkpoint/${user?.company_id}`);
+    } catch (error) {
+      console.error("Error updating dashboard items", error);
+    }
+  };
+
   const handleEditPasswordClick = async () => {
     try {
       await apiClient.post("/auth/forgot-password", { email: user?.email });
@@ -165,6 +173,13 @@ export default function UserProfileContent() {
                 <Mail className={styles.userInfo.icon} />
                 <span>{user.email}</span>
               </div>
+
+              <div
+                className="p-0 flex justify-start items-start"
+                style={{ padding: "0 !important" }}
+              >
+                <XeroSSOButton />
+              </div>
             </div>
           </div>
         </div>
@@ -185,13 +200,14 @@ export default function UserProfileContent() {
                 Edit Password
               </span>
               <span className={styles.form.sidebar.link}>Notifications</span>
-              <span className={styles.form.sidebar.link}>Billing</span>
+              <span
+                className={styles.form.sidebar.link}
+                onClick={checkpointAccount}
+              >
+                Billing
+              </span>
               <hr className={styles.form.sidebar.divider} />
-              <div className="w-full">
-                <div className="p-0 flex justify-start items-start" style={{ padding: '0 !important' }}>
-                    <XeroSSOButton />
-                </div>
-                </div>
+
               <DeleteAccountButton />
             </div>
           </div>
@@ -239,6 +255,7 @@ export function ProfileFormField({
           <FormControl>
             <Input
               {...field}
+              className="bg-white"
               value={field.value || ""}
               onChange={(e) => field.onChange(e.target.value || "")}
             />
@@ -263,24 +280,24 @@ const styles = {
     hiddenInput: { display: "none" },
   },
   userInfo: {
-    container: "flex-1",
+    container: "w-full flex-1",
     name: "text-2xl font-bold mb-4",
-    detailsGrid: "grid grid-cols-1 gap-3 md:grid-cols-3",
+    detailsGrid: "w-full flex justify-between",
     detailItem: "flex items-center gap-2 text-gray-600",
     icon: "h-4 w-4 text-gray-400",
   },
   form: {
-    container: "py-4 flex space-x-8",
+    container: "p-4 flex space-x-8",
     sidebar: {
       wrapper: "w-1/4",
       heading: "text-xl font-semibold mb-4",
-      linksList: "flex flex-col space-y-4",
-      link: "text-gray-800 font-semibold cursor-pointer",
+      linksList: "flex flex-col space-y-2",
+      link: "text-[#878787] font-semibold cursor-pointer",
       divider: "border-t border-gray-300 my-4",
     },
     main: {
-      wrapper: "w-2/3 flex flex-col space-y-4",
-      buttonContainer: "flex justify-between items-center mt-4",
+      wrapper: "w-3/4 flex flex-col space-y-4",
+      buttonContainer: "flex justify-end items-center mt-4",
       submitButton: "w-[150px]",
     },
   },

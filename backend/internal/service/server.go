@@ -135,6 +135,8 @@ func SetupApp(config config.Config, repo *storage.Repository, climatiqClient *cl
 		r.Patch("/handle-recommendation/:id", lineItemHandler.HandleRecommendation)
 		r.Patch("/offset/:id", lineItemHandler.UpdateLineItemOffset)
 
+		r.Patch("/checkpoint/:id", lineItemHandler.Checkpoint)
+
 		// Parameter routes
 		r.Patch("/:id", lineItemHandler.ReconcileLineItem)
 

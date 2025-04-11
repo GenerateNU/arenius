@@ -24,8 +24,8 @@ export function formatISOString(date: string) {
   return `${month}/${day}`;
 }
 
-export function formatNumber(number?: number) {
-  if (!number) return "";
+export function formatNumber(number?: number, appendString: string = "") {
+  if (!number) return appendString;
   return Number(number?.toFixed()).toLocaleString();
 }
 

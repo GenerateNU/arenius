@@ -1,104 +1,56 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ColumnHeader } from "../ui/columnHeader";
 import { LineItem } from "@/types";
+import { formatNumber } from "@/lib/utils";
 
 const dateColumn: ColumnDef<LineItem> = {
   accessorKey: "date",
-  header: ({ column }) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      className=""
-      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-    >
-      Date
-      <ArrowUpDown className="ml-1 h-4 w-4" />
-    </Button>
-  ),
+  header: ({ column }) => {
+    return <ColumnHeader name="Date" column={column} />;
+  },
   cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
 };
 
 const descriptionColumn: ColumnDef<LineItem> = {
   accessorKey: "description",
-  header: ({ column }) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      className=""
-      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-    >
-      Description
-      <ArrowUpDown className="ml-1 h-4 w-4" />
-    </Button>
-  ),
+  header: ({ column }) => {
+    return <ColumnHeader name="Description" column={column} />;
+  },
 };
 
 const emissionFactorColumn: ColumnDef<LineItem> = {
   accessorKey: "emission_factor_name",
-  header: ({ column }) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      className=""
-      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-    >
-      Emissions Factor
-      <ArrowUpDown className="ml-1 h-4 w-4" />
-    </Button>
-  ),
+  header: ({ column }) => {
+    return <ColumnHeader name="Emissions Factor" column={column} />;
+  },
 };
 
 const scopeColumn: ColumnDef<LineItem> = {
   accessorKey: "scope",
-  header: ({ column }) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      className=""
-      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-    >
-      Scope
-      <ArrowUpDown className="ml-1 h-4 w-4" />
-    </Button>
-  ),
+  header: ({ column }) => {
+    return <ColumnHeader name="Scope" column={column} />;
+  },
 };
 
 const co2Column: ColumnDef<LineItem> = {
   accessorKey: "co2",
-  header: ({ column }) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      className=""
-      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-    >
-      <p>
-        CO<sub>2</sub>e
-      </p>
-      <ArrowUpDown className="ml-1 h-4 w-4" />
-    </Button>
-  ),
-  cell: ({ getValue }) => {
-    const value = getValue();
-    return value !== undefined && value !== null ? `${value} Kg` : "";
+  header: ({ column }) => {
+    return <ColumnHeader name="CO₂e" column={column} />;
+  },
+  cell: ({ row }) => {
+    const value = row.getValue("co2") as number;
+    return value ? `${formatNumber(value)} kg` : "";
   },
 };
 
 const totalAmountColumn: ColumnDef<LineItem> = {
   accessorKey: "total_amount",
-  header: ({ column }) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      className=""
-      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-    >
-      Amount
-      <ArrowUpDown className="ml-1 h-4 w-4" />
-    </Button>
-  ),
-  cell: ({ getValue }) => `${(getValue() as number).toFixed(2)}`,
+  header: ({ column }) => {
+    return (
+      <ColumnHeader name="Amount" column={column} className="text-right" />
+    );
+  },
+  cell: ({ row }) => `$${row.original.total_amount.toFixed(2)}`,
 };
 
 // Reconciled transaction columns (scope 1-3)

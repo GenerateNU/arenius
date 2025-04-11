@@ -27,7 +27,6 @@ import {
 import { LineItem } from "@/types";
 
 export type LineItemTableProps = {
-  activePage: "reconciled" | "unreconciled" | "offsets";
   activeTableData:
     | "reconciled"
     | "scope1"
@@ -43,7 +42,6 @@ export type LineItemTableProps = {
 
 export default function LineItemTable({
   columns,
-  activePage,
   activeTableData,
   paginated = true,
   tableLimit,
@@ -198,7 +196,7 @@ export default function LineItemTable({
         <DataTablePagination
           page={table.getState().pagination.pageIndex}
           pageLimit={table.getState().pagination.pageSize}
-          total_count={tableData[activePage].length}
+          total_count={rows.length}
           setPage={(newPage) => table.setPageIndex(newPage)}
           setPageLimit={(newLimit) => table.setPageSize(newLimit)}
         />
