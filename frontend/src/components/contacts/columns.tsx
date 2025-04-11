@@ -95,8 +95,8 @@ export const columns = (router: any): ColumnDef<Contact>[] => [
       const email = String(row.getValue("email"));
       if (email !== "") {
         return (
-          <div className="font-medium">
-            <span>{email}</span>
+          <div className="flex font-medium">
+            <p className="truncate">{email}</p>
             <button
               onClick={() => handleCopyClick(email)}
               className="ml-1"

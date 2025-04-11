@@ -50,7 +50,11 @@ const totalAmountColumn: ColumnDef<LineItem> = {
       <ColumnHeader name="Amount" column={column} className="text-right" />
     );
   },
-  cell: ({ row }) => `$${row.original.total_amount.toFixed(2)}`,
+  cell: ({ row }) => (
+    <p className="text-right px-2">{`$${row.original.total_amount.toFixed(
+      2
+    )}`}</p>
+  ),
 };
 
 // Reconciled transaction columns (scope 1-3)

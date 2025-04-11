@@ -75,20 +75,26 @@ function BarGradient(props: BarRectangleItem) {
 }
 
 export default function NetEmissionsBarGraph() {
-  const { summary } = useEmissionSummary();
+  const { summary, isSummaryLoading } = useEmissionSummary();
   const { formattedDateRange } = useDateRange();
 
-  if (!summary) return null;
+  // Generate skeleton data for 4 months (Jan to Apr)
+  const skeletonData = [
+    { month: "Jan", offsets: 0, emissions: 0, netEmissions: 0 },
+    { month: "Feb", offsets: 0, emissions: 0, netEmissions: 0 },
+    { month: "Mar", offsets: 0, emissions: 0, netEmissions: 0 },
+    { month: "Apr", offsets: 0, emissions: 0, netEmissions: 0 },
+  ];
 
   const chartData =
-    summary.months?.map((month: MonthSummary) => ({
+    summary?.months?.map((month: MonthSummary) => ({
       month: formatDate(month.month_start, "shortMonth"),
       offsets: month.offsets || 0,
       emissions: month.emissions || 0,
       netEmissions: (month.emissions || 0) - (month.offsets || 0),
     })) ?? [];
 
-  const totalEmissions = formatNumber(summary.net_co2);
+  const totalEmissions = summary ? formatNumber(summary.net_co2) : "0";
 
   return (
     <Card>
@@ -98,50 +104,96 @@ export default function NetEmissionsBarGraph() {
             <CardTitle className="font-header text-4xl mb-2 font-semibold">
               Net Emissions
             </CardTitle>
-            <CardDescription className="text-black text-3xl font-semibold font-[Arimo]">
-              {totalEmissions || 0} kg CO₂e
-            </CardDescription>
+            {isSummaryLoading ? (
+              <div className="animate-pulse">
+                <div className="h-8 w-48 bg-gray-200 rounded"></div>
+              </div>
+            ) : (
+              <CardDescription className="text-black text-3xl font-semibold font-[Arimo]">
+                {totalEmissions} kg CO₂e
+              </CardDescription>
+            )}
           </div>
           <CustomLegend />
         </div>
-        <CardDescription className="font-[Montserrat] py-2">
-          Total emissions (kg) for{" "}
-          <span className="font-bold">{formattedDateRange}</span>
-        </CardDescription>
+        {isSummaryLoading ? (
+          <div className="animate-pulse mt-2">
+            <div className="h-6 w-72 bg-gray-200 rounded"></div>
+          </div>
+        ) : (
+          <CardDescription className="font-[Montserrat] py-2">
+            Total emissions (kg) for{" "}
+            <span className="font-bold">{formattedDateRange}</span>
+          </CardDescription>
+        )}
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <ResponsiveContainer width="100%" height={300}>
-            <ComposedChart data={chartData}>
-              <CartesianGrid vertical={false} strokeDasharray="4 4" />
-              <XAxis
-                dataKey="month"
-                tickLine={true}
-                tickMargin={10}
-                axisLine={false}
-                fontFamily="Montserrat"
-                tickFormatter={(value) => value.slice(0, 3)}
-              />
-              <YAxis fontFamily="Montserrat" />
-              <ChartTooltip content={<CustomTooltip />} />
-              <Bar
-                dataKey="netEmissions"
-                stackId="a"
-                shape={<BarGradient />}
-                activeBar={<BarGradient />}
-                fill="#77B257"
-              />
-              <Bar dataKey="offsets" stackId="a" fill="#C7CFCD" radius={12} />
-              <Line
-                type="monotone"
-                dataKey="netEmissions"
-                stroke="black"
-                strokeWidth={5}
-                dot={{ r: 2 }}
-                legendType="none"
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
+          {isSummaryLoading ? (
+            <div className="w-full h-[250px] flex items-center justify-center bg-gray-50 rounded-lg">
+              <div className="w-full px-6">
+                {/* Skeleton chart */}
+                <div className="w-full h-[250px] relative">
+                  <div className="absolute bottom-8 left-0 right-0 h-[1px] bg-gray-200"></div>
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="absolute h-[1px] bg-gray-200 left-0 right-0"
+                      style={{ bottom: `${8 + i * 60}px` }}
+                    ></div>
+                  ))}
+                  {/* Skeleton bars and line */}
+                  <div className="absolute bottom-8 left-0 right-0 flex justify-between px-10">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="flex flex-col justify-end">
+                        <div className="mt-2 w-16 h-4 bg-gray-200 rounded animate-pulse"></div>
+                        <div
+                          className="w-16 bg-[#5F8D39] rounded-t-lg animate-pulse"
+                          style={{
+                            height: `${Math.random() * 100 + 20}px`,
+                          }}
+                        ></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <ComposedChart
+                data={chartData.length > 0 ? chartData : skeletonData}
+              >
+                <CartesianGrid vertical={false} strokeDasharray="4 4" />
+                <XAxis
+                  dataKey="month"
+                  tickLine={true}
+                  tickMargin={10}
+                  axisLine={false}
+                  fontFamily="Montserrat"
+                  tickFormatter={(value) => value.slice(0, 3)}
+                />
+                <YAxis fontFamily="Montserrat" />
+                <ChartTooltip content={<CustomTooltip />} />
+                <Bar
+                  dataKey="netEmissions"
+                  stackId="a"
+                  shape={<BarGradient />}
+                  activeBar={<BarGradient />}
+                  fill="#77B257"
+                />
+                <Bar dataKey="offsets" stackId="a" fill="#C7CFCD" radius={12} />
+                <Line
+                  type="monotone"
+                  dataKey="netEmissions"
+                  stroke="black"
+                  strokeWidth={5}
+                  dot={{ r: 2 }}
+                  legendType="none"
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          )}
         </ChartContainer>
       </CardContent>
     </Card>

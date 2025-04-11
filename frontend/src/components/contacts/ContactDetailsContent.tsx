@@ -219,21 +219,23 @@ export default function ContactDetailsContent() {
             </div>
 
             <div className="flex-1">
-              <div className="flex flex-col">
-                <div className="flex items-center mb-1">
-                  <h2 className="text-2xl font-bold">{contact.name}</h2>
+              <div className="flex justify-between items-center">
+                <div className="flex flex-col">
+                  <div className="flex items-center mb-1">
+                    <h2 className="text-2xl font-bold">{contact.name}</h2>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Created {formatDate(contact.created_at || "")}
+                  </p>
+                  {contact.updated_at && (
+                    <span className="text-xs text-gray-500 mb-4">
+                      Last Updated: {formatDate(contact.updated_at)}
+                    </span>
+                  )}
                 </div>
-                <p className="text-sm text-gray-500">
-                  Created {formatDate(contact.created_at || "")}
-                </p>
-                {contact.updated_at && (
-                  <span className="text-xs text-gray-500 mb-4">
-                    Last Updated: {formatDate(contact.updated_at)}
-                  </span>
-                )}
+                <EditContactModal contact={contact} setContact={setContact} />
               </div>
-
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <div className="w-full flex justify-between">
                 {(contact.city || contact.state) && (
                   <div className="flex items-center gap-2 text-gray-600">
                     <MapPin className="h-4 w-4 text-gray-400" />
@@ -256,8 +258,6 @@ export default function ContactDetailsContent() {
                 )}
               </div>
             </div>
-
-            <EditContactModal contact={contact} setContact={setContact} />
           </div>
 
           {/* Only show additional information section if either overview or notes exist */}
