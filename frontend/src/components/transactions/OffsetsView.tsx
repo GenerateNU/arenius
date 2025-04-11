@@ -14,11 +14,7 @@ const OffsetsView = () => {
           <HelpCircle className="w-4" />
         </Tooltip>
       </div>
-      <LineItemTable
-        activePage={"offsets"}
-        activeTableData="offsets"
-        columns={offsetColumns}
-      />
+      <LineItemTable activeTableData="offsets" columns={offsetColumns} />
     </div>
   );
 };

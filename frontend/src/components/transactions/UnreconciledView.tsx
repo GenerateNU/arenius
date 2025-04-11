@@ -15,7 +15,6 @@ const UnreconciledView = () => {
         </Tooltip>
       </div>
       <LineItemTable
-        activePage={"unreconciled"}
         activeTableData="recommended"
         columns={recommendationColumns}
         paginated={false}
@@ -28,10 +27,8 @@ const UnreconciledView = () => {
           <HelpCircle className="w-4 mb-3" />
         </Tooltip>
       </div>
-      
 
       <LineItemTable
-        activePage={"unreconciled"}
         activeTableData="unreconciled"
         columns={unreconciledColumns}
       />
