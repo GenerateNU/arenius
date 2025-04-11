@@ -392,15 +392,15 @@ export default function ContactDetailsContent() {
                 <p className="font-bold">{summary.totalOffsetTransactions}</p>
               </div>
               <div className="p-4 flex justify-between items-center">
-                <h3 className="font-medium">Reconciled Emissions</h3>
-                <p className="font-bold">
-                  {formatNumber(summary.totalEmissions)} Kg CO<sub>2</sub>
+                <h3 className="font-medium ">Reconciled Emissions</h3>
+                <p className="font-bold ml-4 whitespace-nowrap">
+                  {formatNumber(summary.totalEmissions)} kg CO<sub>2</sub>e
                 </p>
               </div>
               <div className="p-4 flex justify-between items-center">
                 <h3 className="font-medium">Offset Emissions</h3>
-                <p className="font-bold">
-                  {summary.totalOffset.toFixed(0)} Kg CO<sub>2</sub>
+                <p className="font-bold whitespace-nowrap">
+                  {formatNumber(summary.totalOffset, "0")} kg CO<sub>2</sub>e
                 </p>
               </div>
             </div>

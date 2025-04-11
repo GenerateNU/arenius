@@ -64,8 +64,8 @@ export default function GrossEmissionsBarGraph() {
             <CardTitle className="text-black text-4xl mb-2 font-semibold">
               Gross Emissions
             </CardTitle>
-            <CardDescription className="text-black text-4xl font-semibold font-[Arimo]">
-              {totalEmissions || 0} kg
+            <CardDescription className="text-black text-3xl font-semibold font-[Arimo]">
+              {totalEmissions || 0} kg CO₂e
             </CardDescription>
             <CardDescription className="font-[Montserrat] py-2">
               Total emissions (kg) for{" "}

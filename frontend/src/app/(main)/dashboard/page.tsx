@@ -23,57 +23,68 @@ const DashboardContent: React.FC = () => {
   const bottomLeftRef = useRef<HTMLDivElement>(null);
   const bottomRightRef = useRef<HTMLDivElement>(null);
 
+  const { summary, isSummaryLoading } = useEmissionSummary();
+
   // Function to adjust heights
+
   useEffect(() => {
+    // Function to adjust heights
     const adjustHeights = () => {
+      // Only adjust on desktop layout
+      if (window.innerWidth < 1024) return;
+
       // Reset heights before recalculating
       if (topLeftRef.current) topLeftRef.current.style.height = "auto";
       if (topRightRef.current) topRightRef.current.style.height = "auto";
       if (bottomLeftRef.current) bottomLeftRef.current.style.height = "auto";
       if (bottomRightRef.current) bottomRightRef.current.style.height = "auto";
 
-      // Wait for next frame to ensure heights have been reset
+      // Use requestAnimationFrame to ensure DOM has updated
       requestAnimationFrame(() => {
-        // Adjust only on desktop layout
-        if (window.innerWidth >= 1024) {
-          // lg breakpoint
-          // Adjust top row
-          if (topLeftRef.current && topRightRef.current) {
-            const height = Math.max(
-              topLeftRef.current.scrollHeight,
-              topRightRef.current.scrollHeight
-            );
-            topLeftRef.current.style.height = `${height}px`;
-            topRightRef.current.style.height = `${height}px`;
-          }
+        // Adjust top row
+        if (topLeftRef.current && topRightRef.current) {
+          const height = Math.max(
+            topLeftRef.current.scrollHeight,
+            topRightRef.current.scrollHeight
+          );
+          topLeftRef.current.style.height = `${height}px`;
+          topRightRef.current.style.height = `${height}px`;
+        }
 
-          // Adjust bottom row
-          if (bottomLeftRef.current && bottomRightRef.current) {
-            const height = Math.max(
-              bottomLeftRef.current.scrollHeight,
-              bottomRightRef.current.scrollHeight
-            );
-            bottomLeftRef.current.style.height = `${height}px`;
-            bottomRightRef.current.style.height = `${height}px`;
-          }
+        // Adjust bottom row
+        if (bottomLeftRef.current && bottomRightRef.current) {
+          const height = Math.max(
+            bottomLeftRef.current.scrollHeight,
+            bottomRightRef.current.scrollHeight
+          );
+          bottomLeftRef.current.style.height = `${height}px`;
+          bottomRightRef.current.style.height = `${height}px`;
         }
       });
     };
 
-    // Initial adjustment with a slight delay to ensure components are fully rendered
-    const timer = setTimeout(adjustHeights, 100);
+    // Run adjustment when component mounts with a longer delay
+    const initialTimer = setTimeout(adjustHeights, 700);
 
-    // Adjust on window resize
-    window.addEventListener("resize", adjustHeights);
+    // Run again after data is likely loaded
+    const dataLoadedTimer = setTimeout(adjustHeights, 2000);
+
+    // Adjust on window resize (debounced to prevent excessive calls)
+    let resizeTimer: NodeJS.Timeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(adjustHeights, 100);
+    };
+
+    window.addEventListener("resize", handleResize);
 
     // Cleanup
     return () => {
-      clearTimeout(timer);
-      window.removeEventListener("resize", adjustHeights);
+      clearTimeout(initialTimer);
+      clearTimeout(dataLoadedTimer);
+      window.removeEventListener("resize", handleResize);
     };
-  }, []);
-
-  const { summary, isSummaryLoading } = useEmissionSummary();
+  }, [summary, dateRange]);
 
   return (
     <div className="flex flex-col h-full py-0">

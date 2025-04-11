@@ -35,7 +35,7 @@ const scopeColumn: ColumnDef<LineItem> = {
 const co2Column: ColumnDef<LineItem> = {
   accessorKey: "co2",
   header: ({ column }) => {
-    return <ColumnHeader name="CO2e" column={column} />;
+    return <ColumnHeader name="CO₂e" column={column} />;
   },
   cell: ({ row }) => {
     const value = row.getValue("co2") as number;
