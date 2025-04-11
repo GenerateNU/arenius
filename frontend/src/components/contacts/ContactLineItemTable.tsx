@@ -29,11 +29,13 @@ import {
 interface ContactLineItemTableProps {
   data: LineItem[];
   tableType: "reconciled" | "unreconciled" | "offsets";
+  onReconcile: () => void;
 }
 
 export function ContactLineItemTable({
   data,
   tableType,
+  onReconcile,
 }: ContactLineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [selectedRow, setSelectedRow] = useState<Row<LineItem> | null>(null);
@@ -131,7 +133,10 @@ export function ContactLineItemTable({
           selectedRowData={selectedRow.original}
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
-          onReconcileSuccess={() => setIsDialogOpen(false)}
+          onReconcileSuccess={() => {
+            setIsDialogOpen(false);
+            onReconcile();
+          }}
           type={tableType}
         />
       )}
