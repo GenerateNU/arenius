@@ -65,7 +65,7 @@ export default function TopEmissionsFactors() {
                     index % 2 === 0 ? "bg-green-50" : "bg-white"
                   }`}
                 >
-                  <div className="flex items-start w-3/4">
+                  <div className="flex w-3/4 items-center">
                     <span className="text-2xl font-bold text-gray-800 pr-6 pt-0.5">
                       {factor.rank}
                     </span>
