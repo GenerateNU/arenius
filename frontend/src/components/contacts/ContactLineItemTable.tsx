@@ -20,14 +20,21 @@ import {
 import { ChevronRight } from "lucide-react";
 import { LineItem } from "@/types";
 import { ModalDialog } from "@/components/transactions/ModalDialog";
-import { reconciledColumns, offsetColumns, unreconciledColumns } from "./ContactDetailsColumns";
+import {
+  reconciledColumns,
+  offsetColumns,
+  unreconciledColumns,
+} from "./ContactDetailsColumns";
 
 interface ContactLineItemTableProps {
   data: LineItem[];
   tableType: "reconciled" | "unreconciled" | "offsets";
 }
 
-export function ContactLineItemTable({ data, tableType }: ContactLineItemTableProps) {
+export function ContactLineItemTable({
+  data,
+  tableType,
+}: ContactLineItemTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [selectedRow, setSelectedRow] = useState<Row<LineItem> | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -64,7 +71,7 @@ export function ContactLineItemTable({ data, tableType }: ContactLineItemTablePr
     <>
       <div className="rounded-md border">
         <Table>
-          <TableHeader>
+          <TableHeader className="h-14">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
@@ -77,14 +84,18 @@ export function ContactLineItemTable({ data, tableType }: ContactLineItemTablePr
                         )}
                   </TableHead>
                 ))}
-                <TableHead key="actions"></TableHead>{/* Empty header for action column */}
+                <TableHead key="actions"></TableHead>
+                {/* Empty header for action column */}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} className="cursor-pointer hover:bg-gray-50">
+                <TableRow
+                  key={row.id}
+                  className="cursor-pointer hover:bg-gray-50"
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
