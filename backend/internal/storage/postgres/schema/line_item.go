@@ -423,6 +423,7 @@ func (r *LineItemRepository) GetLineItemsByIds(ctx context.Context, lineItemIDs 
 }
 
 func (r *LineItemRepository) AutoReconcileLineItems(ctx context.Context, companyId uuid.UUID) ([]models.LineItem, error) {
+
 	const unreconciledTransactionsQuery = `
         SELECT id, description
         FROM line_item

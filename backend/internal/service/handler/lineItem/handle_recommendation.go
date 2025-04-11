@@ -14,8 +14,6 @@ func (h *Handler) HandleRecommendation(c *fiber.Ctx) error {
 		return errs.BadRequest("Invalid line item ID")
 	}
 
-	fmt.Println("ID:", id)
-
 	accept := c.Query("accept") == "true"
 
 	lineItem, err := h.lineItemRepository.HandleRecommendation(c.Context(), id, accept)
