@@ -1,8 +1,0 @@
-ALTER TABLE public.user_creds 
-ALTER COLUMN first_name DROP NOT NULL,
-ALTER COLUMN last_name DROP NOT NULL,
-ALTER COLUMN company_id DROP NOT NULL,
-ALTER COLUMN refresh_token DROP NOT NULL,
-ALTER COLUMN tenant_id DROP NOT NULL;
-
-DROP TABLE IF EXISTS public.xero_credentials;
