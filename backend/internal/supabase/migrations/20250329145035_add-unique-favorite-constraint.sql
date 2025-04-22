@@ -1,3 +1,0 @@
-ALTER TABLE company_favorite
-ADD CONSTRAINT unique_company_emission_factor_pair
-UNIQUE (company_id, emissions_factor_id);
